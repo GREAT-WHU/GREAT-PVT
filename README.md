@@ -24,21 +24,21 @@
 GREAT-PVT_<ver>	
   ./bin	                Windows和Linux可执行程序 *
   ./src	                源代码 *
-    ./app	                GREAT-PVT主程序 *
-    ./LibGREAT	            PPP、PPP-AR、RTK解算库 *
-    ./LibGnut	            Gnut库 *
-    ./third-party	        第三方库 *
-  ./sample_data         算例数据 *
-    ./PPPFLT_2023304	    PPP算例 *
-    ./RTKFLT_2020351	    RTK算例 *
-  ./util	              脚本工具 *
-    ./batch_process	      PPP批处理脚本 *
-    ./plot	              画图脚本 *
-    ./poleut1	          地球定向参数生成程序 *
-  ./doc	                文档 *
-    GREAT_PPP.xml	      PPP配置文件模板 *
-    GREAT_RTK.xml	      RTK配置文件模板 *
-    GREAT-PVT_1.0.pdf	  GREAT-PVT用户指南 *
+    ./app                  GREAT-PVT主程序 *
+    ./LibGREAT             PPP、PPP-AR、RTK解算库 *
+    ./LibGnut              Gnut库 *
+    ./third-party          第三方库 *
+  ./sample_data          算例数据 *
+    ./PPPFLT_2023304       PPP算例 *
+    ./RTKFLT_2020351       RTK算例 *
+  ./util                 脚本工具 *
+    ./batch_process        PPP批处理脚本 *
+    ./plot                 画图脚本 *
+    ./poleut1              地球定向参数生成程序 *
+  ./doc                  文档 *
+    GREAT_PPP.xml          PPP配置文件模板 *
+    GREAT_RTK.xml          RTK配置文件模板 *
+    GREAT-PVT_1.0.pdf      GREAT-PVT用户指南 *
 ```
 
 ## 安装和使用
