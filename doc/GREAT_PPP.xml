@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+    <gen>
+        <beg> 2024-02-09 00:00:00 </beg>    <!--> begin time <!-->
+        <end> 2024-02-09 23:59:30 </end>    <!--> end time <!-->
+        <int> 30                  </int>    <!--> sampling interval <!-->
+        <sys> GPS GAL BDS GLO     </sys>    <!--> system ex：GPS GAL GLO QZS BDS SBS <!-->
+        <rec> GODN MBAR SGOC      </rec>    <!--> site (4-char upper) <!-->
+        <est> FLT                 </est>    <!--> Estimator ：FLT <!-->
+    </gen>
+
+    <inputs>
+        <rinexo>                                                                    <!--> rinex obs file <!--> 
+            obs\GODN00USA_R_20240400000_01D_30S_MO.24o
+            obs\MBAR00UGA_R_20240400000_01D_30S_MO.24o
+            obs\SGOC00LKA_R_20240400000_01D_30S_MO.24o
+        </rinexo>
+        <rinexn>    gnss\brdc0400.24p                               </rinexn>       <!--> rinex nav file <!-->
+        <rinexc>    gnss\COD0MGXFIN_20240400000_01D_30S_CLK.CLK     </rinexc>       <!--> precise satellite clock offset file <!-->
+        <sp3>       gnss\COD0MGXFIN_20240400000_01D_05M_ORB.SP3     </sp3>          <!--> precise orbit file <!-->
+        <de>        model\jpleph_de405_great                        </de>           <!--> Planetary ephemeris file <!-->                                              
+        <atx>       model\igs20_2290.atx                            </atx>          <!--> Antenna correction file <!-->                         
+        <blq>       model\oceanload                                 </blq>          <!--> oceanload file <!-->                                  
+        <eop>       model\poleut1                                   </eop>          <!--> ERP file <!-->                                                       
+        <bias>      gnss\CAS0MGXRAP_20240400000_01D_01D_DCB.BSX     </bias>         <!--> DCB file <!-->  
+        <upd>       upd\upd_wl_2024040_GREC upd\upd_nl_2024040_GREC </upd>          <!--> uncalibrated phase delay, for fixing ambiguity <!-->                                  
+    </inputs>
+
+    <outputs append="false" verb="0">                                               <!--> output file：whether append & verb：the larger the value，the more detailed the output log. <!-->
+        <log type="CONSOLE" name="ppp" level="INFO"/>                               <!--> log file <!-->
+        <ppp> .\result\$(rec)-PPP       </ppp>                                      <!--> ppp log file <!-->
+        <flt> .\result\$(rec)-PPP.flt   </flt>                                      <!--> result file <!-->
+    </outputs>
+
+    <gps sigma_C="0.6" sigma_L="0.01">                                              <!--> GPS pseudorange sigma & phase sigma <!-->
+        <sat>                                                                       <!--> satellite prn <!-->
+            G01 G02 G03 G04 G05 G06 G07 G08 G09 G10 
+            G11 G12 G13 G14 G15 G16 G17 G18 G19 G20 
+            G21 G22 G23 G24 G25 G26 G27 G28 G29 G30
+            G31 G32
+        </sat>
+        <band> 1 2 </band>                                                          <!--> the satellite frequency, for example, C5X, is represented as 5 <!-->  
+        <freq> 1 2 </freq>                                                          <!--> satellite frequency, corresponding to band, optional value 1/2/3/4/5 <!-->
+    </gps>
+    <glo sigma_C="0.6" sigma_L="0.01">                                              <!--> GLO pseudorange sigma & phase sigma <!-->
+        <sat>
+            R01 R02 R03 R04 R05 R06 R07 R08 R09 R10 
+            R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 
+            R21 R22 R23 R24 
+        </sat>
+        <band> 1 2 </band>
+        <freq> 1 2 </freq>
+    </glo>
+    <gal sigma_C="0.6" sigma_L="0.01">                                             <!--> GAL pseudorange sigma & phase sigma <!-->
+        <sat>
+            E01 E02 E03 E04 E05 E06 E07 E08 E09 E10 
+            E11 E12 E13 E14 E15 E16 E17 E18 E19 E20
+            E21 E22 E23 E24 E25 E26 E27 E28 E29 E30 
+            E31 E32 E33 E34 E35 E36
+        </sat>
+        <band> 1 5 </band>
+        <freq> 1 2 </freq>
+    </gal>
+    <bds sigma_C="0.6" sigma_L="0.01">                                             <!--> BDS pseudorange sigma & phase sigma <!-->
+        <sat>
+                                C06 C07 C08 C09 C10 
+            C11 C12 C13 C14 C15 C16 C17 C18 C19 C20 
+            C21 C22 C23 C24 C25 C26 C27 C28 C29 C30
+            C31 C32 C33 C34 C35 C36 C37 C38 C39  
+            C41 C42 C43 C44 C45 C46 
+            
+        </sat>
+        <band> 2 6 </band>
+        <freq> 1 2 </freq>
+    </bds>
+    <qzs sigma_C="0.6" sigma_L="0.01">                                             <!--> QZS pseudorange sigma & phase sigma <!-->
+        <sat>
+            J01 J02 J03 J04
+        </sat>
+        <band> 1 2 </band>
+        <freq> 1 2 </freq>
+    </qzs>
+
+
+    <process>
+        <phase>                  true               </phase>                        <!--> use phase obs (true/false) <!-->
+        <tropo>                  true               </tropo>                        <!--> estimate trop param (true/false) <!-->
+        <iono>                   true               </iono>                         <!--> estimate iono param (true/false) <!-->
+        <doppler>                false              </doppler>                      <!--> use doppler obs (true/false) <!-->
+        <tropo_model>            saastamoinen       </tropo_model>                  <!--> trop model <!-->
+        <sig_init_crd>           30                 </sig_init_crd>                 <!--> initial sigma of coordinate <!-->
+        <sig_init_vel>           10                 </sig_init_vel>                 <!--> initial sigma of velocity <!-->
+        <sig_init_ztd>           10                 </sig_init_ztd>                 <!--> initial sigma of ztd <!-->
+        <sig_init_amb>           30                 </sig_init_amb>                 <!--> initial sigma of ambiguity <!-->
+        <sig_init_gal>           10                 </sig_init_gal>                 <!--> initial sigma of Galileo isb/ifb <!-->
+        <sig_init_glo>           10                 </sig_init_glo>                 <!--> initial sigma of GLONASS isb/ifb <!-->
+        <sig_init_bds>           10                 </sig_init_bds>                 <!--> initial sigma of BDS isb/ifb <!-->
+        <sig_init_vion>          100                </sig_init_vion>                <!--> initial sigma of slant iono <!-->
+        <minimum_elev>           7                  </minimum_elev>                 <!--> cut-off satellite elevation(deg) <!-->
+        <obs_combination>        RAW_ALL            </obs_combination>              <!--> obs comb type (IONO_FREE/RAW_ALL) <!-->
+        <max_res_norm>           3                  </max_res_norm>                 <!--> posterior residual threshold <!-->
+        <crd_constr>             est                </crd_constr>                   <!--> coordinate constraint method (EST/FIX/KIN) <!-->
+        <pos_kin>                false              </pos_kin>                      <!--> kinematic mode (true/false) <!-->
+        <min_sat>                5                  </min_sat>                      <!--> min satellite number <!-->
+        <obs_weight>             SINEL              </obs_weight>                   <!--> weigh model of obs <!-->
+        <bds_code_bias_corr>     true               </bds_code_bias_corr>           <!--> whether to correct BDS codeBias (true/false) <!-->
+        <slip_model>             default            </slip_model>                   <!--> cycle slip detect method <!-->
+        <frequency>              2                  </frequency>                    <!--> frequency number <!-->
+    </process>
+
+
+    <!--filter 
+        method_flt   filter method(srcf, kalman) 
+        noise_crd    noise of rec coordinate 
+        noise_vel    noise of rec velocity 
+        noise_clk    noise of rec clk 
+        noise_dclk   noise of rec dclk 
+        noise_vion   noise of iono 
+        rndwk_ztd    random walk of ztd 
+        rndwk_amb    random walk of ambiguity 
+        rndwk_glo    random walk of GLONASS isb/ifb 
+        rndwk_gal    random walk of Galileo isb/ifb 
+        rndwk_bds    random walk of BDS isb/ifb 
+        rndwk_gps    random walk of BDS ifb 
+    /-->
+    <filter
+        method_flt="srcf"  
+        noise_crd="0"  
+        noise_vel="1"  
+        noise_clk = "1000"  
+        noise_dclk="100"  
+        noise_vion="100" 
+        rndwk_ztd="6"  
+        rndwk_amb="0"  
+        rndwk_glo = "20"  
+		rndwk_gal = "20"  
+		rndwk_bds = "20"  
+		rndwk_gps = "20"  
+    />
+
+
+    <ambiguity>
+        <fix_mode>          SEARCH      </fix_mode>                                 <!--> ambiguity fixed mode (NO/SEARCH) <!-->
+        <upd_mode>          UPD         </upd_mode>                                 <!--> upd mode <!-->                                              
+        <part_fix>          YES         </part_fix>                                 <!--> part_fix (YES/NO) <!-->  
+        <part_fix_num>      4           </part_fix_num>                             <!--> threshold in partial ambiguity fixing <!-->
+        <ratio>             2.0         </ratio>                                    <!--> threshold in LAMBDA method <!-->       
+        <set_refsat>        YES         </set_refsat>                               <!--> set_refsat (YES/NO) <!-->
+        <min_common_time>   1           </min_common_time>                          <!--> minimum common time/seconds <!-->                     
+        <extra_widelane_decision maxdev = "0.07" maxsig = "0.10" alpha = "1000" />  <!--> extra widelane setting, alpha&maxdev(Confidence interval parameter), maxsig(maximum sigma) <!-->
+        <widelane_decision maxdev = "0.25" maxsig = "0.12" alpha = "1000" />        <!--> widelane setting, option: alpha&maxdev(Confidence interval parameter), maxsig(maximum sigma) <!-->
+        <narrowlane_decision maxdev = "0.35" maxsig = "0.12" alpha = "1000" />      <!--> narrowlane setting, option: alpha&maxdev(Confidence interval parameter), maxsig(maximum sigma) <!-->
+    </ambiguity>
+
+</config>

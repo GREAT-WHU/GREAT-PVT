@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?> 
+<!DOCTYPE config>
+
+<config>
+ <gen>
+   <beg> "2020-12-16 07:00:00"  </beg>      <!--> begin time <!-->
+   <end> "2020-12-16 08:50:00"  </end>      <!--> end time <!-->
+   <sys > GPS  GAL  BDS         </sys>      <!--> system ex: GAL GLO QZS BDS SBS <!-->   
+   <rec>  SEPT WUDA             </rec>      <!--> site (4-char upper) <!-->
+   <base> WUDA                  </base>     <!--> base site (4-char upper) <!-->
+   <rover> SEPT                 </rover>    <!--> rover site (4-char upper) <!-->
+   <int> 1                      </int>      <!--> sampling interval <!-->
+ </gen>
+ 
+ <receiver> 
+    <rec id="WUDA" X="-2267761.0442"  Y="5009370.8908"  Z="3220970.5961"/>  <!--> base site coordinate <!-->
+ </receiver>
+
+ <inputs>
+   <rinexo> obs\SEPT3510.20O  obs\WUDA3510.20O  </rinexo>   <!--> rinex obs file <!--> 
+   <rinexn> gnss\brdm3510.20p                   </rinexn>   <!--> rinex nav file <!-->
+   <atx>    model\igs20_2290.atx                </atx>      <!--> Antenna correction file <!-->    
+   <blq>    model\oceanload                     </blq>      <!--> oceanload file <!--> 
+   <de>     model\jpleph_de405_great            </de>       <!--> Planetary ephemeris file <!-->   
+   <eop>    model\poleut1                       </eop>      <!--> ERP file <!-->
+ </inputs>
+
+
+ <outputs>
+   <log  type="BASIC"  level="INFO" />  <!--> log file <!-->
+   <ppp> result/$(rec)-RTK      </ppp>  <!--> RTK log file <!-->
+   <flt> result/$(rec)-RTK.flt  </flt>  <!--> result file <!-->
+ </outputs>
+ 
+ <process>
+  <phase>               true            </phase>                <!--> use phase obs (true/false) <!-->
+  <tropo>               false           </tropo>                <!--> estimate trop param (true/false) <!-->
+  <iono>                false           </iono>                 <!--> estimate iono param (true/false) <!-->
+  <doppler>             false           </doppler>              <!--> use doppler obs (true/false) <!-->
+  <tropo_model>         saastamoinen    </tropo_model>          <!--> trop model <!-->
+  <sig_init_crd>        30              </sig_init_crd>         <!--> initial sigma of coordinate <!-->
+  <sig_init_vel>        10              </sig_init_vel>         <!--> initial sigma of velocity <!-->
+  <sig_init_ztd>        10              </sig_init_ztd>         <!--> initial sigma of ztd <!-->
+  <sig_init_amb>        30              </sig_init_amb>         <!--> initial sigma of ambiguity <!-->
+  <sig_init_gal>        10              </sig_init_gal>         <!--> initial sigma of Galileo isb/ifb <!-->
+  <sig_init_glo>        10              </sig_init_glo>         <!--> initial sigma of GLONASS isb/ifb <!-->
+  <sig_init_bds>        10              </sig_init_bds>         <!--> initial sigma of BDS isb/ifb <!-->
+  <sig_init_vion>       100             </sig_init_vion>        <!--> initial sigma of slant iono <!-->
+  <minimum_elev>        7               </minimum_elev>         <!--> cut-off satellite elevation(deg) <!-->
+  <obs_combination>     RAW_MIX         </obs_combination>      <!--> obs comb type <!--> 
+  <max_res_norm>        3               </max_res_norm>         <!--> posterior residual threshold <!-->
+  <pos_kin>             true            </pos_kin>              <!--> kinematic mode (true/false) <!-->
+  <min_sat>             5               </min_sat>              <!--> min satellite number <!-->
+  <obs_weight>          SINEL           </obs_weight>           <!--> weigh model of obs <!-->
+  <basepos>             CFILE           </basepos>              <!--> Base station coordinate acquisition method(CFILE/spp) <!--> 
+  <bds_code_bias_corr>  true            </bds_code_bias_corr>   <!--> whether to correct BDS codeBias (true/false) <!-->
+  <slip_model>          default         </slip_model>           <!--> cycle slip detect method <!--> 
+  <frequency>           2               </frequency>            <!--> frequency number <!-->
+ </process>
+
+
+ <!--filter 
+        method_flt   filter method(srcf, kalman) 
+        noise_crd    noise of rec coordinate 
+        noise_vel    noise of rec velocity  
+        noise_dclk   noise of rec dclk 
+        rndwk_ztd    random walk of ztd 
+        rndwk_amb    time interval of ambiguity reset
+ /-->
+ <filter
+   method_flt="kalman"
+   noise_crd="30"
+   noise_vel="1"
+   noise_dclk="100"
+   rndwk_ztd="6"
+   reset_amb="0"
+ />
+
+    
+ <ambiguity>      
+   <fix_mode> SEARCH </fix_mode>                                                <!--> ambiguity fixed mode (NO/SEARCH) <!-->      
+   <part_fix>  YES  </part_fix>                                                 <!--> part_fix (YES/NO) <!-->     
+   <part_fix_num>  3  </part_fix_num>                                           <!--> threshold in partial ambiguity fixing <!--> 
+   <ratio>  2.5  </ratio>                                                       <!--> threshold in LAMBDA method <!-->     
+   <min_common_time>  0  </min_common_time>                                     <!--> minimum common time/seconds <!-->         
+   <extra_widelane_decision  maxdev = "0.1" maxsig = "0.10" alpha = "1000" />   <!--> extra widelane setting, alpha&maxdev(Confidence interval parameter), maxsig(maximum sigma) <!-->
+   <widelane_decision     maxdev = "0.275" maxsig = "0.10" alpha = "1000" />    <!--> widelane setting, option: alpha&maxdev(Confidence interval parameter), maxsig(maximum sigma) <!-->
+   <narrowlane_decision   maxdev = "0.375" maxsig = "0.10" alpha = "1000" />    <!--> narrowlane setting, option: alpha&maxdev(Confidence interval parameter), maxsig(maximum sigma) <!-->
+  </ambiguity>
+
+ <bds sigma_C="3" sigma_L="0.03" >                                              <!--> BDS pseudorange sigma & phase sigma <!-->
+ <freq> 1 2 </freq>                                                             <!--> the satellite frequency, for example, C5X, is represented as 5 <!-->
+ <band> 2 6 </band>                                                             <!--> satellite frequency, corresponding to band, optional value 1/2/3/4/5 <!-->
+ </bds>
+
+ <gps sigma_C="2" sigma_L="0.02" >
+  <freq> 1 2 </freq>
+  <band> 1 2 </band>
+ </gps>
+ 
+ <gal sigma_C="3" sigma_L="0.03" >
+  <freq> 1 2 </freq>
+  <band> 1 5 </band>
+ </gal>
+ 
+ <glo sigma_C="4" sigma_L="0.04" >
+  <freq> 1 2 </freq>
+  <band> 1 2 </band>
+ </glo>
+ 
+ <qzs sigma_C="0.6" sigma_L="0.01" >
+  <freq> 1 2 </freq>
+  <band> 1 2 </band>
+ </qzs>
+  
+ 
+</config>
+ 
+
