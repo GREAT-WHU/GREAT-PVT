@@ -1,0 +1,17 @@
+# Project configuration files
+/.vscode
+/.vs
+
+# Data files
+/sample_data
+!*.zip
+
+
+# Build files
+/src/build*
+
+# util
+/util/batch_process/*
+!/util/batch_process/batch_process.zip
+/util/plot/*
+!/util/plot/plot.zip
