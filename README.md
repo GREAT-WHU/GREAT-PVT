@@ -62,10 +62,10 @@ Copyright (C) 2006-2014 Arseny Kapoulkine.
 * GREAT-PVT使用Newmat库(http://www.robertnz.net/nm_intro.htm)
 Copyright (C) 2008: R B Davies.
 
-* GREAT-PVT使用spdlog库（https://github.com/gabime/spdlog）
+* GREAT-PVT使用spdlog库(https://github.com/gabime/spdlog)
   Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
 
-* GREAT-PVT使用Eigen库（https://eigen.tuxfamily.org）
+* GREAT-PVT使用Eigen库(https://eigen.tuxfamily.org)
   Copyright (C) 2008-2011 Gael Guennebaud
 
 * 脚本工具使用部分FAST源码(https://github.com/ChangChuntao/FAST)
