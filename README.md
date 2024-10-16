@@ -45,6 +45,13 @@ GREAT-PVT_<ver>
 
 参见GREAT-PVT_1.0.pdf
 
+## 修改记录
+### 版本1.1
+1. 修复了Windows平台中VS软件Debug模式下程序运行崩溃的问题。
+2. 修复了ATX天线文件中PCO、PCV改正数信息缺失导致的程序运行异常。
+3. 修改了GREAT-PVT_1.0.pdf中的描述错误。
+3. 其他代码格式问题的修改。
+
 ## 参与贡献
 
 开发人员：
@@ -62,10 +69,10 @@ Copyright (C) 2006-2014 Arseny Kapoulkine.
 * GREAT-PVT使用Newmat库(http://www.robertnz.net/nm_intro.htm)
 Copyright (C) 2008: R B Davies.
 
-* GREAT-PVT使用spdlog库（https://github.com/gabime/spdlog）
+* GREAT-PVT使用spdlog库(https://github.com/gabime/spdlog)
   Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
 
-* GREAT-PVT使用Eigen库（https://eigen.tuxfamily.org）
+* GREAT-PVT使用Eigen库(https://eigen.tuxfamily.org)
   Copyright (C) 2008-2011 Gael Guennebaud
 
 * 脚本工具使用部分FAST源码(https://github.com/ChangChuntao/FAST)
@@ -75,5 +82,5 @@ Copyright (C) The GNSS Center, Wuhan University & Chinese Academy of Surveying a
 
 GitHub：https://github.com/GREAT-WHU/GREAT-PVT
 
-欢迎加入QQ群（1009827379）参与讨论与交流。
+欢迎加入QQ群(1009827379)参与讨论与交流。
 

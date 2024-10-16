@@ -940,6 +940,18 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
             iter = sdata.erase(iter);
             continue;
         }
+        
+        //except sat without pcv
+        if (!_isBase)
+        {
+            shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(satname);
+            shared_ptr<t_gpcv> sat_pcv = sat_obj->pcv(_epoch);
+            if (!sat_pcv)
+            {
+                iter = sdata.erase(iter);
+                continue;
+            }
+        }
 
         //check each satellite obs and crd
         if (!_check_sat(ssite, &*iter, BB, iobs))
@@ -1975,8 +1987,6 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *da
     string double_freq = "";
     string single_freq = "";
 
-    ostringstream obsqualityInfo; obsqualityInfo.str("");
-    obsqualityInfo << "> " << setw(6) << now.sod() << endl;
     _sat_freqs.clear();
     while (it != _data.end())
     {
@@ -2002,17 +2012,6 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *da
             double_freq += "  " + it->sat();
             _sat_freqs[it->sat()] = "2";
         }
-        obsqualityInfo << it->sat();
-        if (obsP1 == GOBS::X) obsqualityInfo << setw(4) << "0";
-        else obsqualityInfo << setw(4) << "1";
-        if (obsL1 == GOBS::X) obsqualityInfo << setw(4) << "0";
-        else obsqualityInfo << setw(4) << "1";
-        if (obsP2 == GOBS::X) obsqualityInfo << setw(4) << "0";
-        else obsqualityInfo << setw(4) << "1";
-        if (obsL2 == GOBS::X) obsqualityInfo << setw(4) << "0";
-        else obsqualityInfo << setw(4) << "1";
-        obsqualityInfo << setw(10) << setprecision(4) << snrL1
-           << setw(10) << setprecision(4) << snrL2 << endl;
         ++it;
     }
 

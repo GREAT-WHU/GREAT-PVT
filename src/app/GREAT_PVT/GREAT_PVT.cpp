@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     // Construct the gset class and init some values in the class
     t_gcfg_ppp gset;
-    gset.app("G-Nut/PVT", "0.9.0", "$Rev: 2448 $", "(gnss@pecny.cz)", __DATE__, __TIME__);
+    gset.app("GRAET-PVT", "$Ver: 1.1 $", "$Rev:  $", "(https://github.com/GREAT-WHU/GREAT-PVT)", __DATE__, __TIME__);
 
     // Get the arguments from the command line
     gset.arg(argc, argv, true, false);
