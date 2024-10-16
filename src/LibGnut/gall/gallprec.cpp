@@ -646,7 +646,7 @@ namespace gnut
         {
             it = itBeg;
         }
-        else if (distance(itReq, itEnd) < static_cast<int>(_degree_sp3 - limit))
+        else if (distance(itReq, itEnd) <= static_cast<int>(_degree_sp3 - limit))
         {
             it = itEnd;
             for (int i = 0; i <= static_cast<int>(_degree_sp3); i++)
