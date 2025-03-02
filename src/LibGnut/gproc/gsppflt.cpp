@@ -1955,6 +1955,7 @@ namespace gnut
             string grec = it->site();
             string gsat = it->sat();
             GSYS gsys = it->gsys();
+            int freq_num = 0;
             for (const auto& iter : crt_bands)
             {
                 vector<pair<int, double>> coefP;
@@ -1967,8 +1968,14 @@ namespace gnut
                 auto freq = iter.first;
                 if (freq > _frequency)
                     continue; 
+
+                if (obsP.type() == TYPE_C || obsP.type() == TYPE_P)
+                {
+                    freq_num += 1;
+                }
                 // check whether 3 frequencies obs_P exist
-                if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_3)
+                //if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == FREQ_3)
+                if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 3)
                 {
                     if (gsys == GPS)
                     {
@@ -1988,7 +1995,8 @@ namespace gnut
                     }      
                 }
                 // check whether 4 frequencies obs_P exist
-                if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_4)
+                //if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_4)
+                else if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 4)
                 {
                     if (gsys == GAL)
                     {
@@ -2000,7 +2008,8 @@ namespace gnut
                     }
                 }
                 // check whether 5 frequencies obs_P exist
-                if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_5)
+                //if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_5)
+                else if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 5)
                 {
                     if (gsys == GAL)
                     {

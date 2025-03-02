@@ -167,7 +167,7 @@ namespace great
         int _frequency;                    ///< frequency
         OBSCOMBIN _observ;                 ///< type of obsevation
         map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< frequncy of type
-        set<OBSCOMBIN> _single_mix;                     ///< single mix
+        set<OBSCOMBIN> _single_mix;                     ///< TODO
         RECEIVERTYPE _receiverType;                     ///< type of receiver
     };
 

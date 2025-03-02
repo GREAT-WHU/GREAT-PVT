@@ -37,14 +37,14 @@ namespace great
         /** @brief destructor.
         *
         *param[in] l                set spdlog control
-        *param[in] otl                otl
+        *param[in] otl                TODO
         */
         t_gtideIERS(t_gallotl *otl);
 
         /** @brief destructor.
         *
         *param[in] l                set spdlog control
-        *param[in] otl                otl
+        *param[in] otl                TODO
         */
         t_gtideIERS(t_spdlog spdlog, t_gallotl *otl);
 
@@ -83,68 +83,32 @@ namespace great
         /**             [3] /gamit/model/etide.f                         */
         t_gtriple atmospheric_loading(const t_gtime &epoch, const t_gtriple &xyz);
 
-        /**
-        * @brief set opl grid.
-        * @param[in] opl_grid       opl grid
-        */
+
+        /** @brief set opl grid.*/
         void set_opl_grid(t_gallopl *opl_grid);
 
-        /**
-        * @brief load oceanpole.
-        * @param[in] epo       current epoch
-        * @param[in] xRec      receiver crd
-        * @param[in] xp        xp
-        * @param[in] yp        yp
-        * @return dxyz
-        */
+        /** @brief load oceanpole.*/
         t_gtriple load_oceanpole(const t_gtime &epo, const t_gtriple &xRec, const double xp, const double yp);
 
-        /**
-        * @brief set mean pole model.
-        * @param[in] mean_pole_model    modeofmeanpole
-        */
+        /** @brief set mean pole model.*/
         void set_mean_pole_model(modeofmeanpole mean_pole_model);
 
         /** @brief pole tides.*/
         t_gtriple tide_pole();
 
-        /**
-        * @brief pole tides.
-        * @param[in] epo       current epoch
-        * @param[in] xpole     xpole
-        * @param[in] ypole     ypole
-        * @param[in] xyz       xyz
-        * @return dx
-        */
+        /** @brief pole tides.*/
         t_gtriple tide_pole_pod(const t_gtime &epo, double xpole, double ypole, t_gtriple &xyz);
 
-        /**
-        * @brief ocean tide loading.
-        * @param[in] epoch       current epoch
-        * @param[in] site        site
-        * @param[in] xRec        receiver crd
-        * @return xyz
-        */
+        /** @brief ocean tide loading.*/
         t_gtriple load_ocean(const t_gtime &epoch, const string &site, const t_gtriple &xRec) override;
 
         /** @brief atmospheric tide loading.*/
         t_gtriple load_atmosph() override;
 
-        /**
-        * @brief get frequency of tide.
-        * @param[in] site       site
-        * @param[in] xRec       receiver crd
-        * @param[in] gast       gast
-        * @return xyz
-        */
+        /** @brief get frequency of tide.*/
         t_gtriple tide_freq(const string &site, const t_gtriple &xRec, double gast);
 
-        /**
-        * @brief get mean pole.
-        * @param[in] mjd       mjd
-        * @param[in] xpm       xpm
-        * @param[in] ypm       ypm
-        */
+        /** @brief get mean pole.*/
         void getMeanPole(double mjd, double &xpm, double &ypm);
 
     protected:

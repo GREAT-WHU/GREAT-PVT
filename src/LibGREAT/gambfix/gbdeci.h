@@ -30,8 +30,8 @@ namespace great
          * @brief Construct a new t gbdeci object
          * @param[in]  cutdev    current deviation
          * @param[in]  cutsig    current sigma
-         * @param[in]  cutprob   current probability
-         * @param[in]  cutdeci   current decision
+         * @param[in]  cutprob   current prob
+         * @param[in]  cutdeci   current deci
          */
         t_gbdeci(const double &cutdev, const double &cutsig,
                  const double &cutprob, const double &cutdeci);
@@ -40,68 +40,50 @@ namespace great
          */
         virtual ~t_gbdeci(){};
         /**
-         * @brief judge whether ambiguities meet the requirement of fixing
-         * @param[in]  dEst      estimated(real) bias value
-         * @param[in]  dSigma    estimated uncertainty of bias value, scaled by nrms for widelane, unscaled for narrow lane
-         * @param[in]  iIh       control for receiver ambiguity
-         * @param[in]  dCutdev   dd deviation
-         * @param[in]  dCutsig   dd sigma
-         * @param[in]  dProb     dd probability
-         * @param[in]  dDeci     dd decision
+         * @brief TODO
+         * @param[in]  dEst      doc
+         * @param[in]  dSigma    doc
+         * @param[in]  iIh       doc
+         * @return true 
+         * @return false 
+         */
+        bool bdeci(double dEst, double dSigma, int iIh);
+        /**
+         * @brief TODO
+         * @param[in]  dEst      doc
+         * @param[in]  dSigma    doc
+         * @param[in]  iIh       doc
+         * @param[in]  dCutdev   doc
+         * @param[in]  dCutsig   doc
+         * @param[in]  dProb     doc
+         * @param[in]  dDeci     doc
          */
         void bdeci(double dEst, double dSigma, int iIh, double dCutdev, double dCutsig, double &dProb, double &dDeci);
 
     private:
-
+        /**
+         * @brief get erf
+         * @param[in]  dX        dx
+         * @return double 
+         */
+        double _erf(double dX);
         /**
          * @brief get erfc
-         * @param[in]  dX        
+         * @param[in]  dX        dx
          * @return double 
          */
         double _erfc(double dX);
-        /**
-         * @brief get gammp
-         * @param[in]  dA        
-         * @param[in]  dX        
-         * @return double
-         */
         double _gammp(double dA, double dX);
-        /**
-         * @brief get gammq
-         * @param[in]  dA        
-         * @param[in]  dX        
-         * @return double
-         */
         double _gammq(double dA, double dX);
-        /**
-         * @brief get gammln
-         * @param[in]  dX        
-         * @return double
-         */
         double _gammln(double dXx);
-        /**
-         * @brief get erfc
-         * @param[in]  dGammcf   
-         * @param[in]  dA        
-         * @param[in]  dX        
-         * @param[in]  dGln      
-         */
         void _gcf(double &dGammcf, double dA, double dX, double &dGln);
-        /**
-         * @brief get gser
-         * @param[in]  dGamser
-         * @param[in]  dA
-         * @param[in]  dX
-         * @param[in]  dGln
-         * @return double
-         */
         void _gser(double &dGamser, double dA, double dX, double &dGln);
 
     private:
-        double _cutdev;  ///< deviation
-        double _cutsig;  ///< sigma
-        double _cutprob; ///< probability
-        double _cutdeci; ///< decision
+        double _cutdev;  ///< TODO
+        double _cutsig;  ///< TODO
+        double _cutprob; ///< TODO
+        double _cutdeci; ///< TODO
     };
 }
 

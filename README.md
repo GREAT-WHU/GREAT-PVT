@@ -1,4 +1,4 @@
-# GREAT-PVT: 武汉大学GREAT团队精密定位导航软件（内测版）
+# GREAT-PVT: 武汉大学GREAT团队精密定位导航软件
 
 ## 概述
 
@@ -8,13 +8,11 @@
 &emsp;&emsp;GREAT-PVT软件主要特点包括：
 1. 支持GPS、GLONASS、Galileo、BDS-2/3系统 
 
-2. 支持多频PPP浮点解与固定解
+2. 支持无电离层组合、非差非组合PPP观测值组合方式
 
-3. 支持无电离层组合、非差非组合PPP观测值组合方式
-
-4. 支持多频率多系统PPP浮点解与固定解
+3. 支持多频率多系统PPP浮点解与固定解
    
-5. 支持双频、单双频混合RTK解算
+4. 支持双频、混合频率RTK解算
    
 
 &emsp;&emsp;此外，软件包还提供批处理脚本和定位结果绘图脚本，便于用户对多天数据进行解算与结果分析。
@@ -29,7 +27,7 @@ GREAT-PVT_<ver>
     ./LibGnut              Gnut库 *
     ./third-party          第三方库 *
   ./sample_data          算例数据 *
-    ./PPPFLT_2023304       PPP算例 *
+    ./PPPFLT_2023305       PPP算例 *
     ./RTKFLT_2020351       RTK算例 *
   ./util                 脚本工具 *
     ./batch_process        PPP批处理脚本 *
@@ -38,7 +36,7 @@ GREAT-PVT_<ver>
   ./doc                  文档 *
     GREAT_PPP.xml          PPP配置文件模板 *
     GREAT_RTK.xml          RTK配置文件模板 *
-    GREAT-PVT_1.0.pdf      GREAT-PVT用户指南 *
+    GREAT-PVT_<ver>.pdf      GREAT-PVT用户指南 *
 ```
 
 ## 安装和使用
@@ -50,6 +48,11 @@ GREAT-PVT_<ver>
 1. 修复了Windows平台中VS软件Debug模式下程序运行崩溃的问题。
 2. 修复了ATX天线文件中PCO、PCV改正数信息缺失导致的程序运行异常。
 3. 修改了GREAT-PVT_1.0.pdf中的描述错误。
+4. 其他代码格式问题的修改。
+
+### 版本1.2
+1. 增加英文版说明文档并完善相关内容。
+2. 更新了算例。
 3. 其他代码格式问题的修改。
 
 ## 参与贡献

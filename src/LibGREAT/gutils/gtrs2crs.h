@@ -270,8 +270,8 @@ namespace great
         t_gtriple _pudata;    ///< pole and ut1 data after interpolation(xpole, ypole and ut1-tai)
         t_gtime _tdt;         ///< dynamic time
         double _arg[5];       ///< fundamental arguements of nutation in radius
-        Matrix _qmat;         ///< qmat
-        double _epsa = 0.0;   ///< epsa
+        Matrix _qmat;         ///< TODO
+        double _epsa = 0.0;   ///< TODO
 
         // out variable
         double _xpole = 0.0; ///< x pole of pole shift

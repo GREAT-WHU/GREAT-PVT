@@ -72,18 +72,12 @@ namespace great
         bool isEwl25Fixed = false; ///< extral frequency25 fixed
         bool isWlFixed = false;    ///< widelane fixed
         bool isNlFixed = false;    ///< narrowlane fixed
-        bool isSngleFreq = false;  ///< exist single frequency satellites or not
-        string site = "default";   ///< site
+        string site = "default";
+        //map<string, int> ipt2ow;
         vector<tuple<string, int, int>> ddSats; ///< sat_name, index in all_pars, index in amb_pars
         t_gtime beg_epo;                        ///< begin time
         t_gtime end_epo;                        ///< end time
         t_gtime end_epo_save;                   ///< save end epoch time
-        int iwl = 0;                            ///< integer wide - and wide lane
-        int inl = 0;                            ///< integer wide - and narrow lane
-        int iewl = 0;                           ///< integer wide - and extral wide lane
-        int iewl24 = 0;                         ///< integer wide - and extral wide lane24
-        int iewl25 = 0;                         ///< integer wide - and extral wide lane25
-        int fix_epoch = 1;                      ///< fixed epochs of dd ambiguity
         double rwl_R1 = 0.0;                    ///< real widelane for glonass
         double rwl_R2 = 0.0;                    ///< real widelane for glonass
         double srwl_R1 = 0.0;                   ///< real widelane sigma for glonass
@@ -101,8 +95,13 @@ namespace great
         double rnl = 0.0;                       ///< real narrowlane and its sigma
         double srnl = 0.0;                      ///< real narrowlane and its sigma
         double rlc = 0.0;                       ///< lc ambiguity and its sigma
-        double srlc = 0.0;                      ///< lc ambiguity and its sigma       
-        double factor = 0.0;                    ///< factor
+        double srlc = 0.0;                      ///< lc ambiguity and its sigma
+        int iwl = 0;                            ///< integer wide - and wide lane
+        int inl = 0;                            ///< integer wide - and narrow lane
+        int iewl = 0;                           ///< integer wide - and extral wide lane
+        int iewl24 = 0;                         ///< integer wide - and extral wide lane24
+        int iewl25 = 0;                         ///< integer wide - and extral wide lane25
+        double factor = 0.0;                    ///< TODO
         double sd_rnl_cor = 0.0;                ///< correction of SD, narrowlane
         double sd_rwl_cor = 0.0;                ///< correction of SD, widelane
         double sd_rewl_cor = 0.0;               ///< correction of SD, extra-widelane
@@ -113,8 +112,9 @@ namespace great
         double sd_r3_cor = 0.0;                 ///< correction of N3
         double sd_r4_cor = 0.0;                 ///< correction of N4
         double sd_r5_cor = 0.0;                 ///< correction of N5
-        double sigcor = 0.0;                    ///< sigma
-        
+        double sigcor = 0.0;                    ///<sigma
+        int fix_epoch = 1;                      /// fixed epochs of dd ambiguity
+        bool isSngleFreq = false;               /// exist single frequency satellites or not
     };
 
     /**
@@ -139,6 +139,8 @@ namespace great
         double bw0 = 0.0;      ///< Widelane ambiguitiy init value
         double bn = 0.0;       ///< narrowlane ambiguity
         double elev = 0.0;     ///< elevation
+        double bwi = 0.0;      ///< TODO
+        double bewi = 0.0;     ///< TODO
     };
 
     /** @brief ambiguity residual. */
