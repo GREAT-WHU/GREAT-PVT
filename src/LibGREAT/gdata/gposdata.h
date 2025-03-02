@@ -44,9 +44,9 @@ namespace gsins
         {
             double t;             ///< time
             Eigen::Vector3d pos;  ///< position
-            Eigen::Vector3d vn;   ///< vn
-            Eigen::Vector3d Rpos; ///< Rpos
-            Eigen::Vector3d Rvn;  ///< Rvn
+            Eigen::Vector3d vn;   ///<
+            Eigen::Vector3d Rpos; ///<
+            Eigen::Vector3d Rvn;  ///<
             double PDOP;          ///< the value of PDOP
             int nSat;             ///< the number of satellite
             bool amb_state;       ///< the state of ambiguity

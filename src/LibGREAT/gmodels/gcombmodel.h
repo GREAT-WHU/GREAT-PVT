@@ -31,18 +31,18 @@ namespace great
     public:
         /** @brief default constructor.
         *
-        *param[in]    spdlog          spdlog control
+        *param[in]    spdlog                spdlog control
         *param[in]    settings        setbase control
-        *param[in]    bias_model      model of bias
+        *param[in]    bias_model        model of bias
         *param[in]    data            all data
         */
         t_gcombmodel(t_gsetbase *setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data);
 
         /** @brief default constructor.
         *
-        *param[in]    spdlog          spdlog control
+        *param[in]    spdlog                spdlog control
         *param[in]    settings        setbase control
-        *param[in]    bias_model      model of bias
+        *param[in]    bias_model        model of bias
         *param[in]    data            all data
         */
         t_gcombmodel(t_gsetbase *setting, t_spdlog spdlog, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data);
@@ -97,18 +97,12 @@ namespace great
         /** @brief destructor. */
         ~t_gcombIF();
 
-        /** @brief override Combine equation */
+        /** @brief Combine equation */
         bool cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result) override;
         bool cmb_equ_IF(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, GOBSBAND b1, GOBSBAND b2, t_gbaseEquation &result);
 
     private:
-        /** @brief add IF multi rec clk.
-        *
-        *param[in]    freq        frequency
-        *param[in]    obsdata     observation data
-        *param[in]    params      parameter
-        *param[in]    coef_IF     coefficient of IF
-        */
+        /** @brief add IF multi rec clk */
         bool _add_IF_multi_rec_clk(const FREQ_SEQ &freq, t_gsatdata &obsdata, t_gallpar &params, vector<pair<int, double>> &coef_IF);
 
         map<pair<FREQ_SEQ, GSYS>, par_type> _clk_type_index;  ///< clk type index
@@ -124,7 +118,7 @@ namespace great
         /** @brief destructor. */
         ~t_gcombALL();
 
-        /** @brief override Combine equation */
+        /** @brief Combine equation */
         bool cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result) override;
 
     private:
@@ -141,38 +135,22 @@ namespace great
         /** @brief destructor. */
         ~t_gcombDD();
 
-        /** @brief override Combine equation */
+        /** @brief Combine equation */
         bool cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result) override;
 
-        /** @brief set observation.
-        *
-        *param[in]    observ  observation
-        */
+        /** @brief set observation */
         void set_observ(OBSCOMBIN observ);
 
-        /** @brief set base data.
-        *
-        *param[in]    data_base      base data
-        */
+        /** @brief set base data */
         void set_base_data(vector<t_gsatdata> *data_base);
 
-        /** @brief set site.
-        *
-        *param[in]    site           site
-        *param[in]    site_base      base site
-        */
+        /** @brief set site */
         void set_site(const string &site, const string &site_base);
 
-        /** @brief set rec info.
-        *
-        *param[in]    xyz_base        base crd
-        *param[in]    clk_rover       rover clk
-        *param[in]    clk_base        base clk
-        */
+        /** @brief set rec info */
         void set_rec_info(const t_gtriple &xyz_base, double clk_rover, double clk_base);
 
     protected:
-        /** @brief temporarily params */
         bool _temp_params(t_gallpar &params, t_gallpar &params_temp);
         OBSCOMBIN _observ;              ///< Combination of observations
         vector<t_gsatdata> *_data_base; ///< base data

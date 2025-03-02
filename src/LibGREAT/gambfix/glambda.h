@@ -48,6 +48,10 @@ namespace great
         */
         void LAMBDA4(int iMaxCan, int iN, double *pdQ, double *pdA, int *piNcan, int *piPos, double *pdCands, double *pdDisall, double *boot);
 
+        /*static void LAMBDA4(int iMaxcan, int n, double *arrdQ, double* arrdA, int* iNcan, int* iPos, double* arrdCands, double* arrdIsall);
+        static void STOREs(int iCan, int iPos, int *piMax, double t, double *pdTmax, double *arrpdDist, double *arrpdDisall,
+        double *arrpdCands, int iMaxCan, int n);*/
+
         /**
         * @brief backtrack in the search tree, internal subroutine for FI71.
         * @param[in] iN      dimension of matrix
@@ -217,15 +221,10 @@ namespace great
         void FI71(double dChic, int iMaxCan, int iN, double *pdA, double *pdD, double *pdL, double *pdLef, double *pdLeft, double *pdRight,
                   double *pdDist, double *pdEnd, double *pdDq, int *piNcan, double *pdDisall, double *pdCands, int *piPos);
 
-        /**
-        * @brief get res
-        * @param[in]  sigma
-        * @return res
-        */
         double pBootStrapping(const double &sig);
 
     public:
-        double *pDia = NULL;  ///< ptr
+        double *pDia = NULL;
     };
 
 }

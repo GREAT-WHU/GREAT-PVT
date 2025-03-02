@@ -49,40 +49,15 @@ namespace great
         /** @brief default destructor. */
         virtual ~t_gbiasmodel();
 
-        /** @brief Combined equation
-        *
-        *param[in] epoch         current epoch
-        *param[in] params        parameter
-        *param[in] obsdata       observation data
-        *param[in] gobs          observation data
-        *param[in] result        result
-        */
+        /** @brief Combined equation */
         virtual bool cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gobs &gobs, t_gbaseEquation &result) = 0;
 
-        /** @brief update obj clk
-        *
-        *param[in] obj         object
-        *param[in] epo         current epoch
-        *param[in] clk         clk
-        */
+        /** @brief empty function */
         virtual void update_obj_clk(const string &obj, const t_gtime &epo, double clk){};
 
-        /** @brief get clk of reciever
-        *
-        *param[in] obj         object
-        *return receiver clk
-        */
+        /** @brief get clk of reciever */
         virtual double get_rec_clk(const string &obj) { return 0.0; }; 
 
-        /** @brief get omc obs
-        *
-        *param[in] crt_epo         current epoch
-        *param[in] sat             satlite name
-        *param[in] obsdata         observation data
-        *param[in] pars            parameter
-        *param[in] gobs            observation data
-        *param[in] omc             Observed value minus calculated value
-        */
 		virtual bool get_omc_obs_ALL(const t_gtime& crt_epo, t_gsatdata& obsdata, t_gallpar& pars, t_gobs& gobs, double& omc);
 
         t_gtriple _trs_rec_crd; ///< coordinates of reciever in terrestrial reference system
@@ -130,7 +105,7 @@ namespace great
         *param[in] crt_epo            current epoch
         *param[in] obsdata            observation data
         *param[in] pars                parameter
-        *param[in] omc                omc
+        *param[in] omc                TODO
         */
         bool _omc_obs_ALL(const t_gtime &crt_epo, t_gsatdata &obsdata, t_gallpar &pars, t_gobs &gobs, double &omc);
 
@@ -150,10 +125,10 @@ namespace great
         *param[in] satData            data of satellite
         *param[in] crd                coordinate
         *param[in] epoch            epoch
-        *param[in] mfw                mfw
-        *param[in] mfh                mfh
-        *param[in] dmfw                dmfw
-        *param[in] dmfh               dmfh
+        *param[in] mfw                TODO
+        *param[in] mfh                TODO
+        *param[in] dmfw                TODO
+        *param[in] dmfh                TODO
         */
         void _getmf(const t_gpar &par, t_gsatdata &satData, const t_gtriple &crd, const t_gtime &epoch, double &mfw, double &mfh, double &dmfw, double &dmfh);
 
@@ -164,9 +139,9 @@ namespace great
         // xml swtting
         // trop
         int _frequency;                      ///< _frequency
-        CONSTRPAR _crd_est = CONSTRPAR::FIX; ///< CONSTRPAR
+        CONSTRPAR _crd_est = CONSTRPAR::FIX; ///< TODO
         shared_ptr<t_gtropo> _tropoModel;    ///< model of tropo
-        TROPMODEL _trpModStr;                ///< TROPMODEL
+        TROPMODEL _trpModStr;                ///< TODO
         ZTDMPFUNC _mf_ztd;                   ///< mapping function for ZTD
         GRDMPFUNC _mf_grd;                   ///< mapping function for GRD
         IONMODEL _ion_model;                 ///< model of IONO

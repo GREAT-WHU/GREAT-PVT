@@ -34,43 +34,22 @@ namespace gnut
         virtual ~t_gpppflt();
 
     protected:
-        /**
-        * @brief Satelite position.
-        * @param[in] t_gtime
-        * @param[in] t_gsatdata
-        * @return satPos
-        */
+        /**@brief Satelite position */
         virtual int _satPos(t_gtime &, t_gsatdata &);
 
-        /**
-        * @brief Applying tides.
-        * @param[in] _epoch  current epoch
-        * @param[in] xRec    receiver crd
-        * @return retval > 0,success; retval < 0,fail
-        */
+        /**@brief Applying tides */
         virtual int _apply_tides(t_gtime &_epoch, t_gtriple &xRec);
 
         /**@brief Set output */
         virtual void _setOut();
 
-        /**
-        * @brief Save apriory coordinates to products.
-        * @param[in] epo  current epoch
-        * @param[in] X    parameter
-        * @param[in] Q    covariance matrix
-        */
+        /**@brief Save apriory coordinates to products */
         void _saveApr(t_gtime &epo, t_gallpar &X, const SymmetricMatrix &Q);
 
-        /**
-        * @brief Remove apriory coordinates from products.
-        * @param[in] epo  current epoch
-        */
+        /**@brief Remove apriory coordinates from products */
         void _removeApr(t_gtime &epo);
 
-        /**
-        * @brief Update time for RDW processes.
-        * @param[in] epo  current epoch
-        */
+        /**@brief Update time for RDW processes */
         virtual void _timeUpdate(const t_gtime& epo);
 
         /**@brief reset parameters */

@@ -62,9 +62,9 @@ namespace great
         *
         *param[in] antype            antenna type
         *param[in] prn                satellite prn
-        *param[in] xsat                sat crd
-        *param[in] vsat                sat vel
-        *param[in] xsun                sun crd
+        *param[in] xsat                TODO
+        *param[in] vsat                TODO
+        *param[in] xsun                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -116,8 +116,8 @@ namespace great
         /** @brief Yaw-steering mode attitude model
         *
         *param[in] prn                satellite prn
-        *param[in] bata                bata
-        *param[in] mi                mi
+        *param[in] bata                TODO
+        *param[in] mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -150,7 +150,7 @@ namespace great
         /** @brief noon maneuver
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -160,7 +160,7 @@ namespace great
         /** @brief midnight maneuver
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -170,8 +170,8 @@ namespace great
         /** @brief noon maneuver
         *
         *param[in] _prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -209,7 +209,7 @@ namespace great
         /** @brief     midnight maneuver for GPS Block IIA
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -219,8 +219,8 @@ namespace great
         /** @brief     midnight maneuver for GPS Block IIA
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -234,7 +234,7 @@ namespace great
         /** @brief attitude for GPS Block IIR
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -244,8 +244,8 @@ namespace great
         /** @brief attitude for GPS Block IIR
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -292,7 +292,7 @@ namespace great
         /** @brief midnight maneuver for GPS Block IIF
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -302,12 +302,12 @@ namespace great
         /** @brief midnight maneuver for GPS Block IIF
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -374,8 +374,8 @@ namespace great
         /** @brief noon maneuver for Galileo IOV
         *
         *param[in] antype            antenna type
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -421,8 +421,8 @@ namespace great
         /** @brief noon maneuver for Galileo FOC
         *
         *param[in] antype            antenna type
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -445,8 +445,8 @@ namespace great
         /** @brief Continuous yaw steering attitude modes of BDS satellites in CAST
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -468,8 +468,8 @@ namespace great
         /** @brief Continuous yaw steering attitude modes of BDS satellites in SECM
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -516,8 +516,8 @@ namespace great
         /** @brief Continuous yaw steering attitude modes of of QZS-2 IGSO satellites
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
@@ -578,7 +578,7 @@ namespace great
         /** @brief midnight maneuver for GLONASS-M
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -588,7 +588,7 @@ namespace great
         /** @brief noon maneuver for GLONASS-M
         *
         *param[in] satdata            satellite data
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -598,12 +598,12 @@ namespace great
         /** @brief midnight maneuver for GLONASS-M
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -613,12 +613,12 @@ namespace great
         /** @brief midnight maneuver for GLONASS-M
         *
         *param[in] prn                satellite prn
-        *param[in] _beta            beta
-        *param[in] _mi                mi
+        *param[in] _beta            TODO
+        *param[in] _mi                TODO
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
-        *param[in] R                radian
+        *param[in] R                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -628,7 +628,7 @@ namespace great
         /** @brief Calculate satellite-fixed vectors from yaw angle
         *
         *param[in] satdata            satellite data
-        *param[in] yaw                yaw
+        *param[in] yaw                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3
@@ -640,7 +640,7 @@ namespace great
         *param[in] xsat                satellite position
         *param[in] vsat                satellite velocity
         *param[in] xsun                sun position
-        *param[in] yaw                yaw
+        *param[in] yaw                TODO
         *param[in] i                columnVector1
         *param[in] j                columnVector2
         *param[in] k                columnVector3

@@ -137,14 +137,14 @@ namespace great
         int _nobs_total, _npar_number; ///< number of observation and parameter
         double _sigma0;                ///< sigma0
         double _vtpv;                  ///< vtpv
-        double _ratio;                 ///< ratio
-        double _boot;                  ///< boot
         t_gallpar _param;              ///< parameter
         ColumnVector _dx;              ///< correction of parameter
         ColumnVector _stdx;            ///< Standard deviation
         SymmetricMatrix _Qx;           ///< qx
         map<string, int> _active_amb;  ///< acctive ambiguity
         bool _amb_fixed;               ///< whether fixed
+        double _ratio;                 ///< ratio
+        double _boot;                  ///< boot
         string _mode;                  ///< mode
     };
     /**
@@ -268,7 +268,7 @@ namespace great
         set<string> _sat_rm;   ///< satellites being removed
         set<string> _sat_refs; ///< reference satellites
 
-        int _frequency;                    ///< frequency
+        int _frequency;
         t_DD_amb _DD;                      ///< DD over all baslines
         t_DD_amb _DD_save;                 ///< DD over all baslines
         map<string, map<int, double>> _MW; ///< MW for IF ambiguity fixing of current time
@@ -295,26 +295,33 @@ namespace great
         double _ratio;                         ///< threshold in LAMBDA method
         double _boot;                          ///< threshold of bootstrapping rate in amb fix
         double _min_common_time;               ///< the Minimum common time of two observation arc
-        double* _pdE = nullptr;                ///< pdE
-        double* _pdC = nullptr;                ///< pdC
-        double _outRatio;                      ///< outRatio
         map<string, double> _map_EWL_decision; ///< deriation, sigma in WL/NL-cycle
         map<string, double> _map_WL_decision;  ///< deriation, sigma in WL/NL-cycle
-        map<string, double> _map_NL_decision;  ///< deriation, sigma in WL/NL-cycle
+        map<string, double> _map_NL_decision;
 
-        bool _is_first = false;       ///< whether it is first epoch to be fixed
-        bool _is_first_nl = false;    ///< whether it is first epoch to be fixed
-        bool _is_first_wl = false;    ///< whether it is first epoch to be fixed
-        bool _is_first_ewl = false;   ///< whether it is first epoch to be fixed
-        bool _is_first_ewl24 = false; ///< whether it is first epoch to be fixed
-        bool _is_first_ewl25 = false; ///< whether it is first epoch to be fixed
-        bool _amb_fixed;              ///< amb fixed
-        ColumnVector _mDia;           ///< Column Vector    
+        bool _is_first = false; ///< whether it is first epoch to be fixed
+        bool _is_first_nl = false;
+        bool _is_first_wl = false;
+        bool _is_first_ewl = false;
+        bool _is_first_ewl24 = false;
+        bool _is_first_ewl25 = false;
+
+        ColumnVector _mDia;
+
+        double _outRatio;             ///< outRatio
         t_giof *_ratiofile = nullptr; ///< ratio file
         t_giof *_bootfile = nullptr;  ///< BootStrapping file
-        ostringstream _os_ratio;      ///< os ratio
-        ostringstream _os_boot;       ///< os boot
-      
+
+        double *_pdE = nullptr;  ///< pdE
+        double *_pdC = nullptr;  ///< pdC
+
+        ostringstream _os_ratio;  ///< os ratio
+        ostringstream _os_boot;   ///< os boot
+
+        int _max_active_amb_one_epo;       ///< max active amb one epoch
+        bool _amb_fixed;                   ///< amb fixed
+        int _total_amb_num, _fixed_amb_num;///< total amb num
+
         t_gallpar _param;                                         ///< param
         map<string, map<string,vector<FREQ_SEQ>>> _amb_freqs;     ///< amb freqs
         t_gtime _ewl_Upd_time, _ewl24_Upd_time, _ewl25_Upd_time;  ///< Upd time
@@ -327,8 +334,6 @@ namespace great
         int _ctrl_last_fixepo_gap = 999999;                       ///< ctrl last fixepoch gap
         int _ctrl_min_fixed_num = 0;                              ///< ctrl min fixed number
         int _full_fix_num;                                        ///< full fix number
-        int _max_active_amb_one_epo;                              ///< max active amb one epoch      
-        int _total_amb_num, _fixed_amb_num;                       ///< total amb num
 
     protected:
         /**

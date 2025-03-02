@@ -41,6 +41,17 @@ namespace great
         this->_cutdeci = cutdeci;
     }
 
+    bool t_gbdeci::bdeci(double dEst, double dSigma, int iIh)
+    {
+        double prob = 0.0;
+        double deci = 0.0;
+        bdeci(dEst, dSigma, iIh, _cutdev, _cutsig, prob, deci);
+        if (deci > _cutdeci)
+            return true;
+        else
+            return false;
+    }
+
     //    !Output :
     //    !prob : area of decision - function region, set = 1.0 for
     //    !each bias on input to BDECI, reduced by the probability
@@ -316,6 +327,29 @@ namespace great
         catch (...)
         {
             cout << "ERROR : t_gbdeci::_gammp throw exception" << endl;
+            return 0.0;
+        }
+    }
+
+    double t_gbdeci::_erf(double dX)
+    {
+        double erf, half;
+        half = 0.5;
+        try
+        {
+            if (dX < 0)
+            {
+                erf = -t_gbdeci::_gammp(half, dX * dX);
+            }
+            else
+            {
+                erf = t_gbdeci::_gammp(half, dX * dX);
+            }
+            return erf;
+        }
+        catch (...)
+        {
+            cout << "ERROR : t_gbdeci::_erf throw exception" << endl;
             return 0.0;
         }
     }

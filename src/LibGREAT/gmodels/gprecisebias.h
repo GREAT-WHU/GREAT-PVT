@@ -34,100 +34,34 @@ namespace great
         t_gprecisebias(t_gallproc *data, t_spdlog spdlog, t_gsetbase *setting);
         ~t_gprecisebias();
 
-        /** @brief Combined equation
-        *
-        *@param[in] epoch         current epoch
-        *@param[in] params        parameter
-        *@param[in] obsdata       observation data
-        *@param[in] gobs          observation data
-        *@param[in] result        result
-        */
+        /** @brief Combined equation */
         bool cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gobs &gobs, t_gbaseEquation &result) override;
 
-        /** @brief update obj clk
-        *
-        *@param[in] obj         object
-        *@param[in] epo         current epoch
-        *@param[in] clk         clk
-        */
+        /** @brief update obj clk */
         void update_obj_clk(const string &obj, const t_gtime &epo, double clk) override;
 
-        /** @brief get clk of reciever
-        *
-        *@param[in] obj         object
-        *@return receiver clk
-        */
+        /** @brief get clk of reciever */
         double get_rec_clk(const string &obj) override;
 
-        /**
-        * @brief get tropoDelay
-        * @param[in] epoch         current epoch
-        * @param[in] rec           receiver
-        * @param[in] param         parameter
-        * @param[in] site_ell      site_ell
-        * @param[in] satdata       sat data
-        * @return tropoDelay
-        */
+        /** @brief get tropoDelay */
         double tropoDelay(t_gtime &epoch, string &rec, t_gallpar &param, t_gtriple site_ell, t_gsatdata &satdata);
 
-        /**
-        * @brief get ionoDelay
-        * @param[in] epoch         current epoch
-        * @param[in] param         parameter
-        * @param[in] satdata       sat data
-        * @param[in] ion_model     ion model
-        * @param[in] band_1        band_1
-        * @param[in] gobs          observation
-        * @return ionoDelay
-        */
+        /** @brief get ionoDelay */
         double ionoDelay(t_gtime &epoch, t_gallpar &param, t_gsatdata &satdata, IONMODEL &ion_model, GOBSBAND &band_1, t_gobs &gobs);
 
-        /**
-        * @brief get isbDelay
-        * @param[in] param         parameter
-        * @param[in] satdata       sat data
-        * @param[in] sat           sat
-        * @param[in] rec           receiver
-        * @param[in] gobs          observation
-        * @return isbDelay
-        */
+        /** @brief get isbDelay */
         double isbDelay(t_gallpar &param, t_gsatdata &satdata, string &sat, string &rec, t_gobs &gobs);
 
-        /**
-        * @brief get ifbDelay
-        * @param[in] param         parameter
-        * @param[in] satdata       sat data
-        * @param[in] sat           sat
-        * @param[in] rec           receiver
-        * @param[in] gobs          observation
-        * @return ifbDelay
-        */
+        /** @brief get ifbDelay */
         double ifbDelay(t_gallpar &param, t_gsatdata &satdata, string &sat, string &rec, t_gobs &gobs);
 
-        /**
-        * @brief get ifcbDelay
-        * @param[in] satdata       sat data
-        * @param[in] ifcb          ifcb
-        * @param[in] obscombin     observation combine
-        * @return ifcbDelay
-        */
+        /** @brief get ifcbDelay */
         double ifcbDelay(t_gsatdata &satdata, t_gifcb *ifcb, OBSCOMBIN obscombin);
 
-        /**
-        * @brief get relDelay
-        * @param[in] crd_site      site crd 
-        * @param[in] vel_site      site vel 
-        * @param[in] crd_sat       sat crd 
-        * @param[in] vel_sat       sat vel 
-        * @return relDelay
-        */
+        /** @brief get relDelay */
         double relDelay(t_gtriple &crd_site, t_gtriple &vel_site, t_gtriple &crd_sat, t_gtriple &vel_sat);
 
-        /**
-        * @brief get update obs info
-        * @param[in] obsdata      observation
-        * @return true
-        */
+        /** @brief get update obs info */
         bool _update_obs_info(t_gsatdata &obsdata);
 
         /** @brief reset SatPCO */
@@ -137,58 +71,22 @@ namespace great
 		virtual t_gsatdata get_crt_obs() { return _crt_obs; }
 
     protected:
-        /**
-        * @brief apply rec
-        * @param[in] crt_epo      current epoch
-        * @param[in] rec_epo      receive epoch
-        * @param[in] pars         parameter
-        * @return bool
-        */
+        /** @brief apply rec */
         bool _apply_rec(const t_gtime &crt_epo, const t_gtime &rec_epo, t_gallpar &pars);
 
-        /**
-        * @brief apply sat
-        * @param[in] crt_epo      current epoch
-        * @param[in] rec_epo      receive epoch
-        * @param[in] nav          nav
-        * @return bool
-        */
+        /** @brief apply sat */
         bool _apply_sat(const t_gtime &rec_epo, t_gtime &sat_epo, t_gallnav *nav);
 
-        /**
-        * @brief apply rec tides
-        * @param[in] epoch      current epoch
-        * @param[in] rec        receiver crd
-        * @return bool
-        */
+        /** @brief apply rec tides */
         bool _apply_rec_tides(const t_gtime &epoch, t_gtriple &rec);
 
-        /**
-        * @brief update rot matrix
-        * @param[in] epoch      current epoch
-        */
+        /** @brief update rot matrix */
         void _update_rot_matrix(const t_gtime &epoch);
 
         /** @brief get crs sat crd */
-        /**
-        * @brief get crs sat crd
-        * @param[in] sat_epoch      sat epoch
-        * @param[in] sat            sat
-        * @param[in] nav            nav
-        * @param[in] crs_sat_crd    sat crs crd
-        * @return bool
-        */
         bool _get_crs_sat_crd(const t_gtime &sat_epoch, const string &sat, t_gallnav *nav, t_gtriple &crs_sat_crd);
 
         /** @brief get crs sat vel */
-        /**
-        * @brief get crs sat crd
-        * @param[in] sat_epoch      sat epoch
-        * @param[in] sat            sat
-        * @param[in] nav            nav
-        * @param[in] crs_sat_vel    sat crs vel
-        * @return bool
-        */
         bool _get_crs_sat_vel(const t_gtime &sat_epoch, const string &sat, t_gallnav *nav, t_gtriple &crs_sat_vel);
 
     protected:
@@ -201,18 +99,7 @@ namespace great
         */
         double windUp(const GOBSBAND &freq_2, t_gsatdata &satdata, const Eigen::Vector3d &rRec);
 
-        /**
-        * @brief get PCV
-        * @note override for fixed bugs in computing satellite attitude
-        * @param[in] corrt_sat    correct sat
-        * @param[in] corrt_rec    correct rec
-        * @param[in] epoch        current epoch
-        * @param[in] crt_sat_epo  current sat epoch
-        * @param[in] trs_rec_crd  trs receiver crd
-        * @param[in] satdata      satdata
-        * @param[in] gobs         observation
-        * @return PCV
-        */
+        /** @brief get PCV */
         double PCV(bool corrt_sat, bool corrt_rec, t_gtime &epoch, t_gtime &crt_sat_epo, t_gtriple &trs_rec_crd, t_gsatdata &satdata, t_gobs &gobs);
 
         /**
@@ -234,10 +121,10 @@ namespace great
         double _crt_rec_clk;         ///< rec clk
         double _crt_sat_clk;         ///< sat clk
 
-        CONSTRPAR _crd_est = CONSTRPAR::FIX;  ///< CONSTRPAR
-        ATTITUDES _attitudes;                 ///< ATTITUDES
-        t_gattitude_model _gattitude_model;   ///< gattitude model
+        CONSTRPAR _crd_est = CONSTRPAR::FIX;
 
+        ATTITUDES _attitudes;
+        t_gattitude_model _gattitude_model;
         bool _trop_est = true;      ///< estimate tropo or not
         bool _is_flt = false;       ///< flt or lsq
         bool _corrt_sat_pcv = true; ///< correct sat pcv or not

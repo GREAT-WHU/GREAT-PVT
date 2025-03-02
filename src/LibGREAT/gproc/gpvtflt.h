@@ -46,24 +46,15 @@ namespace great
         /** @brief default destructor. */
         virtual ~t_gpvtflt();
 
-        /**
-        * @brief processBatch
-        * @param[in] beg            begin time
-        * @param[in] end            end time
-        * @param[in] prtOut         Output or not
-        */
+        /** @brief processBatch. */
         virtual int processBatch(const t_gtime &beg, const t_gtime &end, bool prtOut);
 
-        /**
-        * @brief Initializing some settings.
-        * @param[in] beg            begin time
-        * @param[in] end            end time
-        * @param[in] subint         subint
-        */
+        /** @brief Initializing some settings. */
         virtual bool InitProc(const t_gtime &begT, const t_gtime &endT, double *subint = NULL);
 
         /**
         * @brief One epoch processing
+        * @note virtual function=
         * @param[in] Now    current time
         * @param[in] data_rover
         * @param[in] data_base
@@ -71,10 +62,7 @@ namespace great
         */
         virtual int ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *data_rover = NULL, vector<t_gsatdata> *data_base = NULL);
 
-        /**
-        * @brief Add UPD
-        * @param[in] gupd    upd data
-        */
+        /** @brief Add UPD. */
         virtual void Add_UPD(t_gupd *gupd);
 
         /** 
@@ -123,6 +111,7 @@ namespace great
 
         /**
         * @brief add pseudorange and carrier-phase measurement to model. Rewritten for RTK application.
+        * @note,Lvhb created  for RTK/SD-PPP
         * @param[in/out] A            Coff Matrix
         * @param[in/out] l            measurement vector
         * @param[in/out] P            measurement variance
@@ -136,22 +125,13 @@ namespace great
         /** @brief update PPP UD ambiguity parameters */
         void _udAmb();
 
-        /**
-        * @brief obtain satcrd,satclk,satele,satazi,rho, it must be two bands.
-        * @param[in] ssite       site
-        * @param[in] sdata       sat data
-        * @return retval = 0,success; retval < 0,fail
-        */
+        /** @obtain satcrd,satclk,satele,satazi,rho, it must be two bands*/
         virtual int _preprocess(const string &ssite, vector<t_gsatdata> &sdata); 
 
         /** @brief prepare data.    */
         virtual int _prepareData();
 
-        /**
-        * @brief Process one epoch.
-        * @param[in] runEpoch       current epoch
-        * @return retval >= 0,success; retval < 0,fail
-        */
+        /** @brief Process one epoch. */
         virtual int _processEpoch(const t_gtime &runEpoch);
 
         /** @brief ambiguity resolution. */
@@ -160,13 +140,7 @@ namespace great
         /** @brief is get ref sat. */
         bool _getSatRef();
 
-        /**
-        * @brief Detect outlier.
-        * @param[in] v       Residual matrix
-        * @param[in] Q       covariance matrix
-        * @param[in] sat     sat
-        * @return idx
-        */
+        /** @brief Detect outlier. */
         virtual int _outlierDetect(const ColumnVector &v, const SymmetricMatrix &Qsav, string &sat);
 
         /**
@@ -181,118 +155,53 @@ namespace great
         */
         int _addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpar &param, t_gtriple &XYZ, Matrix &A, ColumnVector &l, DiagonalMatrix &P);
 
-        /**
-        * @brief post residual for rtk.
-        * @param[in/out] A            Coff Matrix
-        * @param[in/out] l            measurement vector
-        * @param[in/out] P            measurement variance
-        * @param[in/out] dx           dx
-        * @return iobs
-        */
+        /** @brief post residual for rtk */
         int _postRes(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l,const ColumnVector &dx);
 
-        /**
-        * @brief modified for PPP/RTK processing.
-        * @param[in] satdata sat data
-        * @return retval >= 0,success; retval < 0,fail
-        */
+        /** @brief modified for PPP/RTK processing */
         virtual int _combineMW(t_gsatdata &satdata);
 
         /** @brief process one epoch Velocity. */
         virtual int _processEpochVel();
 
-         /**
-        * @brief kml description.
-        * @param[in] epoch       current epoch
-        * @param[in] pos         position data
-        * @return string
-        */
+        /** @brief kml description. */
         virtual string _gen_kml_description(const t_gtime &epoch, const t_gposdata::data_pos &pos);
 
-        /**
-        * @brief quality grade.
-        * @param[in] pos     position data
-        * @return string
-        */
+        /** @brief quality grade. */
         virtual string _quality_grade(const t_gposdata::data_pos &pos);
 
-        /**
-        * @brief filter time update.
-        * @param[in] runEpoch     current epoch
-        */
+        /** @brief filter time update. */
         virtual void _predict(const t_gtime& runEpoch); 
 
-        /**
-        * @brief print the result.
-        * @param[in] epo        epoch
-        * @param[in] X          parameter
-        * @param[in] Q          covariance matrix
-        * @param[in] data       satdata
-        * @param[in] os         ostringstream
-        * @param[in] node       xml_node
-        * @param[in] saveProd   if save
-        */
+        /** @brief print  the result. */
         virtual void _prtOut(t_gtime &epo, t_gallpar &X, const SymmetricMatrix &Q, vector<t_gsatdata> &data, ostringstream &os, xml_node &node, bool saveProd = true);
         virtual void _prt_port(t_gtime &epo, t_gallpar &X, const SymmetricMatrix &Q, vector<t_gsatdata> &data);
 
         /** @brief print  the result. */
         void _prtOutHeader();
 
-        /**
-        * @brief generate Obs Index.
-        * @param[in] equ equation
-        */
+        /** @brief generate Obs Index. */
         void _generateObsIndex(t_gfltEquationMatrix &equ);
 
-        /**
-        * @brief slip detect.
-        * @param[in] now current epoch
-        * @return true or false
-        */
+        /** @brief slip detect. */
         bool _slip_detect(const t_gtime& now);
-
-        /**
-        * @brief add filter epoch data.
-        * @param[in] now    current epoch
-        * @param[in] data   sat data
-        * @param[in] isBase is base station
-        * @return size of data
-        */
+        
+        /** @brief add filter epoch data. */
         int _getData(const t_gtime& now, vector <t_gsatdata>* data, bool isBase);
 
         /** @brief avoid same name with _valid_crd_xml. */
         bool _crd_xml_valid(); 
 
-        /**
-        * @brief remove sat.
-        * @param[in] satid id of sat
-        */
+        /** @brief remove sat. */
         void _remove_sat(const string &satid);
 
-        /**
-        * @brief check sat
-        * @param[in] ssite    site
-        * @param[in] iter     iterator
-        * @param[in] BB        BB
-        * @param[in] iobs      iobs
-        * @return ture or false
-        */
+        /** @brief check sat. */
         bool _check_sat(const string& ssite, t_gsatdata * const iter, Matrix &BB, int &iobs);
 
-        /**
-        * @brief compute rec crd.
-        * @param[in] ssite    site
-        * @param[in] BB       BB
-        * @return ture or false
-        */
+        /** @brief compute rec crd. */
         bool _cmp_rec_crd(const string& ssite, Matrix& BB);
 
-        /**
-        * @brief compute sat information.
-        * @param[in] ssite    site
-        * @param[in] iter     iterator
-        * @return ture or false
-        */
+        /** @brief compute sat information. */
         bool _cmp_sat_info(const string& ssite, t_gsatdata* const iter);
 
         /** @brief predict Crd. */
@@ -303,13 +212,8 @@ namespace great
 
         /** @brief predict Bias. */
         void _predictBias();
-
-        /**
-        * @brief predictIono.
-        * @param[in] bl    bl
-        * @param[in] runEpoch    current epoch
-        * @return number of equation
-        */
+        
+        /** @brief predictIono. */
         void _predictIono(const double &bl, const t_gtime& runEpoch);
 
         /** @brief predict Tropo. */
@@ -318,11 +222,7 @@ namespace great
         /** @brief predict Amb. */
         void _predictAmb();
 
-        /**
-        * @brief compute equation.
-        * @param[in] equ equation
-        * @return number of equation
-        */
+        /** @brief compute equation. */
         unsigned int _cmp_equ(t_gfltEquationMatrix &equ);
 
         /** @brief posteriori Test. */
@@ -373,7 +273,13 @@ namespace great
         RECEIVERTYPE _receiverType;       ///< receiver Type
         map<string, string> _sat_freqs;   ///< sat freqs
     };
-
+    template <class T1, class T2>
+    void t_out(T1 const& name, T2 const& matrix)
+    {
+        cout << name << endl;
+        cout << fixed << setprecision(6) << setw(15) << matrix << endl;
+        return;
+    }
 }
 
 #endif

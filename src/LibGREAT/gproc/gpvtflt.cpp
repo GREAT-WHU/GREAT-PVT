@@ -941,7 +941,6 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
             continue;
         }
         
-        //except sat without pcv
         if (!_isBase)
         {
             shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(satname);
@@ -1357,7 +1356,10 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
     do
     {
         _remove_sat(outlier);
-
+        if (_epoch.sow() > 345330)
+        {
+            cout << endl;
+        }
         if (_prepareData() < 0)
         {
             if (_initialized)
@@ -1417,6 +1419,12 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         equ.chageNewMat(A, P, l, nPar);
         dx.ReSize(nPar);
         dx = 0.0;
+
+        /*cout << _epoch.str_ymdhms() << endl;
+        t_out("A:", A);
+        t_out("l:", l);
+        t_out("P:", P);
+        t_out("Qx:", _Qx);*/
         
         // generate obs_index
         _obs_index.clear();
@@ -1536,6 +1544,12 @@ int great::t_gpvtflt::_amb_resolution()
     _param_fixed = _filter->param();
     _amb_state = false;
 
+    /*cout << _epoch.str_ymdhms() << endl;
+    for (int i = 0; i < _param_fixed.parNumber(); i++)
+    {
+        cout << fixed << setw(20) << " Float EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20) << setprecision(5) << _filter->param()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->stdx()(i + 1) << endl;
+    }*/
+
     if (_fix_mode != FIX_MODE::NO )
     {
         if (_gupd && _gupd->wl_epo_mode())
@@ -1612,6 +1626,11 @@ int great::t_gpvtflt::_amb_resolution()
     ostringstream os;
     if (_amb_state) //fixed
     {
+        /*cout << _epoch.str_ymdhms() << endl;
+        for (int i = 0; i < _param_fixed.parNumber(); i++)
+        {
+            cout << fixed << setw(20) << " Fix EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20) << setprecision(5) << _ambfix->getFinalParams()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->stdx()(i + 1) << endl;
+        }*/
         _param_fixed = _ambfix->getFinalParams();
         _prtOut(_epoch, _param_fixed, _filter->Qx(), _data, os, line, true);
         _prt_port(_epoch, _param_fixed, _filter->Qx(), _data);

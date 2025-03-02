@@ -907,6 +907,20 @@ namespace gnut
         GOBSBAND b5 = t_gsys::band_priority(gsys, FREQ_5);
         GFRQ f5 = t_gsys::freq_priority(gsys, FREQ_5);
 
+        if (gsys == BDS)
+        {
+            b1 = t_gsys::band_priority(gsys, FREQ_1);
+            f1 = t_gsys::freq_priority(gsys, FREQ_1);
+            b2 = t_gsys::band_priority(gsys, FREQ_3);
+            f2 = t_gsys::freq_priority(gsys, FREQ_3);
+            b3 = t_gsys::band_priority(gsys, FREQ_4);
+            f3 = t_gsys::freq_priority(gsys, FREQ_4);
+            b4 = t_gsys::band_priority(gsys, FREQ_6);
+            f4 = t_gsys::freq_priority(gsys, FREQ_6);
+            b5 = t_gsys::band_priority(gsys, FREQ_5);
+            f5 = t_gsys::freq_priority(gsys, FREQ_5);
+        }
+
         if (_mappco.find(f1) != _mappco.end() && _mappco.find(f2) != _mappco.end())
         {
             apcf1 = _mappco.at(f1);

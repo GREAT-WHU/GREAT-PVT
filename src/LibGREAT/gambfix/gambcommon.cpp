@@ -37,6 +37,7 @@ namespace great
         isnewarc = true;
         nepo = 0;
         elev = 0.0;
+        bwi = 0.0;
     }
 
     epoch_amb::~epoch_amb()

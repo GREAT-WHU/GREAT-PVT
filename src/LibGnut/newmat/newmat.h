@@ -2572,3 +2572,6 @@ namespace NEWMAT
 // body file: submat.cpp
 
 ///@}
+LibGnut_LIBRARY_EXPORT ostream& operator<<(ostream&, const BaseMatrix&);
+
+LibGnut_LIBRARY_EXPORT ostream& operator<<(ostream&, const GeneralMatrix&);
