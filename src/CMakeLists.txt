@@ -1,5 +1,5 @@
-#Minimum requirement of CMake version : 3.0.0
-cmake_minimum_required(VERSION 3.0.0)
+#Minimum requirement of CMake version : 3.5
+cmake_minimum_required(VERSION 3.5)
 
 #Project name and version number
 project(GREAT-PVT VERSION 0.1.0)

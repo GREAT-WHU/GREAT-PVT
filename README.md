@@ -1,83 +1,175 @@
-# GREAT-PVT: Precision Positioning and Navigation Software by Wuhan University GREAT Group
+# GREAT-PVT
 
-## Overview
+[![GitHub stars](https://img.shields.io/github/stars/GREAT-WHU/GREAT-PVT?style=social)](https://github.com/GREAT-WHU/GREAT-PVT/stargazers)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-GREAT-PVT is a key module of the **GREAT (GNSS+ Research, Application, and Teaching)** software platform, developed by the School of Geodesy and Geomatics at Wuhan University. It is designed for precise positioning solutions, including **PPP (Precise Point Positioning)** and **RTK (Real-Time Kinematic)** algorithms. The core computational modules are written in **C++** (C++17), while auxiliary scripts are implemented in **Python3** and **C-Shell** for automated data processing. The software uses **CMAKE** for compilation management, supporting mainstream C++ compilers such as **GCC**, **Clang**, and **MSVC**. Currently, GREAT-PVT provides command-line applications for both **Windows** and **Linux** platforms.
+Precision positioning and navigation software from the Wuhan University GREAT
+Group.
 
-### Key Features
-- Supports **GPS**, **GLONASS**, **Galileo**, and **BDS-2/3** systems.
-- Supports **ionosphere-free combination** and **uncombined PPP observation models**.
-- Supports **multi-frequency, multi-system PPP float and fixed solutions**.
-- Supports **dual-frequency** and **mixed-frequency RTK solutions**.
+GREAT-PVT is a C++ command-line module of the GREAT (GNSS+ Research,
+Application, and Teaching) platform. It provides PPP and RTK positioning
+solutions for scientific, engineering, and teaching use in geodesy and
+navigation.
 
-The software package also includes **batch processing scripts** and **plotting tools** for analyzing positioning results over multiple days.
+## Star History
 
-## Directory Structure
+<a href="https://www.star-history.com/?repos=GREAT-WHU%2FGREAT-PVT&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=GREAT-WHU/GREAT-PVT&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=GREAT-WHU/GREAT-PVT&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=GREAT-WHU/GREAT-PVT&type=date&legend=top-left" />
+ </picture>
+</a>
+
+## Features
+
+- Multi-GNSS processing for GPS, GLONASS, Galileo, and BDS-2/3.
+- Ionosphere-free and uncombined PPP observation models.
+- Multi-frequency, multi-system PPP float and fixed solutions.
+- Dual-frequency and mixed-frequency RTK solutions.
+- Batch-processing and plotting utilities for multi-day result analysis.
+- Prebuilt command-line binaries for Windows and Linux.
+
+## Quick Start
+
+Use the prebuilt executable if you only want to run GREAT-PVT.
+
+### Windows
+
+```powershell
+.\bin\Windows\GREAT_PVT.exe -x .\doc\GREAT_PPP.xml
 ```
-GREAT-PVT_<ver>	
-  ./bin	                The executable binary APs for Windows/Linux *
-  ./src	                Source programs of GREAT-PVT software *
-    ./app                 Main function of GREAT-PVT *
-    ./LibGREAT            Source programs of PPP and RTK Processing *
-    ./LibGnut             Source programs of the G-Nut library *
-    ./third-party         Third-party libraries *
-  ./sample_data         Sample data for AP *
-    ./PPPFLT_2023305      Sample data for PPP *
-    ./RTKFLT_2020351      Sample data for RTK *
-  ./util                Utilities *
-    ./batch_process       Batch processing python scripts for PPP *
-    ./plot                Plotting scripts *
-    ./poleut1             Earth Orientation Parameters (EOP) Generation Program *
-  ./doc                 Document files *
-    GREAT_PPP.xml         Sample XML files for PPP *
-    GREAT_RTK.xml         Sample XML files for RTK *
-    GREAT-PVT_<ver>.pdf   User manual *
+
+### Linux
+
+```bash
+chmod +x ./bin/Linux/GREAT_PVT
+./bin/Linux/GREAT_PVT -x ./doc/GREAT_PPP.xml
 ```
 
-## Installation and Usage
+RTK processing uses the RTK configuration template:
 
-For detailed installation and usage instructions, please refer to the **GREAT-PVT_\<ver>.pdf** document included in the `./doc` directory.
+```bash
+./bin/Linux/GREAT_PVT -x ./doc/GREAT_RTK.xml
+```
+
+The XML files in `doc/` are templates. Update their input and output paths to
+match the extracted files from `sample_data/` or your own GNSS products before
+running.
+
+## Build From Source
+
+Requirements:
+
+- CMake 3.5+
+- A C++ compiler with C++11 support
+- Windows, Linux, or macOS
+
+Build on Linux/macOS:
+
+```bash
+cmake -S src -B src/build -DCMAKE_BUILD_TYPE=Release
+cmake --build src/build --config Release
+```
+
+Build on Windows with Visual Studio and CMake GUI:
+
+1. Open CMake GUI.
+2. Set `Where is the source code` to the repository `src` directory.
+3. Set `Where to build the binaries` to `src/build`.
+4. Click `Configure`, then select your installed Visual Studio generator.
+5. Click `Generate`.
+6. Click `Open Project`, then build the `Release` configuration in Visual Studio.
+
+Build outputs are written under CMake-generated platform directories such as
+`src/build_Linux` or `src/build_Windows`.
+
+## Command Line
+
+```text
+GREAT_PVT -x <config.xml>
+```
+
+Useful options:
+
+```text
+-h, --help    Show command-line help
+-x file       Read XML configuration
+```
+
+## Repository Layout
+
+```text
+bin/                  Prebuilt Windows and Linux executables/libraries
+doc/                  Manuals and sample XML configurations
+sample_data/          PPP and RTK sample datasets
+src/                  C++ source code
+  app/GREAT_PVT/      Command-line application
+  LibGREAT/           PPP, PPP-AR, and RTK processing library
+  LibGnut/            G-Nut-based GNSS data and utility library
+  third-party/        Vendored third-party headers/libraries
+util/                 Batch processing, plotting, and EOP utilities
+```
+
+## Sample Data
+
+The repository includes compressed examples:
+
+- `sample_data/PPPFLT_2023305.zip` for PPP
+- `sample_data/RTKFLT_2020351.zip` for RTK
+
+Extract a sample dataset, then adjust `doc/GREAT_PPP.xml` or
+`doc/GREAT_RTK.xml` so the paths under `<inputs>` point to the extracted files.
+
+## Documentation
+
+Detailed installation, configuration, input products, and output formats are
+covered in:
+
+- `doc/GREAT-PVT_1.0.pdf`
+- `doc/GREAT-PVT_manual_1.0.pdf`
+
+## Star History
+
+![Star History Chart](https://api.star-history.com/image?repos=GREAT-WHU/GREAT-PVT&type=Date)
 
 ## Changelog
-### Version 1.1
-1. Fixed a crash issue when running the program in Debug mode with Visual Studio on Windows.
-2. Resolved an issue where missing PCO and PCV correction information in ATX antenna files caused program exceptions.
-3. Corrected description errors in GREAT-PVT_1.0.pdf.
-4. Addressed other code formatting issues.
 
 ### Version 1.2
-1. Added an English version of the documentation and improved related content.
-2. Updated the sample data.
-3. Fixed other code formatting issues.
 
-## Contributing
+- Added English documentation and improved related content.
+- Updated sample data.
+- Fixed code formatting issues.
 
-### Developers
-- **GNSS + REsearch, Application and Teaching (GREAT) Group**, School of Geodesy and Geomatics, Wuhan University.
+### Version 1.1
 
-### Third-Party Libraries
-- **G-Nut Library** (http://www.pecny.cz)  
-  Copyright (C) 2011-2016 GOP - Geodetic Observatory Pecny, RIGTC.
-  
-- **pugixml Library** (http://pugixml.org)  
-  Copyright (C) 2006-2014 Arseny Kapoulkine.
+- Fixed a Visual Studio Debug-mode crash on Windows.
+- Fixed exceptions caused by missing PCO/PCV correction information in ATX
+  antenna files.
+- Corrected description errors in `GREAT-PVT_1.0.pdf`.
+- Fixed code formatting issues.
 
-- **Newmat Library** (http://www.robertnz.net/nm_intro.htm)  
-  Copyright (C) 2008: R B Davies.
+## Acknowledgements
 
-- **spdlog Library** (https://github.com/gabime/spdlog)  
-  Copyright (c) 2015-present, Gabi Melman & spdlog contributors.
+GREAT-PVT is developed by the GNSS+ Research, Application and Teaching (GREAT)
+Group, School of Geodesy and Geomatics, Wuhan University.
 
-- **Eigen Library** (https://eigen.tuxfamily.org)  
-  Copyright (C) 2008-2011 Gael Guennebaud.
+Third-party components include:
 
-- **FAST Source Code** (https://github.com/ChangChuntao/FAST)  
-  Copyright (C) The GNSS Center, Wuhan University & Chinese Academy of Surveying and Mapping.
+- [G-Nut Library](http://www.pecny.cz)
+- [pugixml](http://pugixml.org)
+- [Newmat](http://www.robertnz.net/nm_intro.htm)
+- [spdlog](https://github.com/gabime/spdlog)
+- [Eigen](https://eigen.tuxfamily.org)
+- [FAST](https://github.com/ChangChuntao/FAST)
 
+## License
 
-## Download
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
-GitHub: https://github.com/GREAT-WHU/GREAT-PVT
+## Links
+
+- GitHub: <https://github.com/GREAT-WHU/GREAT-PVT>
 
 ---
 ---
