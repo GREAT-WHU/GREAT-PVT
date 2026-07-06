@@ -129,10 +129,6 @@ covered in:
 - `doc/GREAT-PVT_1.0.pdf`
 - `doc/GREAT-PVT_manual_1.0.pdf`
 
-## Star History
-
-![Star History Chart](https://api.star-history.com/image?repos=GREAT-WHU/GREAT-PVT&type=Date)
-
 ## Changelog
 
 ### Version 1.2
