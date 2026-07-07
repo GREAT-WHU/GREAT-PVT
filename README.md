@@ -11,16 +11,6 @@ Application, and Teaching) platform. It provides PPP and RTK positioning
 solutions for scientific, engineering, and teaching use in geodesy and
 navigation.
 
-## Star History
-
-<a href="https://www.star-history.com/?repos=GREAT-WHU%2FGREAT-PVT&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=GREAT-WHU/GREAT-PVT&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=GREAT-WHU/GREAT-PVT&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=GREAT-WHU/GREAT-PVT&type=date&legend=top-left" />
- </picture>
-</a>
-
 ## Features
 
 - Multi-GNSS processing for GPS, GLONASS, Galileo, and BDS-2/3.
@@ -37,20 +27,14 @@ Use the prebuilt executable if you only want to run GREAT-PVT.
 ### Windows
 
 ```powershell
-.\bin\Windows\GREAT_PVT.exe -x .\doc\GREAT_PPP.xml
+GREAT_PVT.exe -x GREAT_PPP.xml
 ```
 
 ### Linux
 
 ```bash
-chmod +x ./bin/Linux/GREAT_PVT
-./bin/Linux/GREAT_PVT -x ./doc/GREAT_PPP.xml
-```
-
-RTK processing uses the RTK configuration template:
-
-```bash
-./bin/Linux/GREAT_PVT -x ./doc/GREAT_RTK.xml
+chmod +x GREAT_PVT
+GREAT_PVT -x GREAT_PPP.xml
 ```
 
 The XML files in `doc/` are templates. Update their input and output paths to
