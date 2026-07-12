@@ -40,20 +40,17 @@ namespace gnut
         /** @brief default constructor. */
         explicit t_gdop();
 
-        explicit t_gdop(t_spdlog spdlog);
         /** @brief constructor 1. */
-        explicit t_gdop(t_spdlog spdlog, t_gallnav *gnav, t_gallobs *gobs, string site);
-        explicit t_gdop(t_gallnav *gnav, t_gallobs *gobs, string site);
+        explicit t_gdop(t_gallnav* gnav, t_gallobs* gobs, string site);
 
         /** @brief constructor 2. */
-        explicit t_gdop(t_gallnav *gnav, set<string> sats);
+        explicit t_gdop(t_gallnav* gnav, set<string> sats);
 
-        explicit t_gdop(t_spdlog spdlog, t_gallnav *gnav, set<string> sats);
         /** @brief default destructor. */
         ~t_gdop();
 
         /** @brief Calculate dop - _Qx. */
-        int calculate(const t_gtime &epoch, t_gtriple &rec, GSYS gnss = GNS);
+        int calculate(const t_gtime& epoch, t_gtriple& rec, GSYS gnss = GNS);
 
         /** @brief Position dilution of precision. */
         double pdop();
@@ -71,23 +68,20 @@ namespace gnut
         double vdop();
 
         /** @brief set nav, obs, site. */
-        void set_data(t_gallnav *gnav, t_gallobs *gobs, string site);
+        void set_data(t_gallnav* gnav, t_gallobs* gobs, string site);
 
         /** @brief set log. */
-        void set_log(t_spdlog spdlog);
-
         /** @brief set satellite list for calculation. */
-        void set_sats(set<string> &sats);
+        void set_sats(set<string>& sats);
 
     private:
         string _site;        ///< site name
-        t_gallnav *_gnav;    ///< ephemerides
-        t_gallobs *_gobs;    ///< observations
+        t_gallnav* _gnav;    ///< ephemerides
+        t_gallobs* _gobs;    ///< observations
         set<string> _sats;   ///< set of visible satellites
         t_gtriple _rec;      ///< receiver position
         SymmetricMatrix _Qx; ///< variance-covariance matrix
-        t_spdlog _spdlog;
     };
-}
+} // namespace gnut
 
 #endif

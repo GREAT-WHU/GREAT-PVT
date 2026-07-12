@@ -49,7 +49,6 @@ namespace gnut
     /** @brief class for t_gnote. */
     class LibGnut_LIBRARY_EXPORT t_gnote
     {
-
     public:
         /** @brief constructor 1. */
         t_gnote(t_note n, string f, string s);
@@ -58,15 +57,27 @@ namespace gnut
         virtual ~t_gnote();
 
         /** @brief util function. */
-        string str() const { return _str() + _text; }
-        string text() const { return _text; }
-        string func() const { return _func; }
-        t_note status() const { return _stat; }
+        string str() const
+        {
+            return _str() + _text;
+        }
+        string text() const
+        {
+            return _text;
+        }
+        string func() const
+        {
+            return _func;
+        }
+        t_note status() const
+        {
+            return _stat;
+        }
 
         /** @brief override operator. */
-        bool operator<(const t_gnote &n) const;
-        bool operator==(const t_gnote &n) const;
-        friend ostream &operator<<(ostream &os, const t_gnote &n);
+        bool operator<(const t_gnote& n) const;
+        bool operator==(const t_gnote& n) const;
+        friend ostream& operator<<(ostream& os, const t_gnote& n);
 
     protected:
         virtual string _str() const;
@@ -84,7 +95,6 @@ namespace gnut
     /** @brief class for t_gallnote. */
     class t_gallnote
     {
-
     public:
         /** @brief default constructor. */
         t_gallnote();
@@ -105,6 +115,6 @@ namespace gnut
         vector<t_gnote> _gnotes; ///< cummulate notes message/warning/error
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

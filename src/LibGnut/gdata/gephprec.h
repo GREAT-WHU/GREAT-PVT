@@ -36,73 +36,81 @@ namespace gnut
     /** @brief class for precise ephemerides data. */
     class LibGnut_LIBRARY_EXPORT t_gephprec : public t_geph
     {
-
     public:
         /** @brief default constructor. */
         explicit t_gephprec();
 
         /**
          * @brief Construct a new t gephprec object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        explicit t_gephprec(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gephprec();
 
         /**
-        * @brief get the position value
-        * @param[in]  t            GPST.
-        * @param[in]  xyz        position value.
-        * @param[in]  var        position variation, default value is NULL.
-        * @param[in]  vel        vel, default value is NULL.
-        * @param[in]  chk_health    the heath of satellite, default value is true.
-        * @return      int
-        */
-        int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true); // [m]
+         * @brief get the position value
+         * @param[in]  t            GPST.
+         * @param[in]  xyz        position value.
+         * @param[in]  var        position variation, default value is NULL.
+         * @param[in]  vel        vel, default value is NULL.
+         * @param[in]  chk_health    the heath of satellite, default value is true.
+         * @return      int
+         */
+        int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL,
+                bool chk_health = true); // [m]
 
         /**
-        * @brief get the GPS time of transmission,
-        * @param[in]  t            GPST.
-        * @param[in]  clk        clock offset value.
-        * @param[in]  var        clock variation, default value is NULL.
-        * @param[in]  dclk        clock difference, default value is NULL.
-        * @param[in]  chk_health    the heath of satellite, default value is true.
-        * @return      int
-        */
-        int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true); // [s]
+         * @brief get the GPS time of transmission,
+         * @param[in]  t            GPST.
+         * @param[in]  clk        clock offset value.
+         * @param[in]  var        clock variation, default value is NULL.
+         * @param[in]  dclk        clock difference, default value is NULL.
+         * @param[in]  chk_health    the heath of satellite, default value is true.
+         * @return      int
+         */
+        int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL,
+                bool chk_health = true); // [s]
 
         /**
-        * @brief get the GPS time of transmission,
-        * @param[in]  t            GPST.
-        * @param[in]  clk        clock offset value.
-        * @param[in]  var        clock variation, default value is NULL.
-        * @param[in]  dclk        clock difference, default value is NULL.
-        * @return      int
-        */
-        int clk_int(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL); // [s]
+         * @brief get the GPS time of transmission,
+         * @param[in]  t            GPST.
+         * @param[in]  clk        clock offset value.
+         * @param[in]  var        clock variation, default value is NULL.
+         * @param[in]  dclk        clock difference, default value is NULL.
+         * @return      int
+         */
+        int clk_int(const t_gtime& t, double* clk, double* var = NULL,
+                    double* dclk = NULL); // [s]
 
         /**
-        * @brief set the data of xyzc,
-        * @param[in]  t            GPST.
-        * @param[in]  x         _xcrd value.
-        * @param[in]  y         _ycrd value.
-        * @param[in]  z         _zcrd value.
-        * @param[in]  c         _clkc value.
-        * @return      int
-        */
-        int add(string sat, vector<t_gtime> t,
-                const vector<double> &x,
-                const vector<double> &y,
-                const vector<double> &z,
-                const vector<double> &c);
+         * @brief set the data of xyzc,
+         * @param[in]  t            GPST.
+         * @param[in]  x         _xcrd value.
+         * @param[in]  y         _ycrd value.
+         * @param[in]  z         _zcrd value.
+         * @param[in]  c         _clkc value.
+         * @return      int
+         */
+        int add(string sat,
+                vector<t_gtime> t,
+                const vector<double>& x,
+                const vector<double>& y,
+                const vector<double>& z,
+                const vector<double>& c);
 
         /** @brief get chk. */
-        int chk() const { return 1; }
+        int chk() const
+        {
+            return 1;
+        }
 
         /** @brief get str. */
-        string str() const { return ""; }
+        string str() const
+        {
+            return "";
+        }
 
         /** @brief print str. */
         int print()
@@ -119,16 +127,25 @@ namespace gnut
         }
 
         /** @brief get degree of polynomials. */
-        unsigned int degree() const { return _degree; }
+        unsigned int degree() const
+        {
+            return _degree;
+        }
 
         /** @brief get number of needed data. */
-        unsigned int ndata() const { return _degree + 1; }
+        unsigned int ndata() const
+        {
+            return _degree + 1;
+        }
 
         /** @brief get validity span. */
-        unsigned int interval() const { return (size_t)_poly_x.span(); }
+        unsigned int interval() const
+        {
+            return (size_t)_poly_x.span();
+        }
 
         /** @brief check validity (incl.data span). */
-        bool valid(const t_gtime &t) const;
+        bool valid(const t_gtime& t) const;
 
     protected:
         /** @brief clear. */
@@ -155,6 +172,6 @@ namespace gnut
         vector<double> _clkc; ///< clock correction
     };
 
-}
+} // namespace gnut
 
 #endif

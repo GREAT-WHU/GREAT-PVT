@@ -22,8 +22,8 @@ using namespace pugi;
 
 namespace gnut
 {
-    t_gsetflt::t_gsetflt()
-        : t_gsetbase()
+    t_gsetflt::t_gsetflt() :
+        t_gsetbase()
     {
         _set.insert(XMLKEY_FLT);
         _noise_clk = 1000.0;
@@ -286,4 +286,4 @@ namespace gnut
         return;
     }
 
-} // namespace
+} // namespace gnut

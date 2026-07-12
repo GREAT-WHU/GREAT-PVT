@@ -32,8 +32,11 @@ using namespace std;
 namespace gnut
 {
 
-    t_gtime::t_gtime(const t_tsys &ts)
-        : _mjd(0), _sod(0), _dsec(0.0), _tsys(UTC)
+    t_gtime::t_gtime(const t_tsys& ts) :
+        _mjd(0),
+        _sod(0),
+        _dsec(0.0),
+        _tsys(UTC)
     {
         from_time(time(NULL), 0.0, true); // input UTC time-system
         _tsys = ts;                       // now switch to required TS
@@ -41,40 +44,57 @@ namespace gnut
         _reset_conv();
     }
 
-    t_gtime::t_gtime(const time_t &tt, const double &ds, const t_tsys &ts)
-        : _mjd(0), _sod(0), _dsec(0.0), _tsys(UTC)
+    t_gtime::t_gtime(const time_t& tt, const double& ds, const t_tsys& ts) :
+        _mjd(0),
+        _sod(0),
+        _dsec(0.0),
+        _tsys(UTC)
     {
         from_time(tt, ds, true); // input UTC time-system
         _tsys = ts;              // now switch to required TS
 
-        _reset_conv(); 
+        _reset_conv();
     }
 
-    t_gtime::t_gtime(const int &yr, const int &mn,
-                     const int &dd, const int &hr,
-                     const int &mi, const int &sc,
-                     const double &ds, const t_tsys &ts)
-        : _mjd(0), _sod(0), _dsec(0.0), _tsys(ts)
+    t_gtime::t_gtime(const int& yr,
+                     const int& mn,
+                     const int& dd,
+                     const int& hr,
+                     const int& mi,
+                     const int& sc,
+                     const double& ds,
+                     const t_tsys& ts) :
+        _mjd(0),
+        _sod(0),
+        _dsec(0.0),
+        _tsys(ts)
     {
         from_ymdhms(yr, mn, dd, hr, mi, sc + ds, true);
     }
 
-    t_gtime::t_gtime(const int &gw, const int &dw, const int &sd,
-                     const double &ds, const t_tsys &ts)
-        : _mjd(0), _sod(0), _dsec(0.0), _tsys(ts)
+    t_gtime::t_gtime(const int& gw, const int& dw, const int& sd, const double& ds, const t_tsys& ts) :
+        _mjd(0),
+        _sod(0),
+        _dsec(0.0),
+        _tsys(ts)
     {
         from_gwd(gw, dw, sd, ds, true);
     }
 
-    t_gtime::t_gtime(const int &gw, const double &sow, const t_tsys &ts)
-        : _mjd(0), _sod(0), _dsec(0.0), _tsys(ts)
+    t_gtime::t_gtime(const int& gw, const double& sow, const t_tsys& ts) :
+        _mjd(0),
+        _sod(0),
+        _dsec(0.0),
+        _tsys(ts)
     {
         from_gws(gw, sow, true);
     }
 
-    t_gtime::t_gtime(const int &mjd, const int &sd,
-                     const double &ds, const t_tsys &ts)
-        : _mjd(0), _sod(0), _dsec(0.0), _tsys(ts)
+    t_gtime::t_gtime(const int& mjd, const int& sd, const double& ds, const t_tsys& ts) :
+        _mjd(0),
+        _sod(0),
+        _dsec(0.0),
+        _tsys(ts)
     {
         from_mjd(mjd, sd, ds, true);
     }
@@ -83,39 +103,39 @@ namespace gnut
     {
     }
 
-    string t_gtime::tsys2str(const t_tsys &ts)
+    string t_gtime::tsys2str(const t_tsys& ts)
     {
         switch (ts)
         {
-        case USER:
-            return "USER";
-        case TAI:
-            return "TAI";
-        case UTC:
-            return "UTC";
-        case LOC:
-            return "LOC";
-        case GPS:
-            return "GPS";
-        case GLO:
-            return "GLO";
-        case GAL:
-            return "GAL";
-        case BDS:
-            return "BDS";
-        case TT:
-            return "TT";
+            case USER:
+                return "USER";
+            case TAI:
+                return "TAI";
+            case UTC:
+                return "UTC";
+            case LOC:
+                return "LOC";
+            case GPS:
+                return "GPS";
+            case GLO:
+                return "GLO";
+            case GAL:
+                return "GAL";
+            case BDS:
+                return "BDS";
+            case TT:
+                return "TT";
 
-        default:
-        {
-            cout << "*** warning: unknown time system!\n";
-            cout.flush();
-        }
+            default:
+            {
+                cout << "*** warning: unknown time system!\n";
+                cout.flush();
+            }
         }
         return "TAI";
     }
 
-    t_gtime::t_tsys t_gtime::str2tsys(const string &tmp)
+    t_gtime::t_tsys t_gtime::str2tsys(const string& tmp)
     {
         string s(tmp);
         if (s.size() == 0)
@@ -128,23 +148,41 @@ namespace gnut
         transform(s.begin(), s.end(), s.begin(), ::toupper);
 
         if (s == "USER")
+        {
             return USER;
+        }
         else if (s == "TAI")
+        {
             return TAI;
+        }
         else if (s == "UTC")
+        {
             return UTC;
+        }
         else if (s == "LOC")
+        {
             return LOC;
+        }
         else if (s == "GPS")
+        {
             return GPS;
+        }
         else if (s == "GLO")
+        {
             return GLO;
+        }
         else if (s == "GAL")
+        {
             return GAL;
+        }
         else if (s == "BDS")
+        {
             return BDS;
+        }
         else if (s == "TT")
+        {
             return TT;
+        }
         else
         {
             cout << "*** warning: not defined correct time system [" << s[0] << "]\n";
@@ -154,7 +192,7 @@ namespace gnut
         return TAI;
     }
 
-    t_gtime t_gtime::current_time(const t_tsys &ts)
+    t_gtime t_gtime::current_time(const t_tsys& ts)
     {
         t_gtime tmp(UTC);
         tmp.from_time(time(NULL), 0.0, true);
@@ -162,12 +200,10 @@ namespace gnut
         return tmp;
     }
 
-    int t_gtime::from_time(const time_t &tt, const double &ds, const bool &conv)
+    int t_gtime::from_time(const time_t& tt, const double& ds, const bool& conv)
     {
-        struct tm *tm = gmtime(&tt);
-        from_ymd(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-                 tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec,
-                 ds, conv);
+        struct tm* tm = gmtime(&tt);
+        from_ymd(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec, ds, conv);
 
         _norm_dsec();
         _norm_sod();
@@ -176,7 +212,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_gws(const int &gw, const double &sow, const bool &conv)
+    int t_gtime::from_gws(const int& gw, const double& sow, const bool& conv)
     {
         int dw = (int)floor(sow / 86400);
         _mjd = 44244 + 7 * gw + dw;
@@ -184,7 +220,9 @@ namespace gnut
         _dsec = sow - dw * 86400.0 - _sod;
 
         if (conv)
+        {
             _to_tai(); // CONVERT
+        }
         _norm_dsec();
         _norm_sod();
 
@@ -192,15 +230,16 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_gwd(const int &gw, const int &dw, const int &sd,
-                          const double &ds, const bool &conv)
+    int t_gtime::from_gwd(const int& gw, const int& dw, const int& sd, const double& ds, const bool& conv)
     {
         _mjd = 44244 + 7 * gw + dw;
         _sod = sd;
         _dsec = ds;
 
         if (conv)
+        {
             _to_tai(); // CONVERT
+        }
         _norm_dsec();
         _norm_sod();
 
@@ -208,8 +247,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_ymd(const int &yr, const int &mn, const int &dd,
-                          const int &sd, const double &ds, const bool &conv)
+    int t_gtime::from_ymd(const int& yr, const int& mn, const int& dd, const int& sd, const double& ds, const bool& conv)
     {
         int year(yr);
         _norm_year(year);
@@ -218,7 +256,9 @@ namespace gnut
         _dsec = ds;
 
         if (conv)
+        {
             _to_tai(); // CONVERT
+        }
         _norm_dsec();
         _norm_sod();
 
@@ -226,10 +266,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_ymdhms(const int &yr, const int &mn,
-                             const int &dd, const int &h,
-                             const int &m, const double &s,
-                             const bool &conv)
+    int t_gtime::from_ymdhms(const int& yr, const int& mn, const int& dd, const int& h, const int& m, const double& s, const bool& conv)
     {
         int year(yr);
         _norm_year(year);
@@ -239,7 +276,9 @@ namespace gnut
         _dsec = s - 1.0 * (floor(s));
 
         if (conv)
+        {
             _to_tai(); // CONVERT
+        }
         _norm_dsec();
         _norm_sod();
 
@@ -247,15 +286,16 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_mjd(const int &mjd, const int &sd,
-                          const double &ds, const bool &conv)
+    int t_gtime::from_mjd(const int& mjd, const int& sd, const double& ds, const bool& conv)
     {
         _mjd = mjd;
         _sod = sd;
         _dsec = ds;
 
         if (conv)
+        {
             _to_tai(); // CONVERT
+        }
         _norm_dsec();
         _norm_sod();
 
@@ -263,14 +303,16 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_dmjd(const double &dmjd, const bool &conv)
+    int t_gtime::from_dmjd(const double& dmjd, const bool& conv)
     {
         _mjd = (int)dmjd;
         _sod = (int)((dmjd - _mjd) * 86400.0);
         _dsec = (dmjd - _mjd) * 86400.0 - _sod;
 
         if (conv)
+        {
             _to_tai(); // CONVERT
+        }
         _norm_dsec();
         _norm_sod();
 
@@ -278,7 +320,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gtime::from_str(const string &ifmt, const string &idat, const bool &conv)
+    int t_gtime::from_str(const string& ifmt, const string& idat, const bool& conv)
     {
         int cYMD = _ymd;
         int cHMS = _hms;
@@ -293,7 +335,6 @@ namespace gnut
         // search and process keys from left to right
         while ((fmtpos < ifmt.length()) && (idx = ifmt.find('%', fmtpos)) != string::npos)
         {
-
             fmtpos++; // a priori encrease
 
             for (int i = 0; i < MAX_DT; ++i)
@@ -302,11 +343,15 @@ namespace gnut
 
                 // too short ifmt format string, skip!
                 if (ifmt.length() - idx - 1 < tmp.length())
+                {
                     continue;
+                }
 
                 // dat string not identified, skipped !
                 if (ifmt.substr(idx + 1, tmp.length()).compare(tmp) != 0)
+                {
                     continue;
+                }
 
                 fmtpos = idx + tmp.length() + 1; // end of format reading
                 datpos = idx - fmtadd + datadd;  // sum of all idat characters
@@ -431,14 +476,13 @@ namespace gnut
 
         if (cYMD == (_year | _mon | _day) && cHMS == (_hour | _min | _sec))
         {
-
             from_ymd(y, b, d, h * 3600 + m * 60 + s, 0.0, conv);
             return 0;
         }
 
         if (cYMD == (_year | _mon | _day))
         {
-           from_ymd(y, b, d, 0, 0.0, conv);
+            from_ymd(y, b, d, 0, 0.0, conv);
             return 0;
         }
 
@@ -471,29 +515,29 @@ namespace gnut
     {
         switch (_tsys)
         {
-        case USER:
-            return 0;
-        case TAI:
-            return 0;
-        case UTC:
-            return 0;
-        case GPS:
-            return 0;
-        case GLO:
-            return 3 * 3600;
-        case GAL:
-            return 0;
-        case BDS:
-            return 0;
-        case LOC:
-        {
-            time_t local, utc;
-            local = time(NULL);
-            utc = mktime(gmtime(&local));
-            return int(local - utc);
-        }
-        default:
-            cerr << " warning : t_tsys not recognized !\n";
+            case USER:
+                return 0;
+            case TAI:
+                return 0;
+            case UTC:
+                return 0;
+            case GPS:
+                return 0;
+            case GLO:
+                return 3 * 3600;
+            case GAL:
+                return 0;
+            case BDS:
+                return 0;
+            case LOC:
+            {
+                time_t local, utc;
+                local = time(NULL);
+                utc = mktime(gmtime(&local));
+                return int(local - utc);
+            }
+            default:
+                cerr << " warning : t_tsys not recognized !\n";
         }
         return 0;
     }
@@ -502,36 +546,36 @@ namespace gnut
     {
         switch (_tsys)
         {
-        case USER:
-            return 0;
-        case TAI:
-            return 0;
-        case UTC:
-            return 0;
-        case GPS:
-            return 0;
-        case GLO:
-            return 0;
-        case BDS:
-            return 0;
-        case GAL:
-            return 0;
-        case LOC:
-        {
-            struct tm tm;
-            ymd(tm.tm_year, tm.tm_mon, tm.tm_mday, false); // TAI !
-            hms(tm.tm_hour, tm.tm_min, tm.tm_sec, false);  // TAI !
+            case USER:
+                return 0;
+            case TAI:
+                return 0;
+            case UTC:
+                return 0;
+            case GPS:
+                return 0;
+            case GLO:
+                return 0;
+            case BDS:
+                return 0;
+            case GAL:
+                return 0;
+            case LOC:
+            {
+                struct tm tm;
+                ymd(tm.tm_year, tm.tm_mon, tm.tm_mday, false); // TAI !
+                hms(tm.tm_hour, tm.tm_min, tm.tm_sec, false);  // TAI !
 
-            tm.tm_year -= 1900;
-            tm.tm_mon -= 1;
-            tm.tm_sec -= leapsec() + tzdiff(); // convert tai to LOC !
-            tm.tm_isdst = -1;
+                tm.tm_year -= 1900;
+                tm.tm_mon -= 1;
+                tm.tm_sec -= leapsec() + tzdiff(); // convert tai to LOC !
+                tm.tm_isdst = -1;
 
-            mktime(&tm);
-            return int(3600.0 * tm.tm_isdst); // [sec]
-        }
-        default:
-            cerr << " warning : t_tsys not recognized !\n";
+                mktime(&tm);
+                return int(3600.0 * tm.tm_isdst); // [sec]
+            }
+            default:
+                cerr << " warning : t_tsys not recognized !\n";
         }
         return 0;
     }
@@ -542,9 +586,7 @@ namespace gnut
         for (int i = sizeof(leapseconds) / sizeof(*leapseconds) - 1; i >= 0; --i)
         {
             double mjd_time = _mjd + _sod / 86400.0 - leapseconds[i]._leap / 86400.0;
-            double mjd_leap = static_cast<double>(_ymd_mjd(leapseconds[i]._year,
-                                                           leapseconds[i]._mon,
-                                                           leapseconds[i]._day));
+            double mjd_leap = static_cast<double>(_ymd_mjd(leapseconds[i]._year, leapseconds[i]._mon, leapseconds[i]._day));
             if (mjd_leap <= mjd_time)
             {
                 leap = leapseconds[i]._leap;
@@ -554,17 +596,21 @@ namespace gnut
         return leap;
     }
 
-    int t_gtime::leapyear(const int &y) const
+    int t_gtime::leapyear(const int& y) const
     {
         if (y % 4 == 0.0 && y % 100 != 0.0)
+        {
             return 1; //     leap year !
+        }
         if (y % 400 == 0.0)
+        {
             return 1; //     leap year !
+        }
 
         return 0; // not leap year
     }
 
-    int t_gtime::mjd(const bool &conv) const
+    int t_gtime::mjd(const bool& conv) const
     {
         if (!conv)
         {
@@ -574,17 +620,16 @@ namespace gnut
         {
             return _mjd_conv;
         }
-
     }
 
-    double t_gtime::dmjd(const bool &conv) const
+    double t_gtime::dmjd(const bool& conv) const
     {
         double ret;
         ret = dsec(conv) / 86400.0 + (double)sod(conv) / 86400.0 + (double)mjd(conv);
         return ret;
     }
 
-    double t_gtime::dmjd_vlbi(const bool &conv) const
+    double t_gtime::dmjd_vlbi(const bool& conv) const
     {
         int m, y, b = 0;
         bool ind = false;
@@ -608,11 +653,12 @@ namespace gnut
             b = int(y / 400) - int(y / 100);
         }
         double jd = int(365.25 * y) - 2400000.5;
-        double tmjd = jd + int(30.6001 * (m + 1)) + b + 1720996.5 + day() + hour() / 24.0 + mins() / 1440.0 + secs() / 86400.0 + dsec() / 86400.0;
+        double tmjd =
+            jd + int(30.6001 * (m + 1)) + b + 1720996.5 + day() + hour() / 24.0 + mins() / 1440.0 + secs() / 86400.0 + dsec() / 86400.0;
         return tmjd;
     }
 
-    int t_gtime::sod(const bool &conv) const
+    int t_gtime::sod(const bool& conv) const
     {
         if (!conv)
         {
@@ -624,7 +670,7 @@ namespace gnut
         }
     }
 
-    double t_gtime::dsec(const bool &conv) const
+    double t_gtime::dsec(const bool& conv) const
     {
         if (!conv)
         {
@@ -639,8 +685,8 @@ namespace gnut
     time_t t_gtime::tim() const
     {
         int y, b, d, h, m, s;
-        ymd(y, b, d, true); 
-        hms(h, m, s, true); 
+        ymd(y, b, d, true);
+        hms(h, m, s, true);
 
         struct tm t;
         t.tm_year = y - 1900;
@@ -654,16 +700,20 @@ namespace gnut
         return mktime(&t);
     }
 
-    int t_gtime::doy(const bool &conv) const
+    int t_gtime::doy(const bool& conv) const
     {
         int y, m, d;
         ymd(y, m, d, conv);
 
         int doy = d;
         for (int i = 0; i < m && i < 13; ++i)
+        {
             doy += monthdays[i];
+        }
         if (m > 2)
+        {
             doy += leapyear(y); // count for leap year
+        }
         return doy;
     }
 
@@ -674,17 +724,17 @@ namespace gnut
 
     int t_gtime::gwk() const
     {
-        return static_cast<int>((mjd(true) - 44244.0) / 7.0); 
+        return static_cast<int>((mjd(true) - 44244.0) / 7.0);
     }
 
     int t_gtime::dow() const
     {
-        return static_cast<int>(mjd(true) - 44244.0 - gwk() * 7); 
+        return static_cast<int>(mjd(true) - 44244.0 - gwk() * 7);
     }
 
     int t_gtime::sow() const
     {
-        return static_cast<int>(dow() * 86400.0 + sod()); 
+        return static_cast<int>(dow() * 86400.0 + sod());
     }
 
     int t_gtime::year() const
@@ -734,14 +784,14 @@ namespace gnut
         return static_cast<int>(sod(true) % 60);
     }
 
-    void t_gtime::hms(int &h, int &m, int &s, bool conv) const
+    void t_gtime::hms(int& h, int& m, int& s, bool conv) const
     {
         h = static_cast<int>((sod(conv) % 86400) / 3600.0);
         m = static_cast<int>((sod(conv) % 3600) / 60.0);
         s = static_cast<int>((sod(conv) % 60));
     }
 
-    void t_gtime::ymd(int &y, int &m, int &d, bool conv) const
+    void t_gtime::ymd(int& y, int& m, int& d, bool conv) const
     {
         int jj, mm, dd;
         long ih, ih1, ih2;
@@ -761,16 +811,20 @@ namespace gnut
         dd = int(t3 - t1 - int(ih2 * 30.6001) + t4);
         mm = ih2 - 1;
         if (ih2 > 13)
+        {
             mm = ih2 - 13;
+        }
         jj = ih1;
         if (mm <= 2)
+        {
             jj = jj + 1;
+        }
         y = jj;
         m = mm;
         d = dd;
     }
 
-    string t_gtime::str(const string &ofmt, const bool &conv) const
+    string t_gtime::str(const string& ofmt, const bool& conv) const
     {
         t_gtime gt(*this);
 
@@ -784,14 +838,15 @@ namespace gnut
 
         while ((idx = str.find('%')) != string::npos && idx + 1 <= str.length())
         {
-
             bool replace = false;
             for (int i = 0; i < MAX_DT; ++i)
             {
                 string tmp = TD[i];
 
                 if (str.substr(idx + 1, tmp.length()).compare(tmp) != 0)
+                {
                     continue;
+                }
 
                 if (!tmp.compare("Y"))
                 {
@@ -891,12 +946,14 @@ namespace gnut
                 replace = true;
             }
             if (!replace)
+            {
                 str.replace(idx, 1, "");
+            }
         }
         return str;
     }
 
-    string t_gtime::str_ymd(const string &str, const bool &conv) const
+    string t_gtime::str_ymd(const string& str, const bool& conv) const
     {
         char cstr[12];
         int y = 0, b = 0, d = 0;
@@ -905,7 +962,7 @@ namespace gnut
         return str + " " + string(cstr);
     }
 
-    string t_gtime::str_hms(const string &str, const bool &conv) const
+    string t_gtime::str_hms(const string& str, const bool& conv) const
     {
         char cstr[12];
         int h = 0, m = 0, s = 0;
@@ -914,29 +971,31 @@ namespace gnut
         return str + " " + string(cstr);
     }
 
-    string t_gtime::str_ydoysod(const string &str, const bool &conv) const
+    string t_gtime::str_ydoysod(const string& str, const bool& conv) const
     {
         char cstr[15];
         sprintf(cstr, "%04i:%03i:%05i", year(), doy(conv), sod());
         return cstr;
     }
 
-    string t_gtime::str_ymdhms(const string &str,
-                               const bool &ts,
-                               const bool &conv) const
+    string t_gtime::str_ymdhms(const string& str, const bool& ts, const bool& conv) const
     {
         char cstr[25];
         int y = 0, b = 0, d = 0, h = 0, m = 0, s = 0;
         this->ymd(y, b, d, conv);
         this->hms(h, m, s, conv);
         if (ts)
+        {
             sprintf(cstr, "%04i-%02i-%02i %02i:%02i:%02i[%3s]", y, b, d, h, m, s, sys().c_str());
+        }
         else
+        {
             sprintf(cstr, "%04i-%02i-%02i %02i:%02i:%02i", y, b, d, h, m, s);
+        }
         return str + " " + string(cstr);
     }
 
-    string t_gtime::str_mjdsod(const string &str, const bool &ts, const bool &conv) const
+    string t_gtime::str_mjdsod(const string& str, const bool& ts, const bool& conv) const
     {
         char cstr[25];
 
@@ -956,7 +1015,7 @@ namespace gnut
         return str + " " + string(cstr);
     }
 
-    string t_gtime::str_yyyydoy(const bool &conv) const
+    string t_gtime::str_yyyydoy(const bool& conv) const
     {
         int year, doy;
         string tmp;
@@ -964,106 +1023,144 @@ namespace gnut
         doy = this->doy(conv);
         string cdoy = int2str(doy);
         if (doy >= 10 && doy < 100)
+        {
             cdoy = "0" + cdoy;
+        }
         if (doy < 10)
+        {
             cdoy = "00" + cdoy;
+        }
         tmp = int2str(year) + cdoy;
         return tmp;
     }
 
-    string t_gtime::str_yyyy(const bool &conv) const
+    string t_gtime::str_yyyy(const bool& conv) const
     {
         return int2str(this->year());
     };
 
-    string t_gtime::str_doy(const bool &conv) const
+    string t_gtime::str_doy(const bool& conv) const
     {
         string tmp = int2str(this->doy());
         if (tmp.size() == 1)
+        {
             return "00" + tmp;
+        }
         else if (tmp.size() == 2)
+        {
             return "0" + tmp;
+        }
         else
+        {
             return tmp;
+        }
     };
 
-    string t_gtime::str_gwkd(const bool &conv) const
+    string t_gtime::str_gwkd(const bool& conv) const
     {
         return int2str(this->gwk()) + int2str(this->dow());
     }
 
-    string t_gtime::str_gwk(const bool &conv) const
+    string t_gtime::str_gwk(const bool& conv) const
     {
         return int2str(this->gwk());
     }
 
-    string t_gtime::str_yr(const bool &conv) const
+    string t_gtime::str_yr(const bool& conv) const
     {
         string tmp = int2str(this->yr());
         if (tmp.size() == 1)
+        {
             return "0" + tmp;
+        }
         else
+        {
             return tmp;
+        }
     }
 
-    string t_gtime::str_mon(const bool &conv) const
+    string t_gtime::str_mon(const bool& conv) const
     {
         string tmp = int2str(this->mon());
         if (tmp.size() == 1)
+        {
             return "0" + tmp;
+        }
         else
+        {
             return tmp;
+        }
     }
-    string t_gtime::str_day(const bool &conv) const
+    string t_gtime::str_day(const bool& conv) const
     {
         string tmp = int2str(this->day());
         if (tmp.size() == 1)
+        {
             return "0" + tmp;
+        }
         else
+        {
             return tmp;
+        }
     }
 
-    string t_gtime::str_hour(const bool & conv) const
+    string t_gtime::str_hour(const bool& conv) const
     {
         string tmp = int2str(this->hour());
         if (tmp.size() == 1)
+        {
             return "0" + tmp;
+        }
         else
+        {
             return tmp;
+        }
     }
 
-    string t_gtime::str_min(const bool & conv) const
+    string t_gtime::str_min(const bool& conv) const
     {
         string tmp = int2str(this->mins());
         if (tmp.size() == 1)
+        {
             return "0" + tmp;
+        }
         else
+        {
             return tmp;
+        }
     }
 
-    int t_gtime::yr(const int &y) const
+    int t_gtime::yr(const int& y) const
     {
         if (y <= 2079 && y >= 2000)
+        {
             return y - 2000;
+        }
         if (y < 2000 && y >= 1980)
+        {
             return y - 1900;
+        }
 
         return -1;
     }
 
-    string t_gtime::mon(const int &m) const
+    string t_gtime::mon(const int& m) const
     {
         if (m < 1 || m > 12)
+        {
             return "XXX";
+        }
         return MON[m];
     }
 
-    int t_gtime::mon(const string &str) const
+    int t_gtime::mon(const string& str) const
     {
         for (int i = 1; i <= 12; ++i)
         {
             if (str.compare(MON[i]) == 0)
+            {
                 return i;
+            }
         }
         return 0;
     }
@@ -1074,17 +1171,17 @@ namespace gnut
         return ts;
     }
 
-    double t_gtime::operator-(const t_gtime &t) const
+    double t_gtime::operator-(const t_gtime& t) const
     {
         return (this->diff(t));
     }
 
-    bool t_gtime::operator<(const double &t) const
+    bool t_gtime::operator<(const double& t) const
     {
         return (this->sow() + this->dsec() < t);
     }
 
-    t_gtime t_gtime::operator-(const double &sec) const
+    t_gtime t_gtime::operator-(const double& sec) const
     {
         t_gtime tmp(*this);
         tmp.add_secs(-static_cast<int>(sec));
@@ -1092,7 +1189,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtime t_gtime::operator+(const double &sec) const
+    t_gtime t_gtime::operator+(const double& sec) const
     {
         t_gtime tmp(*this);
         int second = floor(sec);
@@ -1102,37 +1199,39 @@ namespace gnut
         return tmp;
     }
 
-    bool t_gtime::operator<(const t_gtime &t) const
+    bool t_gtime::operator<(const t_gtime& t) const
     {
-        return ((_mjd_conv < t._mjd_conv) || (_mjd_conv == t._mjd_conv && _sod_conv < t._sod_conv) || (_mjd_conv == t._mjd_conv && _sod_conv == t._sod_conv && _dsec_conv < t._dsec_conv));
+        return ((_mjd_conv < t._mjd_conv) || (_mjd_conv == t._mjd_conv && _sod_conv < t._sod_conv) ||
+                (_mjd_conv == t._mjd_conv && _sod_conv == t._sod_conv && _dsec_conv < t._dsec_conv));
     }
 
-    bool t_gtime::operator<=(const t_gtime &t) const
+    bool t_gtime::operator<=(const t_gtime& t) const
     {
         return (*this < t || *this == t);
     }
 
-    bool t_gtime::operator>=(const t_gtime &t) const
+    bool t_gtime::operator>=(const t_gtime& t) const
     {
         return (*this > t || *this == t);
     }
 
-    bool t_gtime::operator>(const t_gtime &t) const
+    bool t_gtime::operator>(const t_gtime& t) const
     {
-        return ((_mjd_conv > t._mjd_conv) || (_mjd_conv == t._mjd_conv && _sod_conv > t._sod_conv) || (_mjd_conv == t._mjd_conv && _sod_conv == t._sod_conv && _dsec_conv > t._dsec_conv));
+        return ((_mjd_conv > t._mjd_conv) || (_mjd_conv == t._mjd_conv && _sod_conv > t._sod_conv) ||
+                (_mjd_conv == t._mjd_conv && _sod_conv == t._sod_conv && _dsec_conv > t._dsec_conv));
     }
 
-    bool t_gtime::operator==(const t_gtime &t) const
+    bool t_gtime::operator==(const t_gtime& t) const
     {
         return (_mjd_conv == t._mjd_conv && _sod_conv == t._sod_conv && _dsec_conv == t._dsec_conv);
     }
 
-    bool t_gtime::operator!=(const t_gtime &t) const
+    bool t_gtime::operator!=(const t_gtime& t) const
     {
         return (_mjd_conv != t._mjd_conv || _sod_conv != t._sod_conv || _dsec_conv != t._dsec_conv);
     }
 
-    t_gtime t_gtime::operator=(const t_gtime &t)
+    t_gtime t_gtime::operator=(const t_gtime& t)
     {
         _mjd = t.mjd(false);
         _sod = t.sod(false);
@@ -1143,7 +1242,7 @@ namespace gnut
         return *this;
     }
 
-    void t_gtime::del_secs(const int &sec)
+    void t_gtime::del_secs(const int& sec)
     {
         _sod -= sec;
         _norm_sod();
@@ -1151,7 +1250,7 @@ namespace gnut
         _reset_conv();
     }
 
-    void t_gtime::add_secs(const int &sec)
+    void t_gtime::add_secs(const int& sec)
     {
         _sod += sec;
         _norm_sod();
@@ -1159,7 +1258,7 @@ namespace gnut
         _reset_conv();
     }
 
-    void t_gtime::add_dsec(const double &dsec)
+    void t_gtime::add_dsec(const double& dsec)
     {
         _dsec += dsec;
         _norm_dsec();
@@ -1168,7 +1267,7 @@ namespace gnut
         _reset_conv();
     }
 
-    double t_gtime::diff(const t_gtime &t) const
+    double t_gtime::diff(const t_gtime& t) const
     {
         bool b = false; // compare in TAI
         return ((dsec(b) - t.dsec(b)) + (sod(b) - t.sod(b)) + (mjd(b) * 86400.0 - t.mjd(b) * 86400.0));
@@ -1180,47 +1279,47 @@ namespace gnut
         _norm_sod();
         switch (_tsys)
         {
-        case USER:
-            break;
-            ;
-        case TAI:
-            break;
-            ;
-        case UTC:
-            _sod += leapsec();
-            break;
-            ;
-        case GPS:
-            _sod += TAI_GPS;
-            break;
-            ;
-        case GLO:
-            _sod -= tzdiff();
-            _sod += leapsec();
-            break;
-            ;
-        case GAL:
-            _sod += TAI_GAL;
-            break;
-            ;
-        case BDS:
-            _sod += TAI_BDS;
-            break;
-            ;
-        case LOC:
-            _sod -= tzdiff();
-            _sod -= dstime();
-            _sod += leapsec();
-            break;
-            ;
-        case TT:
-            _sod -= TAI_TT;
-            _dsec -= TAT_TT_DSEC;
-            break;
-            ;
-        default:
-            break;
-            ;
+            case USER:
+                break;
+                ;
+            case TAI:
+                break;
+                ;
+            case UTC:
+                _sod += leapsec();
+                break;
+                ;
+            case GPS:
+                _sod += TAI_GPS;
+                break;
+                ;
+            case GLO:
+                _sod -= tzdiff();
+                _sod += leapsec();
+                break;
+                ;
+            case GAL:
+                _sod += TAI_GAL;
+                break;
+                ;
+            case BDS:
+                _sod += TAI_BDS;
+                break;
+                ;
+            case LOC:
+                _sod -= tzdiff();
+                _sod -= dstime();
+                _sod += leapsec();
+                break;
+                ;
+            case TT:
+                _sod -= TAI_TT;
+                _dsec -= TAT_TT_DSEC;
+                break;
+                ;
+            default:
+                break;
+                ;
         }
         _norm_dsec();
         _norm_sod();
@@ -1262,66 +1361,66 @@ namespace gnut
         return *this;
     }
 
-    int t_gtime::tai_tsys(const t_tsys &ts) const
+    int t_gtime::tai_tsys(const t_tsys& ts) const
     {
         double sec = 0.0;
         switch (ts)
         {
-        case USER:
-            break;
-        case TAI:
-            break;
-        case UTC:
-            sec -= leapsec();
-            break;
-            ;
-        case GPS:
-            sec -= TAI_GPS;
-            break;
-            ;
-        case GLO:
-            sec -= leapsec();
-            sec += tzdiff();
-            break;
-            ;
-        case GAL:
-            sec -= TAI_GAL;
-            break;
-            ;
-        case BDS:
-            sec -= TAI_BDS;
-            break;
-            ;
-        case LOC:
-            sec -= leapsec();
-            sec += dstime();
-            sec += tzdiff();
-            break;
-            ;
-        case TT:
-            sec += TAI_TT;
-            break;
-            ;
-        default:
-            break;
-            ;
+            case USER:
+                break;
+            case TAI:
+                break;
+            case UTC:
+                sec -= leapsec();
+                break;
+                ;
+            case GPS:
+                sec -= TAI_GPS;
+                break;
+                ;
+            case GLO:
+                sec -= leapsec();
+                sec += tzdiff();
+                break;
+                ;
+            case GAL:
+                sec -= TAI_GAL;
+                break;
+                ;
+            case BDS:
+                sec -= TAI_BDS;
+                break;
+                ;
+            case LOC:
+                sec -= leapsec();
+                sec += dstime();
+                sec += tzdiff();
+                break;
+                ;
+            case TT:
+                sec += TAI_TT;
+                break;
+                ;
+            default:
+                break;
+                ;
         }
 
         return sec;
     }
 
-    double t_gtime::tai_tsys_dsec(const t_tsys &ts) const
+    double t_gtime::tai_tsys_dsec(const t_tsys& ts) const
     {
         double sec = 0.0;
         switch (ts)
         {
-        case TT:
-            sec += TAT_TT_DSEC;
-            break;
-            ;
-        default:
-            break;
-            ;
+            case TT:
+                sec += TAT_TT_DSEC;
+                break;
+                ;
+            default:
+                break;
+                ;
         }
         return sec;
     }
@@ -1354,13 +1453,15 @@ namespace gnut
         }
     }
 
-    void t_gtime::_norm_year(int &year) const
+    void t_gtime::_norm_year(int& year) const
     {
         if (year < 100.0)
+        {
             year += year < 80 ? 2000 : 1900;
+        }
     }
 
-    int t_gtime::_ymd_mjd(const int &yr, const int &mn, const int &dd) const
+    int t_gtime::_ymd_mjd(const int& yr, const int& mn, const int& dd) const
     {
         int year(yr);
         int mon(mn);
@@ -1380,7 +1481,6 @@ namespace gnut
 
     void t_gtime::gmsleep(unsigned int ms) // milisecond
     {
-
 #if defined __linux__
         usleep(ms * 1000);
 #elif defined __APPLE__
@@ -1401,11 +1501,11 @@ namespace gnut
 #elif defined __APPLE__
         usleep(us);
 #elif defined _WIN32 || defined _WIN64
-        this_thread::sleep_for(chrono::microseconds(us));                                                                                                                                                                           
+        this_thread::sleep_for(chrono::microseconds(us));
 #endif
     }
 
-    void t_gtime::yeardoy2monthday(int year, int doy, int *month, int *day)
+    void t_gtime::yeardoy2monthday(int year, int doy, int* month, int* day)
     {
         int days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
         days_in_month[1] = 28;
@@ -1417,11 +1517,13 @@ namespace gnut
         }
 
         id = doy;
-        for (*month = 1; *month <= 12; (*month)++) 
+        for (*month = 1; *month <= 12; (*month)++)
         {
             id = id - days_in_month[*month - 1];
             if (id > 0)
+            {
                 continue;
+            }
             else
             {
                 *day = id + days_in_month[*month - 1];
@@ -1432,52 +1534,60 @@ namespace gnut
         return;
     }
 
-    bool operator<(double left, const t_gtime &t)
+    bool operator<(double left, const t_gtime& t)
     {
         return (left < t.sow() + t.dsec());
     }
 
-    bool operator<(const t_gtime &t, double left)
+    bool operator<(const t_gtime& t, double left)
     {
         return (t.sow() + t.dsec() < left);
     }
 
-    t_gtime MAX_TIME(const t_gtime &A, const t_gtime &B)
+    t_gtime MAX_TIME(const t_gtime& A, const t_gtime& B)
     {
         return A > B ? A : B;
     }
 
-    t_gtime MAX_TIME(const vector<t_gtime> &A)
+    t_gtime MAX_TIME(const vector<t_gtime>& A)
     {
         t_gtime tmax;
         if (A.empty())
+        {
             return tmax;
+        }
         tmax = A[0];
-        for (const auto &iter : A)
+        for (const auto& iter : A)
         {
             if (tmax < iter)
+            {
                 tmax = iter;
+            }
         }
         return tmax;
     }
 
-    t_gtime MIN_TIME(const t_gtime &A, const t_gtime &B)
+    t_gtime MIN_TIME(const t_gtime& A, const t_gtime& B)
     {
         return A > B ? B : A;
     }
 
-    t_gtime MIN_TIME(const vector<t_gtime> &A)
+    t_gtime MIN_TIME(const vector<t_gtime>& A)
     {
         t_gtime tmin;
         if (A.empty())
+        {
             return tmin;
+        }
         tmin = A[0];
-        for (const auto &iter : A)
+        for (const auto& iter : A)
         {
             if (tmin > iter)
+            {
                 tmin = iter;
+            }
         }
         return tmin;
     }
 
-} // namespace
+} // namespace gnut

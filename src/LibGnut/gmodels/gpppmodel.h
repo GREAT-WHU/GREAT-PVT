@@ -38,7 +38,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gpppmodel(string site, t_spdlog spdlog, t_gsetbase *settings);
+        t_gpppmodel(string site, t_gsetbase* settings);
 
         /** @brief default constructor. */
         t_gpppmodel();
@@ -47,16 +47,14 @@ namespace gnut
         virtual ~t_gpppmodel();
 
         /** @brief set object. */
-        virtual void setOBJ(t_gallobj *obj);
+        virtual void setOBJ(t_gallobj* obj);
 
     protected:
-
-        t_gallobj *_gallobj;             ///< all obj
-        GRDMPFUNC _grad_mf;              ///< grad mf
-        ATTITUDES _attitudes;            ///< attitudes
-
+        t_gallobj* _gallobj;  ///< all obj
+        GRDMPFUNC _grad_mf;   ///< grad mf
+        ATTITUDES _attitudes; ///< attitudes
     };
 
-} // namespace
+} // namespace gnut
 
 #endif //  GPPPMODEL_H

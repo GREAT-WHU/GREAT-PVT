@@ -42,432 +42,612 @@ namespace gnut
 
         /**
          * @brief get path
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string path() const { return _path; } 
+        string path() const
+        {
+            return _path;
+        }
 
         /**
          * @brief set path
-         * 
-         * @param s 
+         *
+         * @param s
          */
-        void path(const string &s) { _path = s; } 
+        void path(const string& s)
+        {
+            _path = s;
+        }
 
         /**
          * @brief get rinex system
-         * 
-         * @return char 
+         *
+         * @return char
          */
-        char rnxsys() { return _rnxsys; } 
+        char rnxsys()
+        {
+            return _rnxsys;
+        }
 
         /**
          * @brief set rinex system
-         * 
-         * @param s 
+         *
+         * @param s
          */
-        void rnxsys(const char &s) { _rnxsys = s; } 
+        void rnxsys(const char& s)
+        {
+            _rnxsys = s;
+        }
 
         /**
          * @brief get rinex version
-         * 
-         * @return const string& 
+         *
+         * @return const string&
          */
-        const string &rnxver() const { return _rnxver; } 
+        const string& rnxver() const
+        {
+            return _rnxver;
+        }
 
         /**
          * @brief set rinex version
-         * 
-         * @param s 
+         *
+         * @param s
          */
-        void rnxver(const string &s) { _rnxver = s; } 
+        void rnxver(const string& s)
+        {
+            _rnxver = s;
+        }
 
         /**
          * @brief get program
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string program() const { return _program; } 
+        string program() const
+        {
+            return _program;
+        }
 
         /**
          * @brief set program
-         * 
-         * @param pgm 
+         *
+         * @param pgm
          */
-        void program(const string &pgm) { _program = pgm; }
+        void program(const string& pgm)
+        {
+            _program = pgm;
+        }
 
         /**
          * @brief get runby
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string runby() const { return _runby; } 
+        string runby() const
+        {
+            return _runby;
+        }
 
         /**
          * @brief set runby
-         * 
-         * @param rnb 
+         *
+         * @param rnb
          */
-        void runby(const string &rnb) { _runby = rnb; } 
+        void runby(const string& rnb)
+        {
+            _runby = rnb;
+        }
 
         /**
          * @brief get gtime
-         * 
-         * @return t_gtime 
+         *
+         * @return t_gtime
          */
-        t_gtime gtime() const { return _gtime; } 
+        t_gtime gtime() const
+        {
+            return _gtime;
+        }
 
         /**
          * @brief set gtime
-         * 
-         * @param t 
+         *
+         * @param t
          */
-        void gtime(const t_gtime &t) { _gtime = t; } 
+        void gtime(const t_gtime& t)
+        {
+            _gtime = t;
+        }
 
         /**
          * @brief get comment
-         * 
-         * @return vector<string> 
+         *
+         * @return vector<string>
          */
-        vector<string> comment() { return _comment; } 
+        vector<string> comment()
+        {
+            return _comment;
+        }
 
         /**
          * @brief set comment
-         * 
-         * @param cmt 
+         *
+         * @param cmt
          */
-        void comment(const vector<string> &cmt) { _comment = cmt; } 
+        void comment(const vector<string>& cmt)
+        {
+            _comment = cmt;
+        }
 
         /**
          * @brief get markname
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string markname() const { return _markname; } 
+        string markname() const
+        {
+            return _markname;
+        }
 
         /**
          * @brief set markname
-         * 
-         * @param mrk 
+         *
+         * @param mrk
          */
-        void markname(const string &mrk) { _markname = mrk; } 
+        void markname(const string& mrk)
+        {
+            _markname = mrk;
+        }
 
         /**
          * @brief set mark number
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string marknumb() const { return _marknumb; } 
+        string marknumb() const
+        {
+            return _marknumb;
+        }
 
         /**
          * @brief get mark number
-         * 
-         * @param mnb 
+         *
+         * @param mnb
          */
-        void marknumb(const string &mnb) { _marknumb = mnb; } 
+        void marknumb(const string& mnb)
+        {
+            _marknumb = mnb;
+        }
 
         /**
          * @brief get mark type
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string marktype() const { return _marktype; } 
+        string marktype() const
+        {
+            return _marktype;
+        }
 
         /**
          * @brief set mark type
-         * 
-         * @param mtp 
+         *
+         * @param mtp
          */
-        void marktype(const string &mtp) { _marktype = mtp; } 
+        void marktype(const string& mtp)
+        {
+            _marktype = mtp;
+        }
 
         /**
          * @brief get observer
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string observer() const { return _observer; } 
+        string observer() const
+        {
+            return _observer;
+        }
 
         /**
          * @brief set observer
-         * 
-         * @param obsrv 
+         *
+         * @param obsrv
          */
-        void observer(const string &obsrv) { _observer = obsrv; } 
+        void observer(const string& obsrv)
+        {
+            _observer = obsrv;
+        }
 
         /**
          * @brief get agency
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string agency() const { return _agency; }
+        string agency() const
+        {
+            return _agency;
+        }
 
         /**
          * @brief set agency
-         * 
-         * @param agn 
+         *
+         * @param agn
          */
-        void agency(const string &agn) { _agency = agn; } 
+        void agency(const string& agn)
+        {
+            _agency = agn;
+        }
 
         /**
          * @brief get recnumb
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string recnumb() const { return _recnumb; } 
+        string recnumb() const
+        {
+            return _recnumb;
+        }
 
         /**
          * @brief set recnumb
-         * 
-         * @param rnb 
+         *
+         * @param rnb
          */
-        void recnumb(const string &rnb) { _recnumb = rnb; } 
+        void recnumb(const string& rnb)
+        {
+            _recnumb = rnb;
+        }
 
         /**
          * @brief get rectype
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string rectype() const { return _rectype; }
+        string rectype() const
+        {
+            return _rectype;
+        }
 
         /**
          * @brief set rectype
-         * 
-         * @param rtp 
+         *
+         * @param rtp
          */
-        void rectype(const string &rtp) { _rectype = rtp; } 
+        void rectype(const string& rtp)
+        {
+            _rectype = rtp;
+        }
 
         /**
          * @brief set recvers
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string recvers() const { return _recvers; } 
+        string recvers() const
+        {
+            return _recvers;
+        }
 
         /**
          * @brief get recvers
-         * 
-         * @param rvs 
+         *
+         * @param rvs
          */
-        void recvers(const string &rvs) { _recvers = rvs; }
+        void recvers(const string& rvs)
+        {
+            _recvers = rvs;
+        }
 
         /**
          * @brief get antnumb
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string antnumb() const { return _antnumb; } 
+        string antnumb() const
+        {
+            return _antnumb;
+        }
 
         /**
          * @brief set antnumb
-         * 
-         * @param ant 
+         *
+         * @param ant
          */
-        void antnumb(const string &ant) { _antnumb = ant; } 
+        void antnumb(const string& ant)
+        {
+            _antnumb = ant;
+        }
 
         /**
          * @brief get anttype
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string anttype() const { return _anttype; } 
+        string anttype() const
+        {
+            return _anttype;
+        }
 
         /**
          * @brief set anttype
-         * 
-         * @param ant 
+         *
+         * @param ant
          */
-        void anttype(const string &ant) { _anttype = ant; } 
+        void anttype(const string& ant)
+        {
+            _anttype = ant;
+        }
 
         /**
          * @brief get apr position
-         * 
-         * @return t_gtriple 
+         *
+         * @return t_gtriple
          */
-        t_gtriple aprxyz() const { return _aprxyz; }
+        t_gtriple aprxyz() const
+        {
+            return _aprxyz;
+        }
 
         /**
          * @brief set apr position
-         * 
-         * @param apr 
+         *
+         * @param apr
          */
-        void aprxyz(const t_gtriple &apr) { _aprxyz = apr; } 
+        void aprxyz(const t_gtriple& apr)
+        {
+            _aprxyz = apr;
+        }
 
         /**
          * @brief get ant position
-         * 
-         * @return t_gtriple 
+         *
+         * @return t_gtriple
          */
-        t_gtriple antxyz() const { return _antxyz; } 
+        t_gtriple antxyz() const
+        {
+            return _antxyz;
+        }
 
         /**
          * @brief set ant position
-         * 
-         * @param ecc 
+         *
+         * @param ecc
          */
-        void antxyz(const t_gtriple &ecc) { _antxyz = ecc; } 
+        void antxyz(const t_gtriple& ecc)
+        {
+            _antxyz = ecc;
+        }
 
         /**
          * @brief get ant neu
-         * 
-         * @return t_gtriple 
+         *
+         * @return t_gtriple
          */
-        t_gtriple antneu() const { return _antneu; }         
-        void antneu(const t_gtriple &ecc) { _antneu = ecc; } 
+        t_gtriple antneu() const
+        {
+            return _antneu;
+        }
+        void antneu(const t_gtriple& ecc)
+        {
+            _antneu = ecc;
+        }
 
         /**
          * @brief get strength
-         * 
-         * @return string 
+         *
+         * @return string
          */
-        string strength() const { return _strength; } 
+        string strength() const
+        {
+            return _strength;
+        }
 
         /**
          * @brief set strength
-         * 
-         * @param s 
+         *
+         * @param s
          */
-        void strength(const string &s) { _strength = s; } 
+        void strength(const string& s)
+        {
+            _strength = s;
+        }
 
         /**
          * @brief get interval
-         * 
-         * @return double 
+         *
+         * @return double
          */
-        double interval() const { return _interval; } 
+        double interval() const
+        {
+            return _interval;
+        }
 
         /**
          * @brief set interval
-         * 
-         * @param i 
+         *
+         * @param i
          */
-        void interval(const double &i) { _interval = i; } 
+        void interval(const double& i)
+        {
+            _interval = i;
+        }
 
         /**
          * @brief get first epoch
-         * 
-         * @return t_gtime 
+         *
+         * @return t_gtime
          */
-        t_gtime first() const { return _first; } 
+        t_gtime first() const
+        {
+            return _first;
+        }
 
         /**
          * @brief set first epoch
-         * 
-         * @param frst 
+         *
+         * @param frst
          */
-        void first(const t_gtime &frst) { _first = frst; } 
+        void first(const t_gtime& frst)
+        {
+            _first = frst;
+        }
 
         /**
          * @brief get last epoch
-         * 
-         * @return t_gtime 
+         *
+         * @return t_gtime
          */
-        t_gtime last() const { return _last; } 
+        t_gtime last() const
+        {
+            return _last;
+        }
 
         /**
          * @brief set last epoch
-         * 
-         * @param lst 
+         *
+         * @param lst
          */
-        void last(const t_gtime &lst) { _last = lst; } 
+        void last(const t_gtime& lst)
+        {
+            _last = lst;
+        }
 
         /**
          * @brief get leap second
-         * 
-         * @return int 
+         *
+         * @return int
          */
-        int leapsec() const { return _leapsec; } 
+        int leapsec() const
+        {
+            return _leapsec;
+        }
 
         /**
          * @brief set leap second
-         * 
-         * @param ls 
+         *
+         * @param ls
          */
-        void leapsec(int ls) { _leapsec = ls; } 
+        void leapsec(int ls)
+        {
+            _leapsec = ls;
+        }
 
         /**
          * @brief get number of satellite
-         * 
-         * @return int 
+         *
+         * @return int
          */
-        int numsats() const { return _numsats; } 
+        int numsats() const
+        {
+            return _numsats;
+        }
 
         /**
          * @brief set number of satellite
-         * 
-         * @param nums 
+         *
+         * @param nums
          */
-        void numsats(const int &nums) { _numsats = nums; } 
+        void numsats(const int& nums)
+        {
+            _numsats = nums;
+        }
 
         /**
          * @brief get mapobs
-         * 
-         * @return t_obstypes 
+         *
+         * @return t_obstypes
          */
-        t_obstypes mapobs() const { return _mapobs; } 
+        t_obstypes mapobs() const
+        {
+            return _mapobs;
+        }
 
         /**
          * @brief set mapobs
-         * 
-         * @param types 
+         *
+         * @param types
          */
-        void mapobs(const t_obstypes &types) { _mapobs = types; }
+        void mapobs(const t_obstypes& types)
+        {
+            _mapobs = types;
+        }
 
         /**
          * @brief get mapcyc
-         * 
-         * @return t_obstypes 
+         *
+         * @return t_obstypes
          */
-        t_obstypes mapcyc() const { return _mapcyc; } 
+        t_obstypes mapcyc() const
+        {
+            return _mapcyc;
+        }
 
         /**
          * @brief set mapcyc
-         * 
-         * @param types 
+         *
+         * @param types
          */
-        void mapcyc(const t_obstypes &types) { _mapcyc = types; } 
+        void mapcyc(const t_obstypes& types)
+        {
+            _mapcyc = types;
+        }
 
         /**
          * @brief get glonass frequency
-         * 
-         * @return t_obstypes 
+         *
+         * @return t_obstypes
          */
-        t_obstypes glofrq() const { return _glofrq; } 
+        t_obstypes glofrq() const
+        {
+            return _glofrq;
+        }
 
         /**
          * @brief set glonass frequency
-         * 
-         * @param types 
+         *
+         * @param types
          */
-        void glofrq(const t_obstypes &types) { _glofrq = types; }
+        void glofrq(const t_obstypes& types)
+        {
+            _glofrq = types;
+        }
 
         /**
          * @brief get glonass bias
-         * 
-         * @return t_vobstypes 
+         *
+         * @return t_vobstypes
          */
-        t_vobstypes globia() const { return _globia; }
+        t_vobstypes globia() const
+        {
+            return _globia;
+        }
 
         /**
          * @brief set glonass bias
-         * 
-         * @param types 
+         *
+         * @param types
          */
-        void globia(const t_vobstypes &types) { _globia = types; } 
+        void globia(const t_vobstypes& types)
+        {
+            _globia = types;
+        }
 
         /**
          * @brief clear
-         * 
+         *
          */
         void clear();
 
         /**
          * @brief override operator
-         * 
-         * @param os 
-         * @param x 
-         * @return ostream& 
+         *
+         * @param os
+         * @param x
+         * @return ostream&
          */
-        friend ostream &operator<<(ostream &os, const t_rnxhdr &x); 
+        friend ostream& operator<<(ostream& os, const t_rnxhdr& x);
 
     private:
         char _rnxsys;            ///< G=GPS, R=GLO, E=GAL, S=SBAS, M=Mix
@@ -502,6 +682,6 @@ namespace gnut
         t_vobstypes _globia;     ///< vec of GLONASS obs code-phase biases
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

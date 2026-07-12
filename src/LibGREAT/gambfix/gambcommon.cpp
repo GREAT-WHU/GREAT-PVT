@@ -4,9 +4,9 @@
  * @brief        declare some classes and some mathematical method.
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gambfix/gambcommon.h"
 using namespace std;
@@ -44,30 +44,34 @@ namespace great
     {
     }
 
-    void getMeanFract(list<pair<double, double>> &values, double &mean, double &sigma, double &sigx)
+    void getMeanFract(list<pair<double, double>>& values, double& mean, double& sigma, double& sigx)
     {
         try
         {
             if (values.empty())
+            {
                 return;
+            }
 
-            //local variables
+            // local variables
             double temp_fract;
             double mean2, sigma2;
             list<pair<double, double>> fracts[3];
 
-            //fraction range is (0,1)
+            // fraction range is (0,1)
             for (auto it_val = values.begin(); it_val != values.end(); it_val++)
             {
                 temp_fract = it_val->first - round(it_val->first);
                 if (temp_fract < 0.0)
+                {
                     temp_fract += 1.0;
+                }
                 fracts[0].push_back(make_pair(temp_fract, it_val->second));
             }
 
             getMeanWgt(true, fracts[0], mean, sigma, sigx);
 
-            //fraction range is (-0.50,0.50)
+            // fraction range is (-0.50,0.50)
             for (auto it_val = values.begin(); it_val != values.end(); it_val++)
             {
                 temp_fract = getFraction(it_val->first, -0.50);
@@ -76,8 +80,10 @@ namespace great
 
             getMeanWgt(true, fracts[1], mean2, sigma2, sigx);
 
-            if (sigma2 < sigma && !double_eq(sigma, sigma2)) // to be same with fortran add "="
+            if (sigma2 < sigma && !double_eq(sigma, sigma2))
+            { // to be same with fortran add "="
                 mean = mean2;
+            }
             // to avoid bias
 
             //-------
@@ -100,7 +106,7 @@ namespace great
         }
     }
 
-    void getMeanWgt(bool is_edit, list<pair<double, double>> &wx, double &mean, double &sigma, double &mean_sig)
+    void getMeanWgt(bool is_edit, list<pair<double, double>>& wx, double& mean, double& sigma, double& mean_sig)
     {
         try
         {
@@ -216,4 +222,4 @@ namespace great
     {
     }
 
-}
+} // namespace great

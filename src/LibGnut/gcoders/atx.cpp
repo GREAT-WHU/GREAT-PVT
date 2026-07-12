@@ -25,14 +25,13 @@ using namespace std;
 namespace gnut
 {
 
-    t_atx::t_atx(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz)
+    t_atx::t_atx(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz)
     {
     }
 
-    int t_atx::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_atx::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -46,35 +45,30 @@ namespace gnut
         int tmpsize = 0;
         while ((tmpsize = t_gcoder::_getline(tmp)) >= 0)
         {
-
             consume += tmpsize;
             if (tmp.find("ANTEX VERSION", 60) != string::npos)
             { // first line
 
                 _version = tmp.substr(0, 8);
-                if (_spdlog && substitute(_version, " ", "") > 0)
+                if (substitute(_version, " ", "") > 0)
                 {
                     ostringstream ltmp;
                     ltmp << "version = " << _version;
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, ltmp.str());
+                    GREAT_DEBUG(ltmp.str());
                 }
             }
             else if (tmp.find("PCV TYPE / REFANT", 60) != string::npos)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading PCV TYPE / REFANT");
+                GREAT_DEBUG("reading PCV TYPE / REFANT");
             }
             else if (tmp.find("COMMENT", 60) != string::npos)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading COMMENT");
+                GREAT_DEBUG("reading COMMENT");
             }
             else if (tmp.find("END OF HEADER", 60) != string::npos)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading END OF HEADER ");
+                GREAT_DEBUG("reading END OF HEADER ");
                 t_gcoder::_consume(tmpsize);
                 _mutex.unlock();
                 return -1;
@@ -86,9 +80,8 @@ namespace gnut
         return consume;
     }
 
-    int t_atx::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_atx::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -109,13 +102,12 @@ namespace gnut
         // always from beginning of the buffer
         while ((tmpsize = t_gcoder::_getline(line, recsize)) >= 0)
         {
-            recsize = tmpsize; //initialize
+            recsize = tmpsize; // initialize
 
             // START OF ANTENNA
             // identify first antenna record
             if (line.find("START OF ANTENNA", 60) != string::npos)
             {
-
                 if ((tmpsize = t_gcoder::_getline(line, recsize)) <= 0)
                 {
                     _mutex.unlock();
@@ -128,7 +120,7 @@ namespace gnut
                 t_gtriple neu;
                 t_gpcv::t_map_Z mapZ;
                 t_gpcv::t_map_A mapA;
-                shared_ptr<t_gpcv> pcv = make_shared<t_gpcv>(_spdlog);
+                shared_ptr<t_gpcv> pcv = make_shared<t_gpcv>();
                 pcv->beg(FIRST_TIME);
                 pcv->end(LAST_TIME);
                 t_gtime beg(t_gtime::GPS), end(t_gtime::GPS);
@@ -143,14 +135,13 @@ namespace gnut
                     // end of antenna record --> process it
                     if (line.find("END OF ANTENNA", 60) != string::npos)
                     {
-
                         // fill pcv
-                        map<string, t_gdata *>::iterator it = _data.begin();
+                        map<string, t_gdata*>::iterator it = _data.begin();
                         while (it != _data.end())
                         {
                             if (it->second->id_type() == t_gdata::ALLPCV)
                             {
-                                dynamic_cast<t_gallpcv *>(it->second)->addpcv(pcv);
+                                dynamic_cast<t_gallpcv*>(it->second)->addpcv(pcv);
                             }
 
                             it++;
@@ -165,7 +156,6 @@ namespace gnut
                     }
                     else if (line.find("TYPE / SERIAL NO", 60) != string::npos)
                     {
-
                         pcv->anten(trim(line.substr(0, 20)));
                         pcv->ident(trim(line.substr(20, 20)));
                         pcv->svcod(trim(line.substr(40, 20)));
@@ -194,12 +184,10 @@ namespace gnut
                     }
                     else if (line.find("# OF FREQUENCIES", 60) != string::npos)
                     {
-
                         // VALID FROM
                     }
                     else if (line.find("VALID FROM", 60) != string::npos)
                     {
-
                         int yr, mn, dd, hr, mi;
                         double sc;
                         istr.clear();
@@ -243,7 +231,6 @@ namespace gnut
                     }
                     else if (line.find("COMMENT", 60) != string::npos)
                     {
-
                     }
                     else if (line.find("START OF FREQUENCY", 60) != string::npos)
                     {
@@ -276,8 +263,7 @@ namespace gnut
                         {
                             if (freq1 == LAST_GFRQ)
                             {
-                                if (_spdlog)
-                                    SPDLOG_LOGGER_ERROR(_spdlog, "Not defined frequency code " + line.substr(3, 3));
+                                GREAT_DEBUG("Not defined frequency code " + line.substr(3, 3));
                             }
                             else
                             {
@@ -325,7 +311,9 @@ namespace gnut
                         string dummy;
                         istr >> dummy;
                         for (double i = pcv->zen1(); i <= pcv->zen2(); i += pcv->dzen())
+                        {
                             istr >> mapZ[i];
+                        }
 
                         if (istr.fail())
                         {
@@ -356,17 +344,14 @@ namespace gnut
                     }
                     else
                     {
-                        cout << endl
-                             << "atx: record not recognized: " << line << endl
-                             << endl;
+                        cout << endl << "atx: record not recognized: " << line << endl << endl;
                     }
                 } // LOOP INSIDE INDIVIDIUAL ANTENNA
-            }     // END OF ANTENNA START
-        }         // LOOP OVER ALL ANTENNAS
+            } // END OF ANTENNA START
+        } // LOOP OVER ALL ANTENNAS
 
         _mutex.unlock();
         return consume;
     }
 
-
-} // namespace
+} // namespace gnut

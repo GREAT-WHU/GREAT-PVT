@@ -33,7 +33,7 @@ namespace gnut
     {
     }
 
-    void t_gallrslt::append(const t_gallrslt::result &rslt)
+    void t_gallrslt::append(const t_gallrslt::result& rslt)
     {
         if (rslt.type == "CRD_X" || rslt.type == "CRD_Y" || rslt.type == "CRD_Z")
         {
@@ -59,8 +59,14 @@ namespace gnut
         v_rslt.push_back(rslt);
     }
 
-    void t_gallrslt::append(const string &type, const t_gtime &beg, const t_gtime &end, int idx,
-                            const string &prn, double adj, double rms, double val)
+    void t_gallrslt::append(const string& type,
+                            const t_gtime& beg,
+                            const t_gtime& end,
+                            int idx,
+                            const string& prn,
+                            double adj,
+                            double rms,
+                            double val)
     {
         t_gallrslt::result rslt;
 
@@ -97,11 +103,9 @@ namespace gnut
         v_rslt.push_back(rslt);
     }
 
-    bool t_gallrslt::result::operator<(const t_gallrslt::result &rslt) const
+    bool t_gallrslt::result::operator<(const t_gallrslt::result& rslt) const
     {
-        if ((beg < rslt.beg) ||
-            (beg == rslt.beg && end < rslt.end) ||
-            (beg == rslt.beg && end == rslt.end && prn < rslt.prn) ||
+        if ((beg < rslt.beg) || (beg == rslt.beg && end < rslt.end) || (beg == rslt.beg && end == rslt.end && prn < rslt.prn) ||
             (beg == rslt.beg && end == rslt.end && prn == rslt.prn && type < rslt.type))
         {
             return true;
@@ -109,4 +113,4 @@ namespace gnut
         return false;
     }
 
-} // namespace
+} // namespace gnut

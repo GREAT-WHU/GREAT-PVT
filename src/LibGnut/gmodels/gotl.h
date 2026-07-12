@@ -35,12 +35,10 @@ namespace gnut
     /** @brief class for t_gotl based t_gdata. */
     class t_gotl : public t_gdata
     {
-
     public:
         /** @brief default constructor. */
         t_gotl();
 
-        t_gotl(t_spdlog spdlog);
         /** @brief default destructor. */
         ~t_gotl();
 
@@ -57,7 +55,7 @@ namespace gnut
         Matrix data();
 
         /** @brief set the data. */
-        void setdata(const string &site, const double &lon, const double &lat, const Matrix &data);
+        void setdata(const string& site, const double& lon, const double& lat, const Matrix& data);
 
     private:
         string _site; ///< site
@@ -66,6 +64,6 @@ namespace gnut
         double _lon;  ///< lontitude
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

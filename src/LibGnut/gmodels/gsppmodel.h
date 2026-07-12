@@ -44,9 +44,8 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gsppmodel(string site, t_gsetbase *settings);
+        t_gsppmodel(string site, t_gsetbase* settings);
 
-        t_gsppmodel(t_spdlog spdlog, string site, t_gsetbase *settings);
         /** @brief default constructor. */
         t_gsppmodel();
 
@@ -54,20 +53,20 @@ namespace gnut
         virtual ~t_gsppmodel();
 
         /** @brief Outliers detection. */
-        virtual int outlierDetect(vector<t_gsatdata> &data, SymmetricMatrix &Qx, const SymmetricMatrix &);
+        virtual int outlierDetect(vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&);
 
         /** @brief model for computed range value. */
-        virtual double cmpObs(t_gtime &epoch, t_gallpar &param, t_gsatdata &, t_gobs &gobs, bool com = false);
+        virtual double cmpObs(t_gtime& epoch, t_gallpar& param, t_gsatdata&, t_gobs& gobs, bool com = false);
 
         /** @brief model computed D range value (phase/code). */
-        virtual double cmpObsD(t_gtime &epoch, t_gallpar &param, t_gsatdata &gsatdata, t_gobs &gobs);
+        virtual double cmpObsD(t_gtime& epoch, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs);
 
         /** @brief get trop Delay. */
-        double tropoDelay(t_gtime &epoch, t_gallpar &param, t_gtriple site_ell, t_gsatdata &satdata);
+        double tropoDelay(t_gtime& epoch, t_gallpar& param, t_gtriple site_ell, t_gsatdata& satdata);
 
         // jdhuang add
         /** @brief is Correction. */
-        double isbCorrection(t_gallpar &param, string &sat, string &rec, t_gobs &gobs);
+        double isbCorrection(t_gallpar& param, string& sat, string& rec, t_gobs& gobs);
 
         /** @brief is reset observation */
         virtual void reset_observ(OBSCOMBIN observ) override;
@@ -76,16 +75,23 @@ namespace gnut
         virtual void setrec(shared_ptr<t_gobj> rec);
 
         /** @brief get outlier satellite */
-        vector<string> get_outlier_sat() { return _outlier_sat; } 
+        vector<string> get_outlier_sat()
+        {
+            return _outlier_sat;
+        }
 
     protected:
         /** @brief Find maximal residual */
-        double _maxres(bool phase, vector<t_gsatdata> &data, vector<t_gsatdata>::iterator &itDATA, RESIDTYPE res_type, GSYS gs = GNS);
+        double _maxres(bool phase, vector<t_gsatdata>& data, vector<t_gsatdata>::iterator& itDATA, RESIDTYPE res_type, GSYS gs = GNS);
 
         /** @brief check maximal residual */
-        bool _check_outl(bool phase, double &maxresNORM, vector<t_gsatdata>::iterator &itDataNORM,
-                         double &maxresORIG, vector<t_gsatdata>::iterator &itDataORIG,
-                         vector<t_gsatdata>::iterator &itDataErase, vector<t_gsatdata> &data);
+        bool _check_outl(bool phase,
+                         double& maxresNORM,
+                         vector<t_gsatdata>::iterator& itDataNORM,
+                         double& maxresORIG,
+                         vector<t_gsatdata>::iterator& itDataORIG,
+                         vector<t_gsatdata>::iterator& itDataErase,
+                         vector<t_gsatdata>& data);
 
         /** @brief logging outlier */
         void _logOutl(bool phase, string prn, int data_size, double maxres, double ele, t_gtime epo, RESIDTYPE resid_type);
@@ -102,9 +108,8 @@ namespace gnut
         map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band
         map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq
         vector<string> _outlier_sat;                    ///< outlier satellite
-
     };
 
-} // namespace
+} // namespace gnut
 
 #endif //  GSPPMODEL_H

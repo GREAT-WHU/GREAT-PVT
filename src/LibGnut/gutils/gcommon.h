@@ -38,11 +38,11 @@
 #endif
 
 #ifndef S_ISDIR
-#define S_ISDIR(mode) (((mode)&S_IFMT) == S_IFDIR)
+#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
 #ifndef S_ISREG
-#define S_ISREG(mode) (((mode)&S_IFMT) == S_IFREG)
+#define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
 
 using namespace std;
@@ -65,9 +65,13 @@ namespace gnut
     inline string cut_crlf(string s)
     {
         if (!s.empty() && s[s.length() - 1] == lf)
+        {
             s.erase(s.length() - 1);
+        }
         if (!s.empty() && s[s.length() - 1] == cr)
+        {
             s.erase(s.length() - 1); // glfeng
+        }
         return s;
     }
 
@@ -81,18 +85,22 @@ namespace gnut
 #define SQRT(x) ((x) <= 0.0 ? 0.0 : sqrt(x))
 
     /**
-    * @brief tail of a string
-    * @param[in] str        original string
-    * @param[in] length        the need length
-    * @return result string
-    */
-    inline string tail(const string &str, const size_t length)
+     * @brief tail of a string
+     * @param[in] str        original string
+     * @param[in] length        the need length
+     * @return result string
+     */
+    inline string tail(const string& str, const size_t length)
     {
         if (length >= str.size())
+        {
             return str;
+        }
         else
+        {
             return str.substr(str.size() - length);
+        }
     }
-} // namespace
+} // namespace gnut
 
 #endif // # GCOMMON_H

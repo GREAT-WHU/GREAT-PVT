@@ -44,97 +44,107 @@ namespace gnut
 
         /**
          * @brief Construct a new t gnavgal object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gnavgal(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gnavgal();
 
         // pointers to support NULL if not requested!
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override; //[m]
+        int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL,
+                bool chk_health = true) override; //[m]
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) override; //[s]
+        int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL,
+                bool chk_health = true) override; //[s]
 
         /**
-         * @brief 
-         * 
-         * @param msg 
-         * @return int 
+         * @brief
+         *
+         * @param msg
+         * @return int
          */
-        int chk(set<string> &msg) override;
+        int chk(set<string>& msg) override;
 
         /**
-         * @brief 
-         * 
-         * @param ep 
-         * @param data 
-         * @return int 
+         * @brief
+         *
+         * @param ep
+         * @param data
+         * @return int
          */
-        int data2nav(string, const t_gtime &ep, const t_gnavdata &data) override;
+        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /**
-         * @brief 
-         * 
-         * @param data 
-         * @return int 
+         * @brief
+         *
+         * @param data
+         * @return int
          */
-        int nav2data(t_gnavdata &data) override;
+        int nav2data(t_gnavdata& data) override;
 
         /**
-         * @brief 
-         * 
-         * @param full 
-         * @return GNAVTYPE 
+         * @brief
+         *
+         * @param full
+         * @return GNAVTYPE
          */
         GNAVTYPE gnavtype(bool full = true) const override; ///< distinguish INAV/FNAV or in full details
 
         /**
-         * @brief 
-         * 
-         * @param full 
-         * @return int 
+         * @brief
+         *
+         * @param full
+         * @return int
          */
         int src(bool full = true) const override; ///< distinguish INAV/FNAV or in full details
 
         /** @brief get iod value. */
-        int iod() const override { return _iode; }
+        int iod() const override
+        {
+            return _iode;
+        }
 
         /** @brief get rec value. */
-        int rec() const override { return MAX_RINEXN_REC_GAL; }
+        int rec() const override
+        {
+            return MAX_RINEXN_REC_GAL;
+        }
 
         /** @brief get _rec value. */
-        double rel() { return _rel; }
+        double rel()
+        {
+            return _rel;
+        }
 
         /** @brief check tot. */
-        virtual bool chktot(const t_gtime &t) override;
+        virtual bool chktot(const t_gtime& t) override;
 
         /** @brief get parameter. */
-        t_timdbl param(const NAVDATA &n) override;
+        t_timdbl param(const NAVDATA& n) override;
 
         /** @brief get parameter. */
-        int param(const NAVDATA &n, double val) override;
+        int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
         string line() const override;
@@ -143,53 +153,56 @@ namespace gnut
         string linefmt() const override;
 
         /** @brief convert health to string. */
-        string health_str() const override { return _health_str(); }
+        string health_str() const override
+        {
+            return _health_str();
+        }
 
     protected:
         /**
-         * @brief 
-         * 
-         * @return true 
-         * @return false 
+         * @brief
+         *
+         * @return true
+         * @return false
          */
         bool _healthy() const override;
 
         /**
-         * @brief 
-         * 
-         * @return string 
+         * @brief
+         *
+         * @return string
          */
         string _health_str() const override;
 
         /**
          * @brief source string
-         * 
-         * @return string 
+         *
+         * @return string
          */
         string _source_str() const;
 
         /**
          * @brief return type of navig. mess.
-         * 
-         * @param full 
-         * @return GNAVTYPE 
+         *
+         * @param full
+         * @return GNAVTYPE
          */
         GNAVTYPE _gnavtype(bool full = true) const;
 
     private:
         /**
          * @brief eccentric anomaly
-         * 
-         * @param dt 
-         * @param Ek 
-         * @param dEk 
+         *
+         * @param dt
+         * @param Ek
+         * @param dEk
          */
-        void _ecc_anomaly(double dt, double &Ek, double &dEk);
+        void _ecc_anomaly(double dt, double& Ek, double& dEk);
 
         /**
          * @brief corrected mean motion
-         * 
-         * @return double 
+         *
+         * @return double
          */
         double _mean_motion();
 
@@ -219,9 +232,9 @@ namespace gnut
         double _tgd[2]; ///< [seconds]  0:E5a/E1   1:E5b/E1
         int _source;    ///< data source
         double _sisa;   ///< SISA Signal in space accuracy [meters]
-        double _rel;    ///<relativity correction calculated with ICD
+        double _rel;    ///< relativity correction calculated with ICD
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

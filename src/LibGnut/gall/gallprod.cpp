@@ -11,44 +11,38 @@ using namespace std;
 
 namespace gnut
 {
-    t_gallprod::t_gallprod()
-        : t_gdata()
+    t_gallprod::t_gallprod() :
+        t_gdata()
     {
         id_type(t_gdata::ALLPROD);
         id_group(t_gdata::GRP_PRODUCT);
     }
-    t_gallprod::t_gallprod(t_spdlog spdlog)
-        : t_gdata(spdlog)
-    {
-        id_type(t_gdata::ALLPROD);
-        id_group(t_gdata::GRP_PRODUCT);
-    }
-
     t_gallprod::~t_gallprod()
     {
-
         this->clear();
     }
 
     void t_gallprod::clear()
     {
-
         _gmutex.lock();
         _map_prod.clear();
         _gmutex.unlock();
     }
 
-    int t_gallprod::add(shared_ptr<t_gprod> prod, string site) 
+    int t_gallprod::add(shared_ptr<t_gprod> prod, string site)
     {
-
         ID_TYPE type = prod->id_type();
 
-        string id = prod->obj_id(); 
+        string id = prod->obj_id();
 
         if (id.empty())
+        {
             id = site;
+        }
         if (id.empty() && !site.empty() && id != site)
+        {
             cerr << "warning [gallprod] - adding product with both [and different] non-zero string and object id!\n";
+        }
 
         _gmutex.lock();
         _map_prod[id][type][prod->epoch()] = prod; // allocate in heap
@@ -57,9 +51,8 @@ namespace gnut
         return 0;
     }
 
-    shared_ptr<t_gprod> t_gallprod::get(const string &site, ID_TYPE type, const t_gtime &t)
+    shared_ptr<t_gprod> t_gallprod::get(const string& site, ID_TYPE type, const t_gtime& t)
     {
-
         _gmutex.lock();
 
         shared_ptr<t_gprod> obj_pt = _find(site, type, t);
@@ -70,7 +63,6 @@ namespace gnut
 
     set<string> t_gallprod::prod_sites()
     {
-
         set<string> site_list;
         _gmutex.lock();
         t_map_prd::const_iterator it;
@@ -82,9 +74,8 @@ namespace gnut
         return site_list;
     }
 
-    set<t_gtime> t_gallprod::prod_epochs(const string &site, ID_TYPE type)
+    set<t_gtime> t_gallprod::prod_epochs(const string& site, ID_TYPE type)
     {
-
         set<t_gtime> epo_list;
 
         _gmutex.lock();
@@ -119,11 +110,12 @@ namespace gnut
         return epo_list;
     }
 
-    void t_gallprod::clean_outer(const t_gtime &beg, const t_gtime &end)
+    void t_gallprod::clean_outer(const t_gtime& beg, const t_gtime& end)
     {
-
         if (end < beg)
+        {
             return;
+        }
 
         _gmutex.lock();
 
@@ -147,7 +139,6 @@ namespace gnut
                 // remove before BEGIN request
                 if (itBeg != itFirst)
                 {
-
                     it = itFirst;
 
                     // begin is last
@@ -155,7 +146,8 @@ namespace gnut
                     {
                         itBeg--;
 
-                        while (it != itLast) 
+                        while (it != itLast)
+                        {
                             if ((it->second).use_count() == 1)
                             {
                                 itID->second.erase(it++);
@@ -164,13 +156,14 @@ namespace gnut
                             {
                                 it++;
                             }
+                        }
 
                         // begin is not last
                     }
                     else
                     {
-
-                        while (it != itBeg) // itID->second.erase(it++);
+                        while (it != itBeg)
+                        { // itID->second.erase(it++);
                             if ((it->second).use_count() == 1)
                             {
                                 itID->second.erase(it++);
@@ -179,6 +172,7 @@ namespace gnut
                             {
                                 it++;
                             }
+                        }
                     }
                 }
 
@@ -187,7 +181,8 @@ namespace gnut
                 {
                     it = itEnd;
 
-                    while (it != itLast) // itID->second.erase(it++);
+                    while (it != itLast)
+                    { // itID->second.erase(it++);
                         if ((it->second).use_count() == 1)
                         {
                             itID->second.erase(it++);
@@ -196,6 +191,7 @@ namespace gnut
                         {
                             it++;
                         }
+                    }
                 }
                 itID++;
             }
@@ -205,9 +201,8 @@ namespace gnut
         return;
     }
 
-    void t_gallprod::rem(const string &site, ID_TYPE type, const t_gtime &t)
+    void t_gallprod::rem(const string& site, ID_TYPE type, const t_gtime& t)
     {
-
         _gmutex.lock();
 
         t_map_epo::iterator itEP;
@@ -220,7 +215,9 @@ namespace gnut
             {
                 itEP = itID->second.find(t);
                 if (itEP != itID->second.end())
+                {
                     _map_prod[site][type].erase(itEP);
+                }
             }
         }
 
@@ -228,9 +225,8 @@ namespace gnut
         return;
     }
 
-    shared_ptr<t_gprod> t_gallprod::_find(const string &site, ID_TYPE type, const t_gtime &t)
+    shared_ptr<t_gprod> t_gallprod::_find(const string& site, ID_TYPE type, const t_gtime& t)
     {
-
         t_map_epo::iterator itEP;
         t_map_id::iterator itID;
         t_map_prd::iterator it = _map_prod.find(site);
@@ -241,7 +237,9 @@ namespace gnut
             {
                 itEP = itID->second.find(t);
                 if (itEP != itID->second.end())
+                {
                     return itEP->second;
+                }
             }
         }
 
@@ -249,4 +247,4 @@ namespace gnut
         return tmp;
     }
 
-} // namespace
+} // namespace gnut

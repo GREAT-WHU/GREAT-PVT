@@ -4,9 +4,9 @@
  * @brief        the class for ppp procrssing
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gmodels/gprecisebiasGPP.h"
 #include "gmodels/gprecisebias.h"
@@ -16,15 +16,10 @@
 
 namespace great
 {
-    t_gprecisebiasGPP::t_gprecisebiasGPP(t_gallproc *data, t_gsetbase *setting) : t_gprecisebias(data, setting)
+    t_gprecisebiasGPP::t_gprecisebiasGPP(t_gallproc* data, t_gsetbase* setting) :
+        t_gprecisebias(data, setting)
     {
-        int base_size = dynamic_cast<t_gsetgen *>(setting)->list_base().size();
-        _ddmode = (base_size ? true : false);
-    }
-
-    t_gprecisebiasGPP::t_gprecisebiasGPP(t_gallproc *data, t_spdlog spdlog, t_gsetbase *setting) : t_gprecisebias(data, spdlog, setting)
-    {
-        int base_size = dynamic_cast<t_gsetgen *>(setting)->list_base().size();
+        int base_size = dynamic_cast<t_gsetgen*>(setting)->list_base().size();
         _ddmode = (base_size ? true : false);
     }
 
@@ -32,14 +27,13 @@ namespace great
     {
     }
 
-    bool t_gprecisebiasGPP::cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gobs &gobs, t_gbaseEquation &result)
+    bool t_gprecisebiasGPP::cmb_equ(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, t_gobs& gobs, t_gbaseEquation& result)
     {
         // check obs_type valid
         double Obs_value = obsdata.getobs(gobs.gobs());
         if (double_eq(Obs_value, 0.0))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "Obs_value is 0.0");
+            GREAT_ERROR("Obs_value is 0.0");
             return false;
         }
 
@@ -49,8 +43,7 @@ namespace great
             bool update_valid = t_gprecisebiasGPP::_update_obs_info_GPP(epoch, _gall_nav, _gallobj, obsdata, params);
             if (!update_valid)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_ERROR(_spdlog, "update obs information failed" + epoch.str_ymdhms("", false));
+                GREAT_ERROR("update obs information failed" + epoch.str_ymdhms("", false));
                 return false;
             }
 
@@ -58,8 +51,7 @@ namespace great
             bool pre_valid = t_gprecisebiasGPP::_prepare_obs_GPP(epoch, _gall_nav, _gallobj, params);
             if (!pre_valid)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_ERROR(_spdlog, "prepare obs information failed" + epoch.str_ymdhms("", false));
+                GREAT_ERROR("prepare obs information failed" + epoch.str_ymdhms("", false));
                 return false;
             }
             *flag = make_tuple(obsdata.site(), obsdata.sat(), epoch);
@@ -71,22 +63,19 @@ namespace great
 
         if (!_omc_obs_ALL(epoch, _crt_obs, params, gobs, omc))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "omc obs failed");
+            GREAT_ERROR("omc obs failed");
             return false;
         };
 
         if (!_wgt_obs_ALL(t_gdata::REC, gobs, _crt_obs, 1.0, wgt))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "weight obs failed");
+            GREAT_ERROR("weight obs failed");
             return false;
         };
 
         if (!_prt_obs_ALL(epoch, _crt_obs, params, gobs, coef))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "partialrange obs failed");
+            GREAT_ERROR("partialrange obs failed");
             return false;
         }
 
@@ -98,7 +87,7 @@ namespace great
         return true;
     }
 
-    double t_gprecisebiasGPP::cmpObs(t_gtime &epoch, string &sat, string &rec, t_gallpar &param, t_gsatdata &gsatdata, t_gobs &gobs)
+    double t_gprecisebiasGPP::cmpObs(t_gtime& epoch, string& sat, string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
     {
         if (_gallobj == nullptr)
         {
@@ -133,8 +122,7 @@ namespace great
         trpDelay = tropoDelay(epoch, rec, param, ell, gsatdata);
         if (fabs(trpDelay) > 50)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "trpDelay > 50");
+            GREAT_ERROR("trpDelay > 50");
             return -1;
         }
 
@@ -150,13 +138,11 @@ namespace great
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, rec + " ! warning:  Receiver Clock is not included in parameters!");
+            GREAT_ERROR(rec + " ! warning:  Receiver Clock is not included in parameters!");
         }
 
         // system time offset
         double isb_offset = isbDelay(param, gsatdata, sat, rec, gobs);
-
         double ifb = ifbDelay(param, gsatdata, sat, rec, gobs);
 
         // Wind up correction
@@ -173,24 +159,43 @@ namespace great
 
         // pcv correction
         double pcv = PCV(_corrt_sat_pcv, _corrt_rec_pcv, epoch, _crt_sat_epo, _trs_rec_crd, gsatdata, gobs);
-            
-        return gsatdata.rho() +
-               clkRec -
-               gsatdata.clk() +
-               trpDelay +
-               isb_offset +
-               ifb +
-               ion +
-               wind +
-               pcv;
+
+        // jdhuang, Êä³öOMC
+// #define DEBUG_OMC
+#ifdef DEBUG_OMC
+        if (_crt_epo.sow() >= 278249.0000)
+        {
+            GREAT_INFO(
+                "OMC : {} {}, pos_sat : {:>16.5f} {:>16.5f} {:>16.5f}, pos_rec : {:>16.5f} {:>16.5f} {:>16.5f}, rho : {:16.5f}, clkRec : {:16.5f}, clkSat : {:16.5f}, trp : {:6.3f}, isb : {:6.3f}, ifb : {:6.3f}, ion : {:6.3f}, wind : {:6.3f}, pcv : {:6.3f},",
+                sat,
+                epoch.str_hms(),
+                gsatdata.satcrd()[0],
+                gsatdata.satcrd()[1],
+                gsatdata.satcrd()[2],
+                gsatdata.reccrd()[0],
+                gsatdata.reccrd()[1],
+                gsatdata.reccrd()[2],
+                gsatdata.rho(),
+                clkRec,
+                gsatdata.clk(),
+                trpDelay,
+                isb_offset,
+                ifb,
+                ion,
+                wind,
+                pcv);
+        }
+
+#endif
+
+        return gsatdata.rho() + clkRec - gsatdata.clk() + trpDelay + isb_offset + ifb + ion + wind + pcv;
     }
 
-    bool t_gprecisebiasGPP::_prepare_obs_GPP(const t_gtime &crt_epo, t_gallnav *gallnav, t_gallobj *gallobj, t_gallpar &pars)
+    bool t_gprecisebiasGPP::_prepare_obs_GPP(const t_gtime& crt_epo, t_gallnav* gallnav, t_gallobj* gallobj, t_gallpar& pars)
     {
         if (!gallnav || !gallobj)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "no navgation data or atx data for epoch " + crt_epo.str_ymdhms());
+            GREAT_ERROR("no navgation data or atx data for epoch " + crt_epo.str_ymdhms());
             return false;
         }
 
@@ -202,8 +207,7 @@ namespace great
         bool apply_obj_valid = t_gprecisebias::_apply_rec(crt_epo, _crt_rec_epo, pars);
         if (!apply_obj_valid)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "can not apply site in " + crt_epo.str_ymdhms());
+            GREAT_ERROR("can not apply site in " + crt_epo.str_ymdhms());
             return false;
         }
 
@@ -211,8 +215,7 @@ namespace great
         bool apply_sat_valid = _apply_sat(_crt_rec_epo, _crt_sat_epo, gallnav);
         if (!apply_sat_valid)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "can not apply sat in " + crt_epo.str_ymdhms());
+            GREAT_ERROR("can not apply sat in " + crt_epo.str_ymdhms());
             return false;
         }
         _crt_obs.addsatTime(_crt_sat_epo);
@@ -232,7 +235,7 @@ namespace great
             sat_pcv = nullptr;
         }
 
-        if (sat_pcv) 
+        if (sat_pcv)
         {
             // Satellite phase center offset
             t_gtriple pco(0, 0, 0);
@@ -258,16 +261,17 @@ namespace great
         double sat_clk = _crt_sat_clk;
         // compute reldelay[m]
         double reldelay = relDelay(this->_crs_rec_pco, this->_crs_rec_vel, this->_crs_sat_pco, this->_crs_sat_vel);
-        
-        _crt_obs.addclk(sat_clk * CLIGHT - reldelay); 
-        _crt_obs.addreldelay(reldelay);                 
+
+        _crt_obs.addclk(sat_clk * CLIGHT - reldelay);
+        _crt_obs.addreldelay(reldelay);
 
         // addrho
         double tmp = (_crs_sat_crd - _crs_rec_crd).norm();
         _crt_obs.addrho(tmp);
 
         // add drate
-        _crt_obs.adddrate((DotProduct((_crs_sat_vel - _crs_rec_vel).crd_cvect(), (_crs_sat_pco - _crs_rec_pco).crd_cvect())) / (CLIGHT * tmp)); 
+        _crt_obs.adddrate((DotProduct((_crs_sat_vel - _crs_rec_vel).crd_cvect(), (_crs_sat_pco - _crs_rec_pco).crd_cvect())) /
+                          (CLIGHT * tmp));
 
         // add azim && elev
         t_gtriple xyz_rho = _crs_sat_pco - _crs_rec_pco;
@@ -304,10 +308,12 @@ namespace great
         t_gtriple xyz_s2r = t_gtriple(_rot_matrix_scf2crs.t() * ((-1) * xyz_rho.crd_cvect())); // from sat. to rec. in SCF XYZ
         double azi_sat = atan2(xyz_s2r[0], xyz_s2r[1]);
         if (azi_sat < 0)
+        {
             azi_sat += 2 * G_PI;
+        }
         _crt_obs.addazi_sat(azi_sat);
 
-        ///add for another elev and azi used in calculating weight matric
+        /// add for another elev and azi used in calculating weight matric
         t_gtriple xyz_rh = _trs_sat_crd - _trs_rec_crd;
         t_gtriple ell_(0, 0, 0), neu_sa(0, 0, 0), xRec(0, 0, 0), xyz_s(0, 0, 0);
         xyz2ell(_trs_rec_crd, ell_, false);
@@ -321,24 +327,26 @@ namespace great
         double ele_ = acos(sqrt(NE2_) / _crt_obs.rho());
 
         _crt_obs.addele_leo(ele_);
-        
+
         // check elevation cut-off
         if (_crt_obj->id_type() == t_gdata::REC && _crt_obs.ele_deg() < _minElev)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_WARN(_spdlog, "Prepare fail! the elevation is too small");
+            GREAT_WARN("Prepare fail! the elevation is too small");
             return false;
         }
 
         return true;
     }
 
-    bool t_gprecisebiasGPP::_update_obs_info_GPP(const t_gtime &epoch, t_gallnav *nav, t_gallobj *gallobj, t_gsatdata &obsdata, t_gallpar &pars)
+    bool t_gprecisebiasGPP::_update_obs_info_GPP(const t_gtime& epoch,
+                                                 t_gallnav* nav,
+                                                 t_gallobj* gallobj,
+                                                 t_gsatdata& obsdata,
+                                                 t_gallpar& pars)
     {
         if (!nav || !gallobj)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "no pars");
+            GREAT_ERROR("no pars");
             return false;
         }
 
@@ -349,9 +357,9 @@ namespace great
         _crt_rec = obsdata.site();
         _crt_sys = obsdata.gsys();
         _crt_obj = _gallobj->obj(_crt_rec);
-        _trs_sat_crd = obsdata.satcrd(); 
+        _trs_sat_crd = obsdata.satcrd();
 
-        if(!_corrt_sat_pcv)
+        if (!_corrt_sat_pcv)
         {
             this->reset_SatPCO(false);
         }
@@ -360,19 +368,22 @@ namespace great
         bool sat_clk_valid = _update_obj_clk_GPP("sat" + _crt_sat, epoch, nav, pars, _crt_sat_clk, _obj_clk);
         if (!rec_clk_valid || !sat_clk_valid)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "no rec or sat clk for epoch " + epoch.str_ymdhms());
+            GREAT_ERROR("no rec or sat clk for epoch " + epoch.str_ymdhms());
             return false;
         }
         return true;
     }
 
-    bool t_gprecisebiasGPP::_update_obj_clk_GPP(const string &obj, const t_gtime &crt_epoch, t_gallnav *nav, t_gallpar &pars, double &clk, map<string, pair<t_gtime, double>> &obj_clk)
+    bool t_gprecisebiasGPP::_update_obj_clk_GPP(const string& obj,
+                                                const t_gtime& crt_epoch,
+                                                t_gallnav* nav,
+                                                t_gallpar& pars,
+                                                double& clk,
+                                                map<string, pair<t_gtime, double>>& obj_clk)
     {
         if (!nav || obj.substr(3).empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "no navigation files or obj is NONE");
+            GREAT_ERROR("no navigation files or obj is NONE");
             return false;
         }
 
@@ -381,9 +392,9 @@ namespace great
         double dclk = 0.0;
         string type = obj.substr(0, 3);
         string name = obj.substr(3);
-        int base_size = dynamic_cast<t_gsetgen *>(_gset)->list_base().size();
-        int pv_iod = 0;   // to do
-        int    clk_iod = 0;
+        int base_size = dynamic_cast<t_gsetgen*>(_gset)->list_base().size();
+        int pv_iod = 0; // to do
+        int clk_iod = 0;
 
         // get clk from clk files
         //--can not get any clk informtion from file or gallpar
@@ -400,7 +411,9 @@ namespace great
             clk_valid = _gall_nav->clk(name, crt_epoch, &clk, &clk_rms, &dclk);
 
             if (clk_valid < 0)
+            {
                 clk = 0.0;
+            }
 
             obj_clk[name].first = crt_epoch;
             obj_clk[name].second = clk;
@@ -412,8 +425,7 @@ namespace great
 
         if (double_eq(clk, 0.0) && idx_clk < 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "no clk for " + name + "  " + crt_epoch.str_ymdhms());
+            GREAT_ERROR("no clk for " + name + "  " + crt_epoch.str_ymdhms());
             return false;
         }
         //-- no clk file but clk par exist
@@ -430,7 +442,11 @@ namespace great
         return true;
     }
 
-    bool t_gprecisebiasGPP::_prt_obs_ALL(const t_gtime &crt_epo, t_gsatdata &obsdata, t_gallpar &pars, t_gobs &gobs, vector<pair<int, double>> &coeff)
+    bool t_gprecisebiasGPP::_prt_obs_ALL(const t_gtime& crt_epo,
+                                         t_gsatdata& obsdata,
+                                         t_gallpar& pars,
+                                         t_gobs& gobs,
+                                         vector<pair<int, double>>& coeff)
     {
         auto par_list = pars.getPartialIndex(_crt_rec, _crt_sat);
         for (const int& ipar : par_list)
@@ -446,4 +462,4 @@ namespace great
         return true;
     }
 
-}
+} // namespace great

@@ -1,12 +1,12 @@
 /**
  * @file         gbasemodel.h
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        base interface model  
+ * @brief        base interface model
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef GBASEMODEL_H
 #define GBASEMODEL_H
@@ -38,7 +38,7 @@ namespace great
          * @param[in]  Other     another equation
          * @return t_gbaseEquation& the equation + another equation
          */
-        t_gbaseEquation &operator+(t_gbaseEquation &Other);
+        t_gbaseEquation& operator+(t_gbaseEquation& Other);
 
         vector<vector<pair<int, double>>> B; ///< coeff of equations
         vector<double> P;                    ///< weight of equations
@@ -67,8 +67,8 @@ namespace great
          *      @retval true can calculate equation
          *      @retval false can not calculate equation
          */
-        virtual bool cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result) = 0;
+        virtual bool cmb_equ(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, t_gbaseEquation& result) = 0;
     };
-}
+} // namespace great
 
 #endif

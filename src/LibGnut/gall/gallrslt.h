@@ -30,8 +30,8 @@ History
 namespace gnut
 {
     /**
-    *@brief Class for t_gallrslt
-    */
+     *@brief Class for t_gallrslt
+     */
     class LibGnut_LIBRARY_EXPORT t_gallrslt
     {
     public:
@@ -51,7 +51,7 @@ namespace gnut
             double val;  ///< val
 
             /** @brief override operator <. */
-            bool operator<(const t_gallrslt::result &) const;
+            bool operator<(const t_gallrslt::result&) const;
         };
 
         vector<t_gallrslt::result> v_rslt; ///< result vector
@@ -61,24 +61,30 @@ namespace gnut
         set<t_gallrslt::result> set_amb;   ///< amb set
 
         /** @brief append result structure. */
-        void append(const t_gallrslt::result &rslt);
+        void append(const t_gallrslt::result& rslt);
 
         /**
-         * @brief 
-         * 
-         * @param type 
-         * @param beg 
-         * @param end 
-         * @param idx 
-         * @param prn 
-         * @param adj 
-         * @param rms 
-         * @param val 
+         * @brief
+         *
+         * @param type
+         * @param beg
+         * @param end
+         * @param idx
+         * @param prn
+         * @param adj
+         * @param rms
+         * @param val
          */
-        void append(const string &type, const t_gtime &beg, const t_gtime &end, int idx,
-                    const string &prn, double adj, double rms, double val);
+        void append(const string& type,
+                    const t_gtime& beg,
+                    const t_gtime& end,
+                    int idx,
+                    const string& prn,
+                    double adj,
+                    double rms,
+                    double val);
     };
 
-} // namespace
+} // namespace gnut
 
 #endif // GALLRSLT_H

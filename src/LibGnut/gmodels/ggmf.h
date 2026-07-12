@@ -56,20 +56,18 @@ namespace gnut
     /** @brief class for t_gmf. */
     class LibGnut_LIBRARY_EXPORT t_gmf
     {
-
     public:
         /** @brief default constructor. */
-        t_gmf(){};
+        t_gmf() {};
 
         /** @brief default destructor. */
-        ~t_gmf(){};
+        ~t_gmf() {};
 
         /**
-        *@brief       GMF Global mapping function
-        * dlat, dlon --> RADIANS ! 
-        */
-        int gmf(double dmjd, double dlat, double dlon, double dhgt, double zd,
-                double &gmfh, double &gmfw, double &dgmfh, double &dgmfw);
+         *@brief       GMF Global mapping function
+         * dlat, dlon --> RADIANS !
+         */
+        int gmf(double dmjd, double dlat, double dlon, double dhgt, double zd, double& gmfh, double& gmfw, double& dgmfh, double& dgmfw);
 
     protected:
         static double ah_mean[55];
@@ -83,6 +81,6 @@ namespace gnut
 
     private:
     };
-}
+} // namespace gnut
 
 #endif

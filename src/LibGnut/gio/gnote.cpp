@@ -15,7 +15,6 @@ namespace gnut
 
     t_gnote::t_gnote(t_note n, string f, string s)
     {
-
         _stat = n;
         _func = f;
         _text = s;
@@ -25,24 +24,20 @@ namespace gnut
     {
     }
 
-    ostream &operator<<(ostream &os, const t_gnote &n)
+    ostream& operator<<(ostream& os, const t_gnote& n)
     {
         os << n.str();
         return os;
     }
 
-    bool t_gnote::operator==(const t_gnote &n) const
+    bool t_gnote::operator==(const t_gnote& n) const
     {
-        return (n.status() == _stat &&
-                n.func() == _func &&
-                n.text() == _text);
+        return (n.status() == _stat && n.func() == _func && n.text() == _text);
     }
 
-    bool t_gnote::operator<(const t_gnote &n) const
+    bool t_gnote::operator<(const t_gnote& n) const
     {
-        return (n.status() < _stat &&
-                n.func() < _func &&
-                n.text() < _text);
+        return (n.status() < _stat && n.func() < _func && n.text() < _text);
     }
 
     string t_gnote::_str() const
@@ -50,15 +45,15 @@ namespace gnut
         string note;
         switch (_stat)
         {
-        case GMESSAGE:
-            note = "Message - ";
-            break;
-        case GWARNING:
-            note = "Warning - ";
-            break;
-        case GERROR:
-            note = "Error - ";
-            break;
+            case GMESSAGE:
+                note = "Message - ";
+                break;
+            case GWARNING:
+                note = "Warning - ";
+                break;
+            case GERROR:
+                note = "Error - ";
+                break;
         }
 
         return note;
@@ -70,13 +65,11 @@ namespace gnut
 
     t_gallnote::~t_gallnote()
     {
-
         this->clear();
     }
 
     void t_gallnote::clear()
     {
-
         _gmutex.lock();
         _gnotes.clear();
         _gmutex.unlock();
@@ -84,7 +77,6 @@ namespace gnut
 
     void t_gallnote::mesg(t_note note, string func, string text)
     {
-
         _gmutex.lock();
 
         t_gnote gnote(note, func, text);
@@ -99,7 +91,9 @@ namespace gnut
             }
         }
         if (!exist)
+        {
             _gnotes.push_back(gnote);
+        }
 
         _gmutex.unlock();
         return;
@@ -107,8 +101,7 @@ namespace gnut
 
     vector<t_gnote> t_gallnote::mesg()
     {
-
         return _gnotes;
     }
 
-} // namespace
+} // namespace gnut

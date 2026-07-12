@@ -6,18 +6,23 @@
 
 -*/
 #include "gmodels/gsppmodel.h"
+#include "gio/great_log.h"
 namespace gnut
 {
     t_gsppmodel::t_gsppmodel()
     {
-
         _tropoModel = make_shared<t_gtropo>();
         _gallbias = 0;
     }
 
-    t_gsppmodel::t_gsppmodel(string site, t_gsetbase *settings)
-        : _observ(gnut::OBSCOMBIN::IONO_FREE)
+    t_gsppmodel::t_gsppmodel(string site, t_gsetbase* settings) :
+        _observ(gnut::OBSCOMBIN::IONO_FREE)
     {
+        if (nullptr == settings)
+        {
+            GREAT_CRITICAL("your set pointer is nullptr !");
+            throw logic_error("");
+        }
 
         _tropoModel = make_shared<t_gtropo>();
         _gallbias = 0;
@@ -29,100 +34,48 @@ namespace gnut
         set<GSYS> systems = GNSS_SUPPORTED();
         for (set<GSYS>::iterator it = systems.begin(); it != systems.end(); it++)
         {
-            _maxres_C[*it] = dynamic_cast<t_gsetgnss *>(_settings)->maxres_C(*it);
-            _maxres_L[*it] = dynamic_cast<t_gsetgnss *>(_settings)->maxres_L(*it);
+            _maxres_C[*it] = dynamic_cast<t_gsetgnss*>(_settings)->maxres_C(*it);
+            _maxres_L[*it] = dynamic_cast<t_gsetgnss*>(_settings)->maxres_L(*it);
         }
 
-        _maxres_norm = dynamic_cast<t_gsetproc *>(_settings)->max_res_norm();
-        _tropo_mf = dynamic_cast<t_gsetproc *>(_settings)->tropo_mf();
-        _trpModStr = dynamic_cast<t_gsetproc *>(_settings)->tropo_model();
-        _resid_type = dynamic_cast<t_gsetproc *>(_settings)->residuals();
-        _observ = dynamic_cast<t_gsetproc *>(_settings)->obs_combin();
-        _cbiaschar = dynamic_cast<t_gsetproc *>(_settings)->cbiaschar();
+        _maxres_norm = dynamic_cast<t_gsetproc*>(_settings)->max_res_norm();
+        _tropo_mf = dynamic_cast<t_gsetproc*>(_settings)->tropo_mf();
+        _trpModStr = dynamic_cast<t_gsetproc*>(_settings)->tropo_model();
+        _resid_type = dynamic_cast<t_gsetproc*>(_settings)->residuals();
+        _observ = dynamic_cast<t_gsetproc*>(_settings)->obs_combin();
+        _cbiaschar = dynamic_cast<t_gsetproc*>(_settings)->cbiaschar();
 
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::QZS);
+        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GPS);
+        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GAL);
+        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GLO);
+        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::BDS);
+        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::QZS);
+        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GPS);
+        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GAL);
+        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GLO);
+        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::BDS);
+        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::QZS);
 
         if (_trpModStr == gnut::TROPMODEL::SAASTAMOINEN)
+        {
             _tropoModel = make_shared<t_saast>();
+        }
         else if (_trpModStr == gnut::TROPMODEL::DAVIS)
+        {
             _tropoModel = make_shared<t_davis>();
+        }
         else if (_trpModStr == gnut::TROPMODEL::HOPFIELD)
+        {
             _tropoModel = make_shared<t_hopf>();
+        }
     }
-    t_gsppmodel::t_gsppmodel(t_spdlog spdlog, string site, t_gsetbase *settings)
-        : _observ(gnut::OBSCOMBIN::IONO_FREE)
-    {
-        if (nullptr == spdlog)
-        {
-            spdlog::critical("your spdlog is nullptr !");
-            throw logic_error("");
-        }
-        else
-        {
-            _spdlog = spdlog;
-        }
-        if (nullptr == settings)
-        {
-            spdlog::critical("your set pointer is nullptr !");
-            throw logic_error("");
-        }
-        else
-        {
-            _settings = settings;
-        }
-        _tropoModel = make_shared<t_gtropo>();
-        _gallbias = 0;
-        _site = site;
-        _phase = false;
-        set<GSYS> systems = GNSS_SUPPORTED();
-        for (set<GSYS>::iterator it = systems.begin(); it != systems.end(); it++)
-        {
-            _maxres_C[*it] = dynamic_cast<t_gsetgnss *>(_settings)->maxres_C(*it);
-            _maxres_L[*it] = dynamic_cast<t_gsetgnss *>(_settings)->maxres_L(*it);
-        }
-        _maxres_norm = dynamic_cast<t_gsetproc *>(_settings)->max_res_norm();
-        _tropo_mf = dynamic_cast<t_gsetproc *>(_settings)->tropo_mf();
-        _trpModStr = dynamic_cast<t_gsetproc *>(_settings)->tropo_model();
-        _resid_type = dynamic_cast<t_gsetproc *>(_settings)->residuals();
-        _observ = dynamic_cast<t_gsetproc *>(_settings)->obs_combin();
-        _cbiaschar = dynamic_cast<t_gsetproc *>(_settings)->cbiaschar();
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_settings)->band_index(gnut::QZS);
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_settings)->freq_index(gnut::QZS);
-        if (_trpModStr == gnut::TROPMODEL::SAASTAMOINEN)
-            _tropoModel = make_shared<t_saast>();
-        else if (_trpModStr == gnut::TROPMODEL::DAVIS)
-            _tropoModel = make_shared<t_davis>();
-        else if (_trpModStr == gnut::TROPMODEL::HOPFIELD)
-            _tropoModel = make_shared<t_hopf>();
-    }
-
     t_gsppmodel::~t_gsppmodel()
     {
     }
 
-    int t_gsppmodel::outlierDetect(vector<t_gsatdata> &data,
-                                   SymmetricMatrix &Qx,
-                                   const SymmetricMatrix &Qsav)
+    int t_gsppmodel::outlierDetect(vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix& Qsav)
     {
-
         vector<t_gsatdata>::iterator itMaxVcodeNORM = data.end();
         vector<t_gsatdata>::iterator itMaxVphaseNORM = data.end();
 
@@ -170,12 +123,11 @@ namespace gnut
         return 0;
     }
 
-    double t_gsppmodel::cmpObs(t_gtime &epoch, t_gallpar &param, t_gsatdata &gsatdata, t_gobs &gobs, bool com)
+    double t_gsppmodel::cmpObs(t_gtime& epoch, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs, bool com)
     {
-
         // Cartesian coordinates to ellipsodial coordinates
         t_gtriple xyz, ell;
-        string strEst = dynamic_cast<t_gsetgen *>(_settings)->estimator();
+        string strEst = dynamic_cast<t_gsetgen*>(_settings)->estimator();
         bool isFLT = (strEst == "FLT");
         if (isFLT)
         {
@@ -207,8 +159,7 @@ namespace gnut
         trpDelay = tropoDelay(epoch, param, ell, gsatdata);
         if (fabs(trpDelay) > 50)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "cmpObs", "trpDelay > 50");
+            GREAT_ERROR(std::string("cmpObs ") + "trpDelay > 50");
             return -1;
         }
 
@@ -224,14 +175,13 @@ namespace gnut
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, _site + " ! warning:  Receiver Clock is not included in parameters!");
+            GREAT_ERROR(_site + " ! warning:  Receiver Clock is not included in parameters!");
         }
 
         // system time offset
         double isb_offset = isbCorrection(param, sat, rec, gobs);
 
-        // Inter frequency code bias FREQ_3 
+        // Inter frequency code bias FREQ_3
         double ifb = 0.0;
         i = param.getParam(_site, par_type::IFB_GPS, "");
         if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == FREQ_3)
@@ -256,17 +206,11 @@ namespace gnut
         }
 
         // Return value
-        return gsatdata.rho() +
-               clkRec -
-               gsatdata.clk() +
-               trpDelay +
-               isb_offset +
-               ifb;
+        return gsatdata.rho() + clkRec - gsatdata.clk() + trpDelay + isb_offset + ifb;
     }
 
-    double t_gsppmodel::cmpObsD(t_gtime &epoch, t_gallpar &param, t_gsatdata &gsatdata, t_gobs &gobs)
+    double t_gsppmodel::cmpObsD(t_gtime& epoch, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
     {
-
         // Cartesian coordinates to ellipsodial coordinates
         t_gtriple xyz, ell;
         ColumnVector cRec(3), vRec(3);
@@ -297,21 +241,17 @@ namespace gnut
         ColumnVector vSat = satvel.crd_cvect();
         ColumnVector e = (cSat - cRec) / gsatdata.rho();
 
-        double res = dotproduct(e, vSat - vRec) +
-                     OMEGA / CLIGHT * (vSat(2) * cRec(1) + cSat(2) * vRec(1) - vSat(1) * cRec(2) - cSat(1) * vRec(2));
+        double res =
+            dotproduct(e, vSat - vRec) + OMEGA / CLIGHT * (vSat(2) * cRec(1) + cSat(2) * vRec(1) - vSat(1) * cRec(2) - cSat(1) * vRec(2));
 
-        return res +
-               dclk_Rec -
-               dclk;
+        return res + dclk_Rec - dclk;
     }
 
-    double t_gsppmodel::tropoDelay(t_gtime &epoch, t_gallpar &param, t_gtriple ell, t_gsatdata &satdata)
+    double t_gsppmodel::tropoDelay(t_gtime& epoch, t_gallpar& param, t_gtriple ell, t_gsatdata& satdata)
     {
-
         if (_tropoModel == 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "Tropo Model setting is not correct. Default used! Check config.");
+            GREAT_INFO("Tropo Model setting is not correct. Default used! Check config.");
             _tropoModel = make_shared<t_saast>();
         }
 
@@ -346,8 +286,7 @@ namespace gnut
         {
             double gmfh, gmfw, dgmfh, dgmfw;
             t_gmf mf;
-            mf.gmf(epoch.mjd(), ell[0], ell[1], ell[2], G_PI / 2.0 - ele,
-                   gmfh, gmfw, dgmfh, dgmfw);
+            mf.gmf(epoch.mjd(), ell[0], ell[1], ell[2], G_PI / 2.0 - ele, gmfh, gmfw, dgmfh, dgmfw);
             delay = gmfh * zhd + gmfw * zwd;
         }
         else if (_tropo_mf == gnut::ZTDMPFUNC::COSZ)
@@ -359,7 +298,7 @@ namespace gnut
         return delay;
     }
 
-    double t_gsppmodel::isbCorrection(t_gallpar &param, string &sat, string &rec, t_gobs &gobs)
+    double t_gsppmodel::isbCorrection(t_gallpar& param, string& sat, string& rec, t_gobs& gobs)
     {
         double isb_offset = 0.0;
 
@@ -367,59 +306,59 @@ namespace gnut
 
         switch (gsys)
         {
-        case GPS:
-        {
-            break;
-        }
-        // GLONASS system time offset
-        case GLO:
-        {
-            int idx_isb = param.getParam(rec, par_type::GLO_ISB, "");
-            if (idx_isb >= 0)
+            case GPS:
             {
-                isb_offset = param[idx_isb].value();
+                break;
             }
+            // GLONASS system time offset
+            case GLO:
+            {
+                int idx_isb = param.getParam(rec, par_type::GLO_ISB, "");
+                if (idx_isb >= 0)
+                {
+                    isb_offset = param[idx_isb].value();
+                }
 
-            int idx_ifb = param.getParam(rec, par_type::GLO_IFB, sat);
-            if (idx_ifb >= 0)
-            {
-                isb_offset += param[idx_ifb].value();
-            }
+                int idx_ifb = param.getParam(rec, par_type::GLO_IFB, sat);
+                if (idx_ifb >= 0)
+                {
+                    isb_offset += param[idx_ifb].value();
+                }
 
-            break;
-        }
-        case GAL:
-        {
-            // Galileo system time offset
-            int i = param.getParam(rec, par_type::GAL_ISB, "");
-            if (i >= 0)
-            {
-                isb_offset = param[i].value();
+                break;
             }
-            break;
-        }
-        case BDS:
-        {
-            // BaiDou system time offset
-            int i = param.getParam(rec, par_type::BDS_ISB, "");
-            if (i >= 0)
+            case GAL:
             {
-                isb_offset = param[i].value();
+                // Galileo system time offset
+                int i = param.getParam(rec, par_type::GAL_ISB, "");
+                if (i >= 0)
+                {
+                    isb_offset = param[i].value();
+                }
+                break;
             }
-            break;
-        }
-        // QZSS system time offset
-        case QZS:
-        {
-            int i = param.getParam(_site, par_type::QZS_ISB, "");
-            if (i >= 0)
+            case BDS:
             {
-                isb_offset = param[i].value();
+                // BaiDou system time offset
+                int i = param.getParam(rec, par_type::BDS_ISB, "");
+                if (i >= 0)
+                {
+                    isb_offset = param[i].value();
+                }
+                break;
             }
-            break;
-        }
-        default:
-            throw logic_error("can not support such sys " + t_gsys::gsys2str(gsys));
+            // QZSS system time offset
+            case QZS:
+            {
+                int i = param.getParam(_site, par_type::QZS_ISB, "");
+                if (i >= 0)
+                {
+                    isb_offset = param[i].value();
+                }
+                break;
+            }
+            default:
+                throw logic_error("can not support such sys " + t_gsys::gsys2str(gsys));
         }
 
         return isb_offset;
@@ -435,9 +374,8 @@ namespace gnut
         _grec = rec;
     }
 
-    double t_gsppmodel::_maxres(bool phase, vector<t_gsatdata> &data, vector<t_gsatdata>::iterator &itDATA, RESIDTYPE res_type, GSYS gs)
+    double t_gsppmodel::_maxres(bool phase, vector<t_gsatdata>& data, vector<t_gsatdata>::iterator& itDATA, RESIDTYPE res_type, GSYS gs)
     {
-
         vector<t_gsatdata>::iterator it;
 
         double maxres = 0.0;
@@ -445,13 +383,19 @@ namespace gnut
         for (it = data.begin(); it != data.end(); it++)
         {
             if (it->gsys() != gs && gs != GNS)
+            {
                 continue;
+            }
 
             vector<double> res;
             if (phase)
+            {
                 res = it->residuals(res_type, TYPE_L);
+            }
             else
+            {
                 res = it->residuals(res_type, TYPE_C);
+            }
 
             for (auto itRES = res.begin(); itRES != res.end(); itRES++)
             {
@@ -466,21 +410,33 @@ namespace gnut
         return maxres;
     }
 
-    bool t_gsppmodel::_check_outl(bool phase, double &maxresNORM, vector<t_gsatdata>::iterator &itDataNORM,
-                                  double &maxresORIG, vector<t_gsatdata>::iterator &itDataORIG,
-                                  vector<t_gsatdata>::iterator &itDataErase, vector<t_gsatdata> &data)
+    bool t_gsppmodel::_check_outl(bool phase,
+                                  double& maxresNORM,
+                                  vector<t_gsatdata>::iterator& itDataNORM,
+                                  double& maxresORIG,
+                                  vector<t_gsatdata>::iterator& itDataORIG,
+                                  vector<t_gsatdata>::iterator& itDataErase,
+                                  vector<t_gsatdata>& data)
     {
         map<GSYS, double> map_res;
         if (phase)
+        {
             map_res = _maxres_L;
+        }
         else
+        {
             map_res = _maxres_C;
+        }
 
         GSYS gs;
         if (itDataORIG != data.end())
+        {
             gs = itDataORIG->gsys();
+        }
         else
+        {
             return false;
+        }
 
         if (_resid_type == gnut::RESIDTYPE::RES_ORIG)
         {
@@ -488,9 +444,13 @@ namespace gnut
             {
                 itDataErase = itDataORIG;
                 if (phase)
+                {
                     _logOutl(true, itDataORIG->sat(), data.size(), maxresORIG, itDataORIG->ele_deg(), itDataORIG->epoch(), _resid_type);
+                }
                 else
+                {
                     _logOutl(false, itDataORIG->sat(), data.size(), maxresORIG, itDataORIG->ele_deg(), itDataORIG->epoch(), _resid_type);
+                }
                 return true;
             }
         }
@@ -500,9 +460,13 @@ namespace gnut
             {
                 itDataErase = itDataNORM;
                 if (phase)
+                {
                     _logOutl(true, itDataNORM->sat(), data.size(), maxresNORM, itDataNORM->ele_deg(), itDataNORM->epoch(), _resid_type);
+                }
                 else
+                {
                     _logOutl(false, itDataNORM->sat(), data.size(), maxresNORM, itDataNORM->ele_deg(), itDataNORM->epoch(), _resid_type);
+                }
                 return true;
             }
         }
@@ -514,9 +478,25 @@ namespace gnut
                 {
                     itDataErase = itDataORIG;
                     if (phase)
-                        _logOutl(true, itDataORIG->sat(), data.size(), maxresORIG, itDataORIG->ele_deg(), itDataORIG->epoch(), gnut::RESIDTYPE::RES_ORIG);
+                    {
+                        _logOutl(true,
+                                 itDataORIG->sat(),
+                                 data.size(),
+                                 maxresORIG,
+                                 itDataORIG->ele_deg(),
+                                 itDataORIG->epoch(),
+                                 gnut::RESIDTYPE::RES_ORIG);
+                    }
                     else
-                        _logOutl(false, itDataORIG->sat(), data.size(), maxresORIG, itDataORIG->ele_deg(), itDataORIG->epoch(), gnut::RESIDTYPE::RES_ORIG);
+                    {
+                        _logOutl(false,
+                                 itDataORIG->sat(),
+                                 data.size(),
+                                 maxresORIG,
+                                 itDataORIG->ele_deg(),
+                                 itDataORIG->epoch(),
+                                 gnut::RESIDTYPE::RES_ORIG);
+                    }
                     return true;
                 }
                 else
@@ -527,18 +507,50 @@ namespace gnut
                     {
                         itDataErase = itDataNORM;
                         if (phase)
-                            _logOutl(true, itDataNORM->sat(), data.size(), maxresNORM, itDataNORM->ele_deg(), itDataNORM->epoch(), gnut::RESIDTYPE::RES_NORM);
+                        {
+                            _logOutl(true,
+                                     itDataNORM->sat(),
+                                     data.size(),
+                                     maxresNORM,
+                                     itDataNORM->ele_deg(),
+                                     itDataNORM->epoch(),
+                                     gnut::RESIDTYPE::RES_NORM);
+                        }
                         else
-                            _logOutl(false, itDataNORM->sat(), data.size(), maxresNORM, itDataNORM->ele_deg(), itDataNORM->epoch(), gnut::RESIDTYPE::RES_NORM);
+                        {
+                            _logOutl(false,
+                                     itDataNORM->sat(),
+                                     data.size(),
+                                     maxresNORM,
+                                     itDataNORM->ele_deg(),
+                                     itDataNORM->epoch(),
+                                     gnut::RESIDTYPE::RES_NORM);
+                        }
                         return true;
                     }
                     else
                     {
                         itDataErase = itDataORIG;
                         if (phase)
-                            _logOutl(true, itDataORIG->sat(), data.size(), maxresORIG, itDataORIG->ele_deg(), itDataORIG->epoch(), gnut::RESIDTYPE::RES_ORIG);
+                        {
+                            _logOutl(true,
+                                     itDataORIG->sat(),
+                                     data.size(),
+                                     maxresORIG,
+                                     itDataORIG->ele_deg(),
+                                     itDataORIG->epoch(),
+                                     gnut::RESIDTYPE::RES_ORIG);
+                        }
                         else
-                            _logOutl(false, itDataORIG->sat(), data.size(), maxresORIG, itDataORIG->ele_deg(), itDataORIG->epoch(), gnut::RESIDTYPE::RES_ORIG);
+                        {
+                            _logOutl(false,
+                                     itDataORIG->sat(),
+                                     data.size(),
+                                     maxresORIG,
+                                     itDataORIG->ele_deg(),
+                                     itDataORIG->epoch(),
+                                     gnut::RESIDTYPE::RES_ORIG);
+                        }
                         return true;
                     }
                 }
@@ -553,25 +565,32 @@ namespace gnut
         string obsType = "";
         string resType = "";
         if (phase)
+        {
             obsType = "phase";
+        }
         else
+        {
             obsType = "range";
+        }
 
         if (resid_type == gnut::RESIDTYPE::RES_NORM)
+        {
             resType = "Norm residual";
+        }
         if (resid_type == gnut::RESIDTYPE::RES_ORIG)
+        {
             resType = "Orig residual";
+        }
         if (resid_type == gnut::RESIDTYPE::RES_ALL)
+        {
             resType = "All residual";
+        }
 
         ostringstream os;
-        os << _site << " outlier (" << resType << ": " << obsType << ") " << prn
-           << " size:" << fixed << setw(2) << data_size
-           << " v: " << fixed << setw(16) << right << setprecision(3) << maxres
-           << " ele: " << fixed << setw(6) << setprecision(2) << ele
+        os << _site << " outlier (" << resType << ": " << obsType << ") " << prn << " size:" << fixed << setw(2) << data_size
+           << " v: " << fixed << setw(16) << right << setprecision(3) << maxres << " ele: " << fixed << setw(6) << setprecision(2) << ele
            << " " << epo.str_hms();
-        if (_spdlog)
-            SPDLOG_LOGGER_DEBUG(_spdlog, os.str());
+        GREAT_DEBUG(os.str());
     }
 
-} // namespace
+} // namespace gnut

@@ -39,17 +39,15 @@ namespace gnut
     /** @brief class for gtrn. */
     class t_gtrn : public t_gobj
     {
-
     public:
         /** @brief default constructor. */
         t_gtrn();
 
         /**
          * @brief Construct a new t gtrn object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gtrn(t_spdlog spdlog);
         /** @brief default destructor. */
         virtual ~t_gtrn();
 
@@ -60,7 +58,7 @@ namespace gnut
         typedef vector<t_header_pair> t_header;
 
         /** @brief header. */
-        virtual void header(const t_rxnhdr &hdr, string path);
+        virtual void header(const t_rxnhdr& hdr, string path);
 
         /** @brief overried header. */
         virtual t_rxnhdr header(string path) const;
@@ -69,10 +67,16 @@ namespace gnut
         virtual t_header headers() const;
 
         /** @brief get the value of isrec. */
-        virtual bool isrec() override { return true; }
+        virtual bool isrec() override
+        {
+            return true;
+        }
 
         /** @brief get the value of istrn. */
-        virtual bool istrn() override { return false; }
+        virtual bool istrn() override
+        {
+            return false;
+        }
 
         /** @brief get the value of channel. */
         virtual void channel(int chk) override;
@@ -86,5 +90,5 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 #endif

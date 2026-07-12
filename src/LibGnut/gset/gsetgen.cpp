@@ -31,10 +31,10 @@ using namespace pugi;
 
 namespace gnut
 {
-    t_gsetgen::t_gsetgen(bool gnss)
-        : t_gsetbase(),
-          _gnss(gnss),
-          _dec(0)
+    t_gsetgen::t_gsetgen(bool gnss) :
+        t_gsetbase(),
+        _gnss(gnss),
+        _dec(0)
     {
         _set.insert(XMLKEY_GEN);
 
@@ -135,9 +135,11 @@ namespace gnut
                 itSYS = itTMP;
                 ++itTMP;
                 tmp.erase(itSYS);
-            } 
+            }
             else
+            {
                 ++itTMP;
+            }
         }
 
         // if empty, complete, i.e. if only exclusions listed (and gnss requested!)
@@ -150,7 +152,9 @@ namespace gnut
             {
                 string gs = t_gsys::gsys2str(itGNS->first);
                 if (xcl.find("-" + gs) == xcl.end())
+                {
                     tmp.insert(gs);
+                }
             }
         }
         _gmutex.unlock();
@@ -224,14 +228,13 @@ namespace gnut
         set<string> src = t_gsetbase::_setval(XMLKEY_GEN, "est");
         _gmutex.unlock();
 
-        if (src.empty() || *src.begin() != "FLT") 
+        if (src.empty() || *src.begin() != "FLT")
         {
             string tmp("FLT");
             return tmp;
         }
         else
         {
-
             return *src.begin();
         }
     }
@@ -273,7 +276,6 @@ namespace gnut
         _gmutex.unlock();
         if (floor(sampling()) < 1 || _dec > 0)
         {
-
             if (sampling() < 0.0)
             {
                 _default_node(node, "INT", "0.0", true); // reset!
@@ -282,7 +284,6 @@ namespace gnut
             }
             else
             {
-
                 cout << "gsetgen: sampling rate settings above 1Hz recognized" << endl;
             }
         }
@@ -303,7 +304,9 @@ namespace gnut
              << "   <end> \"" << end.str_ymdhms() << "\" </end>\n"; // LAST_TIME.str("\"%Y-%m-%d %H:%M:%S\"")
 
         if (_gnss)
+        {
             cerr << "   <sys> " << _sys << " </sys>\n"; // GNSS systems
+        }
 
         cerr << "   <rec> GOPE WTZR POTS                </rec>\n" // list of site identificators
              << "   <int>" + int2str(DEF_SAMPLING) + "</int>\n"
@@ -315,7 +318,9 @@ namespace gnut
              << "\t int    .. data sampling     (default: 30s)\n";
 
         if (_gnss)
+        {
             cerr << "\t sys    .. GNSS system(s)    (default: all)\n";
+        }
 
         cerr << "\t rec    .. GNSS receiver(s)  (rec active list, e.g.: GOPE ONSA WTZR ... )\n"
              << "\t -->\n\n";
@@ -324,4 +329,4 @@ namespace gnut
         return;
     }
 
-} // namespace
+} // namespace gnut

@@ -28,30 +28,15 @@ using namespace std;
 
 namespace gnut
 {
-    t_gallnav::t_gallnav()
-        : t_gdata(),
-          _com(false),
-          _nepoch(t_gtime::GPS),
-          _multimap(false),
-          _overwrite(false),
-          _chkHealth(true), 
-          _chkNavig(true),
-          _chkTot(false)
-    {
-
-        id_type(t_gdata::ALLNAV);
-        id_group(t_gdata::GRP_EPHEM);
-    }
-
-    t_gallnav::t_gallnav(t_spdlog spdlog)
-        : t_gdata(spdlog),
-          _com(false),
-          _nepoch(t_gtime::GPS),
-          _multimap(false),
-          _overwrite(false),
-          _chkHealth(true), 
-          _chkNavig(true),
-          _chkTot(false)
+    t_gallnav::t_gallnav() :
+        t_gdata(),
+        _com(false),
+        _nepoch(t_gtime::GPS),
+        _multimap(false),
+        _overwrite(false),
+        _chkHealth(true),
+        _chkNavig(true),
+        _chkTot(false)
     {
         id_type(t_gdata::ALLNAV);
         id_group(t_gdata::GRP_EPHEM);
@@ -59,13 +44,11 @@ namespace gnut
 
     t_gallnav::~t_gallnav()
     {
-
         _mapsat.clear();
     }
 
-    shared_ptr<t_geph> t_gallnav::find(const string &sat, const t_gtime &t, const bool &chk_mask)
+    shared_ptr<t_geph> t_gallnav::find(const string& sat, const t_gtime& t, const bool& chk_mask)
     {
-
         _gmutex.lock();
 
         shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
@@ -73,93 +56,94 @@ namespace gnut
         _gmutex.unlock();
         return tmp;
     };
-    int t_gallnav::pos(const string &sat,
-                       const t_gtime &t,
-                       double xyz[3],
-                       double var[3],
-                       double vel[3],
-                       const bool &chk_mask) // [m]
+    int t_gallnav::pos(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
+                       const bool& chk_mask) // [m]
     {
         _gmutex.lock();
 
         shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
-        
+
         if (tmp == _null)
         {
             tmp = t_gallnav::_find(sat, t, false);
         }
-        
+
         if (tmp == _null)
         {
             for (int i = 0; i < 3; i++)
             {
                 xyz[i] = 0.0;
                 if (var)
+                {
                     var[i] = 0.0;
+                }
                 if (vel)
+                {
                     vel[i] = 0.0;
+                }
             }
             _gmutex.unlock();
             return -1;
         }
 
         int irc = tmp->pos(t, xyz, var, vel, _chkHealth && chk_mask);
-        
+
         if (irc == -1)
         {
             irc = tmp->pos(t, xyz, var, vel, false);
         }
-        
 
         _gmutex.unlock();
         return irc;
     }
 
-    int t_gallnav::pos(const string &sat,
-                       const int &iod,
-                       const t_gtime &t,
+    int t_gallnav::pos(const string& sat,
+                       const int& iod,
+                       const t_gtime& t,
                        double xyz[3],
                        double var[3],
                        double vel[3],
-                       const bool &chk_mask) // [m]
+                       const bool& chk_mask) // [m]
     {
         _gmutex.lock();
 
         shared_ptr<t_geph> tmp = t_gallnav::_find(sat, iod, t, _chkHealth && chk_mask);
-        
+
         if (tmp == _null)
         {
             tmp = t_gallnav::_find(sat, iod, t, false);
         }
-        
+
         if (tmp == _null)
         {
             for (int i = 0; i < 3; i++)
             {
                 xyz[i] = 0.0;
                 if (var)
+                {
                     var[i] = 0.0;
+                }
                 if (vel)
+                {
                     vel[i] = 0.0;
+                }
             }
             _gmutex.unlock();
             return -1;
         }
 
         int irc = tmp->pos(t, xyz, var, vel, _chkHealth && chk_mask);
-        
+
         if (irc == -1)
         {
             irc = tmp->pos(t, xyz, var, vel, false);
         }
-        
 
         _gmutex.unlock();
         return irc;
-
     }
 
-    bool t_gallnav::health(const string &sat, const t_gtime &t)
+    bool t_gallnav::health(const string& sat, const t_gtime& t)
     {
         _gmutex.lock();
 
@@ -177,12 +161,8 @@ namespace gnut
         return status;
     }
 
-    int t_gallnav::nav(const string &sat,
-                       const t_gtime &t,
-                       double xyz[3],
-                       double var[3],
-                       double vel[3],
-                       const bool &chk_mask) // [m]
+    int t_gallnav::nav(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
+                       const bool& chk_mask) // [m]
     {
         _gmutex.lock();
 
@@ -194,9 +174,13 @@ namespace gnut
             {
                 xyz[i] = 0.0;
                 if (var)
+                {
                     var[i] = 0.0;
+                }
                 if (vel)
+                {
                     vel[i] = 0.0;
+                }
             }
             _gmutex.unlock();
             return -1;
@@ -205,16 +189,11 @@ namespace gnut
 
         _gmutex.unlock();
         return irc;
-
     }
 
     // ----------
-    int t_gallnav::clk(const string &sat,
-                       const t_gtime &t,
-                       double *clk,
-                       double *var,
-                       double *dclk,
-                       const bool &chk_mask) // [s]
+    int t_gallnav::clk(const string& sat, const t_gtime& t, double* clk, double* var, double* dclk,
+                       const bool& chk_mask) // [s]
     {
         _gmutex.lock();
 
@@ -224,9 +203,13 @@ namespace gnut
         {
             *clk = 0.0;
             if (var)
+            {
                 *var = 0.0;
+            }
             if (dclk)
+            {
                 *dclk = 0.0;
+            }
             _gmutex.unlock();
             return -1;
         }
@@ -234,7 +217,6 @@ namespace gnut
         int irc = tmp->clk(t, clk, var, dclk, _chkHealth && chk_mask);
         _gmutex.unlock();
         return irc;
-
     }
 
     set<string> t_gallnav::satellites() const
@@ -256,7 +238,6 @@ namespace gnut
 
     int t_gallnav::add(shared_ptr<t_gnav> nav)
     {
-
         _gmutex.lock();
 
         t_gtime ep(nav->epoch());
@@ -297,7 +278,9 @@ namespace gnut
             }
         }
         if (!nav->valid())
+        {
             add = false; // validity test
+        }
 
         if (add)
         {
@@ -312,27 +295,34 @@ namespace gnut
         return 0;
     }
 
-    unsigned int t_gallnav::nepochs(const string &prn)
+    unsigned int t_gallnav::nepochs(const string& prn)
     {
         _gmutex.lock();
 
         unsigned int tmp = 0;
         if (_mapsat.find(prn) != _mapsat.end())
+        {
             tmp = _mapsat[prn].size();
+        }
 
         _gmutex.unlock();
         return tmp;
     }
 
-    void t_gallnav::clean_outer(const t_gtime &beg, const t_gtime &end)
+    void t_gallnav::clean_outer(const t_gtime& beg, const t_gtime& end)
     {
-
         if (end < beg)
+        {
             return;
+        }
         if (beg == FIRST_TIME)
+        {
             return;
+        }
         if (end == LAST_TIME)
+        {
             return;
+        }
 
         _gmutex.lock();
 
@@ -388,20 +378,21 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    int t_gallnav::nsat(const GSYS &gs) const
+    int t_gallnav::nsat(const GSYS& gs) const
     {
-
         int nsatell = 0;
         for (auto itSAT = _mapsat.begin(); itSAT != _mapsat.end(); ++itSAT)
         {
             string sat = itSAT->first;
             if (t_gsys::char2gsys(sat[0]) == gs || gs == GNS)
+            {
                 nsatell++;
+            }
         }
         return nsatell;
     }
 
-    t_iono_corr t_gallnav::get_iono_corr(const IONO_CORR &c) const
+    t_iono_corr t_gallnav::get_iono_corr(const IONO_CORR& c) const
     {
         if (_brdc_iono_cor.find(c) != _brdc_iono_cor.end())
         {
@@ -427,7 +418,7 @@ namespace gnut
         return io;
     }
 
-    void t_gallnav::add_iono_corr(const IONO_CORR &c, const t_iono_corr &io)
+    void t_gallnav::add_iono_corr(const IONO_CORR& c, const t_iono_corr& io)
     {
         if (_brdc_iono_cor.find(c) == _brdc_iono_cor.end())
         {
@@ -435,11 +426,12 @@ namespace gnut
         }
     }
 
-    shared_ptr<t_geph> t_gallnav::_find(const string &sat, const t_gtime &t, const bool &chk_mask)
+    shared_ptr<t_geph> t_gallnav::_find(const string& sat, const t_gtime& t, const bool& chk_mask)
     {
-
         if (_mapsat.find(sat) == _mapsat.end())
+        {
             return _null; // make_shared<t_geph>();
+        }
 
         GSYS gnss = t_gsys::str2gsys(sat.substr(0, 1));
 
@@ -450,7 +442,9 @@ namespace gnut
 
         auto it = _mapsat[sat].lower_bound(t); // greater|equal  (can be still end())
         if (it == _mapsat[sat].end())
+        {
             it--; // size() > 0 already checked above
+        }
 
         double maxdiff = t_gnav::nav_validity(gnss) * 1.1;
 
@@ -460,17 +454,21 @@ namespace gnut
             for (int bck = 1; bck <= 5; bck++)
             { // max eph for going back is 5
                 t_gtime toc = it->second->epoch();
-                if ((t < toc + 10 * 60 || t > toc + maxdiff) ||
-                    (_chkTot && !it->second->chktot(t)))
+                if ((t < toc + 10 * 60 || t > toc + maxdiff) || (_chkTot && !it->second->chktot(t)))
                 { // check ToT for using past messages only
                     if (_mapsat[sat].size() > 0 && it != _mapsat[sat].begin())
+                    {
                         it--; // one more step back
+                    }
                     else
+                    {
                         break;
+                    }
                 }
-                if ((t >= toc + 10 * 60 && t <= toc + maxdiff) &&
-                    (_chkTot && it->second->chktot(t)))
+                if ((t >= toc + 10 * 60 && t <= toc + maxdiff) && (_chkTot && it->second->chktot(t)))
+                {
                     break;
+                }
             }
         }
         else if (gnss == BDS)
@@ -479,17 +477,21 @@ namespace gnut
             for (int bck = 1; bck <= 5; bck++)
             { // max eph for going back is 5
                 t_gtime toc = it->second->epoch();
-                if ((t < toc || t > toc + maxdiff) ||
-                    (_chkTot && !it->second->chktot(t)))
+                if ((t < toc || t > toc + maxdiff) || (_chkTot && !it->second->chktot(t)))
                 { // check ToT for using past messages only
                     if (_mapsat[sat].size() > 0 && it != _mapsat[sat].begin())
+                    {
                         it--; // one more step back
+                    }
                     else
+                    {
                         break;
+                    }
                 }
-                if ((t >= toc && t <= toc + maxdiff) &&
-                    (_chkTot && it->second->chktot(t)))
+                if ((t >= toc && t <= toc + maxdiff) && (_chkTot && it->second->chktot(t)))
+                {
                     break;
+                }
             }
         }
         else if (gnss == GLO)
@@ -505,7 +507,9 @@ namespace gnut
             double dt1 = itt->first - t;
             double dt2 = it->first - t;
             if (fabs(dt1) < fabs(dt2))
+            {
                 it = itt;
+            }
         }
         else
         {
@@ -529,31 +533,38 @@ namespace gnut
             )
             {
                 if (_mapsat[sat].size() > 0 && it != _mapsat[sat].begin())
+                {
                     it--; // one more step back
+                }
             }
         }
 
         // tested found ephemeris
-        if (fabs(t - it->second->epoch()) > maxdiff ||
-            (_chkTot && !it->second->chktot(t)))
-        { 
+        if (fabs(t - it->second->epoch()) > maxdiff || (_chkTot && !it->second->chktot(t)))
+        {
             return _null;
         }
 
         if (_chkHealth && chk_mask)
         {
             if (it->second->healthy())
+            {
                 return it->second;
+            }
             else
+            {
                 return _null;
+            }
         }
         return it->second;
     }
 
-    shared_ptr<t_geph> t_gallnav::_find(const string &sat, const int &iod, const t_gtime &t, const bool &chk_mask)
+    shared_ptr<t_geph> t_gallnav::_find(const string& sat, const int& iod, const t_gtime& t, const bool& chk_mask)
     {
         if (_mapsat.find(sat) == _mapsat.end())
+        {
             return _null; // make_shared<t_geph>();
+        }
 
         GSYS gnss = t_gsys::str2gsys(sat.substr(0, 1));
         double maxdiff = t_gnav::nav_validity(gnss);
@@ -581,12 +592,16 @@ namespace gnut
         if (_chkHealth && chk_mask)
         {
             if (it->second->healthy())
+            {
                 return it->second;
+            }
             else
+            {
                 return _null;
+            }
         }
 
         return it->second;
     }
 
-} // namespace
+} // namespace gnut

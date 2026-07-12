@@ -21,20 +21,28 @@ using namespace std;
 namespace gnut
 {
 
-    bool double_eq(const double &a, const double &b)
+    bool double_eq(const double& a, const double& b)
     {
         if (fabs(a - b) < numeric_limits<double>::epsilon())
+        {
             return true; // must be editeed with machine epsilon (FOLLOWING FLOAT BELLOW!)
+        }
         else
+        {
             return false;
+        }
     }
 
-    bool float_eq(const float &a, const float &b)
+    bool float_eq(const float& a, const float& b)
     {
         if (fabs(a - b) < numeric_limits<float>::epsilon())
+        {
             return true;
+        }
         else
+        {
             return false;
+        }
     }
 
     double dround(double d)
@@ -42,7 +50,7 @@ namespace gnut
         return floor(d + 0.5);
     }
 
-    string dbl2str(const double &d, int prec)
+    string dbl2str(const double& d, int prec)
     {
         ostringstream out;
         out << fixed << setprecision(prec) << " " << setw(0) << d;
@@ -50,7 +58,7 @@ namespace gnut
     }
 
 #ifndef STR2DBL
-    double str2dbl(const string &s)
+    double str2dbl(const string& s)
     {
         return strtod(s.c_str(), NULL);
 
@@ -65,22 +73,25 @@ namespace gnut
     // http://tinodidriksen.com/2011/05/28/cpp-convert-string-to-double-speed/
     // http://pastebin.com/dHP1pgQ4
     // bool naive(T & r, const char *p)
-    double str2dbl(const string &s)
+    double str2dbl(const string& s)
     {
         return str2dbl(s.c_str());
     }
-    // string to double conversion (avoiding blanks)      // http://tinodidriksen.com/2011/05/28/cpp-convert-string-to-double-speed/
+    // string to double conversion (avoiding blanks)      //
+    // http://tinodidriksen.com/2011/05/28/cpp-convert-string-to-double-speed/
     // ----------
-    double str2dbl(const char *p)
+    double str2dbl(const char* p)
     {
 
 #define white_space(c) ((c) == ' ' || (c) == '\t')
 #define valid_digit(c) ((c) >= '0' && (c) <= '9')
 #define null_double 0.0;
 
-        //Skip leading white space, if any.
+        // Skip leading white space, if any.
         while (white_space(*p))
+        {
             p += 1;
+        }
 
         double r = 0.0;
         int c = 0; // counter to check how many numbers we got!
@@ -166,7 +177,9 @@ namespace gnut
 
             // SECOND CHECK:
             if (c == 0)
+            {
                 return null_double; // we got no  exponent! this was not intended!!
+            }
 
             double scaleE = 1.0;
 
@@ -176,7 +189,7 @@ namespace gnut
                 scaleE *= 1E50;
                 e -= 50;
             }
-            //while (e >=  8) { scaleE *= 1E8;  e -=  8; }
+            // while (e >=  8) { scaleE *= 1E8;  e -=  8; }
             while (e > 0)
             {
                 scaleE *= 10.0;
@@ -196,7 +209,9 @@ namespace gnut
         // POST CHECK:
         // skip post whitespaces
         while (white_space(*p))
+        {
             ++p;
+        }
 
         if (*p != '\0')
         {
@@ -205,13 +220,15 @@ namespace gnut
 
         // Apply sign to number
         if (neg)
+        {
             r = -r;
+        }
 
         return r;
     }
 #endif
 
-    double strSci2dbl(const string &s)
+    double strSci2dbl(const string& s)
     {
         double i = 0.0;
         string str(s);
@@ -222,21 +239,21 @@ namespace gnut
         return i;
     }
 
-    string int2str(const int &i)
+    string int2str(const int& i)
     {
         ostringstream out;
         out << i;
         return out.str();
     }
 
-    string int2str(const int &i, const int &width)
+    string int2str(const int& i, const int& width)
     {
         ostringstream out;
         out << setw(width) << setfill('0') << i;
         return out.str();
     }
 
-    int str2int(const string &s)
+    int str2int(const string& s)
     {
         int i = 0;
         istringstream istr(s);
@@ -244,38 +261,46 @@ namespace gnut
         return i;
     }
 
-    string bl2str(const bool &s)
+    string bl2str(const bool& s)
     {
         if (s)
+        {
             return string("TRUE");
+        }
         else
+        {
             return string("FALSE");
+        }
     }
 
-    string rtrim(const string &s)
+    string rtrim(const string& s)
     {
         string str;
         size_t endpos = s.find_last_not_of(" \t");
         if (string::npos != endpos)
+        {
             str = s.substr(0, endpos + 1);
+        }
         return str;
     }
 
-    string ltrim(const string &s)
+    string ltrim(const string& s)
     {
         string str;
         size_t startpos = s.find_first_not_of(" \t");
         if (string::npos != startpos)
+        {
             str = s.substr(startpos);
+        }
         return str;
     }
 
-    string trim(const string &s)
+    string trim(const string& s)
     {
         return ltrim(rtrim(s));
     }
 
-    size_t substitute(string &line, const string &a, const string &b, bool caseSensitive)
+    size_t substitute(string& line, const string& a, const string& b, bool caseSensitive)
     {
         size_t n = 0;
 
@@ -310,4 +335,4 @@ namespace gnut
         return x - floor(x);
     }
 
-} // namespace
+} // namespace gnut

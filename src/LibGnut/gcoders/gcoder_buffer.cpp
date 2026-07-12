@@ -34,7 +34,7 @@ namespace great
         return _buffer.size();
     }
 
-    int gcoder_buffer::add(char *buff, int size)
+    int gcoder_buffer::add(char* buff, int size)
     {
         for (int i = 0; i < size; i++)
         {
@@ -44,7 +44,7 @@ namespace great
         return size;
     }
 
-    int gcoder_buffer::getline(string &str, int from_pos)
+    int gcoder_buffer::getline(string& str, int from_pos)
     {
         str = "";
         str.reserve(_buffer.size());
@@ -67,7 +67,7 @@ namespace great
         return str.length();
     }
 
-    void gcoder_buffer::toString(string &str)
+    void gcoder_buffer::toString(string& str)
     {
         str = "";
         str.reserve(_buffer.size());
@@ -77,12 +77,13 @@ namespace great
         }
     }
 
-    gcoder_char_buffer::gcoder_char_buffer() : _begpos(0),
-                                               _endpos(0),
-                                               _buffsz(1024 * 1000)
+    gcoder_char_buffer::gcoder_char_buffer() :
+        _begpos(0),
+        _endpos(0),
+        _buffsz(1024 * 1000)
     {
         // use malloc instead of new due to realocate function!
-        _buffer = (char *)malloc((_buffsz + 1) * sizeof(char)); // due to realocate function!
+        _buffer = (char*)malloc((_buffsz + 1) * sizeof(char)); // due to realocate function!
     }
 
     gcoder_char_buffer::~gcoder_char_buffer()
@@ -90,7 +91,7 @@ namespace great
         if (_buffer)
         {
             free(_buffer);
-            _buffer = NULL; 
+            _buffer = NULL;
         }
     }
 
@@ -99,7 +100,7 @@ namespace great
         return _endpos - _begpos;
     }
 
-    int gcoder_char_buffer::add(char *buff, int sz)
+    int gcoder_char_buffer::add(char* buff, int sz)
     {
         if (_begpos != 0)
         {
@@ -113,10 +114,9 @@ namespace great
 
         if (_endpos + sz > _buffsz)
         {
-
             // INCREASE BUFFER USING REALLOC !
             _buffsz = (int)((_endpos + sz + 1) * 1.5); //  (int)BUFFER_INCREASE_FAC == 1
-            if (!(_buffer = (char *)realloc(_buffer, (_buffsz + 1) * sizeof(char))))
+            if (!(_buffer = (char*)realloc(_buffer, (_buffsz + 1) * sizeof(char))))
             {
                 exit(1);
             }
@@ -138,12 +138,14 @@ namespace great
         return sz;
     }
 
-    int gcoder_char_buffer::getline(string &str, int from_pos)
+    int gcoder_char_buffer::getline(string& str, int from_pos)
     {
         str = "";
         from_pos += _begpos;
         if (_endpos == 0 || from_pos >= _endpos)
+        {
             return -1;
+        }
 
         int ifirst = -1;
         for (ifirst = from_pos; ifirst < _endpos; ifirst++)
@@ -163,7 +165,7 @@ namespace great
         return str.length();
     }
 
-    int gcoder_char_buffer::getbuffer(const char *&buff)
+    int gcoder_char_buffer::getbuffer(const char*& buff)
     {
         buff = _buffer + _begpos;
         return _endpos - _begpos;
@@ -175,10 +177,8 @@ namespace great
         {
             return 0;
         }
-        if (_begpos + bytes_to_eat > _endpos ||
-            bytes_to_eat > _buffsz)
+        if (_begpos + bytes_to_eat > _endpos || bytes_to_eat > _buffsz)
         {
-
             exit(1);
         }
 
@@ -186,8 +186,8 @@ namespace great
 
         return bytes_to_eat;
     }
-    void gcoder_char_buffer::toString(string &str)
+    void gcoder_char_buffer::toString(string& str)
     {
         str = string(_buffer + _begpos, _endpos - _begpos);
     }
-}
+} // namespace great

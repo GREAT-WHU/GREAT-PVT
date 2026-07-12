@@ -17,18 +17,16 @@ using namespace std;
 
 namespace gnut
 {
-    void t_gallpar::addParam(const t_gpar &newPar)
+    void t_gallpar::addParam(const t_gpar& newPar)
     {
-
         this->_vParam.push_back(newPar);
         this->_point_par.push_back(_max_point++);
         this->_index_par[newPar.get_head()][newPar.get_timearc()] = this->_point_par[this->_point_par.size() - 1];
     }
 
-    void t_gallpar::delParam(const int &i)
+    void t_gallpar::delParam(const int& i)
     {
-
-        auto &all = this->_index_par.at(_vParam[i].get_head());
+        auto& all = this->_index_par.at(_vParam[i].get_head());
         for (auto iter = all.begin(); iter != all.end(); ++iter)
         {
             if (iter->second == _point_par[i])
@@ -46,8 +44,11 @@ namespace gnut
         _vParam.erase(_vParam.begin() + i);
     }
 
-    int t_gallpar::getParam(const string &mark, const par_type &type, const string &prn,
-                            const t_gtime &beg, const t_gtime &end) const
+    int t_gallpar::getParam(const string& mark,
+                            const par_type& type,
+                            const string& prn,
+                            const t_gtime& beg,
+                            const t_gtime& end) const
     {
         if (this->_index_par.count(t_gparhead(type, mark, prn)) == 0)
         {
@@ -55,7 +56,7 @@ namespace gnut
         }
         else
         {
-            const auto &all = this->_index_par.find(t_gparhead(type, mark, prn))->second;
+            const auto& all = this->_index_par.find(t_gparhead(type, mark, prn))->second;
             t_gtimearc dst_timearc(beg, end);
 
             auto all_end = all.end();
@@ -75,9 +76,8 @@ namespace gnut
         return -1;
     }
 
-    int t_gallpar::getParam(const int &index)
+    int t_gallpar::getParam(const int& index)
     {
-
         for (unsigned int i = 0; i <= _vParam.size() - 1; i++)
         {
             if (_vParam[i].index == index)
@@ -88,7 +88,7 @@ namespace gnut
         return -1;
     }
 
-    int t_gallpar::getParIndex(const int &idx)
+    int t_gallpar::getParIndex(const int& idx)
     {
         if (idx >= 0 && idx < _vParam.size())
         {
@@ -100,7 +100,7 @@ namespace gnut
         }
     }
 
-    double t_gallpar::getParValue(const int &idx)
+    double t_gallpar::getParValue(const int& idx)
     {
         if (idx >= 0 && idx < _vParam.size())
         {
@@ -112,7 +112,7 @@ namespace gnut
         }
     }
 
-    void t_gallpar::setParValue(const int &idx, const double &value)
+    void t_gallpar::setParValue(const int& idx, const double& value)
     {
         if (idx >= 0 && idx < _vParam.size())
         {
@@ -122,7 +122,6 @@ namespace gnut
 
     void t_gallpar::reIndex()
     {
-
         int index_new = 1;
         for (unsigned int iPar = 0; iPar <= _vParam.size() - 1; iPar++)
         {
@@ -133,13 +132,11 @@ namespace gnut
 
     unsigned int t_gallpar::parNumber() const
     {
-
         return _vParam.size();
     }
 
     unsigned int t_gallpar::orbParNumber() const
     {
-
         unsigned int orbparnum = 0;
         for (auto sat : _vOrbParam)
         {
@@ -149,9 +146,8 @@ namespace gnut
         return orbparnum;
     }
 
-    int t_gallpar::getCrdParam(const string &station, t_gtriple &crd, const t_gtime &Tbeg, const t_gtime &Tend) const
+    int t_gallpar::getCrdParam(const string& station, t_gtriple& crd, const t_gtime& Tbeg, const t_gtime& Tend) const
     {
-
         int found = 0;
 
         int idx = this->getParam(station, par_type::CRD_X, "", Tbeg, Tend);
@@ -175,68 +171,81 @@ namespace gnut
         }
 
         if (found == 3)
+        {
             return 1; // all three crd were found
+        }
         if (found == 1)
+        {
             return -1; // just one crd was found
+        }
         if (found == 2)
+        {
             return -2; // just two crd was found
+        }
 
         if (found == 0)
+        {
             return -3; // crd not found
+        }
 
         return -1;
     }
 
-    int t_gallpar::getVelParam(const string &station, t_gtriple &vel, const t_gtime &Tbeg, const t_gtime &Tend) const
+    int t_gallpar::getVelParam(const string& station, t_gtriple& vel, const t_gtime& Tbeg, const t_gtime& Tend) const
     {
-
         int found = 0;
         vector<t_gpar>::const_iterator iter;
         for (iter = _vParam.begin(); iter != _vParam.end(); ++iter)
         {
-            if (iter->parType == par_type::VEL_X && iter->site.compare(station) == 0 &&
-                iter->beg == Tbeg && iter->end == Tend)
+            if (iter->parType == par_type::VEL_X && iter->site.compare(station) == 0 && iter->beg == Tbeg &&
+                iter->end == Tend)
             {
                 vel.set(0, iter->value());
                 found++;
             }
-            else if (iter->parType == par_type::VEL_Y && iter->site.compare(station) == 0 &&
-                     iter->beg == Tbeg && iter->end == Tend)
+            else if (iter->parType == par_type::VEL_Y && iter->site.compare(station) == 0 && iter->beg == Tbeg &&
+                     iter->end == Tend)
             {
                 vel.set(1, iter->value());
                 found++;
             }
-            else if (iter->parType == par_type::VEL_Z && iter->site.compare(station) == 0 &&
-                     iter->beg == Tbeg && iter->end == Tend)
+            else if (iter->parType == par_type::VEL_Z && iter->site.compare(station) == 0 && iter->beg == Tbeg &&
+                     iter->end == Tend)
             {
                 vel.set(2, iter->value());
                 found++;
             }
         }
         if (found == 3)
+        {
             return 1; // all three crd were found
+        }
         if (found == 1)
+        {
             return -1; // just one crd was found
+        }
         if (found == 2)
+        {
             return -2; // just two crd was found
+        }
 
         if (found == 0)
+        {
             return -3; // crd not found
+        }
 
         return -1;
     }
 
-    vector<int> t_gallpar::getPartialIndex(const string &site, const string &sat)
+    vector<int> t_gallpar::getPartialIndex(const string& site, const string& sat)
     {
         _update_partial_index();
 
         vector<int> ans;
-        pair<string, string> type_list[4] =
-            {
-                make_pair(site, sat),
-                make_pair(site, ""),
-                make_pair("", sat),
-                make_pair("", "")};
+        pair<string, string> type_list[4] = {make_pair(site, sat),
+                                             make_pair(site, ""),
+                                             make_pair("", sat),
+                                             make_pair("", "")};
 
         _allpar_mtx.lock();
         for (int i = 0; i < 4; i++)
@@ -248,24 +257,23 @@ namespace gnut
         return ans;
     }
 
-    const t_gpar &t_gallpar::getPar(const int &idx) const
+    const t_gpar& t_gallpar::getPar(const int& idx) const
     {
         return _vParam[idx];
     };
 
-    t_gpar &t_gallpar::operator[](const size_t idx)
+    t_gpar& t_gallpar::operator[](const size_t idx)
     {
         return _vParam[idx];
     }
 
-    t_gallpar t_gallpar::operator-(const t_gallpar &gallpar)
+    t_gallpar t_gallpar::operator-(const t_gallpar& gallpar)
     {
         t_gallpar diff;
         if (this->parNumber() != gallpar.parNumber())
         {
-            cerr << "t_gallpar::operator-: Incompatible dimension ("
-                 << this->parNumber() << ", " << gallpar.parNumber() << ")"
-                 << endl;
+            cerr << "t_gallpar::operator-: Incompatible dimension (" << this->parNumber() << ", " << gallpar.parNumber()
+                 << ")" << endl;
             return diff;
         }
 
@@ -282,15 +290,14 @@ namespace gnut
         return diff;
     }
 
-    t_gallpar t_gallpar::operator+(const t_gallpar &gallpar)
+    t_gallpar t_gallpar::operator+(const t_gallpar& gallpar)
     {
         t_gallpar diff;
 
         if (this->parNumber() != gallpar.parNumber())
         {
-            cerr << "t_gallpar::operator+: Incopatible dimension ("
-                 << this->parNumber() << ", " << gallpar.parNumber() << ")"
-                 << endl;
+            cerr << "t_gallpar::operator+: Incopatible dimension (" << this->parNumber() << ", " << gallpar.parNumber()
+                 << ")" << endl;
             return diff;
         }
 
@@ -309,7 +316,6 @@ namespace gnut
 
     void t_gallpar::delAllParam()
     {
-
         _vParam.clear();
         this->_index_par.clear();
         this->_point_par.clear();
@@ -319,18 +325,20 @@ namespace gnut
 
     vector<int> t_gallpar::delAmb()
     {
-
         vector<int> ind;
         vector<t_gpar>::iterator iter;
         iter = _vParam.begin();
         while (iter != _vParam.end())
         {
-            if (iter->parType == par_type::AMB_IF || iter->parType == par_type::AMB_L1 || iter->parType == par_type::AMB_L2 || iter->parType == par_type::AMB_L3 || iter->parType == par_type::AMB_L4 || iter->parType == par_type::AMB_L5 || iter->parType == par_type::AMB_WL)
+            if (iter->parType == par_type::AMB_IF || iter->parType == par_type::AMB_L1 ||
+                iter->parType == par_type::AMB_L2 || iter->parType == par_type::AMB_L3 ||
+                iter->parType == par_type::AMB_L4 || iter->parType == par_type::AMB_L5 ||
+                iter->parType == par_type::AMB_WL)
             {
                 ind.push_back(iter->index);
                 int i = iter - _vParam.begin();
 
-                auto &all = this->_index_par[_vParam[i].get_head()];
+                auto& all = this->_index_par[_vParam[i].get_head()];
                 for (auto iter = all.begin(); iter != all.end(); ++iter)
                 {
                     if (iter->second == _point_par[i])
@@ -348,22 +356,24 @@ namespace gnut
                 iter = _vParam.erase(iter);
             }
             else
+            {
                 ++iter;
+            }
         }
         return ind;
     }
 
-    void t_gallpar::setSite(const string &site)
+    void t_gallpar::setSite(const string& site)
     {
-
         vector<t_gpar>::iterator iter;
         for (iter = _vParam.begin(); iter != _vParam.end(); ++iter)
+        {
             iter->site = site;
+        }
     }
 
     set<string> t_gallpar::amb_prns()
     {
-
         set<string> prns;
         vector<t_gpar>::const_iterator iter;
         for (iter = _vParam.begin(); iter != _vParam.end(); ++iter)
@@ -376,21 +386,15 @@ namespace gnut
         return prns;
     }
 
-    ostream &operator<<(ostream &os, t_gallpar &x)
+    ostream& operator<<(ostream& os, t_gallpar& x)
     {
         for (unsigned int i = 0; i < x.parNumber(); i++)
         {
-            if (x[i].parType == par_type::AMB_IF ||
-                x[i].parType == par_type::AMB_L1 ||
-                x[i].parType == par_type::AMB_L2 ||
-                x[i].parType == par_type::AMB_L3 ||
-                x[i].parType == par_type::AMB_L4 ||
-                x[i].parType == par_type::AMB_L5 ||
-                x[i].parType == par_type::SION ||
-                x[i].parType == par_type::VION ||
-                x[i].parType == par_type::IFCB_F3 ||
-                x[i].parType == par_type::IFCB_F4 ||
-                x[i].parType == par_type::IFCB_F5)
+            if (x[i].parType == par_type::AMB_IF || x[i].parType == par_type::AMB_L1 ||
+                x[i].parType == par_type::AMB_L2 || x[i].parType == par_type::AMB_L3 ||
+                x[i].parType == par_type::AMB_L4 || x[i].parType == par_type::AMB_L5 ||
+                x[i].parType == par_type::SION || x[i].parType == par_type::VION || x[i].parType == par_type::IFCB_F3 ||
+                x[i].parType == par_type::IFCB_F4 || x[i].parType == par_type::IFCB_F5)
             {
                 os << x[i].str_type() << "_" << x[i].prn << " ";
             }
@@ -414,19 +418,25 @@ namespace gnut
         return os;
     }
 
-    int t_gallpar::sum(t_gallpar &X1, t_gallpar &X2)
+    int t_gallpar::sum(t_gallpar& X1, t_gallpar& X2)
     {
         if (X1.parNumber() != X2.parNumber())
+        {
             return -1;
+        }
 
         for (unsigned int i = 0; i < _vParam.size(); i++)
         {
             int id1 = X1.getParam(_vParam[i].site, _vParam[i].parType, _vParam[i].prn, FIRST_TIME, LAST_TIME);
             int id2 = X2.getParam(_vParam[i].site, _vParam[i].parType, _vParam[i].prn, FIRST_TIME, LAST_TIME);
             if (id1 >= 0 && id2 >= 0)
+            {
                 _vParam[i].value(X1[id1].value() + X2[id2].value());
+            }
             else
+            {
                 return -1;
+            }
         }
         return 1;
     }
@@ -454,9 +464,8 @@ namespace gnut
         return;
     }
 
-    map<string, int> t_gallpar::freq_sats_num(const int &freq)
+    map<string, int> t_gallpar::freq_sats_num(const int& freq)
     {
-
         set<string> prns1, prns2, prnsif, prns13if, prns14if, prns15if;
         map<string, int> Nsats;
         vector<t_gpar>::const_iterator iter;
@@ -491,7 +500,11 @@ namespace gnut
         if (prnsif.size() != 0 || prns13if.size() != 0)
         {
             set<string> tmp;
-            set_intersection(prnsif.begin(), prnsif.end(), prns13if.begin(), prns13if.end(), inserter(tmp, tmp.begin()));
+            set_intersection(prnsif.begin(),
+                             prnsif.end(),
+                             prns13if.begin(),
+                             prns13if.end(),
+                             inserter(tmp, tmp.begin()));
             Nsats["Triple"] = tmp.size();
             Nsats["Double"] = prnsif.size() + prns13if.size() - 2 * tmp.size();
         }
@@ -506,4 +519,4 @@ namespace gnut
         return Nsats;
     }
 
-} // namespace
+} // namespace gnut

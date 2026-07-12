@@ -4,9 +4,9 @@
  * @brief        control set from XML
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef GSETAMB_H
 #define GSETAMB_H
@@ -23,27 +23,27 @@ namespace great
     /** @brief class enum of UPD type. */
     enum class UPDTYPE
     {
-        WL,         ///< wide lane.
-        EWL,        ///< extra wide lane.
-        EWL24,      ///< extra wide lane.(2/4 frequency)
-        EWL25,      ///< extra wide lane.(2/5 frequency)
-        NL,         ///< narrow lane.
-        IFCB,       ///< inter frequency clock bias.
-        NONE        ///< none.
+        WL,    ///< wide lane.
+        EWL,   ///< extra wide lane.
+        EWL24, ///< extra wide lane.(2/4 frequency)
+        EWL25, ///< extra wide lane.(2/5 frequency)
+        NL,    ///< narrow lane.
+        IFCB,  ///< inter frequency clock bias.
+        NONE   ///< none.
     };
 
     /**
-    * @brief change UPDTYPE to string.
-    * @param[in]    mode      type of UPD
-    * @return       string    type of UPD in string form 
-    */
+     * @brief change UPDTYPE to string.
+     * @param[in]    mode      type of UPD
+     * @return       string    type of UPD in string form
+     */
     LibGREAT_LIBRARY_EXPORT string updmode2str(UPDTYPE mode);
 
     /**
-    * @brief change string to UPDTYPE.
-    * @param[in]    mode      type of UPD in string form
-    * @return       UPDTYPE   type of UPD
-    */
+     * @brief change string to UPDTYPE.
+     * @param[in]    mode      type of UPD in string form
+     * @return       UPDTYPE   type of UPD
+     */
     LibGREAT_LIBRARY_EXPORT UPDTYPE str2updmode(string mode);
 
     /** @brief enum of FIX mode. */
@@ -56,12 +56,12 @@ namespace great
     /** @brief enum of UPD mode. */
     enum class UPD_MODE
     {
-        UPD    ///< wl upd + nl upd.
+        UPD ///< wl upd + nl upd.
     };
 
     /**
-    * @brief        class for set ambiguity fixed xml
-    */
+     * @brief        class for set ambiguity fixed xml
+     */
     class LibGREAT_LIBRARY_EXPORT t_gsetamb : public virtual t_gsetbase
     {
     public:
@@ -72,49 +72,49 @@ namespace great
         virtual ~t_gsetamb();
 
         /**
-        * @brief settings check.
-        */
+         * @brief settings check.
+         */
         void check();
 
         /**
-        * @brief settings help.
-        */
+         * @brief settings help.
+         */
         void help();
 
         /**
-        * @brief  get ambiguity fixing mode .
-        * @return    FIX_MODE    ambiguity fixing mode
-        */
+         * @brief  get ambiguity fixing mode .
+         * @return    FIX_MODE    ambiguity fixing mode
+         */
         FIX_MODE fix_mode();
 
         /**
-        * @brief  get upd mode .
-        * @return    UPD_MODE    upd mode
-        */
+         * @brief  get upd mode .
+         * @return    UPD_MODE    upd mode
+         */
         UPD_MODE upd_mode();
 
         /**
-        * @brief  get lambda ratio .
-        * @return    double    lambda ratio
-        */
+         * @brief  get lambda ratio .
+         * @return    double    lambda ratio
+         */
         double lambda_ratio();
 
         /**
-        * @brief  get bootstrapping rate.
-        * @return    double    bootstrapping rate
-        */
+         * @brief  get bootstrapping rate.
+         * @return    double    bootstrapping rate
+         */
         double bootstrapping();
 
         /**
-        * @brief  get minimum common time of two observation arc.
-        * @return    double    minimum common time of two observation arc
-        */
+         * @brief  get minimum common time of two observation arc.
+         * @return    double    minimum common time of two observation arc
+         */
         double min_common_time();
 
         /**
-        * @brief   get ambiguity decision.
-        * @return    map<string, double>    ambiguity decision
-        */
+         * @brief   get ambiguity decision.
+         * @return    map<string, double>    ambiguity decision
+         */
         map<string, double> get_amb_decision(string str);
 
         /**
@@ -126,24 +126,24 @@ namespace great
         bool part_ambfix();
 
         /**
-        * @brief   value's size which take partial ambiguity fixed mode.
-        * @return    int    value's size which take partial ambiguity fixed mode
-        */
+         * @brief   value's size which take partial ambiguity fixed mode.
+         * @return    int    value's size which take partial ambiguity fixed mode
+         */
         int part_ambfix_num();
 
         /**
-        * @brief change string to FIX_MODE.
-        * @param[in]  str   fix mode in string form
-        * @return    FIX_MODE    type of UPD
-        */
+         * @brief change string to FIX_MODE.
+         * @param[in]  str   fix mode in string form
+         * @return    FIX_MODE    type of UPD
+         */
         FIX_MODE str2fixmode(string str);
         string fixmode2str(FIX_MODE mode);
 
         /**
-        * @brief change string to UPD mode.
-        * @param[in]  str   upd mode in string form
-        * @return    UPD_MODE    UPD mode
-        */
+         * @brief change string to UPD mode.
+         * @param[in]  str   upd mode in string form
+         * @return    UPD_MODE    UPD mode
+         */
         UPD_MODE str2upd_mode(string str);
 
         /**
@@ -155,9 +155,9 @@ namespace great
         bool isSetRefSat();
 
         /**
-        * @brief get full fix num
-        * @return    int full fix num
-        */
+         * @brief get full fix num
+         * @return    int full fix num
+         */
         int full_fix_num();
 
     protected:
@@ -169,5 +169,5 @@ namespace great
     private:
     };
 
-}
+} // namespace great
 #endif

@@ -36,7 +36,6 @@ namespace gnut
     /** @brief class for t_gephplan. */
     class LibGnut_LIBRARY_EXPORT t_gephplan
     {
-
     public:
         /** @brief default constructor. */
         t_gephplan();
@@ -62,6 +61,6 @@ namespace gnut
     private:
         map<double, t_gtriple> _record_itrf_sunpos;
     };
-}
+} // namespace gnut
 
 #endif

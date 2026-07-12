@@ -4,9 +4,9 @@
  * @brief        base combine biase model
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gmodels/gcombmodel.h"
 #include "gutils/gstring.h"
@@ -16,98 +16,40 @@
 #include "gmodels/gprecisebias.h"
 namespace great
 {
-    t_gcombmodel::t_gcombmodel(t_gsetbase *setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data) : _bias_model(std::move(bias_model)),
-                                                                                                             _spdlog(nullptr)
+    t_gcombmodel::t_gcombmodel(t_gsetbase* setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
+        _bias_model(std::move(bias_model))
     {
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::QZS);
+        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GPS);
+        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GAL);
+        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GLO);
+        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::BDS);
+        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::QZS);
+        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GPS);
+        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GAL);
+        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GLO);
+        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::BDS);
+        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::QZS);
 
         // =======================================================================================
         // sigma
-        _sigCodeGPS = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(GPS);
-        _sigCodeGLO = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(GLO);
-        _sigCodeGAL = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(GAL);
-        _sigCodeBDS = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(BDS);
-        _sigCodeQZS = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(QZS);
-        _sigPhaseGPS = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(GPS);
-        _sigPhaseGLO = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(GLO);
-        _sigPhaseGAL = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(GAL);
-        _sigPhaseBDS = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(BDS);
-        _sigPhaseQZS = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(QZS);
+        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GPS);
+        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GLO);
+        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GAL);
+        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(BDS);
+        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(QZS);
+        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GPS);
+        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GLO);
+        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GAL);
+        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(BDS);
+        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(QZS);
 
-        _frequency = dynamic_cast<t_gsetproc *>(setting)->frequency();
-        _ion_model = dynamic_cast<t_gsetproc *>(setting)->ion_model();
-        _ifcb_model = dynamic_cast<t_gsetproc *>(setting)->ifcb_model();
-        _observ = dynamic_cast<t_gsetproc *>(setting)->obs_combin();
+        _frequency = dynamic_cast<t_gsetproc*>(setting)->frequency();
+        _ion_model = dynamic_cast<t_gsetproc*>(setting)->ion_model();
+        _ifcb_model = dynamic_cast<t_gsetproc*>(setting)->ifcb_model();
+        _observ = dynamic_cast<t_gsetproc*>(setting)->obs_combin();
 
-        _gallbias = dynamic_cast<t_gallbias *>((*data)[t_gdata::ALLBIAS]);
-    }
-
-    t_gcombmodel::t_gcombmodel(t_gsetbase *setting, t_spdlog spdlog, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data) : _bias_model(std::move(bias_model)),
-                                                                                                                              _spdlog(spdlog)
-    {
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(setting)->band_index(gnut::QZS);
-
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(setting)->freq_index(gnut::QZS);
-
-        // =======================================================================================
-        // sigma
-        _sigCodeGPS = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(GPS);
-        _sigCodeGLO = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(GLO);
-        _sigCodeGAL = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(GAL);
-        _sigCodeBDS = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(BDS);
-        _sigCodeQZS = dynamic_cast<t_gsetgnss *>(setting)->sigma_C(QZS);
-        _sigPhaseGPS = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(GPS);
-        _sigPhaseGLO = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(GLO);
-        _sigPhaseGAL = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(GAL);
-        _sigPhaseBDS = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(BDS);
-        _sigPhaseQZS = dynamic_cast<t_gsetgnss *>(setting)->sigma_L(QZS);
-
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigCodeGPS " + format("%16.8f", _sigCodeGPS));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigCodeGLO " + format("%16.8f", _sigCodeGLO));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigCodeGAL " + format("%16.8f", _sigCodeGAL));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigCodeBDS " + format("%16.8f", _sigCodeBDS));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigCodeQZS " + format("%16.8f", _sigCodeQZS));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigPhaseGPS" + format("%16.8f", _sigPhaseGPS));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigPhaseGLO" + format("%16.8f", _sigPhaseGLO));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigPhaseGAL" + format("%16.8f", _sigPhaseGAL));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigPhaseBDS" + format("%16.8f", _sigPhaseBDS));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "sigPhaseQZS" + format("%16.8f", _sigPhaseQZS));
-
-
-        _frequency = dynamic_cast<t_gsetproc *>(setting)->frequency();
-        _ion_model = dynamic_cast<t_gsetproc *>(setting)->ion_model();
-        _ifcb_model = dynamic_cast<t_gsetproc *>(setting)->ifcb_model();
-        _observ = dynamic_cast<t_gsetproc *>(setting)->obs_combin();
-
-        _gallbias = dynamic_cast<t_gallbias *>((*data)[t_gdata::ALLBIAS]);
+        _gallbias = dynamic_cast<t_gallbias*>((*data)[t_gdata::ALLBIAS]);
     }
 
     t_gcombmodel::~t_gcombmodel() = default;
@@ -122,26 +64,8 @@ namespace great
         return _freq_index;
     }
 
-    t_gcombIF::t_gcombIF(t_gsetbase *setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data) : t_gcombmodel(setting, std::move(bias_model), data)
-    {
-        _clk_type_index[make_pair(FREQ_3, GPS)] = par_type::CLK13_G;
-        _clk_type_index[make_pair(FREQ_4, GPS)] = par_type::CLK14_G;
-        _clk_type_index[make_pair(FREQ_5, GPS)] = par_type::CLK15_G;
-
-        _clk_type_index[make_pair(FREQ_3, GAL)] = par_type::CLK13_E;
-        _clk_type_index[make_pair(FREQ_4, GAL)] = par_type::CLK14_E;
-        _clk_type_index[make_pair(FREQ_5, GAL)] = par_type::CLK15_E;
-
-        _clk_type_index[make_pair(FREQ_3, BDS)] = par_type::CLK13_C;
-        _clk_type_index[make_pair(FREQ_4, BDS)] = par_type::CLK14_C;
-        _clk_type_index[make_pair(FREQ_5, BDS)] = par_type::CLK15_C;
-
-        _clk_type_index[make_pair(FREQ_3, QZS)] = par_type::CLK13_J;
-        _clk_type_index[make_pair(FREQ_4, QZS)] = par_type::CLK14_J;
-        _clk_type_index[make_pair(FREQ_5, QZS)] = par_type::CLK15_J;
-    }
-
-    t_gcombIF::t_gcombIF(t_gsetbase *setting, t_spdlog spdlog, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data) : t_gcombmodel(setting, spdlog, std::move(bias_model), data)
+    t_gcombIF::t_gcombIF(t_gsetbase* setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
+        t_gcombmodel(setting, std::move(bias_model), data)
     {
         _clk_type_index[make_pair(FREQ_3, GPS)] = par_type::CLK13_G;
         _clk_type_index[make_pair(FREQ_4, GPS)] = par_type::CLK14_G;
@@ -162,12 +86,12 @@ namespace great
 
     t_gcombIF::~t_gcombIF() = default;
 
-    bool t_gcombIF::cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result)
+    bool t_gcombIF::cmb_equ(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, t_gbaseEquation& result)
     {
         // ========================================================================================================================================
         // check Obs type
-        const GOBSBAND &b1 = _band_index[obsdata.gsys()][FREQ_1];
-        const GOBSBAND &b2 = _band_index[obsdata.gsys()][FREQ_2];
+        const GOBSBAND& b1 = _band_index[obsdata.gsys()][FREQ_1];
+        const GOBSBAND& b2 = _band_index[obsdata.gsys()][FREQ_2];
 
         // ========================================================================================================================================
         obsdata.apply_bias(_gallbias);
@@ -175,10 +99,12 @@ namespace great
         return this->cmb_equ_IF(epoch, params, obsdata, b1, b2, result);
     }
 
-    bool t_gcombIF::cmb_equ_IF(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, GOBSBAND b1, GOBSBAND b2, t_gbaseEquation &result)
+    bool t_gcombIF::cmb_equ_IF(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, GOBSBAND b1, GOBSBAND b2, t_gbaseEquation& result)
     {
         if (b1 == BAND || b2 == BAND)
+        {
             return false;
+        }
 
         t_gobs gobsP1(obsdata.select_range(b1));
         t_gobs gobsP2(obsdata.select_range(b2));
@@ -197,21 +123,27 @@ namespace great
 
         // ========================================================================================================
         t_gfltEquationMatrix equ_IF;
-        for (const auto &item : type_list)
+        for (const auto& item : type_list)
         {
             t_gobs gobs1 = item.first;
             t_gobs gobs2 = item.second;
 
-            //combine f1 and f2
+            // combine f1 and f2
             t_gbaseEquation temp_equ;
             if (!_bias_model->cmb_equ(epoch, params, obsdata, gobs1, temp_equ))
+            {
                 return false;
+            }
             if (!_bias_model->cmb_equ(epoch, params, obsdata, gobs2, temp_equ))
+            {
                 return false;
+            }
 
             // ========================================================================================================
             if (temp_equ.B[0].size() != temp_equ.B[1].size())
+            {
                 throw logic_error("coeff size is not equal in f1 and f2");
+            }
 
             vector<pair<int, double>> coef_IF;
             double P_IF = 0.0, l_IF = 0.0;
@@ -228,10 +160,11 @@ namespace great
             P_IF = 1.0 / (pow(coef1, 2) / temp_equ.P[0] + pow(coef2, 2) / temp_equ.P[1]);
             l_IF = coef1 * temp_equ.l[0] + coef2 * temp_equ.l[1];
 
-            //jdhuang :
-            if (_ifcb_model == IFCB_MODEL::COR && _frequency == 3 && gobs1.is_phase() && _freq_index[gsys][b2] == FREQ_3 && obsdata.gsys() == GPS)
+            // jdhuang :
+            if (_ifcb_model == IFCB_MODEL::COR && _frequency == 3 && gobs1.is_phase() && _freq_index[gsys][b2] == FREQ_3 &&
+                obsdata.gsys() == GPS)
             {
-                l_IF += dynamic_cast<t_gprecisebias *>(_bias_model.get())->ifcbDelay(obsdata, nullptr, OBSCOMBIN::IONO_FREE);
+                l_IF += dynamic_cast<t_gprecisebias*>(_bias_model.get())->ifcbDelay(obsdata, nullptr, OBSCOMBIN::IONO_FREE);
             }
 
             // ========================================================================================================
@@ -240,17 +173,27 @@ namespace great
             {
                 par_type amb_type = par_type::NO_DEF;
                 if (_freq_index[gsys][b2] == FREQ_2)
+                {
                     amb_type = par_type::AMB_IF;
+                }
                 if (_freq_index[gsys][b2] == FREQ_3)
+                {
                     amb_type = par_type::AMB13_IF;
+                }
                 if (_freq_index[gsys][b2] == FREQ_4)
+                {
                     amb_type = par_type::AMB14_IF;
+                }
                 if (_freq_index[gsys][b2] == FREQ_5)
+                {
                     amb_type = par_type::AMB15_IF;
+                }
 
                 int idx = params.getParam(obsdata.site(), amb_type, obsdata.sat());
                 if (idx < 0)
+                {
                     return false;
+                }
 
                 // if amb is new  then init value with Obs - Modelobs
                 if (double_eq(params[idx].value(), 0.0) || params[idx].beg == epoch)
@@ -259,7 +202,7 @@ namespace great
                     double obs_L3 = obsdata.L3(gobsL1, gobsL2);
 
                     params[idx].value(obs_L3 - obs_P3);
-                    //params[idx].apriori(1e-9); //xjhan test
+                    // params[idx].apriori(1e-9); //xjhan test
                 }
                 // update B l
                 coef_IF.emplace_back(idx + 1, 1.0);
@@ -269,15 +212,17 @@ namespace great
             // ========================================================================================================
             // add 13 CLK
             if (!_add_IF_multi_rec_clk(_freq_index[gsys][b2], obsdata, params, coef_IF))
+            {
                 return false;
+            }
 
-             t_gobscombtype type(gobs1, b1, b2, _freq_index[gsys][b1], _freq_index[gsys][b2], OBSCOMBIN::IONO_FREE);
-             equ_IF.add_equ(coef_IF, P_IF, l_IF, obsdata.site(), obsdata.sat(), type, false);
+            t_gobscombtype type(gobs1, b1, b2, _freq_index[gsys][b1], _freq_index[gsys][b2], OBSCOMBIN::IONO_FREE);
+            equ_IF.add_equ(coef_IF, P_IF, l_IF, obsdata.site(), obsdata.sat(), type, false);
         }
 
-        if (dynamic_cast<t_gfltEquationMatrix *>(&result))
+        if (dynamic_cast<t_gfltEquationMatrix*>(&result))
         {
-            auto *lsq_result = dynamic_cast<t_gfltEquationMatrix *>(&result);
+            auto* lsq_result = dynamic_cast<t_gfltEquationMatrix*>(&result);
             lsq_result->add_equ(equ_IF);
         }
         else
@@ -288,21 +233,20 @@ namespace great
         return true;
     }
 
-    bool t_gcombIF::_add_IF_multi_rec_clk(const FREQ_SEQ &freq, t_gsatdata &obsdata, t_gallpar &params, vector<pair<int, double>> &coef_IF)
+    bool t_gcombIF::_add_IF_multi_rec_clk(const FREQ_SEQ& freq, t_gsatdata& obsdata, t_gallpar& params, vector<pair<int, double>>& coef_IF)
     {
         auto gsys = obsdata.gsys();
         auto site = obsdata.site();
         if (freq <= FREQ_2)
+        {
             return true;
+        }
 
-        // ???12???????
+        // Remove clock and ISB parameters before adding multi-frequency receiver clock terms.
         for (auto iter = coef_IF.begin(); iter != coef_IF.end();)
         {
             par_type type = params[iter->first - 1].parType;
-            if (type == par_type::CLK ||
-                type == par_type::GAL_ISB ||
-                type == par_type::BDS_ISB ||
-                type == par_type::QZS_ISB)
+            if (type == par_type::CLK || type == par_type::GAL_ISB || type == par_type::BDS_ISB || type == par_type::QZS_ISB)
             {
                 iter = coef_IF.erase(iter);
                 continue;
@@ -323,23 +267,15 @@ namespace great
             return false;
         }
 
-        //update_value
+        // update_value
         int idx_clk12 = params.getParam(site, par_type::CLK, "");
         params[idx].value(params[idx_clk12].value());
         coef_IF.emplace_back(idx + 1, 1.0 - obsdata.drate());
         return true;
     }
 
-    t_gcombALL::t_gcombALL(t_gsetbase *setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data) : t_gcombmodel(setting, std::move(bias_model), data)
-    {
-        ambtype_list[FREQ_1] = par_type::AMB_L1;
-        ambtype_list[FREQ_2] = par_type::AMB_L2;
-        ambtype_list[FREQ_3] = par_type::AMB_L3;
-        ambtype_list[FREQ_4] = par_type::AMB_L4;
-        ambtype_list[FREQ_5] = par_type::AMB_L5;
-    }
-
-    t_gcombALL::t_gcombALL(t_gsetbase *setting, t_spdlog spdlog, shared_ptr<t_gbiasmodel> bias_model, t_gallproc *data) : t_gcombmodel(setting, spdlog, std::move(bias_model), data)
+    t_gcombALL::t_gcombALL(t_gsetbase* setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
+        t_gcombmodel(setting, std::move(bias_model), data)
     {
         ambtype_list[FREQ_1] = par_type::AMB_L1;
         ambtype_list[FREQ_2] = par_type::AMB_L2;
@@ -350,13 +286,15 @@ namespace great
 
     t_gcombALL::~t_gcombALL() = default;
 
-    bool t_gcombALL::cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result)
+    bool t_gcombALL::cmb_equ(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, t_gbaseEquation& result)
     {
-        if (_gallbias!=nullptr)
+        if (_gallbias != nullptr)
+        {
             obsdata.apply_bias(_gallbias);
+        }
 
         // check band_list
-        map<FREQ_SEQ, GOBSBAND> &crt_bands = _band_index[obsdata.gsys()];
+        map<FREQ_SEQ, GOBSBAND>& crt_bands = _band_index[obsdata.gsys()];
 
         string grec = obsdata.site();
         string gsat = obsdata.sat();
@@ -364,12 +302,11 @@ namespace great
 
         if (crt_bands.empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "crt bands is empty for ==> " + t_gsys::gsys2str(gsys));
+            GREAT_INFO("crt bands is empty for ==> " + t_gsys::gsys2str(gsys));
             return false;
         }
 
-        for (const auto &iter : crt_bands)
+        for (const auto& iter : crt_bands)
         {
             t_gfltEquationMatrix equ_ALL;
             vector<pair<int, double>> coefP;
@@ -382,46 +319,68 @@ namespace great
             // check Obs Valid
             auto freq = iter.first;
             if (freq > _frequency)
-                continue; 
+            {
+                continue;
+            }
 
             // check Obs Valid
             if (obsP.type() != TYPE_C && obsP.type() != TYPE_P)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "check your obs file, we have no range obs for " + gobsband2str(band));
+                GREAT_INFO("check your obs file, we have no range obs for " + gobsband2str(band));
                 if (freq == FREQ_1 && _observ != gnut::OBSCOMBIN::RAW_MIX)
+                {
                     return false; // skip sat without freq_1 observation
+                }
                 else
+                {
                     continue;
+                }
             }
 
             if (obsL.type() != TYPE_L)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "check your obs file, we have no phase obs for " + gobsband2str(band));
+                GREAT_INFO("check your obs file, we have no phase obs for " + gobsband2str(band));
                 if (freq == FREQ_1 && _observ != gnut::OBSCOMBIN::RAW_MIX)
+                {
                     return false;
+                }
                 else
+                {
                     continue;
+                }
             }
 
             if (_frequency == 1 && freq >= FREQ_2)
+            {
                 continue;
+            }
             if (_frequency == 2 && freq >= FREQ_3)
+            {
                 continue;
+            }
             if (_frequency == 3 && freq >= FREQ_4)
+            {
                 continue;
+            }
             if (_frequency == 4 && freq >= FREQ_5)
+            {
                 continue;
+            }
             if (freq >= FREQ_6)
+            {
                 continue;
+            }
 
             t_gbaseEquation tempP;
             if (!_bias_model->cmb_equ(epoch, params, obsdata, obsP, tempP))
+            {
                 continue;
+            }
             t_gbaseEquation tempL;
             if (!_bias_model->cmb_equ(epoch, params, obsdata, obsL, tempL))
+            {
                 continue;
+            }
 
             // add AMB
             int idx = params.getParam(grec, ambtype_list[_freq_index[gsys][band]], gsat);
@@ -437,23 +396,21 @@ namespace great
 
                 tempL.B[0].push_back(make_pair(idx + 1, 1.0));
                 tempL.l[0] -= params[idx].value();
-                //ifcb correction
+                // ifcb correction
                 if (_ifcb_model == IFCB_MODEL::COR && _frequency >= 3 && freq == FREQ_3)
                 {
-                    tempL.l[0] += dynamic_cast<t_gprecisebias *>(_bias_model.get())->ifcbDelay(obsdata, nullptr, OBSCOMBIN::RAW_ALL);
+                    tempL.l[0] += dynamic_cast<t_gprecisebias*>(_bias_model.get())->ifcbDelay(obsdata, nullptr, OBSCOMBIN::RAW_ALL);
                 }
             }
             else
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_ERROR(_spdlog, "check your spdlog file, the amb idx < 0 for :" + grec + "_" + gsat);
+                GREAT_ERROR("check your spdlog file, the amb idx < 0 for :" + grec + "_" + gsat);
                 continue;
             }
 
             if (idx < 0)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_ERROR(_spdlog, "check your spdlog file, the amb idx < 0 for :" + grec + "_" + gsat);
+                GREAT_ERROR("check your spdlog file, the amb idx < 0 for :" + grec + "_" + gsat);
                 return false;
             }
 
@@ -463,9 +420,9 @@ namespace great
             equ_ALL.add_equ(tempL.B[0], tempL.P[0], tempL.l[0], obsdata.site(), obsdata.sat(), typeL, false);
 
             // add result
-            if (dynamic_cast<t_gfltEquationMatrix *>(&result))
+            if (dynamic_cast<t_gfltEquationMatrix*>(&result))
             {
-                auto *lsq_reuslt = dynamic_cast<t_gfltEquationMatrix *>(&result);
+                auto* lsq_reuslt = dynamic_cast<t_gfltEquationMatrix*>(&result);
                 lsq_reuslt->add_equ(equ_ALL);
             }
             else
@@ -474,22 +431,16 @@ namespace great
             }
         }
         if (!result.l.size())
-            return false; 
+        {
+            return false;
+        }
         return true;
     }
 
-    t_gcombDD::t_gcombDD(t_gsetbase *setting, const shared_ptr<t_gbiasmodel> &bias_model, t_gallproc *data) : t_gcombmodel(setting, bias_model, data),
-                                                                                                              t_gcombALL(setting, bias_model, data),
-                                                                                                              t_gcombIF(setting, bias_model, data)
-    {
-        _data_base = nullptr;
-        _site = "";
-        _site_base = "";
-    }
-
-    t_gcombDD::t_gcombDD(t_gsetbase *setting, t_spdlog spdlog, const shared_ptr<t_gbiasmodel> &bias_model, t_gallproc *data) : t_gcombmodel(setting, spdlog, bias_model, data),
-                                                                                                                               t_gcombALL(setting, spdlog, bias_model, data),
-                                                                                                                               t_gcombIF(setting, spdlog, bias_model, data)
+    t_gcombDD::t_gcombDD(t_gsetbase* setting, const shared_ptr<t_gbiasmodel>& bias_model, t_gallproc* data) :
+        t_gcombmodel(setting, bias_model, data),
+        t_gcombALL(setting, bias_model, data),
+        t_gcombIF(setting, bias_model, data)
     {
         _data_base = nullptr;
         _site = "";
@@ -503,36 +454,42 @@ namespace great
         _observ = observ;
     }
 
-    void t_gcombDD::set_base_data(vector<t_gsatdata> *data_base)
+    void t_gcombDD::set_base_data(vector<t_gsatdata>* data_base)
     {
         _data_base = data_base;
     }
 
-    void t_gcombDD::set_site(const string &site, const string &site_base)
+    void t_gcombDD::set_site(const string& site, const string& site_base)
     {
         _site = site;
         _site_base = site_base;
     }
 
-    void t_gcombDD::set_rec_info(const t_gtriple &xyz_base, double clk_rover, double clk_base)
+    void t_gcombDD::set_rec_info(const t_gtriple& xyz_base, double clk_rover, double clk_base)
     {
         _crd_base = xyz_base;
         _clk_rover = clk_rover;
         _clk_base = clk_base;
     }
 
-    bool t_gcombDD::cmb_equ(t_gtime &epoch, t_gallpar &params, t_gsatdata &obsdata, t_gbaseEquation &result)
+    bool t_gcombDD::cmb_equ(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, t_gbaseEquation& result)
     {
-        t_gsatdata obsdata_other(_spdlog);
+        t_gsatdata obsdata_other;
         if (_data_base == nullptr)
+        {
             return false;
-        for (auto &i : *_data_base)
+        }
+        for (auto& i : *_data_base)
         {
             if (obsdata.sat() == i.sat())
+            {
                 obsdata_other = i;
+            }
         }
         if (obsdata_other.sat().empty())
+        {
             return false;
+        }
         unsigned npar_orig = params.parNumber();
         t_gallpar params_temp;
         _temp_params(params, params_temp);
@@ -574,30 +531,30 @@ namespace great
                 t_gobs gobs1_other = type_list_other[i].first;
                 t_gobs gobs2_other = type_list_other[i].second;
 
-                //combine P1 and P2
+                // combine P1 and P2
                 t_gbaseEquation temp_equ;
                 t_gtime crt = obsdata.epoch();
                 if (!_bias_model->cmb_equ(crt, params_temp, obsdata, gobs1, temp_equ))
                 {
                     /*return false;*/
-                    continue; 
+                    continue;
                 }
                 if (!_bias_model->cmb_equ(crt, params_temp, obsdata, gobs2, temp_equ))
                 {
-                    //return false;
-                    continue; 
+                    // return false;
+                    continue;
                 }
                 t_gbaseEquation temp_equ_other;
                 t_gtime crt_other = obsdata_other.epoch();
                 if (!_bias_model->cmb_equ(crt_other, params_temp, obsdata_other, gobs1_other, temp_equ_other))
                 {
-                    //return false;
-                    continue; 
+                    // return false;
+                    continue;
                 }
                 if (!_bias_model->cmb_equ(crt_other, params_temp, obsdata_other, gobs2_other, temp_equ_other))
                 {
-                    //return false;
-                    continue; 
+                    // return false;
+                    continue;
                 }
                 vector<pair<int, double>> coef_IF;
                 double P_IF = 0.0, l_IF = 0.0;
@@ -614,7 +571,9 @@ namespace great
                     }
                     // combine coeff
                     if (temp_equ.B[0][j].first > npar_orig)
+                    {
                         continue;
+                    }
                     coef_IF.emplace_back(temp_equ.B[0][j].first, coef1 * temp_equ.B[0][j].second + coef2 * temp_equ.B[1][j].second);
                 }
 
@@ -630,8 +589,11 @@ namespace great
                     }
                     // combine coeff
                     if (temp_equ_other.B[0][j].first > npar_orig)
+                    {
                         continue;
-                    coef_IF.emplace_back(temp_equ_other.B[0][j].first, -(coef1 * temp_equ_other.B[0][j].second + coef2 * temp_equ_other.B[1][j].second));
+                    }
+                    coef_IF.emplace_back(temp_equ_other.B[0][j].first,
+                                         -(coef1 * temp_equ_other.B[0][j].second + coef2 * temp_equ_other.B[1][j].second));
                 }
 
                 // combine P
@@ -677,16 +639,13 @@ namespace great
                 }
 
                 // CORRECT CLK
-                //remove 12 clk and isb
+                // remove 12 clk and isb
                 if (_freq_index[obsdata.gsys()][b2] >= FREQ_3)
                 {
                     for (auto iter = coef_IF.begin(); iter != coef_IF.end();)
                     {
                         par_type type = params_temp[iter->first - 1].parType;
-                        if (type == par_type::CLK ||
-                            type == par_type::GAL_ISB ||
-                            type == par_type::BDS_ISB ||
-                            type == par_type::QZS_ISB)
+                        if (type == par_type::CLK || type == par_type::GAL_ISB || type == par_type::BDS_ISB || type == par_type::QZS_ISB)
                         {
                             iter = coef_IF.erase(iter);
                             continue;
@@ -700,22 +659,32 @@ namespace great
                 {
                     par_type clk_type;
                     if (obsdata.gsys() == GPS)
+                    {
                         clk_type = par_type::CLK13_G;
+                    }
                     else if (obsdata.gsys() == GAL)
+                    {
                         clk_type = par_type::CLK13_E;
+                    }
                     else if (obsdata.gsys() == BDS)
+                    {
                         clk_type = par_type::CLK13_C;
+                    }
                     else if (obsdata.gsys() == QZS)
+                    {
                         clk_type = par_type::CLK13_J;
+                    }
                     else
+                    {
                         return false;
+                    }
 
                     int idx = params_temp.getParam(obsdata.site(), clk_type, "");
                     if (idx < 0)
                     {
                         return false;
                     }
-                    //update_value
+                    // update_value
                     int idx_clk12 = params_temp.getParam(obsdata.site(), par_type::CLK, obsdata.sat());
                     params_temp[idx] = params_temp[idx_clk12];
 
@@ -728,9 +697,9 @@ namespace great
                 equ_IF.add_equ(coef_IF, P_IF, l_IF, obsdata.site(), obsdata.sat(), type, false);
             }
 
-            if (dynamic_cast<t_gfltEquationMatrix *>(&result))
+            if (dynamic_cast<t_gfltEquationMatrix*>(&result))
             {
-                auto *lsq_result = dynamic_cast<t_gfltEquationMatrix *>(&result);
+                auto* lsq_result = dynamic_cast<t_gfltEquationMatrix*>(&result);
                 lsq_result->add_equ(equ_IF);
             }
             else
@@ -742,12 +711,11 @@ namespace great
         {
             // check band_list
             map<FREQ_SEQ, GOBSBAND> crt_bands = _band_index[obsdata.gsys()];
-            map<FREQ_SEQ, par_type> ambtype_list = {
-                {FREQ_1, par_type::AMB_L1},
-                {FREQ_2, par_type::AMB_L2},
-                {FREQ_3, par_type::AMB_L3},
-                {FREQ_4, par_type::AMB_L4},
-                {FREQ_5, par_type::AMB_L5}};
+            map<FREQ_SEQ, par_type> ambtype_list = {{FREQ_1, par_type::AMB_L1},
+                                                    {FREQ_2, par_type::AMB_L2},
+                                                    {FREQ_3, par_type::AMB_L3},
+                                                    {FREQ_4, par_type::AMB_L4},
+                                                    {FREQ_5, par_type::AMB_L5}};
 
             if (crt_bands.empty())
             {
@@ -755,20 +723,26 @@ namespace great
             }
             t_gfltEquationMatrix equ_ALL;
             t_gbaseEquation tempP, tempL;
-            vector<int> index(10, 0); 
+            vector<int> index(10, 0);
 
             for (int isite = 0; isite < 2; isite++)
             {
-                t_gsatdata *satdata_ptr;
+                t_gsatdata* satdata_ptr;
                 if (isite == 0)
+                {
                     satdata_ptr = &obsdata_other;
+                }
                 else
+                {
                     satdata_ptr = &obsdata;
+                }
 
-                for (const auto &iter : crt_bands)
+                for (const auto& iter : crt_bands)
                 {
                     if (iter.first > _frequency)
-                        continue; 
+                    {
+                        continue;
+                    }
 
                     GOBSBAND band = iter.second;
                     t_gobs obsP(satdata_ptr->select_range(band));
@@ -778,16 +752,14 @@ namespace great
                     // for P code modified by zhshen
                     if (obsP.type() != TYPE_C && obsP.type() != TYPE_P)
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_INFO(_spdlog, "check your obs file, we have no range obs for " + gobsband2str(band));
-                        continue; 
+                        GREAT_INFO("check your obs file, we have no range obs for " + gobsband2str(band));
+                        continue;
                     }
 
                     if (obsL.type() != TYPE_L)
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_INFO(_spdlog, "check your obs file, we have no phase obs for " + gobsband2str(band));
-                        continue; 
+                        GREAT_INFO("check your obs file, we have no phase obs for " + gobsband2str(band));
+                        continue;
                     }
 
                     // jdhuang add for freq3 check
@@ -795,18 +767,20 @@ namespace great
                     t_gtime crt = satdata_ptr->epoch();
                     if (!_bias_model->cmb_equ(crt, params_temp, *satdata_ptr, obsP, tempP))
                     {
-                        continue; 
+                        continue;
                     }
 
                     if (!_bias_model->cmb_equ(crt, params_temp, *satdata_ptr, obsL, tempL))
                     {
-                        continue; 
+                        continue;
                     }
                     index[isite * crt_bands.size() + freq - 1] = tempL.l.size();
                     // add AMB for ROVER
                     if (satdata_ptr->site() == _site)
                     {
-                        int idx = params_temp.getParam(satdata_ptr->site(), ambtype_list[_freq_index[satdata_ptr->gsys()][band]], satdata_ptr->sat());
+                        int idx = params_temp.getParam(satdata_ptr->site(),
+                                                       ambtype_list[_freq_index[satdata_ptr->gsys()][band]],
+                                                       satdata_ptr->sat());
 
                         if (idx < 0)
                         {
@@ -815,7 +789,7 @@ namespace great
                         // if amb is new  then init value with Obs - Modelobs
                         if (double_eq(params_temp[idx].value(), 0.0) || params_temp[idx].beg == epoch)
                         {
-                            //pars[idx].value(obs - ModelObs);
+                            // pars[idx].value(obs - ModelObs);
                             double obs_P = satdata_ptr->obs_C(obsP);
                             double obs_L = satdata_ptr->obs_L(obsL);
 
@@ -828,10 +802,12 @@ namespace great
             }
 
             int freq_count = 0;
-            for (const auto &iter : crt_bands)
+            for (const auto& iter : crt_bands)
             {
                 if (iter.first > _frequency)
-                    continue; 
+                {
+                    continue;
+                }
 
                 freq_count++;
 
@@ -844,32 +820,42 @@ namespace great
                 int ibase = index[freq_count - 1];
                 int irover = index[crt_bands.size() + freq_count - 1];
                 if (!ibase || !irover)
+                {
                     continue;
+                }
                 ibase -= 1;
                 irover -= 1;
 
-                for (const auto &b : tempP.B[irover])
+                for (const auto& b : tempP.B[irover])
                 {
                     if (b.first > npar_orig)
+                    {
                         continue;
+                    }
                     B_P.push_back(b);
                 }
-                for (const auto &b : tempP.B[ibase])
+                for (const auto& b : tempP.B[ibase])
                 {
                     if (b.first > npar_orig)
+                    {
                         continue;
+                    }
                     B_P.emplace_back(b.first, -b.second);
                 }
-                for (const auto &b : tempL.B[irover])
+                for (const auto& b : tempL.B[irover])
                 {
                     if (b.first > npar_orig)
+                    {
                         continue;
+                    }
                     B_L.push_back(b);
                 }
-                for (const auto &b : tempL.B[ibase])
+                for (const auto& b : tempL.B[ibase])
                 {
                     if (b.first > npar_orig)
+                    {
                         continue;
+                    }
                     B_L.emplace_back(b.first, -b.second);
                 }
 
@@ -885,9 +871,9 @@ namespace great
             }
 
             // add result
-            if (dynamic_cast<t_gfltEquationMatrix *>(&result))
+            if (dynamic_cast<t_gfltEquationMatrix*>(&result))
             {
-                auto *lsq_reuslt = dynamic_cast<t_gfltEquationMatrix *>(&result);
+                auto* lsq_reuslt = dynamic_cast<t_gfltEquationMatrix*>(&result);
                 lsq_reuslt->add_equ(equ_ALL);
             }
             else
@@ -896,11 +882,13 @@ namespace great
             }
         }
         for (int ipar = 0; ipar < params.parNumber(); ipar++)
+        {
             params[ipar] = params_temp[ipar];
+        }
         return true;
     }
 
-    bool t_gcombDD::_temp_params(t_gallpar &params, t_gallpar &params_temp)
+    bool t_gcombDD::_temp_params(t_gallpar& params, t_gallpar& params_temp)
     {
         params_temp = params;
         t_gpar par_x_base;
@@ -932,7 +920,4 @@ namespace great
         return true;
     }
 
-
-
-
-}
+} // namespace great

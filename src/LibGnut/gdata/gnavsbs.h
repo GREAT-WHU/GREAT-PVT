@@ -38,77 +38,81 @@ namespace gnut
     /** @brief class for t_gnavsbs. */
     class t_gnavsbs : public t_gnav
     {
-
     public:
         /** @brief default constructor. */
         explicit t_gnavsbs();
 
         /**
          * @brief Construct a new t gnavsbs object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        explicit t_gnavsbs(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gnavsbs();
 
         // pointers to support NULL if not requested!
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        virtual int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
+        virtual int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        virtual int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) override;
+        virtual int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, bool chk_health = true) override;
 
         /**
-         * @brief 
-         * 
-         * @param msg 
-         * @return int 
+         * @brief
+         *
+         * @param msg
+         * @return int
          */
-        int chk(set<string> &msg) override;
+        int chk(set<string>& msg) override;
 
         /** @brief convert data to nav. */
-        int data2nav(string sat, const t_gtime &ep, const t_gnavdata &data) override;
+        int data2nav(string sat, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
-        int nav2data(t_gnavdata &data) override;
+        int nav2data(t_gnavdata& data) override;
 
         /** @brief get iod. */
-        int iod() const override { return _iod; }
+        int iod() const override
+        {
+            return _iod;
+        }
 
         /** @brief get rec. */
-        int rec() const override { return MAX_RINEXN_REC_SBS; }
+        int rec() const override
+        {
+            return MAX_RINEXN_REC_SBS;
+        }
 
         /** @brief get/set parameter. */
-        virtual t_timdbl param(const NAVDATA &n) override;
+        virtual t_timdbl param(const NAVDATA& n) override;
 
         /**
-         * @brief 
-         * 
-         * @param n 
-         * @param val 
-         * @return int 
+         * @brief
+         *
+         * @param n
+         * @param val
+         * @return int
          */
-        virtual int param(const NAVDATA &n, double val) override;
+        virtual int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
         string line() const override;
@@ -139,6 +143,6 @@ namespace gnut
         t_gtime _toc;   ///< Epoch of ephemerides
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -22,7 +22,7 @@
 
 #include <cmath>
 
-#include "gio/grtlog.h"
+#include "gio/great_log.h"
 #include "gutils/gtime.h"
 
 using namespace std;
@@ -30,8 +30,8 @@ using namespace std;
 namespace gnut
 {
     /** @brief time synchronization. */
-    LibGnut_LIBRARY_EXPORT bool time_sync(const t_gtime &epo, double smp, double scl, t_spdlog spdlog);
-    LibGnut_LIBRARY_EXPORT bool time_sync(double dsec, double smp, double scl, t_spdlog spdlog); 
-} // namespace
+    LibGnut_LIBRARY_EXPORT bool time_sync(const t_gtime& epo, double smp, double scl);
+    LibGnut_LIBRARY_EXPORT bool time_sync(double dsec, double smp, double scl);
+} // namespace gnut
 
 #endif // # GSYNC_H

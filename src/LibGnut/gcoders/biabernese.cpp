@@ -20,17 +20,16 @@ using namespace std;
 
 namespace gnut
 {
-    t_biabernese::t_biabernese(t_gsetbase *s, string version, int sz, string id)
-        : t_gcoder(s, version, sz, id)
+    t_biabernese::t_biabernese(t_gsetbase* s, string version, int sz, string id) :
+        t_gcoder(s, version, sz, id)
     {
-
         _allbias = 0;
         _ac = "";
-        _beg = FIRST_TIME; 
-        _end = LAST_TIME;  
+        _beg = FIRST_TIME;
+        _end = LAST_TIME;
     }
 
-    int t_biabernese::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_biabernese::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -56,16 +55,26 @@ namespace gnut
                 _version = str2dbl(line.substr(6, 4));
                 _ac = line.substr(11, 3);
                 if (_ac == "IGG")
+                {
                     _ac = "CAS";
+                }
                 if (_ac == "CNT" && line[64] == 'P')
+                {
                     _is_absolute = true;
+                }
                 else
+                {
                     _is_absolute = line.substr(64, 1) == "A";
+                }
 
                 if (_is_absolute)
+                {
                     _ac += "_A";
+                }
                 else
+                {
                     _ac += "_R";
+                }
             }
             else if (line.find("+BIAS/SOLUTION") != string::npos)
             {
@@ -84,9 +93,13 @@ namespace gnut
                 if ((idx = line.find("YEAR-MONTH")) != string::npos)
                 {
                     if (line.substr(idx + 11, 1) > "8")
+                    {
                         year = "19" + line.substr(idx + 11, 2);
+                    }
                     else
+                    {
                         year = "20" + line.substr(idx + 11, 2);
+                    }
                     mon = line.substr(idx + 14, 2);
                 }
                 t_gcoder::_consume(tmpsize);
@@ -113,14 +126,18 @@ namespace gnut
         return consume;
     }
 
-    int t_biabernese::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_biabernese::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
         if (_is_bias)
         {
             if (_version < 1.0)
+            {
                 return _decode_data_sinex_0(buff, sz, cnt, errmsg);
+            }
             else
+            {
                 return _decode_data_sinex(buff, sz, cnt, errmsg);
+            }
         }
         else if (_ac == "COD_R")
         {
@@ -132,7 +149,7 @@ namespace gnut
         }
     }
 
-    int t_biabernese::_decode_data_CODE(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_biabernese::_decode_data_CODE(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -181,15 +198,14 @@ namespace gnut
 
             if (complete)
             {
-
-                map<string, t_gdata *>::iterator it = _data.begin();
+                map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
                     if (it->second->id_type() == t_gdata::ALLBIAS)
                     {
-                        shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>(_spdlog);
+                        shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>();
                         pt_bias->set(_beg, _end, dcb * 1e-9 * CLIGHT, gobs1, gobs2);
-                        ((t_gallbias *)it->second)->add(_ac, _beg, prn, pt_bias);
+                        ((t_gallbias*)it->second)->add(_ac, _beg, prn, pt_bias);
                     }
                     it++;
                 }
@@ -201,7 +217,7 @@ namespace gnut
         return consume;
     }
 
-    int t_biabernese::_decode_data_sinex(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_biabernese::_decode_data_sinex(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -230,7 +246,7 @@ namespace gnut
             else if (line.substr(1, 4) == "DSB " || line.substr(1, 4) == "ISB " || line.substr(1, 4) == "OSB ")
             {
                 string svn, prn, station, obs1, obs2, units;
-                double value,factor;
+                double value, factor;
                 if (line.size() >= 104)
                 {
                     svn = line.substr(6, 4);
@@ -269,7 +285,6 @@ namespace gnut
                 }
                 else if (line.size() >= 92 && _ac == "CNT")
                 {
-
                     svn = line.substr(6, 4);
                     prn = line.substr(11, 3);
                     station = trim(line.substr(15, 9));
@@ -311,14 +326,14 @@ namespace gnut
                 }
                 if (complete)
                 {
-                    map<string, t_gdata *>::iterator it = _data.begin();
+                    map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
                         if (it->second->id_type() == t_gdata::ALLBIAS)
                         {
-                            shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>(_spdlog);
+                            shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>();
                             pt_bias->set(_beg, _end, value * factor, gobs1, gobs2);
-                            ((t_gallbias *)it->second)->add(_ac, _beg, prn, pt_bias);
+                            ((t_gallbias*)it->second)->add(_ac, _beg, prn, pt_bias);
                         }
                         it++;
                     }
@@ -335,7 +350,7 @@ namespace gnut
         return consume;
     }
 
-    int t_biabernese::_decode_data_sinex_0(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_biabernese::_decode_data_sinex_0(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -407,15 +422,15 @@ namespace gnut
                 }
                 if (complete)
                 {
-                    map<string, t_gdata *>::iterator it = _data.begin();
+                    map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
                         if (it->second->id_type() == t_gdata::ALLBIAS)
                         {
-                            shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>(_spdlog);
+                            shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>();
                             cout << value << factor << value * factor << endl;
                             pt_bias->set(_beg, _end, value * factor, gobs1, gobs2);
-                            ((t_gallbias *)it->second)->add(_ac, _beg, prn, pt_bias);
+                            ((t_gallbias*)it->second)->add(_ac, _beg, prn, pt_bias);
                         }
                         it++;
                     }
@@ -432,4 +447,4 @@ namespace gnut
         return consume;
     }
 
-} // namespace
+} // namespace gnut

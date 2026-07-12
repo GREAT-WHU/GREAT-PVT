@@ -27,32 +27,35 @@ using namespace std;
 namespace gnut
 {
 
-    t_rinexo2::t_rinexo2(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz),
-          _site(""),
-          _epo_beg(LAST_TIME),
-          _epo_end(FIRST_TIME),
-          _xbeg(0), _xend(0), _xsmp(0),
-          _xsys(0) 
+    t_rinexo2::t_rinexo2(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz),
+        _site(""),
+        _epo_beg(LAST_TIME),
+        _epo_end(FIRST_TIME),
+        _xbeg(0),
+        _xend(0),
+        _xsmp(0),
+        _xsys(0)
     {
         this->clear();
     }
-    t_rinexo2::t_rinexo2(t_gtime beg, t_gtime end, t_gsetbase *s, string version, int sz)
-        : t_gcoder(beg, end, s, version, sz),
-          _site(""),
-          _epo_beg(LAST_TIME),
-          _epo_end(FIRST_TIME),
-          _xbeg(0), _xend(0), _xsmp(0),
-          _xsys(0) 
+    t_rinexo2::t_rinexo2(t_gtime beg, t_gtime end, t_gsetbase* s, string version, int sz) :
+        t_gcoder(beg, end, s, version, sz),
+        _site(""),
+        _epo_beg(LAST_TIME),
+        _epo_end(FIRST_TIME),
+        _xbeg(0),
+        _xend(0),
+        _xsmp(0),
+        _xsys(0)
     {
         this->clear();
     }
 
     t_rinexo2::~t_rinexo2()
     {
-
         // fill statistics of filtered data
-        map<string, t_gdata *>::iterator itDAT = _data.begin();
+        map<string, t_gdata*>::iterator itDAT = _data.begin();
 
         while (itDAT != _data.end())
         {
@@ -62,8 +65,8 @@ namespace gnut
                 continue;
             }
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _fname + " [filtered data] xBEG:" + int2str(_xbeg) + " xEND:" + int2str(_xend) + " xSMP:" + int2str(_xsmp) + " xSYS:" + int2str(_xsys));
+            GREAT_DEBUG(_fname + " [filtered data] xBEG:" + int2str(_xbeg) + " xEND:" + int2str(_xend) + " xSMP:" + int2str(_xsmp) +
+                        " xSYS:" + int2str(_xsys));
 
             t_gallobs::t_xfilter xflt;
 
@@ -75,7 +78,7 @@ namespace gnut
             xflt.beg = _epo_beg;
             xflt.end = _epo_end;
 
-            ((t_gallobs *)itDAT->second)->xdata(_rnxhdr.markname(), _fname, xflt);
+            ((t_gallobs*)itDAT->second)->xdata(_rnxhdr.markname(), _fname, xflt);
 
             itDAT++;
         }
@@ -107,7 +110,6 @@ namespace gnut
 
     int t_rinexo2::_decode_head()
     {
-
         // -------- "PGM / RUN BY / DATE" --------
         if (_line.find("PGM / RUN BY / DATE", 60) != string::npos)
         {
@@ -115,12 +117,18 @@ namespace gnut
             _rnxhdr.runby(trim(_line.substr(20, 20)));
             t_gtime gtime(t_gtime::UTC);
             if (_line.substr(56, 3) != "UTC")
+            {
                 gtime.tsys(t_gtime::LOC);
+            }
 
             if (gtime.from_str("%Y%m%d %H%M%S", _line.substr(40, 15)) == 0)
+            {
                 ;
+            }
             else if (gtime.from_str("%Y-%m-%d %H-%M-%S", _line.substr(40, 20)) == 0)
+            {
                 ;
+            }
             else
             {
                 gtime = FIRST_TIME;
@@ -131,16 +139,13 @@ namespace gnut
         }
         else if (_line.substr(60, 7).find("COMMENT") != string::npos)
         {
-
             _comment.push_back(_line.substr(0, 60));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "COMMENT");
+            GREAT_DEBUG("COMMENT");
             // -------- "MARKER NAME" --------
         }
         else if (_line.substr(60, 11).find("MARKER NAME") != string::npos)
         {
-
             string guess, marker, src, typ, sit; // select   short (4-CHAR) or long (9-CHAR)
 
             // check sitename according to filename (if available)
@@ -192,9 +197,7 @@ namespace gnut
 
                 if (guess != marker)
                 {
-
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, src + ": " + typ + " site name: " + guess + " " + sit);
+                    GREAT_DEBUG(src + ": " + typ + " site name: " + guess + " " + sit);
                     if (guess.substr(0, 4) != marker.substr(0, 4))
                     {
                         mesg(GWARNING, "Warning: 4-CHAR: MARKER_NAME [" + marker + "] not equal to site from filename [" + guess + "]");
@@ -204,8 +207,7 @@ namespace gnut
 
             transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, src + ": " + typ + " site name: " + guess + " " + sit + " identified");
+            GREAT_DEBUG(src + ": " + typ + " site name: " + guess + " " + sit + " identified");
 
             // resolve situation of 4-CH MARKER with 9-CH in settings
             if (guess.length() == 4)
@@ -214,9 +216,7 @@ namespace gnut
                 {
                     if (itREC->length() > 4 && itREC->compare(0, 4, guess, 0, 4) == 0)
                     {
-
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "4-CH [" + guess + "] found in RINEX, but user requests 9-CH [" + (*itREC) + "]");
+                        GREAT_DEBUG("4-CH [" + guess + "] found in RINEX, but user requests 9-CH [" + (*itREC) + "]");
                         guess = *itREC;
                     }
                 }
@@ -228,9 +228,7 @@ namespace gnut
                 {
                     if (itREC->length() == 4 && itREC->compare(0, 4, guess, 0, 4) == 0)
                     {
-
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "9-CH [" + guess + "] found in RINEX, but user requests 4-CH [" + (*itREC) + "]");
+                        GREAT_DEBUG("9-CH [" + guess + "] found in RINEX, but user requests 4-CH [" + (*itREC) + "]");
                         guess = *itREC;
                     }
                 }
@@ -243,68 +241,56 @@ namespace gnut
         }
         else if (_line.substr(60, 13).find("MARKER NUMBER") != string::npos)
         {
-
             _rnxhdr.marknumb(trim(_line.substr(0, 60)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "MARKER NUMB: " + _rnxhdr.marknumb());
+            GREAT_DEBUG("MARKER NUMB: " + _rnxhdr.marknumb());
 
             // -------- "MARKER TYPE" --------
         }
         else if (_line.substr(60, 11).find("MARKER TYPE") != string::npos)
         {
-
             _rnxhdr.marktype(trim(_line.substr(0, 20)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "MARKER TYPE: " + _rnxhdr.marktype());
+            GREAT_DEBUG("MARKER TYPE: " + _rnxhdr.marktype());
 
             // -------- "OBSERVER / AGENCY" --------
         }
         else if (_line.substr(60, 17).find("OBSERVER / AGENCY") != string::npos)
         {
-
             _rnxhdr.observer(trim(_line.substr(0, 20)));
             _rnxhdr.agency(trim(_line.substr(20, 40)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "OBSERVER / AGENCY: " + _rnxhdr.observer() + " " + _rnxhdr.agency());
+            GREAT_DEBUG("OBSERVER / AGENCY: " + _rnxhdr.observer() + " " + _rnxhdr.agency());
 
             // -------- "REC # / TYPE / VERS" --------
         }
         else if (_line.substr(60, 19).find("REC # / TYPE / VERS") != string::npos)
         {
-
             _rnxhdr.recnumb(trim(_line.substr(0, 20)));
             _rnxhdr.rectype(trim(_line.substr(20, 20)));
             _rnxhdr.recvers(trim(_line.substr(40, 20)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "REC # / TYPE / VERS: " + _rnxhdr.recnumb() + " " + _rnxhdr.rectype() + " " + _rnxhdr.recvers());
+            GREAT_DEBUG("REC # / TYPE / VERS: " + _rnxhdr.recnumb() + " " + _rnxhdr.rectype() + " " + _rnxhdr.recvers());
 
             // -------- "ANT # / TYPE" --------
         }
         else if (_line.substr(60, 12).find("ANT # / TYPE") != string::npos)
         {
-
             _rnxhdr.antnumb(trim(_line.substr(0, 20)));
             _rnxhdr.anttype(trim(_line.substr(20, 20)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANT # / TYPE: " + _rnxhdr.antnumb() + " " + _rnxhdr.anttype());
+            GREAT_DEBUG("ANT # / TYPE: " + _rnxhdr.antnumb() + " " + _rnxhdr.anttype());
 
             // -------- "APPROX POSITION XYZ" --------
         }
         else if (_line.substr(60, 19).find("APPROX POSITION XYZ") != string::npos)
         {
-
             t_gtriple apr;
             apr[0] = str2dbl(_line.substr(0, 14));
             apr[1] = str2dbl(_line.substr(14, 14));
             apr[2] = str2dbl(_line.substr(28, 14));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "APPROX POSITION XYZ: " + dbl2str(apr[0]) + " " + dbl2str(apr[1]) + " " + dbl2str(apr[2]));
+            GREAT_DEBUG("APPROX POSITION XYZ: " + dbl2str(apr[0]) + " " + dbl2str(apr[1]) + " " + dbl2str(apr[2]));
             _rnxhdr.aprxyz(apr);
             if (!_rnxhdr.antneu().zero() && _rnxhdr.antxyz().zero() && !_rnxhdr.aprxyz().zero())
             {
@@ -319,28 +305,24 @@ namespace gnut
         }
         else if (_line.substr(60, 20).find("ANTENNA: DELTA X/Y/Z") != string::npos)
         {
-
             t_gtriple ecc;
             ecc[0] = str2dbl(_line.substr(0, 14));
             ecc[1] = str2dbl(_line.substr(14, 14));
             ecc[2] = str2dbl(_line.substr(28, 14));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANTENNA: DELTA X/Y/Z: " + dbl2str(ecc[0]) + " " + dbl2str(ecc[1]) + " " + dbl2str(ecc[2]));
+            GREAT_DEBUG("ANTENNA: DELTA X/Y/Z: " + dbl2str(ecc[0]) + " " + dbl2str(ecc[1]) + " " + dbl2str(ecc[2]));
             _rnxhdr.antxyz(ecc);
 
             // -------- "ANTENNA: DELTA H/E/N" --------
         }
         else if (_line.substr(60, 20).find("ANTENNA: DELTA H/E/N") != string::npos)
         {
-
             t_gtriple ecc;
             ecc[1] = str2dbl(_line.substr(14, 14)); // East  // --> REVERSE with N !
             ecc[0] = str2dbl(_line.substr(28, 14)); // North // --> REVERSE with E !
             ecc[2] = str2dbl(_line.substr(0, 14));  // Up
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANTENNA: DELTA H/E/N: " + dbl2str(ecc[0]) + " " + dbl2str(ecc[1]) + " " + dbl2str(ecc[2]));
+            GREAT_DEBUG("ANTENNA: DELTA H/E/N: " + dbl2str(ecc[0]) + " " + dbl2str(ecc[1]) + " " + dbl2str(ecc[2]));
             _rnxhdr.antneu(ecc);
             if (!ecc.zero() && _rnxhdr.antxyz().zero() && !_rnxhdr.aprxyz().zero())
             {
@@ -355,7 +337,6 @@ namespace gnut
         }
         else if (_line.substr(60, 20).find("ANTENNA: PHASECENTER") != string::npos)
         {
-
             t_gtriple ecc;
             ecc[0] = str2dbl(_line.substr(5, 9));   // N or X
             ecc[1] = str2dbl(_line.substr(14, 14)); // E or Y
@@ -365,50 +346,39 @@ namespace gnut
             _pcosys.push_back(trim(_line.substr(2, 3))); // coordinate system (NEU/XYZ)
             _pcoecc.push_back(ecc);                      // NEU or XYZ phase center vs. ARP eccentricities
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANTENNA: PHASECENTER: ");
+            GREAT_DEBUG("ANTENNA: PHASECENTER: ");
 
             // -------- "ANTENNA: B.SIGHT XYZ" --------
         }
         else if (_line.substr(60, 20).find("ANTENNA: B.SIGHT XYZ") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANTENNA: B.SIGHT XYZ: " + string("not implemented"));
+            GREAT_DEBUG("ANTENNA: B.SIGHT XYZ: " + string("not implemented"));
 
             // -------- "ANTENNA: ZERODIR AZI --------
         }
         else if (_line.substr(60, 20).find("ANTENNA: ZERODIR AZI") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANTENNA: ZERODIR AZI: " + string("not implemented"));
+            GREAT_DEBUG("ANTENNA: ZERODIR AZI: " + string("not implemented"));
 
             // -------- "ANTENNA: ZERODIR XYZ" --------
         }
         else if (_line.substr(60, 20).find("ANTENNA: ZERODIR XYZ") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ANTENNA: ZERODIR XYZ: " + string("not implemented"));
+            GREAT_DEBUG("ANTENNA: ZERODIR XYZ: " + string("not implemented"));
 
             // -------- "CENTER OF MASS: XYZ" --------
         }
         else if (_line.substr(60, 19).find("CENTER OF MASS: XYZ") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "CENTER OF MASS: XYZ: " + string("not implemented"));
+            GREAT_DEBUG("CENTER OF MASS: XYZ: " + string("not implemented"));
 
             // -------- "# / TYPES OF OBSERV" --------
         }
         else if (_line.substr(60, 19).find("# / TYPES OF OBSERV") != string::npos)
         {
-
             int fact = 1;
             if (!_csys.empty() && _csys[0] != ' ')
             {
-
                 // guarantee that all relevant lines are available
                 int num = str2int(_line.substr(0, 6));
                 int nlines = (int)ceil(num / 9.0); // upto 9 values/line
@@ -429,7 +399,9 @@ namespace gnut
                 }
 
                 if (!_complete)
+                {
                     return -1;
+                }
 
                 // sufficient number of lines is already guaranteed here
                 for (int ii = 0; ii < num; ++ii)
@@ -450,10 +422,12 @@ namespace gnut
                         }
                     }
 
-                    _mapobs[_csys].push_back(make_pair(obs, fact)); 
+                    _mapobs[_csys].push_back(make_pair(obs, fact));
 
-                    if ((ii + 1) % 9 == 0 && num > 9) // get newline and check (read next for old system)
+                    if ((ii + 1) % 9 == 0 && num > 9)
+                    { // get newline and check (read next for old system)
                         _tmpsize += t_gcoder::_getline(_line, _tmpsize);
+                    }
                 } // loop over # observations
             }
 
@@ -461,16 +435,13 @@ namespace gnut
         }
         else if (_line.substr(60, 8).find("INTERVAL") != string::npos)
         {
-
             string sample = _line.substr(0, 9);
             _rnxhdr.interval(str2dbl(sample));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "INTERVAL: " + dbl2str(_rnxhdr.interval()));
+            GREAT_DEBUG("INTERVAL: " + dbl2str(_rnxhdr.interval()));
 
             if (_int > 1.0 && _rnxhdr.interval() < 1.0 && _scl == 1)
             {
-
                 int _dec = sample.substr(sample.find(".") + 1).length() - 1; // decimal digits resolution
                 _scl = (int)pow(10, _dec);
                 cerr << "#Notice [rinexo2]: use decimals in XML settings if high-rate file."
@@ -481,20 +452,29 @@ namespace gnut
         }
         else if (_line.substr(60, 17).find("TIME OF FIRST OBS") != string::npos)
         {
-
             string tsys = trim(_line.substr(48, 3));
             t_gtime first;
 
             if (tsys == "GPS")
+            {
                 first.tsys(t_gtime::GPS);
+            }
             else if (tsys == "GLO")
+            {
                 first.tsys(t_gtime::GLO);
+            }
             else if (tsys == "GAL")
+            {
                 first.tsys(t_gtime::GAL);
+            }
             else if (tsys == "BDT" || tsys == "BDS")
+            {
                 first.tsys(t_gtime::BDS);
+            }
             else
+            {
                 first.tsys(t_gtime::GPS);
+            }
 
             first.from_ymdhms(str2int(_line.substr(0, 6)),    // year
                               str2int(_line.substr(6, 6)),    // month
@@ -503,8 +483,7 @@ namespace gnut
                               str2int(_line.substr(24, 6)),   // minutes
                               str2dbl(_line.substr(30, 13))); // double seconds
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, first.str_ymdhms("TIME OF FIRST OBS: "));
+            GREAT_DEBUG(first.str_ymdhms("TIME OF FIRST OBS: "));
             _epoch.tsys(first.tsys());
             _rnxhdr.first(first);
 
@@ -512,20 +491,29 @@ namespace gnut
         }
         else if (_line.substr(60, 16).find("TIME OF LAST OBS") != string::npos)
         {
-
             string tsys = trim(_line.substr(48, 3));
             t_gtime last;
 
             if (tsys == "GPS")
+            {
                 last.tsys(t_gtime::GPS);
+            }
             else if (tsys == "GLO")
+            {
                 last.tsys(t_gtime::GLO);
+            }
             else if (tsys == "GAL")
+            {
                 last.tsys(t_gtime::GAL);
+            }
             else if (tsys == "BDT" || tsys == "BDS")
+            {
                 last.tsys(t_gtime::BDS);
+            }
             else
+            {
                 last.tsys(t_gtime::GPS);
+            }
 
             last.from_ymdhms(str2int(_line.substr(0, 6)),    // year
                              str2int(_line.substr(6, 6)),    // month
@@ -534,38 +522,31 @@ namespace gnut
                              str2int(_line.substr(24, 6)),   // minutes
                              str2dbl(_line.substr(30, 13))); // double seconds
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, last.str_ymdhms("TIME OF LAST OBS: "));
+            GREAT_DEBUG(last.str_ymdhms("TIME OF LAST OBS: "));
             _rnxhdr.last(last);
 
             // -------- "LEAP SECONDS" --------
         }
         else if (_line.substr(60, 12).find("LEAP SECONDS") != string::npos)
         {
-
             // implemented only 1st part - total LEAP SEC.
             _rnxhdr.leapsec(str2int(_line.substr(0, 6)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "LEAP SECONDS: " + int2str(_rnxhdr.leapsec()));
+            GREAT_DEBUG("LEAP SECONDS: " + int2str(_rnxhdr.leapsec()));
 
             // -------- "# OF SATELLITES" --------
         }
         else if (_line.substr(60, 15).find("# OF SATELLITES") != string::npos)
         {
-
             _rnxhdr.numsats(str2int(_line.substr(0, 6)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "# OF SATELLITES: " + int2str(_rnxhdr.numsats()));
+            GREAT_DEBUG("# OF SATELLITES: " + int2str(_rnxhdr.numsats()));
 
             // -------- "PRN / # OF OBS --------
         }
         else if (_line.substr(60, 14).find("PRN / # OF OBS") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "PRN / # OF OBS: " + string("not implemented"));
+            GREAT_DEBUG("PRN / # OF OBS: " + string("not implemented"));
         }
 
         return 1;
@@ -573,7 +554,6 @@ namespace gnut
 
     int t_rinexo2::_decode_data()
     {
-
         vector<string> satellites;
         int irc = t_rinexo2::_read_epoch();
 
@@ -587,7 +567,6 @@ namespace gnut
         // skip special lines
         if (irc > 0)
         {
-
             int xlines = 1; // special event,      skip only number of lines
             if (irc >= 2)
             { // skip observations,  skip x-nsat lines
@@ -627,7 +606,6 @@ namespace gnut
         // loop over satellits records (x-lines)
         for (int i = 0; i < _nsat; i++)
         {
-
             string sat = satellites[i];
             string key = sat;
 
@@ -649,7 +627,6 @@ namespace gnut
         // fill data - block (epoch-wise) is completed
         if (_complete)
         {
-
             if (beg_epoch == t_gtime(0, 0) && end_epoch == t_gtime(0, 0))
             {
                 _count += this->_fill_data();
@@ -669,26 +646,35 @@ namespace gnut
         return 0;
     }
 
-    int t_rinexo2::_read_syskey(string &sat, string &key)
+    int t_rinexo2::_read_syskey(string& sat, string& key)
     {
-
         // get newline and check the end of buffer
         int addsize = t_gcoder::_getline(_line, _tmpsize);
 
         // getline succeed only if 'EOL' found
         if (_line.length() <= 0)
+        {
             return _stop_read();
+        }
 
         // select proper key (sat/sys) for observation list
         if (_mapobs.count(sat.substr(0, 3)) != 0)
+        {
             key = sat.substr(0, 3);
+        }
         else if (_mapobs.count(sat.substr(0, 1)) != 0)
+        {
             key = sat.substr(0, 1);
+        }
         else
-            key = _csys; 
+        {
+            key = _csys;
+        }
 
         if (key[0] != ' ' && key[0] != 'M')
+        {
             sat = t_gsys::eval_sat(sat, t_gsys::str2gsys(key));
+        }
 
         // check if key exists
         if (_mapobs.find(key) == _mapobs.end())
@@ -705,7 +691,6 @@ namespace gnut
         }
         else
         {
-
             return _stop_read();
         }
         return 1;
@@ -713,47 +698,45 @@ namespace gnut
 
     int t_rinexo2::_read_epoch()
     {
-
         _nsat = 0;
         _flag = 'X';
 
         // not enough data to recognize standard epoch or special event
         if (_line.length() < 32)
+        {
             return _stop_read();
+        }
         _flag = _line[28];
         _nsat = str2int(_line.substr(29, 3));
         if (_line.substr(0, 6) == "      ")
         {
             switch (_flag)
             {
-            case '2':
+                case '2':
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: start moving antenna identified, but not yet implemented!");
-                mesg(GWARNING, "Warning: start moving antenna identified, but not yet implemented!");
-                //else              cerr <<  "rinexo2 - Warning: start moving antenna identified, but not yet implemented!\n";
-                return 1;
+                    GREAT_DEBUG("Warning: start moving antenna identified, but not yet implemented!");
+                    mesg(GWARNING, "Warning: start moving antenna identified, but not yet implemented!");
+                    // else              cerr <<  "rinexo2 - Warning: start moving antenna identified, but not yet
+                    // implemented!\n";
+                    return 1;
 
-            case '3':
+                case '3':
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: new site occupation identified, but not yet implemented!");
-                mesg(GWARNING, "Warning: new site occupation identified, but not yet implemented!");
-                return 1;
+                    GREAT_DEBUG("Warning: new site occupation identified, but not yet implemented!");
+                    mesg(GWARNING, "Warning: new site occupation identified, but not yet implemented!");
+                    return 1;
 
-            case '4':
+                case '4':
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: new header information identified, but not fully implemented!");
-                mesg(GWARNING, "Warning: new header information identified, but not fully implemented!");
-                return 1;
+                    GREAT_DEBUG("Warning: new header information identified, but not fully implemented!");
+                    mesg(GWARNING, "Warning: new header information identified, but not fully implemented!");
+                    return 1;
 
-            case '5':
+                case '5':
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: external event identified, but not yet implemented!");
-                mesg(GWARNING, "Warning: external event identified, but not yet implemented!");
-                return 1;
+                    GREAT_DEBUG("Warning: external event identified, but not yet implemented!");
+                    mesg(GWARNING, "Warning: external event identified, but not yet implemented!");
+                    return 1;
             }
         }
 
@@ -767,15 +750,14 @@ namespace gnut
 
         // check success
         if (is.fail())
-        { 
+        {
             return _stop_read();
         }
 
         _epoch.from_ymdhms(yr, mn, dd, hr, mi, sc);
         epoch = _epoch;
         // filter out data
-        if (_flag != '0' &&
-            _flag != '1')
+        if (_flag != '0' && _flag != '1')
         {
             return 1;
         }
@@ -807,16 +789,16 @@ namespace gnut
         return 0;
     }
 
-    int t_rinexo2::_read_satvec(vector<string> &satellites)
+    int t_rinexo2::_read_satvec(vector<string>& satellites)
     {
-
         int ii = 0;
         for (int i = 0; i < _nsat; i++, ii++)
         {
-
             // getline succeed only if 'EOL' found
             if ((int)_line.length() <= 0)
+            {
                 return _stop_read();
+            }
 
             // read extra line for each satellite (if complete)
             unsigned int idx = 32 + ii * 3;
@@ -828,14 +810,17 @@ namespace gnut
                 unsigned int addsize = t_gcoder::_getline(_line, _tmpsize);
 
                 if (addsize < idx + 3)
+                {
                     return _stop_read();
+                }
                 else
+                {
                     _tmpsize += addsize;
+                }
             }
 
             if (_line.length() >= idx + 3)
             {
-
                 string sat = t_gsys::eval_sat(_line.substr(idx, 3));
                 satellites.push_back(sat);
             }
@@ -844,9 +829,8 @@ namespace gnut
         return _tmpsize;
     }
 
-    int t_rinexo2::_read_obstypes(const string &sat, const string &sys)
+    int t_rinexo2::_read_obstypes(const string& sat, const string& sys)
     {
-
         int ii = 0;
         int addsize = 0;
         unsigned int idx = 0;
@@ -857,8 +841,7 @@ namespace gnut
         {
             _xsys++;
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "skip " + sat);
+            GREAT_DEBUG("skip " + sat);
         }
 
         // general sys- or sat- specific group of observations
@@ -879,12 +862,11 @@ namespace gnut
 
         t_rnxhdr::t_vobstypes::const_iterator it = _mapobs[key].begin();
 
-        t_spt_gobs obs = make_shared<t_gobsgnss>(_spdlog, _site, sat, _epoch);
+        t_spt_gobs obs = make_shared<t_gobsgnss>(_site, sat, _epoch);
 
         // loop over observation types
         while (it != _mapobs[key].end())
         {
-
             idx = 16 * ii;
 
             // read new line for satellite observations
@@ -897,7 +879,9 @@ namespace gnut
                     idx = 0;
                 }
                 else
+                {
                     return _stop_read();
+                }
             }
 
             // last check (after new getline or for missing record)
@@ -923,27 +907,29 @@ namespace gnut
         } // while (over observation types)
 
         if (filter_sat)
+        {
             _vobs.push_back(obs);
+        }
 
         return 1;
     }
 
-    int t_rinexo2::_read_obs(const unsigned int &idx,
-                             const t_rnxhdr::t_vobstypes::const_iterator &it,
-                             t_spt_gobs obs)
+    int t_rinexo2::_read_obs(const unsigned int& idx, const t_rnxhdr::t_vobstypes::const_iterator& it, t_spt_gobs obs)
     {
-
         GOBS type = it->first;
         GSYS gsys = obs->gsys();
 
-        if (_obs[gsys].size() > 0 &&
-            _obs[gsys].find(gobs2str(type)) == _obs[gsys].end())
+        if (_obs[gsys].size() > 0 && _obs[gsys].find(gobs2str(type)) == _obs[gsys].end())
+        {
             return 0;
+        }
 
         string valstr = _line.substr(idx, 14); // trim not necessary, empty => 0.0
         double valdbl = str2dbl(valstr);
         if (double_eq(valdbl, 0.0))
+        {
             return 0; // eliminate 0.000
+        }
 
         obs->addobs(type, valdbl * it->second);
 
@@ -956,7 +942,9 @@ namespace gnut
             {
                 int lli = str2int(_line.substr(idx + 14, 1));
                 if (lli > 3)
+                {
                     lli -= 4;
+                }
                 obs->addlli(type, lli);
             }
             else
@@ -967,37 +955,55 @@ namespace gnut
             // only for phase observations !
             if (GOBS(type) >= 100 && GOBS(type) < 200)
             {
-
                 // read SNR type instead of original OBS type (always 3-char in G-Nut = RNX2.x 2-char + space)
                 GOBS snrtype = pha2snr(type);
 
                 // read SNR observation and convert flag to
                 if (_line.length() - 1 >= (idx + 14 + 1))
-                { 
-
-                    string snr = trim(_line.substr(idx + 14 + 1, 1)); 
+                {
+                    string snr = trim(_line.substr(idx + 14 + 1, 1));
                     int i = str2int(snr);
 
                     if (snr == "")
+                    {
                         obs->addobs(snrtype, 0.0);
+                    }
                     else if (i == 1)
+                    {
                         obs->addobs(snrtype, 6.0);
+                    }
                     else if (i == 2)
+                    {
                         obs->addobs(snrtype, 15.0);
+                    }
                     else if (i == 3)
+                    {
                         obs->addobs(snrtype, 20.0);
+                    }
                     else if (i == 4)
+                    {
                         obs->addobs(snrtype, 27.0);
+                    }
                     else if (i == 5)
+                    {
                         obs->addobs(snrtype, 33.0);
+                    }
                     else if (i == 6)
+                    {
                         obs->addobs(snrtype, 39.0);
+                    }
                     else if (i == 7)
+                    {
                         obs->addobs(snrtype, 45.0);
+                    }
                     else if (i == 8)
+                    {
                         obs->addobs(snrtype, 50.0);
+                    }
                     else if (i == 9)
+                    {
                         obs->addobs(snrtype, 60.0);
+                    }
                 }
                 else
                 {
@@ -1011,25 +1017,22 @@ namespace gnut
 
     int t_rinexo2::_fill_head()
     {
-
         int cnt = 0;
 
-        map<string, t_gdata *>::iterator itDAT = _data.begin();
+        map<string, t_gdata*>::iterator itDAT = _data.begin();
         while (itDAT != _data.end())
         {
-
             if (itDAT->second->id_type() == t_gdata::ALLOBJ)
             {
-                t_gallobj *all_obj = (t_gallobj *)itDAT->second;
+                t_gallobj* all_obj = (t_gallobj*)itDAT->second;
 
                 t_gtime epo = _rnxhdr.first();
 
                 shared_ptr<t_grec> old_obj, new_obj;
                 old_obj = dynamic_pointer_cast<t_grec>(all_obj->obj(_site));
-                new_obj = make_shared<t_grec>(_spdlog);
+                new_obj = make_shared<t_grec>();
                 new_obj->id(_site);   // uniq ident
                 new_obj->name(_site); // prefer before MARKER_NAME which might be incorrect
-                new_obj->spdlog(_spdlog);
                 new_obj->addhdr(_rnxhdr, epo, _fname);
                 if (_rnxhdr.rectype() == "" && old_obj != 0)
                 {
@@ -1043,8 +1046,7 @@ namespace gnut
                 {
                     all_obj->add(new_obj); // obj has been set -> add obj to gallobj
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "Object created, using RINEX header: " + new_obj->id() + epo.str_ymdhms(" "));
+                    GREAT_DEBUG("Object created, using RINEX header: " + new_obj->id() + epo.str_ymdhms(" "));
                 }
                 else
                 {
@@ -1054,7 +1056,7 @@ namespace gnut
 
             else if (itDAT->second->id_type() == t_gdata::ALLOBS)
             {
-                ((t_gallobs *)itDAT->second)->addsitecrd(_site, _rnxhdr.aprxyz());
+                ((t_gallobs*)itDAT->second)->addsitecrd(_site, _rnxhdr.aprxyz());
             }
 
             cnt++;
@@ -1066,9 +1068,8 @@ namespace gnut
 
     int t_rinexo2::_fill_data()
     {
-
         int cnt = 0;
-        map<string, t_gdata *>::iterator itDAT = _data.begin();
+        map<string, t_gdata*>::iterator itDAT = _data.begin();
         while (itDAT != _data.end())
         {
             if (itDAT->second->id_type() != t_gdata::ALLOBJ)
@@ -1079,7 +1080,7 @@ namespace gnut
             vector<t_spt_gobs>::iterator itOBS = _vobs.begin();
             while (itOBS != _vobs.end())
             {
-                t_gallobj *all_obj = (t_gallobj *)itDAT->second;
+                t_gallobj* all_obj = (t_gallobj*)itDAT->second;
                 shared_ptr<t_gtrn> one_obj = dynamic_pointer_cast<t_gtrn>(all_obj->obj((*itOBS)->sat()));
                 if (one_obj != 0 && one_obj->id_type() == t_gdata::TRN)
                 {
@@ -1095,7 +1096,6 @@ namespace gnut
         itDAT = _data.begin();
         while (itDAT != _data.end())
         {
-
             if (itDAT->second->id_type() != t_gdata::ALLOBS)
             {
                 itDAT++;
@@ -1105,11 +1105,9 @@ namespace gnut
             vector<t_spt_gobs>::const_iterator itOBS = _vobs.begin();
             while (itOBS != _vobs.end())
             {
+                GREAT_DEBUG((*itOBS)->sat() + " obs filled " + (*itOBS)->epoch().str_ymdhms() + " " + (*itOBS)->site());
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, (*itOBS)->sat() + " obs filled " + (*itOBS)->epoch().str_ymdhms() + " " + (*itOBS)->site());
-
-                ((t_gallobs *)itDAT->second)->addobs(*itOBS);
+                ((t_gallobs*)itDAT->second)->addobs(*itOBS);
 
                 itOBS++;
             }
@@ -1122,7 +1120,6 @@ namespace gnut
 
     int t_rinexo2::_check_head()
     {
-
         t_gtriple zero(0.0, 0.0, 0.0);
 
         if (_rnxhdr.rnxsys() == ' ')
@@ -1135,14 +1132,12 @@ namespace gnut
             mesg(GERROR, "RINEX VERS not available!");
             _irc++;
         } // mandatory
-        if (_rnxhdr.program().empty() &&
-            _rnxhdr.program().empty())
+        if (_rnxhdr.program().empty() && _rnxhdr.program().empty())
         {
             mesg(GERROR, "PGM/RUNBY not available!");
             _irc++;
         } // mandatory
-        if (_rnxhdr.observer().empty() &&
-            _rnxhdr.agency().empty())
+        if (_rnxhdr.observer().empty() && _rnxhdr.agency().empty())
         {
             mesg(GERROR, "OBSERVER/AGENCY not available!");
             _irc++;
@@ -1205,11 +1200,9 @@ namespace gnut
         return _irc;
     }
 
-    int t_rinexo2::_null_log(const string &sat, const string &obstype)
+    int t_rinexo2::_null_log(const string& sat, const string& obstype)
     {
-
-        if (_spdlog)
-            SPDLOG_LOGGER_DEBUG(_spdlog, _epoch.str_ymdhms(sat + ": obs  null ") + " " + obstype);
+        GREAT_DEBUG(_epoch.str_ymdhms(sat + ": obs  null ") + " " + obstype);
         return 0;
     }
 
@@ -1220,61 +1213,54 @@ namespace gnut
         return -1;
     }
 
-    int t_rinexo2::_fix_band(string sys, string &go)
+    int t_rinexo2::_fix_band(string sys, string& go)
     {
-
         GSYS gsys = (sys.length() < 3) ? t_gsys::char2gsys(sys[0]) : t_gsys::str2gsys(sys);
-
 
         switch (gsys)
         {
-        case GLO:
-            if (_version <= "2.12" && go[1] == '7')
-            {
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: extended RINEX 2.11 format (GLO L7 skipped)");
-                return 0;
-            };
-            break;
+            case GLO:
+                if (_version <= "2.12" && go[1] == '7')
+                {
+                    GREAT_WARN("Warning: extended RINEX 2.11 format (GLO L7 skipped)");
+                    return 0;
+                };
+                break;
 
-        case GPS:
-            if (_version <= "2.12" && go[1] == '7')
-            {
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: extended RINEX 2.11 format (GPS L7 skipped)");
-                return 0;
-            };
-            break;
-        case BDS:
-            if (_version <= "2.12")
-            {
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: extended RINEX 2.11 format (BDS skipped)");
-                return 0;
-            };
-            break;
-        case QZS:
-            if (_version <= "2.12")
-            {
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: extended RINEX 2.11 format (QZS skipped)");
-                return 0;
-            };
-            break;
-        case IRN:
-            if (_version <= "2.12")
-            {
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: extended RINEX 2.11 format (IRN skipped)");
-                return 0;
-            };
-            break;
+            case GPS:
+                if (_version <= "2.12" && go[1] == '7')
+                {
+                    GREAT_WARN("Warning: extended RINEX 2.11 format (GPS L7 skipped)");
+                    return 0;
+                };
+                break;
+            case BDS:
+                if (_version <= "2.12")
+                {
+                    GREAT_WARN("Warning: extended RINEX 2.11 format (BDS skipped)");
+                    return 0;
+                };
+                break;
+            case QZS:
+                if (_version <= "2.12")
+                {
+                    GREAT_WARN("Warning: extended RINEX 2.11 format (QZS skipped)");
+                    return 0;
+                };
+                break;
+            case IRN:
+                if (_version <= "2.12")
+                {
+                    GREAT_WARN("Warning: extended RINEX 2.11 format (IRN skipped)");
+                    return 0;
+                };
+                break;
 
-        default:
-            return 1;
+            default:
+                return 1;
         }
 
         return 1;
     }
 
-} // namespace
+} // namespace gnut

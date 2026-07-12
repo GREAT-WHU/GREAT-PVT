@@ -1,7 +1,7 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
 
@@ -47,15 +47,23 @@ namespace gnut
         ColumnVector tmp;
 
         if (itrf)
+        {
             tmp = rotZ(gmst(mjd)) * _eop.nutMatrix(mjd) * _eop.precMatrix(mjd) * r_Sun;
+        }
         else
+        {
             tmp = r_Sun;
+        }
 
         for (int i = 0; i < 3; i++)
+        {
             ret[i] = tmp(i + 1);
+        }
 
         if (itrf)
+        {
             _record_itrf_sunpos[mjd] = ret;
+        }
         return ret;
     }
 
@@ -72,19 +80,23 @@ namespace gnut
         double D = 2.0 * G_PI * _frac(0.827361 + 1236.853086 * T);
         double F = 2.0 * G_PI * _frac(0.259086 + 1342.227825 * T);
 
-        double dL = +22640 * sin(l) - 4586 * sin(l - 2 * D) + 2370 * sin(2 * D) + 769 * sin(2 * l) - 668 * sin(lp) - 412 * sin(2 * F) - 212 * sin(2 * l - 2 * D) - 206 * sin(l + lp - 2 * D) + 192 * sin(l + 2 * D) - 165 * sin(lp - 2 * D) - 125 * sin(D) - 110 * sin(l + lp) + 148 * sin(l - lp) - 55 * sin(2 * F - 2 * D);
+        double dL = +22640 * sin(l) - 4586 * sin(l - 2 * D) + 2370 * sin(2 * D) + 769 * sin(2 * l) - 668 * sin(lp) - 412 * sin(2 * F) -
+                    212 * sin(2 * l - 2 * D) - 206 * sin(l + lp - 2 * D) + 192 * sin(l + 2 * D) - 165 * sin(lp - 2 * D) - 125 * sin(D) -
+                    110 * sin(l + lp) + 148 * sin(l - lp) - 55 * sin(2 * F - 2 * D);
 
         double L = 2.0 * G_PI * _frac(L_0 + dL / 1296.0e3);
 
         double S = F + (dL + 412 * sin(2 * F) + 541 * sin(lp)) / RAD2SEC;
         double h = F - 2 * D;
-        double N = -526 * sin(h) + 44 * sin(l + h) - 31 * sin(-l + h) - 23 * sin(lp + h) + 11 * sin(-lp + h) - 25 * sin(-2 * l + F) + 21 * sin(-l + F);
+        double N = -526 * sin(h) + 44 * sin(l + h) - 31 * sin(-l + h) - 23 * sin(lp + h) + 11 * sin(-lp + h) - 25 * sin(-2 * l + F) +
+                   21 * sin(-l + F);
 
         double B = (18520.0 * sin(S) + N) / RAD2SEC;
 
         double cosB = cos(B);
 
-        double R = 385000e3 - 20905e3 * cos(l) - 3699e3 * cos(2 * D - l) - 2956e3 * cos(2 * D) - 570e3 * cos(2 * l) + 246e3 * cos(2 * l - 2 * D) - 205e3 * cos(lp - 2 * D) - 171e3 * cos(l + 2 * D) - 152e3 * cos(l + lp - 2 * D);
+        double R = 385000e3 - 20905e3 * cos(l) - 3699e3 * cos(2 * D - l) - 2956e3 * cos(2 * D) - 570e3 * cos(2 * l) +
+                   246e3 * cos(2 * l - 2 * D) - 205e3 * cos(lp - 2 * D) - 171e3 * cos(l + 2 * D) - 152e3 * cos(l + lp - 2 * D);
 
         ColumnVector r_Moon(3);
         r_Moon << R * cos(L) * cosB << R * sin(L) * cosB << R * sin(B);
@@ -93,7 +105,9 @@ namespace gnut
         ColumnVector tmp = rotZ(gmst(mjd)) * _eop.nutMatrix(mjd) * _eop.precMatrix(mjd) * r_Moon;
 
         for (int i = 0; i < 3; i++)
+        {
             ret[i] = tmp(i + 1);
+        }
 
         return ret;
     }
@@ -117,4 +131,4 @@ namespace gnut
         return x - floor(x);
     }
 
-} // namespace
+} // namespace gnut

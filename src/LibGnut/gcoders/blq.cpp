@@ -23,15 +23,13 @@ using namespace std;
 namespace gnut
 {
 
-    t_blq::t_blq(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz)
+    t_blq::t_blq(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz)
     {
     }
 
-
-    int t_blq::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_blq::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -45,12 +43,10 @@ namespace gnut
         int tmpsize = 0;
         while ((tmpsize = t_gcoder::_getline(line)) >= 0)
         {
-
             consume += tmpsize;
 
             if (line.find("END HEADER") != string::npos)
             {
-
                 t_gcoder::_consume(tmpsize);
                 _mutex.unlock();
                 return -1;
@@ -63,9 +59,8 @@ namespace gnut
         return consume;
     }
 
-    int t_blq::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_blq::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -73,7 +68,6 @@ namespace gnut
             _mutex.unlock();
             return 0;
         };
-
 
         string line;
         int consume = 0;
@@ -131,29 +125,33 @@ namespace gnut
                         sitsize += tmpsize;
                         consume += tmpsize;
                         if (ii == 6)
+                        {
                             complete = true;
+                        }
                     }
                 }
                 else
                 {
                     istringstream istr(line);
                     istr >> _site;
-                    _site = _site.substr(0, 4); //trim(_site);
+                    _site = _site.substr(0, 4); // trim(_site);
                 }
             }
 
             if (complete)
             {
-                t_gotl otl(_spdlog);
-                map<string, t_gdata *>::iterator it = _data.begin();
+                t_gotl otl;
+                map<string, t_gdata*>::iterator it = _data.begin();
                 if (it != _data.end())
+                {
                     otl.setdata(_site, _lon, _lat, _blqdata);
+                }
 
                 while (it != _data.end())
                 {
                     if (it->second->id_type() == t_gdata::ALLOTL)
                     {
-                        ((t_gallotl *)it->second)->add(otl);
+                        ((t_gallotl*)it->second)->add(otl);
                     }
                     it++;
                 }
@@ -166,4 +164,4 @@ namespace gnut
         return consume;
     }
 
-} // namespace
+} // namespace gnut

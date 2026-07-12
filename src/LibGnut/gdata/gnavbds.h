@@ -39,147 +39,150 @@ namespace gnut
     /** @brief Class for bds navigation data storing. */
     class LibGnut_LIBRARY_EXPORT t_gnavbds : public t_gnav
     {
-
     public:
         /** @brief default constructor. */
         explicit t_gnavbds();
 
-        explicit t_gnavbds(t_spdlog spdlog);
         /** @brief default destructor. */
         virtual ~t_gnavbds();
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override; //[m]
+        int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL,
+                bool chk_health = true) override; //[m]
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) override; //[s]
+        int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL,
+                bool chk_health = true) override; //[s]
 
         /**
-         * @brief 
-         * 
-         * @param msg 
-         * @return int 
+         * @brief
+         *
+         * @param msg
+         * @return int
          */
-        int chk(set<string> &msg) override;
+        int chk(set<string>& msg) override;
 
         /**
-         * @brief 
-         * 
-         * @param ep 
-         * @param data 
-         * @return int 
+         * @brief
+         *
+         * @param ep
+         * @param data
+         * @return int
          */
-        int data2nav(string, const t_gtime &ep, const t_gnavdata &data) override;
+        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /**
-         * @brief 
-         * 
-         * @param data 
-         * @return int 
+         * @brief
+         *
+         * @param data
+         * @return int
          */
-        int nav2data(t_gnavdata &data) override;
+        int nav2data(t_gnavdata& data) override;
 
         /**
-         * @brief 
-         * 
-         * @return int 
+         * @brief
+         *
+         * @return int
          */
         int iod() const override;
 
         /**
-         * @brief 
-         * 
-         * @return int 
+         * @brief
+         *
+         * @return int
          */
-        int rec() const override { return MAX_RINEXN_REC_BDS; }
+        int rec() const override
+        {
+            return MAX_RINEXN_REC_BDS;
+        }
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @return true 
-         * @return false 
+         * @brief
+         *
+         * @param t
+         * @return true
+         * @return false
          */
-        virtual bool chktot(const t_gtime &t) override;
+        virtual bool chktot(const t_gtime& t) override;
 
         /**
-         * @brief 
-         * 
-         * @param n 
-         * @return t_timdbl 
+         * @brief
+         *
+         * @param n
+         * @return t_timdbl
          */
-        t_timdbl param(const NAVDATA &n) override;
+        t_timdbl param(const NAVDATA& n) override;
 
         /**
-         * @brief 
-         * 
-         * @param n 
-         * @param val 
-         * @return int 
+         * @brief
+         *
+         * @param n
+         * @param val
+         * @return int
          */
-        int param(const NAVDATA &n, double val) override;
+        int param(const NAVDATA& n, double val) override;
 
         /**
-         * @brief 
-         * 
-         * @return string 
+         * @brief
+         *
+         * @return string
          */
         string line() const override;
 
         /**
-         * @brief 
-         * 
-         * @return string 
+         * @brief
+         *
+         * @return string
          */
         string linefmt() const override;
 
     private:
         /**
-         * @brief 
-         * 
-         * @return true 
-         * @return false 
+         * @brief
+         *
+         * @return true
+         * @return false
          */
         bool _healthy() const override;
 
         /**
-         * @brief 
-         * 
-         * @param dt 
-         * @param Ek 
-         * @param dEk 
+         * @brief
+         *
+         * @param dt
+         * @param Ek
+         * @param dEk
          */
-        void _ecc_anomaly(double dt, double &Ek, double &dEk);
+        void _ecc_anomaly(double dt, double& Ek, double& dEk);
 
         /**
          * @brief corrected mean motion
-         * 
-         * @return double 
+         *
+         * @return double
          */
         double _mean_motion();
 
         /**
          * @brief get IODC
-         * 
-         * @return const int 
+         *
+         * @return const int
          */
         const int _getIODC() const;
 
@@ -212,5 +215,5 @@ namespace gnut
         double _rel;    ///< relativity correction calculated with ICD
     };
 
-}
+} // namespace gnut
 #endif

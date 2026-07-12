@@ -19,7 +19,6 @@
 #ifndef GNAVQZS_H
 #define GNAVQZS_H
 
-
 #include "gexport/ExportLibGnut.h"
 #include <vector>
 
@@ -43,81 +42,87 @@ namespace gnut
     /** @brief class for t_gnavqzs. */
     class LibGnut_LIBRARY_EXPORT t_gnavqzs : public t_gnav
     {
-
     public:
         /** @brief default constructor. */
         t_gnavqzs();
 
         /**
          * @brief Construct a new t gnavqzs object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gnavqzs(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gnavqzs();
 
         // pointers to support NULL if not requested!
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override; //[m]
+        int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL,
+                bool chk_health = true) override; //[m]
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) override; //[s]
+        int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL,
+                bool chk_health = true) override; //[s]
 
         /**
-         * @brief 
-         * 
-         * @param msg 
-         * @return int 
+         * @brief
+         *
+         * @param msg
+         * @return int
          */
-        int chk(set<string> &msg) override;
-        //int ura( double acc ) const;
+        int chk(set<string>& msg) override;
+        // int ura( double acc ) const;
 
         /** @brief convert data to nav. */
-        int data2nav(string, const t_gtime &ep, const t_gnavdata &data) override;
+        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
-        int nav2data(t_gnavdata &data) override;
+        int nav2data(t_gnavdata& data) override;
 
         /** @brief get iod. */
-        int iod() const override { return _iode; }
+        int iod() const override
+        {
+            return _iode;
+        }
 
         /** @brief get rec. */
-        int rec() const override { return MAX_RINEXN_REC_QZS; }
+        int rec() const override
+        {
+            return MAX_RINEXN_REC_QZS;
+        }
 
         /** @brief check tot. */
-        virtual bool chktot(const t_gtime &t) override;
+        virtual bool chktot(const t_gtime& t) override;
 
         /** @brief get/set param. */
-        virtual t_timdbl param(const NAVDATA &n) override;
+        virtual t_timdbl param(const NAVDATA& n) override;
 
         /**
-         * @brief 
-         * 
-         * @param n 
-         * @param val 
-         * @return int 
+         * @brief
+         *
+         * @param n
+         * @param val
+         * @return int
          */
-        virtual int param(const NAVDATA &n, double val) override;
+        virtual int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
         string line() const override;
@@ -131,17 +136,17 @@ namespace gnut
 
         /**
          * @brief eccentric anomaly
-         * 
-         * @param dt 
-         * @param Ek 
-         * @param dEk 
+         *
+         * @param dt
+         * @param Ek
+         * @param dEk
          */
-        void _ecc_anomaly(double dt, double &Ek, double &dEk);
+        void _ecc_anomaly(double dt, double& Ek, double& dEk);
 
         /**
          * @brief corrected mean motion
-         * 
-         * @return double 
+         *
+         * @return double
          */
         double _mean_motion();
 
@@ -177,5 +182,5 @@ namespace gnut
         double _tgd[4]; ///< group delay parameters [sec]
     };
 
-} // namespace
+} // namespace gnut
 #endif

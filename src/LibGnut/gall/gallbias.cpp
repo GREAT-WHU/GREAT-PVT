@@ -14,25 +14,9 @@ using namespace std;
 
 namespace gnut
 {
-    t_gallbias::t_gallbias() : t_gdata(), _isOverWrite(false)
-    {
-        id_type(t_gdata::ALLBIAS);
-        id_group(t_gdata::GRP_MODEL);
-
-        _acOrder["COD_A"] = 1;
-        _acOrder["CAS_A"] = 2;
-        _acOrder["WHU_A"] = 3;
-        _acOrder["DLR_A"] = 4;
-        _acOrder["CAS_R"] = 5;
-        _acOrder["COD_R"] = 6;
-        _acOrder["WHU_R"] = 7;
-        _acOrder["DLR_R"] = 8;
-        _acOrder["CNT_A"] = 9;
-        _acOrder["RTB_A"] = 10;
-    }
-
-    t_gallbias::t_gallbias(t_spdlog spdlog)
-        : t_gdata(spdlog), _isOverWrite(false)
+    t_gallbias::t_gallbias() :
+        t_gdata(),
+        _isOverWrite(false)
     {
         id_type(t_gdata::ALLBIAS);
         id_group(t_gdata::GRP_MODEL);
@@ -54,9 +38,8 @@ namespace gnut
         _mapBias.clear();
     }
 
-    void t_gallbias::add(const string &ac, const t_gtime &epo, const string &obj, t_spt_bias pt_cb)
+    void t_gallbias::add(const string& ac, const t_gtime& epo, const string& obj, t_spt_bias pt_cb)
     {
-
         _gmutex.lock();
 
         if (pt_cb == nullptr)
@@ -66,17 +49,18 @@ namespace gnut
         }
 
         if (pt_cb->ref() == X)
-        { 
+        {
             _mapBias[ac][epo][obj][pt_cb->gobs()] = pt_cb;
         }
         else
-        { 
+        {
             if (_mapBias[ac][epo][obj].size() == 0)
             {
-                shared_ptr<t_gbias> pt_ref = make_shared<t_gbias>(_spdlog);               // create first reference bias
-                pt_ref->set(pt_cb->beg(), pt_cb->end(), 0.0, pt_cb->ref(), pt_cb->ref()); // reference bias is set up to zero
-                _mapBias[ac][epo][obj][pt_ref->gobs()] = pt_ref;                          // store new bias (reference)
-                _mapBias[ac][epo][obj][pt_cb->gobs()] = pt_cb;                            // store new bias
+                shared_ptr<t_gbias> pt_ref = make_shared<t_gbias>(); // create first reference bias
+                pt_ref->set(pt_cb->beg(), pt_cb->end(), 0.0, pt_cb->ref(),
+                            pt_cb->ref());                       // reference bias is set up to zero
+                _mapBias[ac][epo][obj][pt_ref->gobs()] = pt_ref; // store new bias (reference)
+                _mapBias[ac][epo][obj][pt_cb->gobs()] = pt_cb;   // store new bias
             }
             else
             {
@@ -103,10 +87,11 @@ namespace gnut
                 else
                 {
                     // glfeng add for GAL to store Q & X DCB bias
-                    shared_ptr<t_gbias> pt_ref = make_shared<t_gbias>(_spdlog);               // create first reference bias
-                    pt_ref->set(pt_cb->beg(), pt_cb->end(), 0.0, pt_cb->ref(), pt_cb->ref()); // reference bias is set up to zero
-                    _mapBias[ac][epo][obj][pt_ref->gobs()] = pt_ref;                          // store new bias (reference)
-                    _mapBias[ac][epo][obj][pt_cb->gobs()] = pt_cb;                            // store new bias
+                    shared_ptr<t_gbias> pt_ref = make_shared<t_gbias>(); // create first reference bias
+                    pt_ref->set(pt_cb->beg(), pt_cb->end(), 0.0, pt_cb->ref(),
+                                pt_cb->ref());                       // reference bias is set up to zero
+                    _mapBias[ac][epo][obj][pt_ref->gobs()] = pt_ref; // store new bias (reference)
+                    _mapBias[ac][epo][obj][pt_cb->gobs()] = pt_cb;   // store new bias
                 }
             }
         }
@@ -115,7 +100,7 @@ namespace gnut
         return;
     }
 
-    double t_gallbias::get(const string &prd, const t_gtime &epo, const string &prn, const GOBS &gobs, const bool &meter)
+    double t_gallbias::get(const string& prd, const t_gtime& epo, const string& prn, const GOBS& gobs, const bool& meter)
     {
         _gmutex.lock();
 
@@ -125,9 +110,13 @@ namespace gnut
         {
             auto itEPO = itAC->second.upper_bound(epo);
             if (itEPO != itAC->second.begin() && itEPO != itAC->second.end())
+            {
                 itEPO--; // between epochs
+            }
             if (itEPO == itAC->second.end() && itAC->second.size() != 0)
+            {
                 itEPO--; // no epochs
+            }
 
             if (itEPO != itAC->second.end())
             {
@@ -147,7 +136,7 @@ namespace gnut
     vector<string> t_gallbias::get_ac()
     {
         vector<string> ac_list;
-        for (const auto &item : _mapBias)
+        for (const auto& item : _mapBias)
         {
             ac_list.push_back(item.first);
         }
@@ -158,8 +147,17 @@ namespace gnut
     {
         string used_ac;
         int loc = 999;
-        const map<string, int> ac_order{
-            {"COD_A", 1}, {"CAS_A", 2}, {"WHU_A", 3}, {"DLR_A", 4}, {"CAS_R", 5}, {"COD_R", 6}, {"WHU_R", 7}, {"DLR_R", 8}, {"CNT_A", 9}, {"RTB_A", 10}, {"SGG_A", 11}};
+        const map<string, int> ac_order{{"COD_A", 1},
+                                        {"CAS_A", 2},
+                                        {"WHU_A", 3},
+                                        {"DLR_A", 4},
+                                        {"CAS_R", 5},
+                                        {"COD_R", 6},
+                                        {"WHU_R", 7},
+                                        {"DLR_R", 8},
+                                        {"CNT_A", 9},
+                                        {"RTB_A", 10},
+                                        {"SGG_A", 11}};
         for (auto item : _mapBias)
         {
             string ac = (item.first == "WHU_A_PHASE") ? "WHU_A" : item.first;
@@ -175,24 +173,27 @@ namespace gnut
     string t_gallbias::get_used_ac()
     {
         if (_acUsed.empty())
+        {
             _acUsed = get_ac_priority();
+        }
         return _acUsed;
     }
 
-    double t_gallbias::get(const t_gtime &epo, const string &obj, const GOBS &gobs1, const GOBS &gobs2, const string &tmp)
+    double t_gallbias::get(const t_gtime& epo, const string& obj, const GOBS& gobs1, const GOBS& gobs2, const string& tmp)
     {
-
         _gmutex.lock();
 
         double dcb = 0.0;
         string ac(tmp);
         if (ac == "" && _isOrdered == true)
+        {
             ac = _acPri;
+        }
 
         if (ac == "" && _isOrdered == false)
         {
             int loc = 999;
-            for (const auto &item : _mapBias)
+            for (const auto& item : _mapBias)
             {
                 if (_acOrder.at(item.first) < loc)
                 {
@@ -231,7 +232,7 @@ namespace gnut
             {
                 dcb = pobs1->bias() - pobs2->bias();
             }
-            if (pobs1 != nullptr && pobs2 != nullptr && pobs2->gobs()==C6C)
+            if (pobs1 != nullptr && pobs2 != nullptr && pobs2->gobs() == C6C)
             {
                 dcb = pobs1->bias() - pobs2->bias();
             }
@@ -241,7 +242,7 @@ namespace gnut
         return dcb;
     }
 
-    t_spt_bias t_gallbias::_find(const string &ac, const t_gtime &epo, const string &obj, const GOBS &gobs)
+    t_spt_bias t_gallbias::_find(const string& ac, const t_gtime& epo, const string& obj, const GOBS& gobs)
     {
         t_spt_bias pt_bias = nullptr;
         GOBS obs = gobs;
@@ -250,18 +251,21 @@ namespace gnut
         {
             auto itEPO = itAC->second.upper_bound(epo);
             if (itEPO != itAC->second.begin() && itEPO != itAC->second.end())
+            {
                 itEPO--; // between epochs
+            }
             if (itEPO == itAC->second.end() && itAC->second.size() != 0)
+            {
                 itEPO--; // no epochs
+            }
 
             if (itEPO != itAC->second.end())
             {
                 auto itOBJ = itEPO->second.find(obj);
                 if (itOBJ != itEPO->second.end())
                 {
-
                     auto itGOBS = itOBJ->second.find(obs);
-                    if (itGOBS == itOBJ->second.end() && obs==C6X)
+                    if (itGOBS == itOBJ->second.end() && obs == C6X)
                     {
                         obs = C6C;
                         itGOBS = itOBJ->second.find(obs);
@@ -280,7 +284,7 @@ namespace gnut
         return pt_bias;
     }
 
-    vector<t_spt_bias> t_gallbias::_find_ref(const string &ac, const t_gtime &epo, const string &obj, const GOBS &ref)
+    vector<t_spt_bias> t_gallbias::_find_ref(const string& ac, const t_gtime& epo, const string& obj, const GOBS& ref)
     {
         vector<t_spt_bias> vec_bias;
 
@@ -296,7 +300,9 @@ namespace gnut
                     for (auto itGOBS = itOBJ->second.begin(); itGOBS != itOBJ->second.end(); itGOBS++)
                     {
                         if (itGOBS->second->ref() == ref)
+                        {
                             vec_bias.push_back(itGOBS->second);
+                        }
                     }
                 }
             }
@@ -305,7 +311,7 @@ namespace gnut
         return vec_bias;
     }
 
-    void t_gallbias::_convert_obstype(const string &ac, const string &obj, GOBS &obstype)
+    void t_gallbias::_convert_obstype(const string& ac, const string& obj, GOBS& obstype)
     {
         if (ac == "COD_R")
         {
@@ -313,24 +319,24 @@ namespace gnut
             {
                 switch (obstype)
                 {
-                case C1C:
-                    obstype = C1;
-                    break;
-                case C1P:
-                case C1Y:
-                case C1W:
-                    obstype = P1;
-                    break;
-                case C2C:
-                    obstype = C2;
-                    break;
-                case C2P:
-                case C2Y:
-                case C2W:
-                    obstype = P2;
-                    break;
-                default:
-                    break;
+                    case C1C:
+                        obstype = C1;
+                        break;
+                    case C1P:
+                    case C1Y:
+                    case C1W:
+                        obstype = P1;
+                        break;
+                    case C2C:
+                        obstype = C2;
+                        break;
+                    case C2P:
+                    case C2Y:
+                    case C2W:
+                        obstype = P2;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -340,58 +346,58 @@ namespace gnut
             {
                 switch (obstype)
                 {
-                case P1:
-                    obstype = C1W;
-                    break;
-                case P2:
-                    obstype = C2W;
-                    break;
-                case C1:
-                    obstype = C1C;
-                    break;
-                case C2:
-                    obstype = C2C;
-                    break;
-                default:
-                    break;
+                    case P1:
+                        obstype = C1W;
+                        break;
+                    case P2:
+                        obstype = C2W;
+                        break;
+                    case C1:
+                        obstype = C1C;
+                        break;
+                    case C2:
+                        obstype = C2C;
+                        break;
+                    default:
+                        break;
                 }
             }
             if (obj[0] == 'R')
             {
                 switch (obstype)
                 {
-                case P1:
-                    obstype = C1P;
-                    break;
-                case P2:
-                    obstype = C2P;
-                    break;
-                case C1:
-                    obstype = C1C;
-                    break;
-                case C2:
-                    obstype = C2C;
-                    break;
-                default:
-                    break;
+                    case P1:
+                        obstype = C1P;
+                        break;
+                    case P2:
+                        obstype = C2P;
+                        break;
+                    case C1:
+                        obstype = C1C;
+                        break;
+                    case C2:
+                        obstype = C2C;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
     }
 
-    void t_gallbias::_connect_first(const t_spt_bias &pt_cb1, const t_spt_bias &pt_cb2)
+    void t_gallbias::_connect_first(const t_spt_bias& pt_cb1, const t_spt_bias& pt_cb2)
     {
         double newval = pt_cb1->bias() - pt_cb2->bias();
         pt_cb2->set(newval, pt_cb2->ref(), pt_cb1->ref());
     }
 
-    void t_gallbias::_connect_second(const t_spt_bias &pt_cb1, const t_spt_bias &pt_cb2)
+    void t_gallbias::_connect_second(const t_spt_bias& pt_cb1, const t_spt_bias& pt_cb2)
     {
         double newval = pt_cb1->bias() + pt_cb2->bias();
         pt_cb2->set(newval, pt_cb2->gobs(), pt_cb1->ref());
     }
 
-    void t_gallbias::_consolidate(const string &ac, const string &obj, const t_spt_bias &pt_cb1, const t_spt_bias &pt_cb2)
+    void t_gallbias::_consolidate(const string& ac, const string& obj, const t_spt_bias& pt_cb1, const t_spt_bias& pt_cb2)
     {
         double diff = pt_cb2->val() - pt_cb1->val();
         t_gtime epo = pt_cb1->beg();
@@ -406,4 +412,4 @@ namespace gnut
         }
     }
 
-} // namespace
+} // namespace gnut

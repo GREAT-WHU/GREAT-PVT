@@ -4,9 +4,9 @@
  * @brief        The base class used to decode poleut1 file information.
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef POLEUT1_H
 #define POLEUT1_H
@@ -21,8 +21,8 @@ using namespace gnut;
 namespace great
 {
     /**
-    *@brief       Class for decoding the poleut1 data
-    */
+     *@brief       Class for decoding the poleut1 data
+     */
     class LibGREAT_LIBRARY_EXPORT t_poleut1 : public t_gcoder
     {
     public:
@@ -33,10 +33,10 @@ namespace great
          * @param[in]  version  version of the gcoder
          * @param[in]  sz       size of the buffer
          */
-        explicit t_poleut1(t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        explicit t_poleut1(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief default destructor. */
-        virtual ~t_poleut1(){};
+        virtual ~t_poleut1() {};
 
         /**
          * @brief decode the header of the poleut1 data file.
@@ -52,7 +52,7 @@ namespace great
             @retval >=0 consume size of header decoding
             @retval <0  finish reading
          */
-        virtual int decode_head(char *buff, int sz, vector<string> &errmsg);
+        virtual int decode_head(char* buff, int sz, vector<string>& errmsg);
 
         /**
          * @brief decode the data body of the poleut1 data file.
@@ -66,17 +66,17 @@ namespace great
             @retval >=0 consume size of body decoding
             @retval <0  finish reading
          */
-        virtual int decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg);
+        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg);
 
     protected:
         string _timetype;        ///< type of time(UT1R)
-        double _begtime;         ///< beg time(modified julian day)   
-        double _endtime;         ///< end time(modified julian day)   
+        double _begtime;         ///< beg time(modified julian day)
+        double _endtime;         ///< end time(modified julian day)
         double _interval;        ///< time interval(unit: day)
         int _parnum;             ///< number of parameters
         vector<double> _parunit; ///< unit of each parameter
         vector<string> _parname; ///< name of each parameter
     };
-} // namespace
+} // namespace great
 
 #endif

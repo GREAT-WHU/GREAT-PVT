@@ -61,34 +61,33 @@ using namespace pugi;
 namespace gnut
 {
 
-  class t_gcfg_ppp : public t_gsetgen,
-                     public t_gsetinp,
-                     public t_gsetout,
-                     public t_gsetgnss,
-                     public t_gsetproc,
-                     public t_gsetflt,
-                     public t_gsetrec,
-                     public t_gsetamb
-                     //public t_gsetturboedit
-  {
+    class t_gcfg_ppp : public t_gsetgen,
+                       public t_gsetinp,
+                       public t_gsetout,
+                       public t_gsetgnss,
+                       public t_gsetproc,
+                       public t_gsetflt,
+                       public t_gsetrec,
+                       public t_gsetamb
+    // public t_gsetturboedit
+    {
+    public:
+        /** @brief default constructor. */
+        t_gcfg_ppp();
 
-  public:
-      /** @brief default constructor. */
-    t_gcfg_ppp();
+        /** @brief default destructor. */
+        ~t_gcfg_ppp();
 
-    /** @brief default destructor. */
-    ~t_gcfg_ppp();
+        /** @brief settings check. */
+        void check(); // settings check
 
-    /** @brief settings check. */
-    void check(); // settings check
+        /** @brief settings help. */
+        void help(); // settings help
 
-    /** @brief settings help. */
-    void help();  // settings help
+    protected:
+    private:
+    };
 
-  protected:
-  private:
-  };
-
-} // namespace
+} // namespace gnut
 
 #endif

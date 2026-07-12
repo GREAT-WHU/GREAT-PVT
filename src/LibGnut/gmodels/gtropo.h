@@ -35,7 +35,7 @@ namespace gnut
     class LibGnut_LIBRARY_EXPORT t_gtropo
     {
     public:
-        //t_gtropo(string site);
+        // t_gtropo(string site);
 
         /** @brief default constructor. */
         t_gtropo();
@@ -44,10 +44,12 @@ namespace gnut
         virtual ~t_gtropo();
 
         /** @brief get ZHD. */
-        virtual double getZHD(const t_gtriple &ell, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZHD(const t_gtriple& ell,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
 
         /** @brief get ZWD. */
-        virtual double getZWD(const t_gtriple &ell, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ell,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
 
     protected:
         t_gpt _gpt; ///< gpt
@@ -58,15 +60,22 @@ namespace gnut
     {
     public:
         /** @brief default constructor. */
-        t_saast() {}
+        t_saast()
+        {
+        }
 
         /** @brief default destructor. */
-        ~t_saast() {}
+        ~t_saast()
+        {
+        }
 
         /** @brief get STD/ZHD/ZWD. */
-        virtual double getSTD(const double &ele, const double &hel);     // ! Radians: elevation
-        virtual double getZHD(const t_gtriple &ell, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
-        virtual double getZWD(const t_gtriple &ell, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getSTD(const double& ele,
+                              const double& hel); // ! Radians: elevation
+        virtual double getZHD(const t_gtriple& ell,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ell,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
     };
 
     /** @brief class for t_davis derive from t_gtropo. */
@@ -74,14 +83,20 @@ namespace gnut
     {
     public:
         /** @brief default constructor. */
-        t_davis() {}
+        t_davis()
+        {
+        }
 
         /** @brief default destructor. */
-        ~t_davis() {}
+        ~t_davis()
+        {
+        }
 
         /** @brief get ZHD/ZWD. */
-        virtual double getZHD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
-        virtual double getZWD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZHD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
     };
 
     /** @brief class for t_hopf derive from t_gtropo. */
@@ -89,14 +104,20 @@ namespace gnut
     {
     public:
         /** @brief default constructor. */
-        t_hopf() {}
+        t_hopf()
+        {
+        }
 
         /** @brief default destructor. */
-        ~t_hopf() {}
+        ~t_hopf()
+        {
+        }
 
         /** @brief get ZHD/ZWD. */
-        virtual double getZHD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
-        virtual double getZWD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZHD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
     };
 
     /** @brief class for t_baby derive from t_gtropo. */
@@ -104,14 +125,20 @@ namespace gnut
     {
     public:
         /** @brief default constructor. */
-        t_baby() {}
+        t_baby()
+        {
+        }
 
         /** @brief default destructor. */
-        ~t_baby() {}
+        ~t_baby()
+        {
+        }
 
         /** @brief get ZHD/ZWD. */
-        virtual double getZHD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
-        virtual double getZWD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZHD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
     };
 
     /** @brief class for t_chao derive from t_gtropo. */
@@ -119,14 +146,20 @@ namespace gnut
     {
     public:
         /** @brief default constructor. */
-        t_chao() {}
+        t_chao()
+        {
+        }
 
         /** @brief default destructor. */
-        ~t_chao() {}
+        ~t_chao()
+        {
+        }
 
         /** @brief get ZHD/ZWD. */
-        virtual double getZHD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
-        virtual double getZWD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZHD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
     };
 
     /** @brief class for t_ifad derive from t_gtropo. */
@@ -134,16 +167,22 @@ namespace gnut
     {
     public:
         /** @brief default constructor. */
-        t_ifad() {}
+        t_ifad()
+        {
+        }
 
         /** @brief default destructor. */
-        ~t_ifad() {}
+        ~t_ifad()
+        {
+        }
 
         /** @brief get ZHD/ZWD. */
-        virtual double getZHD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
-        virtual double getZWD(const t_gtriple &ele, const t_gtime &epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZHD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
+        virtual double getZWD(const t_gtriple& ele,
+                              const t_gtime& epo); // ! Radians: Ell[0] and Ell[1]
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

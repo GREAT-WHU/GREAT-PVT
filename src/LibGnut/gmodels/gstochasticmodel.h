@@ -36,7 +36,7 @@ namespace gnut
         t_stochastic();
 
         /** @brief default destructor. */
-        virtual ~t_stochastic(){};
+        virtual ~t_stochastic() {};
 
         /** @brief get Q. */
         virtual double getQ()
@@ -56,19 +56,19 @@ namespace gnut
         t_randomwalk();
 
         /** @brief default destructor. */
-        virtual ~t_randomwalk(){};
+        virtual ~t_randomwalk() {};
 
         /** @brief get Q. */
         virtual double getQ();
 
         /** @brief set Tprev. */
-        void setTprev(const t_gtime &);
+        void setTprev(const t_gtime&);
 
         /** @brief set Tcurr. */
-        void setTcurr(const t_gtime &);
+        void setTcurr(const t_gtime&);
 
         /** @brief update time. */
-        void updateTime(const t_gtime &);
+        void updateTime(const t_gtime&);
 
         /** @brief set Q. */
         void setq(double q);
@@ -91,7 +91,7 @@ namespace gnut
         t_whitenoise(double);
 
         /** @brief default destructor. */
-        virtual ~t_whitenoise(){};
+        virtual ~t_whitenoise() {};
 
         /** @brief get Q. */
         virtual double getQ();
@@ -121,9 +121,9 @@ namespace gnut
         SymmetricMatrix P; ///< P
 
     private:
-        static const double _coeff[6]; ///coff
+        static const double _coeff[6]; /// coff
     };
 
-} // namespace
+} // namespace gnut
 
 #endif // STOCHASTIC_H

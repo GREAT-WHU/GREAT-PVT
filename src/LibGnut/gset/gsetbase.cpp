@@ -32,14 +32,14 @@ using namespace pugi;
 namespace gnut
 {
 
-    t_gsetbase::t_gsetbase()
-        : _name(""),
-          _pgm(""),
-          _ver(""),
-          _rev(""),
-          _own(""),
-          _dat(""),
-          _tim("")
+    t_gsetbase::t_gsetbase() :
+        _name(""),
+        _pgm(""),
+        _ver(""),
+        _rev(""),
+        _own(""),
+        _dat(""),
+        _tim("")
     {
         _delimiter = "  "; // EMPTY! for nodes/elements only
         _set.insert("base");
@@ -49,7 +49,7 @@ namespace gnut
     {
     }
 
-    int t_gsetbase::read(const string &file)
+    int t_gsetbase::read(const string& file)
     {
         _gmutex.lock();
 
@@ -69,7 +69,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gsetbase::read_istream(istream &is)
+    int t_gsetbase::read_istream(istream& is)
     {
         _gmutex.lock();
 
@@ -87,12 +87,12 @@ namespace gnut
         return 0;
     }
 
-    int t_gsetbase::write(const string &file)
+    int t_gsetbase::write(const string& file)
     {
         _gmutex.lock();
 
         ofstream of;
-        string name(file); 
+        string name(file);
         try
         {
             of.open(name.c_str());
@@ -114,7 +114,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gsetbase::write_ostream(ostream &os)
+    int t_gsetbase::write_ostream(ostream& os)
     {
         _gmutex.lock();
 
@@ -126,33 +126,24 @@ namespace gnut
 
     void t_gsetbase::usage()
     {
+        cout << endl << app() << endl;
         cout << endl
-             << app() << endl;
-        cout << endl
-             << "Usage: "
+             << "Usage: " << endl
              << endl
-             << endl
-             << "    -h|--help              .. this help                          "
-             << endl
-             << "    -V int                 .. version                            "
-             << endl
-             << "    -v int                 .. verbosity level                    "
-             << endl
-             << "    -x file                .. configuration input file           "
-             << endl
-             << "    --                     .. configuration from stdinp          "
-             << endl
-             << "    -l file                .. spdlog output file                 "        
-             << endl
-             << "    -X                     .. output default configuration in XML"
-             << endl
+             << "    -h|--help              .. this help                          " << endl
+             << "    -V int                 .. version                            " << endl
+             << "    -v int                 .. verbosity level                    " << endl
+             << "    -x file                .. configuration input file           " << endl
+             << "    --                     .. configuration from stdinp          " << endl
+             << "    -l file                .. spdlog output file                 " << endl
+             << "    -X                     .. output default configuration in XML" << endl
              << endl;
 
         exit(0);
         return;
     }
 
-    void t_gsetbase::arg(int argc, char *argv[], bool add, bool thin)
+    void t_gsetbase::arg(int argc, char* argv[], bool add, bool thin)
     {
         string conf("");
         string save("");
@@ -185,7 +176,9 @@ namespace gnut
 
             // warning if no other commandline option is supported
             else if (!add)
+            {
                 fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            }
         }
 
         if (!conf.empty())
@@ -208,14 +201,18 @@ namespace gnut
             string s = argv[i];
             size_t pos1 = 0, pos2 = 0;
             if (s[0] == '-')
+            {
                 continue;
+            }
 
-            //TODO COMMENT
+            // TODO COMMENT
             bool isNode = s.find("node") != string::npos;
             bool isAttr = s.find("attr") != string::npos;
 
             if (isNode || isAttr)
+            {
                 s = s.substr(5);
+            }
 
             while (((pos1 = s.find(':', pos2)) != string::npos || // i+1 < argc ... used later
                     (pos1 = s.find('=', pos2)) != string::npos))  // ORDER IMPORTANT
@@ -227,20 +224,34 @@ namespace gnut
                 else if ((pos2 = s.find('=', pos1 + 1)) != string::npos)
                 {
                     if (isAttr)
+                    {
                         _default_attr(NODE, s.substr(pos1 + 1, pos2 - pos1 - 1).c_str(), s.substr(pos2 + 1, string::npos), true);
+                    }
                     else if (isNode)
-                        _default_node(NODE, s.substr(pos1 + 1, pos2 - pos1 - 1).c_str(), s.substr(pos2 + 1, string::npos).c_str(), true); //jdhuang
+                    {
+                        _default_node(NODE,
+                                      s.substr(pos1 + 1, pos2 - pos1 - 1).c_str(),
+                                      s.substr(pos2 + 1, string::npos).c_str(),
+                                      true); // jdhuang
+                    }
                     else
+                    {
                         _default_node(NODE, s.substr(pos1 + 1, pos2 - pos1 - 1).c_str(), s.substr(pos2 + 1, string::npos).c_str(), true);
+                    }
 
                     pos2 = string::npos;
                 }
                 else
                 {
                     if (i + 1 < argc)
-                        _default_node(NODE, s.substr(pos1 + 1, string::npos).c_str(), argv[++i], true); // only if exists
+                    {
+                        _default_node(NODE, s.substr(pos1 + 1, string::npos).c_str(), argv[++i],
+                                      true); // only if exists
+                    }
                     else
+                    {
                         cerr << "Incomplete command-line argument\n";
+                    }
                     pos2 = string::npos;
                 }
             }
@@ -259,7 +270,6 @@ namespace gnut
         }
         else
         {
-
             cout << "xconfig: read from istream" << endl;
         }
 
@@ -269,13 +279,10 @@ namespace gnut
             write(save);
         }
 
-
         return;
     }
 
-    void t_gsetbase::app(const string &pgm, const string &ver,
-                         const string &rev, const string &own,
-                         const string &dat, const string &tim)
+    void t_gsetbase::app(const string& pgm, const string& ver, const string& rev, const string& own, const string& dat, const string& tim)
     {
         _gmutex.lock();
 
@@ -320,7 +327,7 @@ namespace gnut
         return tmp;
     }
 
-    double t_gsetbase::_dblatt(const string &elem, const string &attrib)
+    double t_gsetbase::_dblatt(const string& elem, const string& attrib)
     {
         double num = 0.0;
 
@@ -329,7 +336,7 @@ namespace gnut
         return num;
     }
 
-    set<string> t_gsetbase::_setval(const string &elem, const string &subelem)
+    set<string> t_gsetbase::_setval(const string& elem, const string& subelem)
     {
         set<string> vals;
         string word;
@@ -343,7 +350,7 @@ namespace gnut
         return vals;
     }
 
-    set<string> t_gsetbase::_setvals(const string &elem, const string &subelem)
+    set<string> t_gsetbase::_setvals(const string& elem, const string& subelem)
     {
         set<string> vals;
         string temp;
@@ -363,7 +370,7 @@ namespace gnut
         return vals;
     }
 
-    vector<string> t_gsetbase::_vecval(const string &elem, const string &subelem)
+    vector<string> t_gsetbase::_vecval(const string& elem, const string& subelem)
     {
         vector<string> vec;
         string word;
@@ -378,15 +385,16 @@ namespace gnut
         return vec;
     }
 
-    xml_node t_gsetbase::_default_node(xml_node &node, const char *n, const char *val, bool reset)
+    xml_node t_gsetbase::_default_node(xml_node& node, const char* n, const char* val, bool reset)
     {
-
         string s(n);
         transform(s.begin(), s.end(), s.begin(), ::tolower);
 
         // remove if to be reset
         if (strcmp(val, "") && reset)
+        {
             node.remove_child(s.c_str());
+        }
 
         xml_node elem = node.child(s.c_str());
 
@@ -398,7 +406,6 @@ namespace gnut
 
         if (!elem)
         {
-
             cout << "warning - cannot create element " + s << endl;
         }
 
@@ -410,40 +417,56 @@ namespace gnut
         return elem;
     }
 
-    void t_gsetbase::_default_attr(xml_node &node, const char *n, const string &v, bool reset)
+    void t_gsetbase::_default_attr(xml_node& node, const char* n, const string& v, bool reset)
     {
         if (node.attribute(n).empty())
+        {
             node.append_attribute(n);
+        }
         if (strlen(node.attribute(n).value()) == 0 || reset)
+        {
             node.attribute(n).set_value(v.c_str());
+        }
 
         string s = node.attribute(n).value();
         transform(s.begin(), s.end(), s.begin(), ::tolower);
         node.attribute(n).set_value(s.c_str());
     }
 
-    void t_gsetbase::_default_attr(xml_node &node, const char *n, const bool &v, bool reset)
+    void t_gsetbase::_default_attr(xml_node& node, const char* n, const bool& v, bool reset)
     {
         if (node.attribute(n).empty())
+        {
             node.append_attribute(n);
+        }
         if (strlen(node.attribute(n).value()) == 0 || reset)
+        {
             node.attribute(n).set_value(v);
+        }
     }
 
-    void t_gsetbase::_default_attr(xml_node &node, const char *n, const int &v, bool reset)
+    void t_gsetbase::_default_attr(xml_node& node, const char* n, const int& v, bool reset)
     {
         if (node.attribute(n).empty())
+        {
             node.append_attribute(n);
+        }
         if (strlen(node.attribute(n).value()) == 0 || reset)
+        {
             node.attribute(n).set_value(v);
+        }
     }
 
-    void t_gsetbase::_default_attr(xml_node &node, const char *n, const double &v, bool reset)
+    void t_gsetbase::_default_attr(xml_node& node, const char* n, const double& v, bool reset)
     {
         if (node.attribute(n).empty())
+        {
             node.append_attribute(n);
+        }
         if (strlen(node.attribute(n).value()) == 0 || reset)
+        {
             node.attribute(n).set_value(v);
+        }
     }
 
     void t_gsetbase::_add_log(string element, string msg)
@@ -473,10 +496,10 @@ namespace gnut
         cerr << "</config>\n";
     }
 
-    void t_gsetbase::str_erase(string &str)
+    void t_gsetbase::str_erase(string& str)
     {
         str.erase(remove(str.begin(), str.end(), ' '), str.end());
         str.erase(remove(str.begin(), str.end(), '\t'), str.end());
         str.erase(remove(str.begin(), str.end(), '\n'), str.end());
     }
-} // namespace
+} // namespace gnut

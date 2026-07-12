@@ -19,25 +19,13 @@ using namespace std;
 
 namespace gnut
 {
-    t_gephprec::t_gephprec()
-        : t_geph(),
-          _degree(0),
-          _poly_x(),
-          _poly_y(),
-          _poly_z(),
-          _poly_c()
-    {
-        id_type(t_gdata::EPHPREC);
-        id_group(t_gdata::GRP_EPHEM);
-    }
-
-    t_gephprec::t_gephprec(t_spdlog spdlog)
-        : t_geph(spdlog),
-          _degree(0),
-          _poly_x(),
-          _poly_y(),
-          _poly_z(),
-          _poly_c()
+    t_gephprec::t_gephprec() :
+        t_geph(),
+        _degree(0),
+        _poly_x(),
+        _poly_y(),
+        _poly_z(),
+        _poly_c()
     {
         id_type(t_gdata::EPHPREC);
         id_group(t_gdata::GRP_EPHEM);
@@ -47,16 +35,17 @@ namespace gnut
     {
     }
 
-    int t_gephprec::add(string sat, vector<t_gtime> t,
-                        const vector<double> &x, const vector<double> &y,
-                        const vector<double> &z, const vector<double> &c)
+    int t_gephprec::add(string sat,
+                        vector<t_gtime> t,
+                        const vector<double>& x,
+                        const vector<double>& y,
+                        const vector<double>& z,
+                        const vector<double>& c)
     {
         _gmutex.lock();
 
         // check dimensions
-        if (ndata() != t.size() || ndata() != x.size() ||
-            ndata() != y.size() || ndata() != z.size() ||
-            ndata() != c.size() || sat.empty())
+        if (ndata() != t.size() || ndata() != x.size() || ndata() != y.size() || ndata() != z.size() || ndata() != c.size() || sat.empty())
         {
             _gmutex.unlock();
             return -1;
@@ -74,7 +63,6 @@ namespace gnut
         for (unsigned int i = 0; i < ndata(); ++i)
         {
             _dt.push_back(t[i] - _epoch);
-
         }
 
         _poly_x.polynomials(_dt, _xcrd);
@@ -86,23 +74,26 @@ namespace gnut
         return 0;
     }
 
-    int t_gephprec::pos(const t_gtime &t, double xyz[], double var[], double vel[], bool chk_health)
+    int t_gephprec::pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
         _gmutex.lock();
 
         xyz[0] = xyz[1] = xyz[2] = 0.0;
         if (var)
+        {
             var[0] = var[1] = var[2] = 0.0;
+        }
         if (vel)
+        {
             vel[0] = vel[1] = vel[2] = 0.0;
+        }
 
         double tdiff = t - _epoch;
 
-        if (!_valid_crd() || sat().empty() ||
-            fabs(_epoch - t) > (fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25))
+        if (!_valid_crd() || sat().empty() || fabs(_epoch - t) > (fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_WARN(_spdlog, "no ephemeris [" + _sat + t.str("] %Y-%m-%d %H:%M:%S") + " epoch: " + _epoch.str("%Y-%m-%d %H:%M:%S") + " tdiff: " + dbl2str(tdiff) + " xref: " + dbl2str(_poly_x.xref()) + " span: " + dbl2str(_poly_x.span()));
+            GREAT_WARN("no ephemeris [" + _sat + t.str("] %Y-%m-%d %H:%M:%S") + " epoch: " + _epoch.str("%Y-%m-%d %H:%M:%S") +
+                       " tdiff: " + dbl2str(tdiff) + " xref: " + dbl2str(_poly_x.xref()) + " span: " + dbl2str(_poly_x.span()));
             _gmutex.unlock();
             return -1;
         }
@@ -122,15 +113,19 @@ namespace gnut
         return 1;
     }
 
-    int t_gephprec::clk(const t_gtime &t, double *clk, double *var, double *dclk, bool chk_health)
+    int t_gephprec::clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
         _gmutex.lock();
 
         *clk = 0.0;
         if (var)
+        {
             *var = 0.0;
+        }
         if (dclk)
+        {
             *dclk = 0.0;
+        }
 
         if (!_valid_clk() || sat().empty())
         {
@@ -142,8 +137,7 @@ namespace gnut
 
         if (abs(tdiff) > (abs(_poly_c.xref() - _poly_c.span() / 2) + 0.25))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_WARN(_spdlog, "no clock [" + _sat + t.str("] %Y-%m-%d %H:%M:%S"));
+            GREAT_WARN("no clock [" + _sat + t.str("] %Y-%m-%d %H:%M:%S"));
             _gmutex.unlock();
             return -1;
         }
@@ -163,15 +157,19 @@ namespace gnut
         return 1;
     }
 
-    int t_gephprec::clk_int(const t_gtime &t, double *clk, double *var, double *dclk)
+    int t_gephprec::clk_int(const t_gtime& t, double* clk, double* var, double* dclk)
     {
         _gmutex.lock();
 
         *clk = 0.0;
         if (var)
+        {
             *var = 0.0;
+        }
         if (dclk)
+        {
             *dclk = 0.0;
+        }
 
         if (!_valid_clk() || sat().empty())
         {
@@ -183,8 +181,7 @@ namespace gnut
 
         if (abs(tdiff) > (abs(_poly_c.xref() - _poly_c.span() / 2) + 0.25))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_WARN(_spdlog, "no ephemeris [" + _sat + t.str("] %Y-%m-%d %H:%M:%S"));
+            GREAT_WARN("no ephemeris [" + _sat + t.str("] %Y-%m-%d %H:%M:%S"));
             _gmutex.unlock();
             return -1;
         }
@@ -209,10 +206,9 @@ namespace gnut
         return 1;
     }
 
-    bool t_gephprec::valid(const t_gtime &t) const
+    bool t_gephprec::valid(const t_gtime& t) const
     {
-        if (_valid_crd() && !sat().empty() &&
-            fabs(_epoch - t) < fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25) // add 0.25s!
+        if (_valid_crd() && !sat().empty() && fabs(_epoch - t) < fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25) // add 0.25s!
         {
             return true;
         }
@@ -240,35 +236,32 @@ namespace gnut
 
     bool t_gephprec::_valid_crd() const
     {
-        if (t_geph::_valid() &&
-            _poly_x.valid() &&
-            _poly_y.valid() &&
-            _poly_z.valid())
+        if (t_geph::_valid() && _poly_x.valid() && _poly_y.valid() && _poly_z.valid())
+        {
             return true;
+        }
 
         return false;
     }
 
     bool t_gephprec::_valid_clk() const
     {
-
         bool undef = false;
         for (unsigned int i = 0; i < _clkc.size(); i++)
         {
             if (_clkc[i] >= 999999)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "clk_int undefined ephemeris [" + _sat + _epoch.str("] %Y-%m-%d %H:%M:%S"));
+                GREAT_WARN("clk_int undefined ephemeris [" + _sat + _epoch.str("] %Y-%m-%d %H:%M:%S"));
                 undef = true;
             }
         }
 
-        if (t_geph::_valid() &&
-            _poly_c.valid() &&
-            !undef)
+        if (t_geph::_valid() && _poly_c.valid() && !undef)
+        {
             return true;
+        }
 
         return false;
     }
 
-} // namespace
+} // namespace gnut

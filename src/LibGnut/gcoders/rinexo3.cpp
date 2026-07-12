@@ -23,22 +23,20 @@ using namespace std;
 namespace gnut
 {
 
-    t_rinexo3::t_rinexo3(t_gsetbase *s, string version, int sz)
-        : t_rinexo2(s, version, sz)
+    t_rinexo3::t_rinexo3(t_gsetbase* s, string version, int sz) :
+        t_rinexo2(s, version, sz)
     {
     }
-    t_rinexo3::t_rinexo3(t_gtime beg, t_gtime end, t_gsetbase *s, string version, int sz)
-        : t_rinexo2(beg, end, s, version, sz)
+    t_rinexo3::t_rinexo3(t_gtime beg, t_gtime end, t_gsetbase* s, string version, int sz) :
+        t_rinexo2(beg, end, s, version, sz)
     {
     }
 
     int t_rinexo3::_decode_head()
     {
-
         // -------- "SYS / # / OBS TYPES" --------
         if (_line.substr(60, 19).find("SYS / # / OBS TYPES") != string::npos)
         {
-
             // read all lines at once
             string sys(1, _line[0]);
 
@@ -49,7 +47,6 @@ namespace gnut
             }
             else
             {
-
                 int num = str2int(_line.substr(3, 3));
                 int nlines = (int)ceil(num / 13.0); // up to 13 values/line
                 int addsize = 0;
@@ -69,7 +66,9 @@ namespace gnut
                 }
 
                 if (!_complete)
+                {
                     return -1;
+                }
 
                 for (int ii = 0; ii < num; ++ii)
                 {                                                     // all linked lines were read
@@ -86,10 +85,12 @@ namespace gnut
                             break;
                         } // scale fator still 1 (changed later)
                     }
-                    _mapobs[sys].push_back(make_pair(obs, 1)); 
+                    _mapobs[sys].push_back(make_pair(obs, 1));
 
                     if ((ii + 1) % 13 == 0 && ii + 1 < num)
+                    {
                         _tmpsize += t_gcoder::_getline(_line, _tmpsize); // get newline and check!
+                    }
 
                 } // loop over # observations
             }
@@ -98,7 +99,6 @@ namespace gnut
         }
         else if (_line.substr(60, 18).find("SYS / SCALE FACTOR") != string::npos)
         {
-
             string sys(1, _line[0]); // read all linked lines at once!
 
             if (sys == " ")
@@ -130,13 +130,17 @@ namespace gnut
                 }
 
                 if (!_complete)
+                {
                     return -1;
+                }
 
                 if (num == 0)
                 { // SYSTEM-specific (mapkey => SYS, e.g. 'G','R', ..)
                     t_rnxhdr::t_vobstypes::iterator it;
                     for (it = _mapobs[sys].begin(); it != _mapobs[sys].end(); ++it)
+                    {
                         it->second = fact;
+                    }
                 }
                 else
                 { // satellite-specific (mapkey => SAT, e.g. 'G10', 'G20', ..)
@@ -149,17 +153,23 @@ namespace gnut
 
                         t_rnxhdr::t_vobstypes::iterator it;
                         for (it = _mapobs[sys].begin(); it != _mapobs[sys].end(); ++it)
+                        {
                             if (it->first == obs)
                             {
                                 it->second = fact;
                                 break;
                             }
+                        }
 
                         if (it == _mapobs[sys].end())
+                        {
                             _mapobs[sys].push_back(make_pair(obs, fact));
+                        }
 
                         if ((ii + 1) % 12 == 0 && ii + 1 < num)
+                        {
                             _tmpsize += t_gcoder::_getline(_line, _tmpsize); // get newline and check!
+                        }
 
                     } // loop over # observations
                 }
@@ -169,7 +179,6 @@ namespace gnut
         }
         else if (_line.substr(60, 17).find("SYS / PHASE SHIFT") != string::npos)
         {
-
             string sys(1, _line[0]); // read all linked lines at once!
             string obs = trim(_line.substr(2, 3));
             GOBS gobs = X;
@@ -212,7 +221,9 @@ namespace gnut
                 }
 
                 if (!_complete)
+                {
                     return -1;
+                }
 
                 if (num == 0)
                 { // SYSTEM-specific (mapkey => SYS, e.g. 'G','R', ..)
@@ -227,7 +238,9 @@ namespace gnut
                     }
 
                     if (it == _mapcyc[sys].end())
+                    {
                         _mapcyc[sys].push_back(make_pair(gobs, qcyc));
+                    }
                 }
                 else
                 { // satellite-specific (mapkey => SAT, e.g. 'G10', 'G20', ..)
@@ -247,10 +260,14 @@ namespace gnut
                         }
 
                         if (it == _mapcyc[sat].end())
+                        {
                             _mapcyc[sat].push_back(make_pair(gobs, qcyc));
+                        }
 
                         if ((ii + 1) % 10 == 0 && ii + 1 < num)
+                        {
                             _tmpsize += t_gcoder::_getline(_line, _tmpsize); // get newline and check!
+                        }
                     }
                 }
             }
@@ -259,7 +276,6 @@ namespace gnut
         }
         else if (_line.substr(60, 20).find("GLONASS SLOT / FRQ #") != string::npos)
         {
-
             int nsat = str2int(_line.substr(0, 3)); // read all linked lines at once!
             GOBS gobs = X;                          // X: ALL OBS!
 
@@ -288,7 +304,9 @@ namespace gnut
                 }
 
                 if (!_complete)
+                {
                     return -1;
+                }
 
                 for (int ii = 0; ii < nsat; ++ii)
                 { // all linked lines were read
@@ -297,20 +315,26 @@ namespace gnut
 
                     t_rnxhdr::t_vobstypes::iterator it;
                     for (it = _glofrq[sat].begin(); it != _glofrq[sat].end(); ++it)
+                    {
                         if (it->first == gobs)
                         {
                             it->second = frq;
                             break;
                         }
+                    }
 
                     if (it == _glofrq[sat].end())
+                    {
                         _glofrq[sat].push_back(make_pair(gobs, frq));
+                    }
 
                     if ((ii + 1) % 8 == 0 && ii + 1 < nsat)
+                    {
                         _tmpsize += t_gcoder::_getline(_line, _tmpsize); // get newline and check
+                    }
                 }
 
-                map<string, t_gdata *>::iterator itDAT = _data.begin();
+                map<string, t_gdata*>::iterator itDAT = _data.begin();
                 while (itDAT != _data.end())
                 {
                     if (itDAT->second->id_type() == t_gdata::ALLOBS)
@@ -320,8 +344,10 @@ namespace gnut
                             for (auto itObs : itfrq.second)
                             {
                                 if (itObs.first != GOBS::X)
+                                {
                                     continue;
-                                ((t_gallobs *)itDAT->second)->add_glo_freq(itfrq.first, itObs.second);
+                                }
+                                ((t_gallobs*)itDAT->second)->add_glo_freq(itfrq.first, itObs.second);
                             }
                         }
                     }
@@ -334,14 +360,15 @@ namespace gnut
         }
         else if (_line.substr(60, 19).find("GLONASS COD/PHS/BIS") != string::npos)
         {
-
             int nobs = 4;
             for (int ii = 0; ii < nobs; ++ii)
             { // single line (4 fields or less)
 
                 string obs = trim(_line.substr(1 + 13 * (ii % (4)), 3));
                 if (obs == "")
+                {
                     break;
+                }
                 string val = trim(_line.substr(5 + 13 * (ii % (4)), 8));
                 GOBS gobs = str2gobs(obs);
                 double bias = str2dbl(val);
@@ -363,7 +390,9 @@ namespace gnut
                     }
 
                     if (it == _globia.end())
+                    {
                         _globia.push_back(make_pair(gobs, bias));
+                    }
                 }
             }
 
@@ -371,27 +400,21 @@ namespace gnut
         }
         else if (_line.substr(60, 19).find("RCV CLOCK OFFS APPL") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "RCV CLOCK OFFS APPL: " + string("not implemented"));
+            GREAT_DEBUG("RCV CLOCK OFFS APPL: " + string("not implemented"));
 
             // --------"# OF SATELLITES" --------
         }
         else if (_line.substr(60, 15).find("# OF SATELLITES") != string::npos)
         {
-
             _rnxhdr.numsats(str2int(_line.substr(0, 6)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "# OF SATELLITES: " + int2str(_rnxhdr.numsats()));
+            GREAT_DEBUG("# OF SATELLITES: " + int2str(_rnxhdr.numsats()));
 
             // --------"PRN / # OF OBS" --------
         }
         else if (_line.substr(60, 20).find("PRN / # OF OBS") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "PRN / # OF OBS: " + string("not implemented"));
+            GREAT_DEBUG("PRN / # OF OBS: " + string("not implemented"));
 
             // -------- "SIGNAL STRENGTH UNIT" --------
         }
@@ -399,24 +422,19 @@ namespace gnut
         {
             _rnxhdr.strength(trim(_line.substr(0, 20)));
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "SIGNAL STRENGTH UNIT: " + _rnxhdr.strength());
+            GREAT_DEBUG("SIGNAL STRENGTH UNIT: " + _rnxhdr.strength());
 
             // -------- "SYS / DCBS APPL" --------
         }
         else if (_line.substr(60, 15).find("SYS / DCBS APPL") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "SYS / DCBS APPL: " + string("not implemented"));
+            GREAT_DEBUG("SYS / DCBS APPL: " + string("not implemented"));
 
             // -------- "SYS / PCVS APPL" --------
         }
         else if (_line.substr(60, 15).find("SYS / PCVS APPL") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "SYS / PCVS APPL: " + string("not implemented"));
+            GREAT_DEBUG("SYS / PCVS APPL: " + string("not implemented"));
         }
         else if (t_rinexo2::_decode_head())
         {
@@ -427,7 +445,6 @@ namespace gnut
 
     int t_rinexo3::_decode_data()
     {
-
         int irc = t_rinexo3::_read_epoch();
 
         // not ready to read
@@ -467,7 +484,6 @@ namespace gnut
         // loop over satellits records (x-lines)
         for (int i = 0; i < _nsat; i++)
         {
-
             string sat = "";
             string key = "";
 
@@ -481,9 +497,7 @@ namespace gnut
 
         if (_complete)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _epoch.str_ymdhms("reading finished at "));
+            GREAT_DEBUG(_epoch.str_ymdhms("reading finished at "));
 
             if (beg_epoch == t_gtime(0, 0) && end_epoch == t_gtime(0, 0))
             {
@@ -506,7 +520,6 @@ namespace gnut
 
     int t_rinexo3::_check_head()
     {
-
         t_rinexo2::_check_head();
 
         if (_rnxhdr.rnxsys() == ' ')
@@ -525,8 +538,7 @@ namespace gnut
             _irc++;
         } // mandatory
 
-        if (_version >= "3.02" &&
-            _rnxhdr.globia().size() == 0)
+        if (_version >= "3.02" && _rnxhdr.globia().size() == 0)
         {
             mesg(GERROR, "GLO BIASES not available!");
             _irc++;
@@ -537,40 +549,39 @@ namespace gnut
 
     int t_rinexo3::_read_epoch()
     {
-
         _nsat = 0;
         _flag = 'X';
 
         // not enough data to recognize standard epoch or special event
         if (_line.length() < 35)
+        {
             return _stop_read();
+        }
         _flag = _line[31]; //  cout << "_flag = [" << _flag << "]\n";
         _nsat = str2int(_line.substr(32, 3));
 
         if (_line.substr(0, 1) != ">")
+        {
             return 200;
+        }
 
         if (_line.substr(1, 6) == "      ")
         {
             switch (_flag)
             {
-            case '2':
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: start moving antenna identified, but not yet implemented!");
-                return 1;
-            case '3':
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: new site occupation identified, but not yet implemented!");
-                return 1;
+                case '2':
+                    GREAT_DEBUG("Warning: start moving antenna identified, but not yet implemented!");
+                    return 1;
+                case '3':
+                    GREAT_DEBUG("Warning: new site occupation identified, but not yet implemented!");
+                    return 1;
 
-            case '4':
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: new header information identified, but not fully implemented!");
-                return 1;
-            case '5':
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: external event identified, but not yet implemented!");
-                return 1;
+                case '4':
+                    GREAT_DEBUG("Warning: new header information identified, but not fully implemented!");
+                    return 1;
+                case '5':
+                    GREAT_DEBUG("Warning: external event identified, but not yet implemented!");
+                    return 1;
             }
         }
         string dummy;
@@ -590,8 +601,7 @@ namespace gnut
         _epoch.from_ymdhms(yr, mn, dd, hr, mi, sc);
         epoch = _epoch;
         // filter out data
-        if (_flag != '0' &&
-            _flag != '1')
+        if (_flag != '0' && _flag != '1')
         {
             return 1;
         }
@@ -623,9 +633,8 @@ namespace gnut
         return 0;
     }
 
-    int t_rinexo3::_read_obstypes(const string &sat, const string &sys)
+    int t_rinexo3::_read_obstypes(const string& sat, const string& sys)
     {
-
         int ii = 0;
         int addsize = 0;
         unsigned int idx = 0;
@@ -647,18 +656,19 @@ namespace gnut
             tmpsat = t_gsys::eval_sat(_line.substr(1, 2), t_gsys::char2gsys(_line[0]));
         }
         else
+        {
             return _stop_read();
+        }
 
         // filter GNSS and SAT
         bool filter_sat = _filter_gnss(tmpsat);
         if (!filter_sat)
         {
             _xsys++;
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "skip " + tmpsat);
+            GREAT_DEBUG("skip " + tmpsat);
         }
 
-        t_spt_gobs obs = make_shared<t_gobsgnss>(_spdlog, _site, tmpsat, _epoch);
+        t_spt_gobs obs = make_shared<t_gobsgnss>(_site, tmpsat, _epoch);
 
         // loop over sys-defined observation types
         t_rnxhdr::t_vobstypes::const_iterator it = _mapobs[tmpsat.substr(0, 1)].begin();
@@ -670,18 +680,24 @@ namespace gnut
 
             // getline succeed only if 'EOL' found
             if (len <= 0 && len < (idx + 14))
+            {
                 return _stop_read();
+            }
 
             // check completness (excluding last SNR+LLI - sometimes missing)
             if (len < (idx + 14))
             {
                 if (filter_sat)
+                {
                     _null_log(tmpsat, gobs2str(it->first));
+                }
             }
             else
             {
                 if (filter_sat)
+                {
                     _read_obs(idx, it, obs);
+                }
             }
 
             ii++;
@@ -690,14 +706,15 @@ namespace gnut
         } // while (over observation types)
 
         if (filter_sat)
+        {
             _vobs.push_back(obs);
+        }
 
         return 1;
     }
 
-    int t_rinexo3::_fix_band(string sys, string &go)
+    int t_rinexo3::_fix_band(string sys, string& go)
     {
-
         // EXCEPTION FOR BEIDOU (B1 --> B2)
         if (t_gsys::str2gsys(sys) == BDS)
         {
@@ -705,15 +722,13 @@ namespace gnut
             {
                 go[1] = '2';
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: Both C1x and C2x coding should be accepted and treated as C2x in RINEX 3.02/3.03");
+                GREAT_WARN("Warning: Both C1x and C2x coding should be accepted and treated as C2x in RINEX 3.02/3.03");
             }
             if (go[1] == '3')
             {
                 go[1] = '6'; // for B3I (change C3I -> C6I or so on !!!)
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: BDS band changed: C3x -> C6x ");
+                GREAT_WARN("Warning: BDS band changed: C3x -> C6x ");
             }
             if (go[1] == '7' && _version >= "3.04")
             {
@@ -722,12 +737,11 @@ namespace gnut
                     go[1] = '9'; // Distinguish BDS-3 B2b and BDS-2 B2b(B2I)
                 }
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, "Warning: Changing BDS-3 C7D/C7P/C7Z to C9D/C9P/C9Z in RINEX 3.04");
+                GREAT_WARN("Warning: Changing BDS-3 C7D/C7P/C7Z to C9D/C9P/C9Z in RINEX 3.04");
             }
         }
 
         return 1;
     }
 
-} // namespace
+} // namespace gnut

@@ -4,9 +4,9 @@
  * @brief        Matrix for NEQ,W,observ_equations
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef GFLTMATRIX_H
 #define GFLTMATRIX_H
@@ -24,8 +24,8 @@ namespace great
 {
 
     /**
-    * @brief  Matrix for storage observe equations of B,P,L
-    */
+     * @brief  Matrix for storage observe equations of B,P,L
+     */
     class LibGREAT_LIBRARY_EXPORT t_gfltEquationMatrix : public t_gbaseEquation
     {
     public:
@@ -36,32 +36,38 @@ namespace great
         ~t_gfltEquationMatrix();
 
         /**
-        * @brief add equations
-        * @param[in] B_value coeff of observ equation
-        * @param[in] P_value weight of observ equation
-        * @param[in] l_value res of observ equaion
-        */
-        void add_equ(const vector<pair<int, double>> &B_value, const double &P_value, const double &l_value, const string &stie_name, const string &sat_name, const t_gobscombtype &obscombtype, const bool &is_newamb);
-        void add_equ(const t_gfltEquationMatrix &Other);
-        
-        /**
-        * @brief change equations to newmat format
-        * @param[out] B_value coeff of observ equation newmat format
-        * @param[out] P_value weight of observ equation newmat format
-        * @param[out] l_value res of observ equaion newmat format
-        */
-        void chageNewMat(Matrix &B_value, SymmetricMatrix &P_value, ColumnVector &l_value, const int &par_num);
+         * @brief add equations
+         * @param[in] B_value coeff of observ equation
+         * @param[in] P_value weight of observ equation
+         * @param[in] l_value res of observ equaion
+         */
+        void add_equ(const vector<pair<int, double>>& B_value,
+                     const double& P_value,
+                     const double& l_value,
+                     const string& stie_name,
+                     const string& sat_name,
+                     const t_gobscombtype& obscombtype,
+                     const bool& is_newamb);
+        void add_equ(const t_gfltEquationMatrix& Other);
 
         /**
-        * @brief get numbers of equations
-        * @return size of equations
-        */
+         * @brief change equations to newmat format
+         * @param[out] B_value coeff of observ equation newmat format
+         * @param[out] P_value weight of observ equation newmat format
+         * @param[out] l_value res of observ equaion newmat format
+         */
+        void chageNewMat(Matrix& B_value, SymmetricMatrix& P_value, ColumnVector& l_value, const int& par_num);
+
+        /**
+         * @brief get numbers of equations
+         * @return size of equations
+         */
         int num_equ() const;
 
         /**
-        * @brief get resiuals of equations
-        * @return LTPL of equations
-        */
+         * @brief get resiuals of equations
+         * @return LTPL of equations
+         */
         double res_equ() const;
 
         /**
@@ -84,6 +90,6 @@ namespace great
         vector<bool> _newamb_list;                       ///< whether new arc
     };
 
-}
+} // namespace great
 
 #endif /*  GLSQMAT_H  */

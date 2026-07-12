@@ -7,7 +7,7 @@
 * Copyright (c) 2018, Wuhan University. All rights reserved.
 *
 * @file         gallprocdata.cpp
-* @brief        header files of storaging all data 
+* @brief        header files of storaging all data
 *
 * @author       ZhengHJ, Wuhan University
 * @version      1.0.0
@@ -19,15 +19,13 @@
 
 namespace great
 {
-    t_gallproc::t_gallproc() : t_gdata()
+    t_gallproc::t_gallproc() :
+        t_gdata()
     {
     }
 
-    t_gallproc::t_gallproc(t_spdlog spdlog) : t_gdata(spdlog)
-    {
-    }
-
-    t_gallproc::t_gallproc(const t_gallproc &Other) : t_gdata(Other.spdlog())
+    t_gallproc::t_gallproc(const t_gallproc& Other) :
+        t_gdata()
     {
         this->_mapData = Other._mapData;
     }
@@ -36,12 +34,12 @@ namespace great
     {
     }
 
-    void t_gallproc::operator=(const t_gallproc &Other)
+    void t_gallproc::operator=(const t_gallproc& Other)
     {
         this->_mapData = Other._mapData;
     }
 
-    void t_gallproc::Add_Data(const string &type, t_gdata *data)
+    void t_gallproc::Add_Data(const string& type, t_gdata* data)
     {
         if (data)
         {
@@ -49,12 +47,12 @@ namespace great
         }
         else
         {
-            SPDLOG_LOGGER_CRITICAL(_spdlog, "your {} is nullptr", type);
+            GREAT_CRITICAL(std::string("your ") + type + " is nullptr");
             throw logic_error("t_gdata pointer is nullptr!");
         }
     }
 
-    t_gdata *t_gallproc::operator[](t_gdata::ID_TYPE type)
+    t_gdata* t_gallproc::operator[](t_gdata::ID_TYPE type)
     {
         if (_mapData.find(type) == _mapData.end())
         {
@@ -63,7 +61,7 @@ namespace great
         return _mapData[type];
     }
 
-    t_gdata *t_gallproc::operator[](t_gdata::ID_GROUP group)
+    t_gdata* t_gallproc::operator[](t_gdata::ID_GROUP group)
     {
         for (auto data_iter = _mapData.begin(); data_iter != _mapData.end(); data_iter++)
         {
@@ -74,4 +72,4 @@ namespace great
         }
         return nullptr;
     }
-}
+} // namespace great

@@ -26,7 +26,7 @@ namespace gnut
     {
     }
 
-    t_gtriple t_gallopl::kart2ell(const t_gtriple &p, const double &a, const double &b)
+    t_gtriple t_gallopl::kart2ell(const t_gtriple& p, const double& a, const double& b)
     {
         double ee = (a * a - b * b) / (a * a);
         double r1 = sqrt(p[0] * p[0] + p[1] * p[1]);
@@ -34,7 +34,9 @@ namespace gnut
         double m = b * p[2] / (a * r1);
         double n = (a * a - b * b) / (a * r1);
         for (int i = 1; i <= 5; i++)
+        {
             beta = atan(m + n * sin(beta));
+        }
         double phi = atan(a / b * tan(beta));
         double lam = atan2(p[1], p[0]);
         double N = a / sqrt(1 - ee * sin(phi) * sin(phi));
@@ -43,7 +45,7 @@ namespace gnut
         return ret;
     }
 
-    int t_gallopl::data(const t_gtriple &xyz, t_gtriple &rne_r, t_gtriple &rne_i)
+    int t_gallopl::data(const t_gtriple& xyz, t_gtriple& rne_r, t_gtriple& rne_i)
     {
         _gmutex.lock();
         t_gtriple ell;
@@ -52,7 +54,9 @@ namespace gnut
         t_gtriple lu_i, ld_i, ru_i, rd_i;
         ell = kart2ell(xyz, 6378137.0, 6356752.3141);
         if (ell[1] < 0)
+        {
             ell[1] = ell[1] + 2 * G_PI;
+        }
         ell[0] = ell[0] * R2D;
         ell[1] = ell[1] * R2D;
         ld[0] = int((ell[1] * 100 - 25) / 50) * 0.5 + 0.25;
@@ -84,44 +88,78 @@ namespace gnut
         rd[0] = (int((ell[1] * 100 - 25) / 50) + 1) * 0.5 + 0.25;
 
         if (ld[0] < 0.0)
+        {
             ld[0] = ld[0] + 360.0;
+        }
         if (rd[0] < 0.0)
+        {
             rd[0] = rd[0] + 360.0;
+        }
         if (lu[0] < 0.0)
+        {
             lu[0] = lu[0] + 360.0;
+        }
         if (ru[0] < 0.0)
+        {
             ru[0] = ru[0] + 360.0;
+        }
         if (ld[0] > 360.0)
+        {
             ld[0] = ld[0] - 360.0;
+        }
         if (rd[0] > 360.0)
+        {
             rd[0] = rd[0] - 360.0;
+        }
         if (lu[0] > 360.0)
+        {
             lu[0] = lu[0] - 360.0;
+        }
         if (ru[0] > 360.0)
+        {
             ru[0] = ru[0] - 360.0;
+        }
 
         if (ld[1] < -90.0)
+        {
             ld[1] = -ld[1] + ld[1] + 89.75;
+        }
         if (ld[1] > 90.0)
+        {
             ld[1] = -ld[1] + ld[1] - 89.75;
+        }
         if (rd[1] < -90.0)
+        {
             rd[1] = -rd[1] + rd[1] + 89.75;
+        }
         if (rd[1] > 90.0)
+        {
             rd[1] = -rd[1] + rd[1] - 89.75;
+        }
         if (lu[1] < -90.0)
+        {
             lu[1] = -lu[1] + lu[1] + 89.75;
+        }
         if (lu[1] > 90.0)
+        {
             lu[1] = -lu[1] + lu[1] - 89.75;
+        }
         if (ru[1] < -90.0)
+        {
             ru[1] = -ru[1] + ru[1] + 89.75;
+        }
         if (ru[1] > 90.0)
+        {
             ru[1] = -ru[1] + ru[1] - 89.75;
-        if (_rne_r.find(lu) == _rne_r.end() || _rne_r.find(ld) == _rne_r.end() || _rne_r.find(ru) == _rne_r.end() || _rne_r.find(rd) == _rne_r.end())
+        }
+        if (_rne_r.find(lu) == _rne_r.end() || _rne_r.find(ld) == _rne_r.end() || _rne_r.find(ru) == _rne_r.end() ||
+            _rne_r.find(rd) == _rne_r.end())
         {
             _gmutex.unlock();
             return -1;
         }
-        if (_rne_i.find(lu) == _rne_i.end() || _rne_i.find(ld) == _rne_i.end() || _rne_i.find(ru) == _rne_i.end() || _rne_i.find(rd) == _rne_i.end())
+        if (_rne_i.find(lu) == _rne_i.end() || _rne_i.find(ld) == _rne_i.end() || _rne_i.find(ru) == _rne_i.end() ||
+            _rne_i.find(rd) == _rne_i.end())
         {
             _gmutex.unlock();
             return -1;
@@ -149,4 +187,4 @@ namespace gnut
         _gmutex.unlock();
         return 1;
     }
-}
+} // namespace gnut

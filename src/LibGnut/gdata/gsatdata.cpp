@@ -27,64 +27,59 @@ using namespace std;
 
 namespace gnut
 {
-    t_gsatdata::t_gsatdata() : t_gobsgnss()
+    t_gsatdata::t_gsatdata() :
+        t_gobsgnss()
     {
         id_type(t_gdata::SATDATA);
         id_group(t_gdata::GRP_OBSERV);
     }
-    t_gsatdata::t_gsatdata(t_spdlog spdlog) : t_gobsgnss(spdlog)
-    {
-        id_type(t_gdata::SATDATA);
-        id_group(t_gdata::GRP_OBSERV);
-    }
-    t_gsatdata::t_gsatdata(t_spdlog spdlog, const string &site, const string &sat, const t_gtime &t)
-        : t_gobsgnss(spdlog, site, sat, t),
-          _satcrd(0.0, 0.0, 0.0),
-          _satpco(0.0, 0.0, 0.0),
-          _dloudx(0.0, 0.0, 0.0),
-          _drate(0.0),
-          _clk(0.0),
-          _dclk(0.0),
-          _ele(0.0),
-          _azi_rec(0.0),
-          _rho(0.0),
-          _eclipse(false),
-          _mfH(0.0),
-          _mfW(0.0),
-          _mfG(0.0),
-          _wind(0.0),
-          _low_prec(false),
-          _slipf(false),
-          _beta_val(999),
-          _orb_angle_val(999),
-          _yaw(999)
+    t_gsatdata::t_gsatdata(const string& site, const string& sat, const t_gtime& t) :
+        t_gobsgnss(site, sat, t),
+        _satcrd(0.0, 0.0, 0.0),
+        _satpco(0.0, 0.0, 0.0),
+        _dloudx(0.0, 0.0, 0.0),
+        _drate(0.0),
+        _clk(0.0),
+        _dclk(0.0),
+        _ele(0.0),
+        _azi_rec(0.0),
+        _rho(0.0),
+        _eclipse(false),
+        _mfH(0.0),
+        _mfW(0.0),
+        _mfG(0.0),
+        _wind(0.0),
+        _low_prec(false),
+        _slipf(false),
+        _beta_val(999),
+        _orb_angle_val(999),
+        _yaw(999)
 
     {
         id_type(t_gdata::SATDATA);
         id_group(t_gdata::GRP_OBSERV);
     }
 
-    t_gsatdata::t_gsatdata(const t_gobsgnss &obs)
-        : t_gobsgnss(obs), // t_gobsgnss(obs.site() ,obs.sat(), obs.epoch() ),
-          _satcrd(0.0, 0.0, 0.0),
-          _satpco(0.0, 0.0, 0.0),
-          _clk(0.0),
-          _ele(0.0),
-          _azi_rec(0.0),
-          _rho(0.0),
-          _eclipse(false),
-          _mfH(0.0),
-          _mfW(0.0),
-          _mfG(0.0),
-          _wind(0.0),
-          _low_prec(false),
-          _slipf(false),
-          _beta_val(999),
-          _orb_angle_val(999),
-          _drate(0.0),
-          _yaw(999)
+    t_gsatdata::t_gsatdata(const t_gobsgnss& obs) :
+        t_gobsgnss(obs), // t_gobsgnss(obs.site() ,obs.sat(), obs.epoch() ),
+        _satcrd(0.0, 0.0, 0.0),
+        _satpco(0.0, 0.0, 0.0),
+        _clk(0.0),
+        _ele(0.0),
+        _azi_rec(0.0),
+        _rho(0.0),
+        _eclipse(false),
+        _mfH(0.0),
+        _mfW(0.0),
+        _mfG(0.0),
+        _wind(0.0),
+        _low_prec(false),
+        _slipf(false),
+        _beta_val(999),
+        _orb_angle_val(999),
+        _drate(0.0),
+        _yaw(999)
     {
-        _spdlog = (obs.spdlog());
         id_type(t_gdata::SATDATA);
         id_group(t_gdata::GRP_OBSERV);
     }
@@ -93,7 +88,7 @@ namespace gnut
     {
     }
 
-    void t_gsatdata::addpco(const t_gtriple &pco)
+    void t_gsatdata::addpco(const t_gtriple& pco)
     {
         _gmutex.lock();
         _satpco = pco;
@@ -101,7 +96,7 @@ namespace gnut
         return;
     }
 
-    void t_gsatdata::addcrd(const t_gtriple &crd)
+    void t_gsatdata::addcrd(const t_gtriple& crd)
     {
         _gmutex.lock();
         _satcrd = crd;
@@ -109,13 +104,13 @@ namespace gnut
         return;
     }
 
-    void t_gsatdata::addcrdcrs(const t_gtriple &crd)
+    void t_gsatdata::addcrdcrs(const t_gtriple& crd)
     {
         _satcrdcrs = crd;
         return;
     }
 
-    void t_gsatdata::addvel(const t_gtriple &vel)
+    void t_gsatdata::addvel(const t_gtriple& vel)
     {
         _gmutex.lock();
         _satvel = vel;
@@ -123,7 +118,7 @@ namespace gnut
         return;
     }
 
-    void t_gsatdata::addvel_crs(const t_gtriple &vel)
+    void t_gsatdata::addvel_crs(const t_gtriple& vel)
     {
         _gmutex.lock();
         _satvel_crs = vel;
@@ -131,7 +126,7 @@ namespace gnut
         return;
     }
 
-    int t_gsatdata::addprd(t_gallnav *gnav, const bool &corrTOT, const bool &msk_health)
+    int t_gsatdata::addprd(t_gallnav* gnav, const bool& corrTOT, const bool& msk_health)
     {
         _low_prec = false;
 
@@ -140,9 +135,8 @@ namespace gnut
         return irc;
     }
 
-    int t_gsatdata::addprd_nav(t_gallnav *gnav, const bool &corrTOT, const bool &msk_health)
+    int t_gsatdata::addprd_nav(t_gallnav* gnav, const bool& corrTOT, const bool& msk_health)
     {
-
         _gmutex.lock();
 
         _low_prec = true;
@@ -153,143 +147,143 @@ namespace gnut
         return irc;
     }
 
-    void t_gsatdata::addclk(const double &clk)
+    void t_gsatdata::addclk(const double& clk)
     {
         _gmutex.lock();
         _clk = clk;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addreldelay(const double &rel)
+    void t_gsatdata::addreldelay(const double& rel)
     {
         _gmutex.lock();
         _reldelay = rel;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addSCF2CRS(const Matrix &scf2crs, const Matrix &scf2trs)
+    void t_gsatdata::addSCF2CRS(const Matrix& scf2crs, const Matrix& scf2trs)
     {
         _scf2crs = scf2crs;
         _scf2trs = scf2trs;
     }
 
-    void t_gsatdata::adddrate(const double &drate)
+    void t_gsatdata::adddrate(const double& drate)
     {
         _drate = drate;
     }
 
-    void t_gsatdata::addrecTime(const t_gtime &recTime)
+    void t_gsatdata::addrecTime(const t_gtime& recTime)
     {
         _TR = recTime;
     }
-    void t_gsatdata::addsatTime(const t_gtime &satTime)
+    void t_gsatdata::addsatTime(const t_gtime& satTime)
     {
         _TS = satTime;
     }
 
-    void t_gsatdata::addele(const double &ele)
+    void t_gsatdata::addele(const double& ele)
     {
         _gmutex.lock();
         _ele = ele;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addele_leo(const double &ele)
+    void t_gsatdata::addele_leo(const double& ele)
     {
         _gmutex.lock();
         _ele_leo = ele;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addazi_rec(const double &azi)
+    void t_gsatdata::addazi_rec(const double& azi)
     {
         _gmutex.lock();
         _azi_rec = azi;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addzen_rec(const double &zen)
+    void t_gsatdata::addzen_rec(const double& zen)
     {
         _gmutex.lock();
         _zen_rec = zen;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addazi_sat(const double &azi_sat)
+    void t_gsatdata::addazi_sat(const double& azi_sat)
     {
         _gmutex.lock();
         _azi_sat = azi_sat;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addzen_sat(const double &zen_sat)
+    void t_gsatdata::addzen_sat(const double& zen_sat)
     {
         _gmutex.lock();
         _zen_sat = zen_sat;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addnadir(const double &nadir)
+    void t_gsatdata::addnadir(const double& nadir)
     {
         _gmutex.lock();
         _nadir = nadir;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addrho(const double &rho)
+    void t_gsatdata::addrho(const double& rho)
     {
         _gmutex.lock();
         _rho = rho;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addmfH(const double &mfH)
+    void t_gsatdata::addmfH(const double& mfH)
     {
         _gmutex.lock();
         _mfH = mfH;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addmfW(const double &mfW)
+    void t_gsatdata::addmfW(const double& mfW)
     {
         _gmutex.lock();
         _mfW = mfW;
         _gmutex.unlock();
     }
 
-    void t_gsatdata::addmfG(const double &mfG)
+    void t_gsatdata::addmfG(const double& mfG)
     {
         _gmutex.lock();
         _mfG = mfG;
         _gmutex.unlock();
     }
 
-    const t_gtriple &t_gsatdata::satcrd() const
+    const t_gtriple& t_gsatdata::satcrd() const
     {
         return _satcrd;
     }
 
-    const t_gtriple &t_gsatdata::satvel() const
+    const t_gtriple& t_gsatdata::satvel() const
     {
         return _satvel;
     }
 
-    const double &t_gsatdata::clk() const
+    const double& t_gsatdata::clk() const
     {
         return _clk;
     }
 
-    const double &t_gsatdata::dclk() const
+    const double& t_gsatdata::dclk() const
     {
         return _dclk;
     }
 
-    const double &t_gsatdata::drate() const
+    const double& t_gsatdata::drate() const
     {
         return _drate;
     }
 
-    const Matrix &t_gsatdata::orbfunct() const
+    const Matrix& t_gsatdata::orbfunct() const
     {
         return _orbfunct;
     }
@@ -299,46 +293,46 @@ namespace gnut
         return _satindex;
     }
 
-    const t_gtriple &t_gsatdata::reccrd() const
+    const t_gtriple& t_gsatdata::reccrd() const
     {
         return _reccrd;
     }
-    const t_gtriple &t_gsatdata::sat2reccrs() const
+    const t_gtriple& t_gsatdata::sat2reccrs() const
     {
         return _sat2reccrs;
     }
 
-    const Matrix &t_gsatdata::rotmat() const
+    const Matrix& t_gsatdata::rotmat() const
     {
         return _rotmat;
     }
 
-    const Matrix &t_gsatdata::drdxpole() const
+    const Matrix& t_gsatdata::drdxpole() const
     {
         return _drdxpole;
     }
 
-    const Matrix &t_gsatdata::drdypole() const
+    const Matrix& t_gsatdata::drdypole() const
     {
         return _drdypole;
     }
 
-    const Matrix &t_gsatdata::drdut1() const
+    const Matrix& t_gsatdata::drdut1() const
     {
         return _drdut1;
     }
 
-    const t_gtime &t_gsatdata::recTime() const
+    const t_gtime& t_gsatdata::recTime() const
     {
         return _TR;
     }
 
-    const double &t_gsatdata::ele() const
+    const double& t_gsatdata::ele() const
     {
         return _ele;
     }
 
-    const double &t_gsatdata::ele_leo() const
+    const double& t_gsatdata::ele_leo() const
     {
         return _ele_leo;
     }
@@ -359,18 +353,17 @@ namespace gnut
         return tmp;
     }
 
-    const double &t_gsatdata::azi() const
+    const double& t_gsatdata::azi() const
     {
         return _azi_rec;
     }
 
-    const double &t_gsatdata::azi_sat() const
+    const double& t_gsatdata::azi_sat() const
     {
-
         return _azi_sat;
     }
 
-    const double &t_gsatdata::rho() const
+    const double& t_gsatdata::rho() const
     {
         return _rho;
     }
@@ -386,19 +379,23 @@ namespace gnut
     bool t_gsatdata::is_carrier_range(const GOBSBAND& band) const
     {
         if (_is_carrier_range.find(band) == _is_carrier_range.end())
+        {
             return false;
+        }
         else
+        {
             return _is_carrier_range.at(band);
+        }
     }
 
-    void t_gsatdata::addslip(const bool &flag)
+    void t_gsatdata::addslip(const bool& flag)
     {
         _gmutex.lock();
         _slipf = flag;
         _gmutex.unlock();
     }
 
-    const bool &t_gsatdata::islip() const
+    const bool& t_gsatdata::islip() const
     {
         return _slipf;
     }
@@ -427,9 +424,8 @@ namespace gnut
         return;
     }
 
-    int t_gsatdata::_addprd(t_gallnav *gnav, const bool &corrTOT, const bool &msk_health)
+    int t_gsatdata::_addprd(t_gallnav* gnav, const bool& corrTOT, const bool& msk_health)
     {
-
         string satname(_satid);
 
         GSYS gs = this->gsys();
@@ -444,8 +440,7 @@ namespace gnut
         {
             if (bands.size() < 1)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "At least two bands are necessary for TOT correction in sat pos/clk calculation!");
+                GREAT_DEBUG("At least two bands are necessary for TOT correction in sat pos/clk calculation!");
                 return -1;
             }
             else if (bands.size() < 2)
@@ -466,23 +461,25 @@ namespace gnut
 
         double P3 = 0.0;
         if (b1 != BAND && b2 != BAND)
+        {
             P3 = this->P3(b1, b2);
+        }
         if (double_eq(P3, 0.0))
+        {
             P3 = this->obs_C(t_gband(b1, GOBSATTR::ATTR));
+        }
 
-        //test for observations availability
+        // test for observations availability
         if (gnav == 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, " satellite " + satname + _epoch.str_ymdhms("  t_gallnav pointer is not available "));
+            GREAT_DEBUG(" satellite " + satname + _epoch.str_ymdhms("  t_gallnav pointer is not available "));
             return -1;
         }
 
-        //test for observations availability
+        // test for observations availability
         if (double_eq(P3, 0.0) && corrTOT)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, " satellite " + satname + _epoch.str_ymdhms(" P3 = 0!"));
+            GREAT_DEBUG(" satellite " + satname + _epoch.str_ymdhms(" P3 = 0!"));
             return -1;
         }
 
@@ -493,14 +490,10 @@ namespace gnut
         double dclk = 0.0;
         double clkrms = 0.0;
 
-        if (satname.substr(0, 1) != "G" &&
-            satname.substr(0, 1) != "R" &&
-            satname.substr(0, 1) != "E" &&
-            satname.substr(0, 1) != "J" &&
+        if (satname.substr(0, 1) != "G" && satname.substr(0, 1) != "R" && satname.substr(0, 1) != "E" && satname.substr(0, 1) != "J" &&
             satname.substr(0, 1) != "C")
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, " satelite " + satname + _epoch.str_ymdhms(" Undefined satellite system! "));
+            GREAT_DEBUG(" satelite " + satname + _epoch.str_ymdhms(" Undefined satellite system! "));
             return -1;
         }
 
@@ -520,8 +513,7 @@ namespace gnut
 
                 if (irc < 0 || cnt++ > 25)
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, " satelite " + satname + _epoch.str_ymdhms(" clocks not calculated (irc|iter) for epoch: "));
+                    GREAT_DEBUG(" satelite " + satname + _epoch.str_ymdhms(" clocks not calculated (irc|iter) for epoch: "));
                     return -1;
                 }
                 satclk = clk;
@@ -533,8 +525,7 @@ namespace gnut
             int irc = gnav->clk(satname, epoT, &satclk, &clkrms, &dclk, msk_health);
             if (irc < 0)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, " satelite " + satname + _epoch.str_ymdhms(" clocks not calculated for epoch "));
+                GREAT_DEBUG(" satelite " + satname + _epoch.str_ymdhms(" clocks not calculated for epoch "));
                 return -1;
             }
         }
@@ -544,8 +535,7 @@ namespace gnut
 
         if (irc < 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, " satelite " + satname + _epoch.str_ymdhms(" coordinates not calculated for epoch "));
+            GREAT_DEBUG(" satelite " + satname + _epoch.str_ymdhms(" coordinates not calculated for epoch "));
             return -1;
         }
 
@@ -554,16 +544,14 @@ namespace gnut
 
         // relativistic correction
         // WARNING: GLONASS clk already include the correction if broadcast eph are used !!!!!
-        if (gs != GLO ||
-            (gs == GLO && gnav->id_type() == t_gdata::ALLPREC))
+        if (gs != GLO || (gs == GLO && gnav->id_type() == t_gdata::ALLPREC))
         {
-            double rel = 2.0 * (txyz[0] * vel[0] + txyz[1] * vel[1] + txyz[2] * vel[2]) / CLIGHT / CLIGHT; //default
+            double rel = 2.0 * (txyz[0] * vel[0] + txyz[1] * vel[1] + txyz[2] * vel[2]) / CLIGHT / CLIGHT; // default
             shared_ptr<t_geph> eph = gnav->find(satname, epoT);
 
             if (rel == 0.0)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_ERROR(_spdlog, " satelite " + satname + _epoch.str_ymdhms(" relativity correction not calculated for epoch "));
+                GREAT_ERROR(" satelite " + satname + _epoch.str_ymdhms(" relativity correction not calculated for epoch "));
                 return -1;
             }
 
@@ -584,7 +572,6 @@ namespace gnut
 
     void t_gsatdata::_clear()
     {
-
         t_gobsgnss::_clear();
         _ele = 0.0;
         _azi_rec = 0.0;
@@ -594,28 +581,27 @@ namespace gnut
 
     bool t_gsatdata::_valid() const
     {
-
         if (_rho == 0.0 || // single validity identification for gsatdata!
             t_gobsgnss::_valid())
+        {
             return false;
+        }
 
         return true;
     }
 
-    void t_gsatdata::setecl(const bool &ecl)
+    void t_gsatdata::setecl(const bool& ecl)
     {
         _eclipse = ecl;
     }
 
-    const bool &t_gsatdata::ecl() const
+    const bool& t_gsatdata::ecl() const
     {
-
         return _eclipse;
     }
 
-    void t_gsatdata::addecl(map<string, t_gtime> &lastEcl)
+    void t_gsatdata::addecl(map<string, t_gtime>& lastEcl)
     {
-
         if (fabs(_b()) < EPS0_GPS && fabs(_orb_angle()) < EPS0_GPS)
         {
             _eclipse = true;
@@ -629,37 +615,49 @@ namespace gnut
             {
                 double tdiff = _epoch.diff(itLast->second);
                 if (abs(tdiff) <= POST_SHADOW)
+                {
                     _eclipse = true;
+                }
                 else
+                {
                     _eclipse = false;
+                }
             }
         }
     }
 
-    void t_gsatdata::addres(const RESIDTYPE &restype, const GOBSTYPE &type, const double &res)
+    void t_gsatdata::addres(const RESIDTYPE& restype, const GOBSTYPE& type, const double& res)
     {
         _gmutex.lock();
 
         if (restype == RESIDTYPE::RES_ORIG)
         {
             if (type == TYPE_C)
+            {
                 _code_res_orig.push_back(res);
+            }
             if (type == TYPE_L)
+            {
                 _phase_res_orig.push_back(res);
+            }
         }
 
         if (restype == RESIDTYPE::RES_NORM)
         {
             if (type == TYPE_C)
+            {
                 _code_res_norm.push_back(res);
+            }
             if (type == TYPE_L)
+            {
                 _phase_res_norm.push_back(res);
+            }
         }
 
         _gmutex.unlock();
     }
 
-    vector<double> t_gsatdata::residuals(const RESIDTYPE &restype, const GOBSTYPE &type)
+    vector<double> t_gsatdata::residuals(const RESIDTYPE& restype, const GOBSTYPE& type)
     {
         _gmutex.lock();
 
@@ -668,24 +666,32 @@ namespace gnut
         if (restype == RESIDTYPE::RES_ORIG)
         {
             if (type == TYPE_C)
+            {
                 res = _code_res_orig;
+            }
             else if (type == TYPE_L)
+            {
                 res = _phase_res_orig;
+            }
         }
 
         if (restype == RESIDTYPE::RES_NORM)
         {
             if (type == TYPE_C)
+            {
                 res = _code_res_norm;
+            }
             else if (type == TYPE_L)
+            {
                 res = _phase_res_norm;
+            }
         }
 
         _gmutex.unlock();
         return res;
     }
 
-    void t_gsatdata::clear_res(const RESIDTYPE &restype)
+    void t_gsatdata::clear_res(const RESIDTYPE& restype)
     {
         if (restype == RESIDTYPE::RES_ORIG)
         {
@@ -700,7 +706,7 @@ namespace gnut
         }
     }
 
-    void t_gsatdata::addwind(const double &wind)
+    void t_gsatdata::addwind(const double& wind)
     {
         _gmutex.lock();
 
@@ -709,27 +715,30 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    const double &t_gsatdata::wind() const
+    const double& t_gsatdata::wind() const
     {
         return _wind;
     }
 
     double t_gsatdata::_b()
     {
-
         // test if already calculated
         if (!double_eq(_beta_val, 999))
+        {
             return _beta_val;
+        }
 
         if (_satcrd.zero())
+        {
             return 999;
+        }
 
         double beta = 0.0;
         double dt = 300;
 
         double dmjd = _epoch.dmjd();
         t_gephplan eph;
-        ColumnVector Sun = eph.sunPos(dmjd, false).crd_cvect(); //ICRF
+        ColumnVector Sun = eph.sunPos(dmjd, false).crd_cvect(); // ICRF
         double gmt = eph.gmst(dmjd);
         double gmt_dt = eph.gmst(dmjd + dt / 86400.0);
 
@@ -763,20 +772,23 @@ namespace gnut
 
     double t_gsatdata::_orb_angle()
     {
-
         // test if already calculated
         if (!double_eq(_orb_angle_val, 999))
+        {
             return _orb_angle_val;
+        }
 
         if (_satcrd.zero())
+        {
             return 999;
+        }
 
         double mi = 0.0;
         double dt = 30;
 
         double dmjd = _epoch.dmjd();
         t_gephplan eph;
-        ColumnVector Sun = eph.sunPos(dmjd, false).crd_cvect(); //ICRF
+        ColumnVector Sun = eph.sunPos(dmjd, false).crd_cvect(); // ICRF
         double gmt = eph.gmst(dmjd);
         double gmt_dt = eph.gmst(dmjd + dt / 86400.0);
 
@@ -808,16 +820,24 @@ namespace gnut
         if (SunSat > G_PI / 2)
         {
             if (E <= G_PI / 2)
+            {
                 mi = G_PI / 2 - E;
+            }
             else
+            {
                 mi = G_PI / 2 - E;
+            }
         }
         else
         {
             if (E <= G_PI / 2)
+            {
                 mi = G_PI / 2 + E;
+            }
             else
+            {
                 mi = E - G_PI - G_PI / 2;
+            }
         }
 
         _orb_angle_val = mi;
@@ -825,4 +845,4 @@ namespace gnut
         return mi;
     }
 
-} // namespace
+} // namespace gnut

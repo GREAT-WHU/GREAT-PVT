@@ -32,22 +32,22 @@ using namespace std;
 namespace gnut
 {
     /**
-    *@brief       Class for decoding the blq data
-    */
+     *@brief       Class for decoding the blq data
+     */
     class LibGnut_LIBRARY_EXPORT t_blq : public t_gcoder
     {
     public:
         /**
-        * @brief default constructor.
-        *
-        * @param[in]  s            setbase control
-        * @param[in]  version    version of the gcoder
-        * @param[in]  sz        size of the buffer
-        */
-        explicit t_blq(t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+         * @brief default constructor.
+         *
+         * @param[in]  s            setbase control
+         * @param[in]  version    version of the gcoder
+         * @param[in]  sz        size of the buffer
+         */
+        explicit t_blq(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief default destructor. */
-        virtual ~t_blq(){};
+        virtual ~t_blq() {};
 
         /**
         * @brief decode the header of the blq data file.
@@ -63,7 +63,7 @@ namespace gnut
         @retval >=0 consume size of header decoding
         @retval <0  finish reading
         */
-        virtual int decode_head(char *buff, int sz, vector<string> &errmsg);
+        virtual int decode_head(char* buff, int sz, vector<string>& errmsg);
 
         /**
         * @brief decode the data body of the blq data file.
@@ -78,7 +78,7 @@ namespace gnut
         @retval >=0 consume size of body decoding
         @retval <0  finish reading
         */
-        virtual int decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg);
+        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg);
 
     protected:
         double _lat;     ///< latitude
@@ -89,6 +89,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

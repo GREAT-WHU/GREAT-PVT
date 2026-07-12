@@ -4,15 +4,15 @@
  * @brief        attitude model class
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gattitudemodel.h"
 
 namespace great
 {
-    int t_gattitude_model::attitude_old(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    int t_gattitude_model::attitude_old(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         if (satdata.gsys() == GAL)
         {
@@ -22,19 +22,21 @@ namespace great
         {
             int irc = _yaw(satdata, antype, i, j, k);
             if (irc == 0)
+            {
                 return 0;
+            }
         }
 
         return 1;
     }
 
-    int t_gattitude_model::attitude(t_gsatdata &satdata, double yaw, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    int t_gattitude_model::attitude(t_gsatdata& satdata, double yaw, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         _yaw2ijk(satdata, yaw, i, j, k);
         return 1;
     }
 
-    int t_gattitude_model::attitude(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    int t_gattitude_model::attitude(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         Eigen::Vector3d satcrd = satdata.satcrd().crd_cvect_Eigen();
         Eigen::Vector3d satvel = satdata.satvel().crd_cvect_Eigen();
@@ -63,11 +65,13 @@ namespace great
                 _attitude_GPSIIF(satdata, antype, i, j, k);
             }
             else if (antype == "BLOCK III")
-            { // added by yqyuan for GPSIII (BLOCK III/IIIA/IIIF???)
+            { // added by yqyuan for GPSIII (BLOCK III/IIIA/IIIF variants)
                 _attitude_GPSIII(satdata, antype, i, j, k);
             }
             else
+            {
                 _ysm(satdata, i, j, k);
+            }
         }
         else if (satdata.gsys() == GLO)
         {
@@ -84,7 +88,9 @@ namespace great
                 _attitude_GAL2(satdata, antype, i, j, k);
             }
             else
+            {
                 _ysm(satdata, i, j, k);
+            }
         }
         else if (satdata.gsys() == BDS)
         {
@@ -96,12 +102,21 @@ namespace great
         }
 
         if (i.norm() == 0 || j.norm() == 0 || k.norm() == 0)
+        {
             return 0;
+        }
 
         return 1;
     }
 
-    int t_gattitude_model::attitude(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    int t_gattitude_model::attitude(string antype,
+                                    string prn,
+                                    ColumnVector& xsat,
+                                    ColumnVector& vsat,
+                                    ColumnVector& xsun,
+                                    ColumnVector& i,
+                                    ColumnVector& j,
+                                    ColumnVector& k)
     {
         ColumnVector satcrd = xsat;
         ColumnVector satvel = vsat;
@@ -133,11 +148,13 @@ namespace great
                 _attitude_GPSIIF(antype, prn, xsat, vsat, xsun, i, j, k);
             }
             else if (antype == "BLOCK III")
-            { 
+            {
                 _attitude_GPSIII(antype, prn, xsat, vsat, xsun, i, j, k);
             }
             else
+            {
                 _ysm(prn, beta, orb_angle, xsat, vsat, xsun, i, j, k);
+            }
         }
         else if (prn.find("R") != string::npos)
         {
@@ -154,7 +171,9 @@ namespace great
                 _attitude_GAL2(antype, prn, xsat, vsat, xsun, i, j, k);
             }
             else
+            {
                 _ysm(prn, beta, orb_angle, xsat, vsat, xsun, i, j, k);
+            }
         }
         else if (prn.find("C") != string::npos)
         {
@@ -166,14 +185,16 @@ namespace great
         }
 
         if (i.NormFrobenius() == 0 || j.NormFrobenius() == 0 || k.NormFrobenius() == 0)
+        {
             return 0;
+        }
         return 1;
     }
 
-    double t_gattitude_model::_orb_angle(ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun)
+    double t_gattitude_model::_orb_angle(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun)
     {
         double mi = 0.0;
-        ColumnVector Sun = xsun; //ICRF
+        ColumnVector Sun = xsun; // ICRF
         ColumnVector Satcrd = xsat;
         ColumnVector Satvel = vsat;
 
@@ -193,22 +214,30 @@ namespace great
         if (SunSat > G_PI / 2)
         {
             if (E <= G_PI / 2)
+            {
                 mi = G_PI / 2 - E;
+            }
             else
+            {
                 mi = G_PI / 2 - E;
+            }
         }
         else
         {
             if (E <= G_PI / 2)
+            {
                 mi = G_PI / 2 + E;
+            }
             else
+            {
                 mi = E - G_PI - G_PI / 2;
+            }
         }
 
         return mi;
     }
 
-    double t_gattitude_model::_beta(ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun)
+    double t_gattitude_model::_beta(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun)
     {
         double beta = 0.0;
 
@@ -230,7 +259,7 @@ namespace great
         return beta;
     }
 
-    void t_gattitude_model::_ysm(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_ysm(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double MJD = satdata.epoch().dmjd();
 
@@ -257,7 +286,15 @@ namespace great
         satdata.yaw(yaw);
     }
 
-    void t_gattitude_model::_ysm(string prn, double bata, double mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_ysm(string prn,
+                                 double bata,
+                                 double mi,
+                                 ColumnVector& xsat,
+                                 ColumnVector& vsat,
+                                 ColumnVector& xsun,
+                                 ColumnVector& i,
+                                 ColumnVector& j,
+                                 ColumnVector& k)
     {
         ColumnVector satcrd = xsat;
 
@@ -269,8 +306,8 @@ namespace great
         j = crossproduct(k, sun);
         // there is a little difference for Y-axis: Xsun vs Xsun-Xsat.
         // The resulting error can be ignored. yqyuan
-        //ColumnVector sat2sun = _ephplan.sunPos(MJD).crd_cvect() - satcrd;
-        //j = crossproduct(k, sat2sun);
+        // ColumnVector sat2sun = _ephplan.sunPos(MJD).crd_cvect() - satcrd;
+        // j = crossproduct(k, sat2sun);
 
         // complete to satelite fixed right-hand coord system
         i = crossproduct(j, k);
@@ -280,22 +317,26 @@ namespace great
         k = k / k.NormFrobenius();
 
         _last_beta[prn] = bata;
-
     }
 
-    void t_gattitude_model::_onm(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_onm(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double yaw = 0;
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_onm(ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_onm(ColumnVector& xsat,
+                                 ColumnVector& vsat,
+                                 ColumnVector& xsun,
+                                 ColumnVector& i,
+                                 ColumnVector& j,
+                                 ColumnVector& k)
     {
         double yaw = 0;
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    int t_gattitude_model::_yaw(t_gsatdata &satdata, string antype, Eigen::Vector3d &xs, Eigen::Vector3d &ys, Eigen::Vector3d &zs)
+    int t_gattitude_model::_yaw(t_gsatdata& satdata, string antype, Eigen::Vector3d& xs, Eigen::Vector3d& ys, Eigen::Vector3d& zs)
     {
 #if 0
         double exs[3], eys[3], ezs[3], r[3];
@@ -335,13 +376,11 @@ namespace great
         return 1;
     }
 
-    void t_gattitude_model::_attitude_GPSIIA(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GPSIIA(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
-        const double R_GPSIIA[] = {
-            0.1046, 0.1230, 0.1255, 0.1249, 0.1003, 0.1230, 0.1136, 0.1169, 0.1253, 0.0999,
-            0.1230, 0.1230, 0.1230, 0.1230, 0.1092, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230,
-            0.1230, 0.1230, 0.1230, 0.0960, 0.0838, 0.1284, 0.1183, 0.1230, 0.1024, 0.1042,
-            0.1230, 0.1100, 0.1230};
+        const double R_GPSIIA[] = {0.1046, 0.1230, 0.1255, 0.1249, 0.1003, 0.1230, 0.1136, 0.1169, 0.1253, 0.0999, 0.1230,
+                                   0.1230, 0.1230, 0.1230, 0.1092, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230,
+                                   0.1230, 0.0960, 0.0838, 0.1284, 0.1183, 0.1230, 0.1024, 0.1042, 0.1230, 0.1100, 0.1230};
         int sat = str2int(satdata.sat().substr(1, 2));
         double R = R_GPSIIA[sat - 1] * D2R;
 
@@ -363,13 +402,18 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_GPSIIA(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GPSIIA(string antype,
+                                             string prn,
+                                             ColumnVector& xsat,
+                                             ColumnVector& vsat,
+                                             ColumnVector& xsun,
+                                             ColumnVector& i,
+                                             ColumnVector& j,
+                                             ColumnVector& k)
     {
-        const double R_GPSIIA[] = {
-            0.1046, 0.1230, 0.1255, 0.1249, 0.1003, 0.1230, 0.1136, 0.1169, 0.1253, 0.0999,
-            0.1230, 0.1230, 0.1230, 0.1230, 0.1092, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230,
-            0.1230, 0.1230, 0.1230, 0.0960, 0.0838, 0.1284, 0.1183, 0.1230, 0.1024, 0.1042,
-            0.1230, 0.1100, 0.1230};
+        const double R_GPSIIA[] = {0.1046, 0.1230, 0.1255, 0.1249, 0.1003, 0.1230, 0.1136, 0.1169, 0.1253, 0.0999, 0.1230,
+                                   0.1230, 0.1230, 0.1230, 0.1092, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230,
+                                   0.1230, 0.0960, 0.0838, 0.1284, 0.1183, 0.1230, 0.1024, 0.1042, 0.1230, 0.1100, 0.1230};
         int sat = str2int(prn.substr(1, 2));
         double R = R_GPSIIA[sat - 1] * D2R;
 
@@ -393,7 +437,7 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_GPSIIR(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GPSIIR(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         const double R = 0.2 * D2R; // maximal yaw hardware rate
         double beta0 = atan2(MUDOT_GPS, R);
@@ -418,7 +462,14 @@ namespace great
         satdata.yaw(satdata.yaw() + G_PI);
     }
 
-    void t_gattitude_model::_attitude_GPSIIR(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GPSIIR(string antype,
+                                             string prn,
+                                             ColumnVector& xsat,
+                                             ColumnVector& vsat,
+                                             ColumnVector& xsun,
+                                             ColumnVector& i,
+                                             ColumnVector& j,
+                                             ColumnVector& k)
     {
         const double R = 0.2 * D2R; // maximal yaw hardware rate
         double beta0 = atan2(MUDOT_GPS, R);
@@ -444,7 +495,7 @@ namespace great
         j = -1 * j;
     }
 
-    void t_gattitude_model::_noon_turn(t_gsatdata &satdata, double R, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_noon_turn(t_gsatdata& satdata, double R, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta0 = atan2(MUDOT_GPS, R);
         double beta = satdata.beta();
@@ -455,11 +506,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta >= 0)
+        {
             R *= -1;
+        }
 
         double mi_s = G_PI - sqrt(beta0 * fabs(beta) - beta * beta);
         double yaw;
@@ -468,18 +523,24 @@ namespace great
         if (mi >= mi_s || mi <= 0)
         {
             if (mi < 0)
+            {
                 mi += 2.0 * G_PI;
+            }
             yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GPS;
             if ((beta >= 0 && yaw < yaw_nom) || (beta < 0 && yaw > yaw_nom))
+            {
                 yaw = yaw_nom;
+            }
         }
         else
+        {
             yaw = yaw_nom;
+        }
 
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_midnight_turn(t_gsatdata &satdata, double R, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_midnight_turn(t_gsatdata& satdata, double R, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta0 = atan2(MUDOT_GPS, R);
         double beta = satdata.beta();
@@ -490,11 +551,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double mi_s = -sqrt(beta0 * fabs(beta) - beta * beta);
         double yaw;
@@ -504,15 +569,28 @@ namespace great
         {
             yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GPS;
             if ((beta >= 0 && yaw > yaw_nom) || (beta < 0 && yaw < yaw_nom))
+            {
                 yaw = yaw_nom;
+            }
         }
         else
+        {
             yaw = yaw_nom;
+        }
 
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_noon_turn(string _prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, double R, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_noon_turn(string _prn,
+                                       double _beta,
+                                       double _mi,
+                                       ColumnVector& xsat,
+                                       ColumnVector& vsat,
+                                       ColumnVector& xsun,
+                                       double R,
+                                       ColumnVector& i,
+                                       ColumnVector& j,
+                                       ColumnVector& k)
     {
         double beta0 = atan2(MUDOT_GPS, R);
         double beta = _beta;
@@ -523,11 +601,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta >= 0)
+        {
             R *= -1;
+        }
 
         double mi_s = G_PI - sqrt(beta0 * fabs(beta) - beta * beta);
         double yaw;
@@ -536,18 +618,24 @@ namespace great
         if (mi >= mi_s || mi <= 0)
         {
             if (mi < 0)
+            {
                 mi += 2.0 * G_PI;
+            }
             yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GPS;
             if ((beta >= 0 && yaw < yaw_nom) || (beta < 0 && yaw > yaw_nom))
+            {
                 yaw = yaw_nom;
+            }
         }
         else
+        {
             yaw = yaw_nom;
+        }
 
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_midnight_turn_GPSIIA(t_gsatdata &satdata, double R, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_midnight_turn_GPSIIA(t_gsatdata& satdata, double R, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta = satdata.beta();
         double mi = satdata.orb_angle();
@@ -559,11 +647,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double yaw;
 
@@ -572,14 +664,27 @@ namespace great
             yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GPS;
         }
         else if (mi_e <= mi && mi < mi_e + POST_SHADOW * MUDOT_GPS)
+        {
             satdata.setecl(true);
+        }
         else
+        {
             yaw = atan2(-tan(beta), sin(mi));
+        }
 
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_midnight_turn_GPSIIA(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, double R, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_midnight_turn_GPSIIA(string prn,
+                                                  double _beta,
+                                                  double _mi,
+                                                  ColumnVector& xsat,
+                                                  ColumnVector& vsat,
+                                                  ColumnVector& xsun,
+                                                  double R,
+                                                  ColumnVector& i,
+                                                  ColumnVector& j,
+                                                  ColumnVector& k)
     {
         double beta = _beta;
         double mi = _mi;
@@ -591,11 +696,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double yaw;
 
@@ -604,14 +713,18 @@ namespace great
             yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GPS;
         }
         else if (mi_e <= mi && mi < mi_e + POST_SHADOW * MUDOT_GPS)
-            ; //satdata.setecl(true);
+        {
+            ; // satdata.setecl(true);
+        }
         else
+        {
             yaw = atan2(-tan(beta), sin(mi));
+        }
 
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_midnight_turn_GPSIIF(t_gsatdata &satdata, double R, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_midnight_turn_GPSIIF(t_gsatdata& satdata, double R, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta = satdata.beta();
         double tan_beta = tan(beta);
@@ -622,11 +735,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double mi_s = -acos(cos(EPS0_GPS) / cos(beta));
         double mi_e = -mi_s;
@@ -646,10 +763,21 @@ namespace great
             _yaw2ijk(satdata, yaw, i, j, k);
         }
         else
+        {
             _ysm(satdata, i, j, k);
+        }
     }
 
-    void t_gattitude_model::_midnight_turn_GPSIIF(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, double R, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_midnight_turn_GPSIIF(string prn,
+                                                  double _beta,
+                                                  double _mi,
+                                                  ColumnVector& xsat,
+                                                  ColumnVector& vsat,
+                                                  ColumnVector& xsun,
+                                                  double R,
+                                                  ColumnVector& i,
+                                                  ColumnVector& j,
+                                                  ColumnVector& k)
     {
         double beta = _beta;
         double tan_beta = tan(beta);
@@ -660,11 +788,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double mi_s = -acos(cos(EPS0_GPS) / cos(beta));
         double mi_e = -mi_s;
@@ -684,17 +816,21 @@ namespace great
             _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
         }
         else
+        {
             _ysm(prn, beta, mi, xsat, vsat, xsun, i, j, k);
+        }
     }
 
-    void t_gattitude_model::_midnight_turn_GLOM(t_gsatdata &satdata, double R, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_midnight_turn_GLOM(t_gsatdata& satdata, double R, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta = satdata.beta();
         double tan_beta = tan(beta);
         double mi = satdata.orb_angle();
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double mi_s = -acos(cos(EPS0_GLO) / cos(beta));
         double mi_e = -mi_s;
@@ -716,14 +852,25 @@ namespace great
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_midnight_turn_GLOM(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, double R, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_midnight_turn_GLOM(string prn,
+                                                double _beta,
+                                                double _mi,
+                                                ColumnVector& xsat,
+                                                ColumnVector& vsat,
+                                                ColumnVector& xsun,
+                                                double R,
+                                                ColumnVector& i,
+                                                ColumnVector& j,
+                                                ColumnVector& k)
     {
         double beta = _beta;
         double tan_beta = tan(beta);
         double mi = _mi;
 
         if (beta < 0)
+        {
             R *= -1;
+        }
 
         double mi_s = -acos(cos(EPS0_GLO) / cos(beta));
         double mi_e = -mi_s;
@@ -745,15 +892,17 @@ namespace great
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_noon_turn_GLOM(t_gsatdata &satdata, double R, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_noon_turn_GLOM(t_gsatdata& satdata, double R, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta = satdata.beta();
         double mi = satdata.orb_angle();
 
         if (beta >= 0)
+        {
             R = -R;
+        }
 
-        double mi_s, mi_e, sin_mi_s, B, yaw;
+        double mi_s = 0.0, mi_e = 0.0, sin_mi_s = 0.0, B = 0.0;
         int c = 0;
 
         for (mi_s = 178.6 * D2R; c < 4; c++)
@@ -763,26 +912,42 @@ namespace great
             mi_s = (atan(-beta / sin_mi_s) + mi_s * B + G_PI * R / MUDOT_GLO - G_PI / 2.0) / (R / MUDOT_GLO + B);
         }
         if (beta >= 0)
+        {
             mi_s = 2.0 * G_PI - mi_s;
+        }
         mi_e = 2.0 * G_PI - mi_s;
 
+        double yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GLO;
         if (mi_s <= mi && mi < mi_e)
         {
-            yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GLO;
+            _yaw2ijk(satdata, yaw, i, j, k);
         }
-
-        _yaw2ijk(satdata, yaw, i, j, k);
+        else
+        {
+            _ysm(satdata, i, j, k);
+        }
     }
 
-    void t_gattitude_model::_noon_turn_GLOM(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, double R, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_noon_turn_GLOM(string prn,
+                                            double _beta,
+                                            double _mi,
+                                            ColumnVector& xsat,
+                                            ColumnVector& vsat,
+                                            ColumnVector& xsun,
+                                            double R,
+                                            ColumnVector& i,
+                                            ColumnVector& j,
+                                            ColumnVector& k)
     {
         double beta = _beta;
         double mi = _mi;
 
         if (beta >= 0)
+        {
             R = -R;
+        }
 
-        double mi_s, mi_e, sin_mi_s, B, yaw;
+        double mi_s = 0.0, mi_e = 0.0, sin_mi_s = 0.0, B = 0.0;
         int c = 0;
 
         for (mi_s = 178.6 * D2R; c < 4; c++)
@@ -792,23 +957,32 @@ namespace great
             mi_s = (atan(-beta / sin_mi_s) + mi_s * B + G_PI * R / MUDOT_GLO - G_PI / 2.0) / (R / MUDOT_GLO + B);
         }
         if (beta >= 0)
+        {
             mi_s = 2.0 * G_PI - mi_s;
+        }
         mi_e = 2.0 * G_PI - mi_s;
 
+        double yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GLO;
         if (mi_s <= mi && mi < mi_e)
         {
-            yaw = atan2(-tan(beta), sin(mi_s)) + R * (mi - mi_s) / MUDOT_GLO;
+            _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
         }
-
-        _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
+        else
+        {
+            _ysm(prn, beta, mi, xsat, vsat, xsun, i, j, k);
+        }
     }
 
-    void t_gattitude_model::_attitude_GPSIIRM(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GPSIIRM(t_gsatdata& satdata,
+                                              string antype,
+                                              Eigen::Vector3d& i,
+                                              Eigen::Vector3d& j,
+                                              Eigen::Vector3d& k)
     {
         _attitude_GPSIIR(satdata, antype, i, j, k);
     }
 
-    void t_gattitude_model::_attitude_GPSIIF(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GPSIIF(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         const double R_noon = 0.11 * D2R; // maximal yaw hardware rate during noon turn
         const double R_midn = 0.06 * D2R; // maximal yaw hardware rate during midnight turn
@@ -830,7 +1004,14 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_GPSIIF(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GPSIIF(string antype,
+                                             string prn,
+                                             ColumnVector& xsat,
+                                             ColumnVector& vsat,
+                                             ColumnVector& xsun,
+                                             ColumnVector& i,
+                                             ColumnVector& j,
+                                             ColumnVector& k)
     {
         const double R_noon = 0.11 * D2R; // maximal yaw hardware rate during noon turn
         const double R_midn = 0.06 * D2R; // maximal yaw hardware rate during midnight turn
@@ -855,17 +1036,24 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_GPSIII(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GPSIII(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         // to be added;
         _ysm(satdata, i, j, k);
     }
 
-    void t_gattitude_model::_attitude_GPSIII(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GPSIII(string antype,
+                                             string prn,
+                                             ColumnVector& xsat,
+                                             ColumnVector& vsat,
+                                             ColumnVector& xsun,
+                                             ColumnVector& i,
+                                             ColumnVector& j,
+                                             ColumnVector& k)
     {
     }
 
-    void t_gattitude_model::_attitude_GLO(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GLO(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         const double R = 0.25 * D2R; // maximal yaw hardware rate
         double beta0 = 2.0 * D2R;
@@ -888,7 +1076,14 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_GLO(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GLO(string antype,
+                                          string prn,
+                                          ColumnVector& xsat,
+                                          ColumnVector& vsat,
+                                          ColumnVector& xsun,
+                                          ColumnVector& i,
+                                          ColumnVector& j,
+                                          ColumnVector& k)
     {
         const double R = 0.25 * D2R; // maximal yaw hardware rate
         double beta0 = 2.0 * D2R;
@@ -913,7 +1108,7 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_noon_turn_GAL1(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_noon_turn_GAL1(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta = satdata.beta();
         double mi = satdata.orb_angle();
@@ -927,7 +1122,9 @@ namespace great
         double sinby = sin(beta_y);
         double sinbx = sin(beta_x);
         if (Sy < 0)
+        {
             sinby *= -1;
+        }
 
         double Shy = (sinby + Sy) / 2 + cos(G_PI * fabs(Sx) / sinbx) * (sinby - Sy) / 2;
 
@@ -938,13 +1135,23 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 yaw *= -1;
+            }
         }
 
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_noon_turn_GAL1(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_noon_turn_GAL1(string prn,
+                                            double _beta,
+                                            double _mi,
+                                            ColumnVector& xsat,
+                                            ColumnVector& vsat,
+                                            ColumnVector& xsun,
+                                            ColumnVector& i,
+                                            ColumnVector& j,
+                                            ColumnVector& k)
     {
         double beta = _beta;
         double mi = _mi;
@@ -958,7 +1165,9 @@ namespace great
         double sinby = sin(beta_y);
         double sinbx = sin(beta_x);
         if (Sy < 0)
+        {
             sinby *= -1;
+        }
 
         double Shy = (sinby + Sy) / 2 + cos(G_PI * fabs(Sx) / sinbx) * (sinby - Sy) / 2;
 
@@ -969,13 +1178,15 @@ namespace great
         if (itSAT != _last_beta.end())
         {
             if (itSAT->second * beta < 0)
+            {
                 yaw *= -1;
+            }
         }
 
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_attitude_GAL1(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GAL1(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta0 = 2.0 * D2R;
         double mi_n0 = (180 - 15) * D2R;
@@ -995,10 +1206,16 @@ namespace great
         {
             _ysm(satdata, i, j, k);
         }
-
     }
 
-    void t_gattitude_model::_attitude_GAL1(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GAL1(string antype,
+                                           string prn,
+                                           ColumnVector& xsat,
+                                           ColumnVector& vsat,
+                                           ColumnVector& xsun,
+                                           ColumnVector& i,
+                                           ColumnVector& j,
+                                           ColumnVector& k)
     {
         double beta0 = 2.0 * D2R;
         double mi_n0 = (180 - 15) * D2R; // noon
@@ -1023,7 +1240,7 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_noon_turn_GAL2(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_noon_turn_GAL2(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta = satdata.beta();
         double mi = satdata.orb_angle();
@@ -1033,12 +1250,16 @@ namespace great
         if (it != _last_beta.end())
         {
             if (it->second * beta < 0)
+            {
                 beta *= -1;
+            }
         }
 
         double init = G_PI / 2;
         if (beta > 0)
+        {
             init *= -1;
+        }
 
         double yaw_s;
         t_gtime epo_s;
@@ -1071,7 +1292,15 @@ namespace great
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_noon_turn_GAL2(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_noon_turn_GAL2(string prn,
+                                            double _beta,
+                                            double _mi,
+                                            ColumnVector& xsat,
+                                            ColumnVector& vsat,
+                                            ColumnVector& xsun,
+                                            ColumnVector& i,
+                                            ColumnVector& j,
+                                            ColumnVector& k)
     {
         // the origional edition needs time info; updated with our model: Li et al. 2019
         double beta = _beta;
@@ -1124,7 +1353,7 @@ namespace great
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_attitude_GAL2(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_GAL2(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta0 = 4.1 * D2R;
         double mi_n0 = (180 - 10) * D2R;
@@ -1146,10 +1375,16 @@ namespace great
             _last_yaw[satdata.sat()] = satdata.yaw();
             _last_epo[satdata.sat()] = satdata.epoch();
         }
-
     }
 
-    void t_gattitude_model::_attitude_GAL2(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_GAL2(string antype,
+                                           string prn,
+                                           ColumnVector& xsat,
+                                           ColumnVector& vsat,
+                                           ColumnVector& xsun,
+                                           ColumnVector& i,
+                                           ColumnVector& j,
+                                           ColumnVector& k)
     {
         double beta0 = 4.1 * D2R;
         double mi_n0 = (180 - 10) * D2R;
@@ -1176,7 +1411,7 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_cys_cast(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_cys_cast(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta_threshold_cast = 2.8;
         double d_constant = 80000.0;
@@ -1194,7 +1429,15 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_cys_cast(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_cys_cast(string prn,
+                                      double _beta,
+                                      double _mi,
+                                      ColumnVector& xsat,
+                                      ColumnVector& vsat,
+                                      ColumnVector& xsun,
+                                      ColumnVector& i,
+                                      ColumnVector& j,
+                                      ColumnVector& k)
     {
         double beta_threshold_cast = 2.8;
         double d_constant = 80000.0;
@@ -1215,7 +1458,7 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_cys_secm(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_cys_secm(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         double beta_threshold_secm = 3.0;
         if (fabs(satdata.beta()) <= beta_threshold_secm * D2R)
@@ -1232,7 +1475,15 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_cys_secm(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_cys_secm(string prn,
+                                      double _beta,
+                                      double _mi,
+                                      ColumnVector& xsat,
+                                      ColumnVector& vsat,
+                                      ColumnVector& xsun,
+                                      ColumnVector& i,
+                                      ColumnVector& j,
+                                      ColumnVector& k)
     {
         double beta_threshold_secm = 3.0;
 
@@ -1252,9 +1503,8 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_BDS(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_BDS(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
-
         if (t_gsys::bds_geo(satdata.sat()))
         {
             _onm(satdata, i, j, k);
@@ -1277,11 +1527,20 @@ namespace great
                 _onm(satdata, i, j, k);
             }
             else
+            {
                 _ysm(satdata, i, j, k);
+            }
         }
     }
 
-    void t_gattitude_model::_attitude_BDS(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_BDS(string antype,
+                                          string prn,
+                                          ColumnVector& xsat,
+                                          ColumnVector& vsat,
+                                          ColumnVector& xsun,
+                                          ColumnVector& i,
+                                          ColumnVector& j,
+                                          ColumnVector& k)
     {
         double orb_angle = _orb_angle(xsat, vsat, xsun);
         double beta = _beta(xsat, vsat, xsun);
@@ -1305,11 +1564,13 @@ namespace great
                 _onm(xsat, vsat, xsun, i, j, k);
             }
             else
+            {
                 _ysm(prn, beta, orb_angle, xsat, vsat, xsun, i, j, k);
+            }
         }
     }
 
-    void t_gattitude_model::_cys_qzs(t_gsatdata &satdata, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_cys_qzs(t_gsatdata& satdata, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         // genernal settings and thresholds
         double beta_threshold_qzs = 5.0 * D2R; // radius
@@ -1406,7 +1667,15 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_cys_qzs(string prn, double _beta, double _mi, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_cys_qzs(string prn,
+                                     double _beta,
+                                     double _mi,
+                                     ColumnVector& xsat,
+                                     ColumnVector& vsat,
+                                     ColumnVector& xsun,
+                                     ColumnVector& i,
+                                     ColumnVector& j,
+                                     ColumnVector& k)
     {
         // genernal settings and thresholds
         double beta_threshold_qzs = 5.0 * D2R; // radius
@@ -1507,19 +1776,22 @@ namespace great
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_attitude_QZS(t_gsatdata &satdata, string antype, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_attitude_QZS(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         if (satdata.sat().find("J01") != string::npos)
         {
             if (fabs(satdata.beta()) <= 20 * D2R)
             {                           // may be better 17 or 18 deg; to be investegated; yqyuan.
                 _onm(satdata, i, j, k); // i oposite velocity direction //wrong comment. i == velocity direction
-                                        // bug fixed.(yqyuan) _yaw2ijk calculate scf2crs using Xsat and Vsat (in IGS convention); independet of SCF oriention.
-                                        //i = -1 * i;
-                                        //j = -1 * j;
+                                        // bug fixed.(yqyuan) _yaw2ijk calculate scf2crs using Xsat and Vsat (in IGS
+                                        // convention); independet of SCF oriention.
+                                        // i = -1 * i;
+                                        // j = -1 * j;
             }
             else
+            {
                 _ysm(satdata, i, j, k);
+            }
         }
         // GEO satellite following ON mode, added by yqyuan
         else if (satdata.sat().find("J07") != string::npos)
@@ -1533,7 +1805,14 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_attitude_QZS(string antype, string prn, ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_attitude_QZS(string antype,
+                                          string prn,
+                                          ColumnVector& xsat,
+                                          ColumnVector& vsat,
+                                          ColumnVector& xsun,
+                                          ColumnVector& i,
+                                          ColumnVector& j,
+                                          ColumnVector& k)
     {
         double orb_angle = _orb_angle(xsat, vsat, xsun);
         double beta = _beta(xsat, vsat, xsun);
@@ -1545,7 +1824,9 @@ namespace great
                 _onm(xsat, vsat, xsun, i, j, k);
             }
             else
+            {
                 _ysm(prn, beta, orb_angle, xsat, vsat, xsun, i, j, k);
+            }
         }
         // GEO satellite following ON mode, added by yqyuan
         else if (prn.find("J07") != string::npos)
@@ -1559,7 +1840,7 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_yaw2ijk(t_gsatdata &satdata, double &yaw, Eigen::Vector3d &i, Eigen::Vector3d &j, Eigen::Vector3d &k)
+    void t_gattitude_model::_yaw2ijk(t_gsatdata& satdata, double& yaw, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k)
     {
         satdata.yaw(yaw); // store yaw angle
 
@@ -1595,9 +1876,15 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_yaw2ijk(ColumnVector &xsat, ColumnVector &vsat, ColumnVector &xsun, double &yaw, ColumnVector &i, ColumnVector &j, ColumnVector &k)
+    void t_gattitude_model::_yaw2ijk(ColumnVector& xsat,
+                                     ColumnVector& vsat,
+                                     ColumnVector& xsun,
+                                     double& yaw,
+                                     ColumnVector& i,
+                                     ColumnVector& j,
+                                     ColumnVector& k)
     {
-        //satdata.yaw(yaw);   // store yaw angle
+        // satdata.yaw(yaw);   // store yaw angle
         ColumnVector satcrd = xsat;
         ColumnVector satvel = vsat;
 
@@ -1645,4 +1932,4 @@ namespace great
         return value * sign_of_b;
     }
 
-}
+} // namespace great

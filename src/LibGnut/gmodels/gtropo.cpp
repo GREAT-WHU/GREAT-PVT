@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include <cmath>
@@ -20,7 +20,7 @@ using namespace std;
 namespace gnut
 {
 
-    t_gtropo::t_gtropo() 
+    t_gtropo::t_gtropo()
     {
     }
 
@@ -28,9 +28,9 @@ namespace gnut
     {
     }
 
-    double t_gtropo::getZHD(const t_gtriple &ell, const t_gtime &epo) // ell v RADIANECH !! TREBA SJEDNOTIT
+    double t_gtropo::getZHD(const t_gtriple& ell,
+                            const t_gtime& epo) // ell v RADIANECH !! TREBA SJEDNOTIT
     {
-
         double pp = 1013.25 * pow(1.0 - 2.26e-5 * ell[2], 5.225);
         double res = (0.002277 * pp) / (1.0 - 0.00266 * cos(2.0 * ell[0]) - 0.00000028 * ell[2]);
 
@@ -39,15 +39,14 @@ namespace gnut
         return res;
     }
 
-    double t_gtropo::getZWD(const t_gtriple &ell, const t_gtime &epo) // ell v RADIANECH !! TREBA SJEDNOTIT
+    double t_gtropo::getZWD(const t_gtriple& ell,
+                            const t_gtime& epo) // ell v RADIANECH !! TREBA SJEDNOTIT
     {
-
         return 0.0; // NWM_UNKNOWN;
     }
 
-    double t_saast::getSTD(const double &ele, const double &height)
+    double t_saast::getSTD(const double& ele, const double& height)
     {
-
         double pp = 1013.25 * pow(1.0 - 2.26e-5 * height, 5.225);
         double TT = 18.0 - height * 0.0065 + 273.15;
         double hh = 50.0 * exp(-6.396e-4 * height);
@@ -56,9 +55,13 @@ namespace gnut
         double h_km = height / 1000.0;
 
         if (h_km < 0.0)
+        {
             h_km = 0.0;
+        }
         if (h_km > 5.0)
+        {
             h_km = 5.0;
+        }
         int ii = int(h_km + 1);
         double href = ii - 1;
 
@@ -77,26 +80,23 @@ namespace gnut
         return delay;
     }
 
-    double t_saast::getZHD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_saast::getZHD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
 
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
 
-        double delay = (0.002277 * P) /
-                       (1.0 - 0.00266 * cos(2.0 * Ell[0]) - 0.00000028 * Ell[2]);
+        double delay = (0.002277 * P) / (1.0 - 0.00266 * cos(2.0 * Ell[0]) - 0.00000028 * Ell[2]);
 
         return delay;
     }
 
-    double t_saast::getZWD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_saast::getZWD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
 
-        //add need test
+        // add need test
         double hh = 0.6;
         double e = hh * 6.11 * pow(10.0, (7.5 * T / (T + 237.3)));
 
@@ -106,9 +106,8 @@ namespace gnut
         return delay;
     }
 
-    double t_davis::getZHD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_davis::getZHD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
 
@@ -117,16 +116,14 @@ namespace gnut
         return delay;
     }
 
-    double t_davis::getZWD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_davis::getZWD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         // not implemented yet
         return 0.0;
     }
 
-    double t_hopf::getZHD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_hopf::getZHD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
 
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
@@ -135,9 +132,8 @@ namespace gnut
         return delay;
     }
 
-    double t_hopf::getZWD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_hopf::getZWD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
         double hh = 50.0 * exp(-6.396e-4 * Ell[2]);
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
@@ -148,9 +144,8 @@ namespace gnut
         return delay;
     }
 
-    double t_baby::getZHD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_baby::getZHD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
 
@@ -165,23 +160,20 @@ namespace gnut
         return delay;
     }
 
-    double t_baby::getZWD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_baby::getZWD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         // not implemeted yet
         return 0.0;
     }
 
-    double t_chao::getZHD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_chao::getZHD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         // not implemeted yet
         return 0.0;
     }
 
-    double t_chao::getZWD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_chao::getZWD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N, alpha;
         double hh = 50.0 * exp(-6.396e-4 * Ell[2]);
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
@@ -195,17 +187,15 @@ namespace gnut
         return delay;
     }
 
-    double t_ifad::getZHD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_ifad::getZHD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         // not implemeted yet
         return 0.0;
     }
 
     // ---------
-    double t_ifad::getZWD(const t_gtriple &Ell, const t_gtime &epoch)
+    double t_ifad::getZWD(const t_gtriple& Ell, const t_gtime& epoch)
     {
-
         double P, T, N;
         double hh = 50.0 * exp(-6.396e-4 * Ell[2]);
         _gpt.gpt_v1(epoch.mjd(), Ell[0], Ell[1], Ell[2], P, T, N);
@@ -218,4 +208,4 @@ namespace gnut
         return delay;
     }
 
-} // namespace
+} // namespace gnut

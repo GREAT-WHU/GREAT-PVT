@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include "gmodels/gotl.h"
@@ -12,12 +12,8 @@
 namespace gnut
 {
 
-    t_gotl::t_gotl() : t_gdata()
-    {
-        id_type(t_gdata::OTL);
-    }
-
-    t_gotl::t_gotl(t_spdlog spdlog) : t_gdata(spdlog)
+    t_gotl::t_gotl() :
+        t_gdata()
     {
         id_type(t_gdata::OTL);
     }
@@ -58,7 +54,7 @@ namespace gnut
         return tmp;
     }
 
-    void t_gotl::setdata(const string &site, const double &lon, const double &lat, const Matrix &data)
+    void t_gotl::setdata(const string& site, const double& lon, const double& lat, const Matrix& data)
     {
         _gmutex.lock();
         _site = site;
@@ -69,4 +65,4 @@ namespace gnut
         return;
     }
 
-} // namespace
+} // namespace gnut

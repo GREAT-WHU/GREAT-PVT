@@ -35,7 +35,6 @@ namespace gnut
     /** @brief class for t_geop. */
     class LibGnut_LIBRARY_EXPORT t_geop
     {
-
     public:
         /** @brief default constructor. */
         t_geop();
@@ -53,6 +52,6 @@ namespace gnut
         double _normangle(double x);
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

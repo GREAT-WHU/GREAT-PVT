@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include <iostream>
@@ -19,7 +19,7 @@ using namespace std;
 
 namespace gnut
 {
-    void Matrix_remRC(SymmetricMatrix &Q, int row, int col)
+    void Matrix_remRC(SymmetricMatrix& Q, int row, int col)
     {
         SymmetricMatrix Qt(Q.Nrows());
         Qt = Q;
@@ -27,16 +27,18 @@ namespace gnut
         int rr = 1;
         for (int r = 1; r <= Qt.Nrows(); r++)
         {
-
             if (r == row)
+            {
                 continue;
+            }
             int cc = 1;
 
             for (int c = 1; c <= Qt.Ncols(); c++)
             {
-
                 if (c == col)
+                {
                     continue;
+                }
                 Q(rr, cc) = Qt(r, c);
                 cc++;
             }
@@ -44,7 +46,7 @@ namespace gnut
         }
     }
 
-    void Matrix_rem(SymmetricMatrix &Q, vector<int> &ind)
+    void Matrix_rem(SymmetricMatrix& Q, vector<int>& ind)
     {
         vector<int>::iterator it;
         vector<int>::iterator it2;
@@ -52,11 +54,13 @@ namespace gnut
         {
             Matrix_remRC(Q, *it, *it);
             for (it2 = it; it2 != ind.end(); it2++)
+            {
                 (*it2)--;
+            }
         }
     }
 
-    void Matrix_addRC(SymmetricMatrix &Q, int row, int col)
+    void Matrix_addRC(SymmetricMatrix& Q, int row, int col)
     {
         SymmetricMatrix Qt(Q.Nrows());
         Qt = Q;
@@ -85,13 +89,21 @@ namespace gnut
                 }
 
                 if (br && bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 if (!br && bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 if (br && !bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 if (!br && !bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
 
                 cc++;
             }
@@ -99,7 +111,7 @@ namespace gnut
         }
     }
 
-    void Matrix_addRC(Matrix &Q, int row, int col)
+    void Matrix_addRC(Matrix& Q, int row, int col)
     {
         Matrix Qt(Q.Nrows(), Q.Ncols());
         Qt = Q;
@@ -140,20 +152,28 @@ namespace gnut
                 }
 
                 if (br && bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 if (!br && bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 if (br && !bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 if (!br && !bc)
+                {
                     Q(r, c) = Qt(rr, cc);
+                }
                 cc++;
             }
             rr++;
         }
     }
 
-    void Matrix_remR(Matrix &A, int row)
+    void Matrix_remR(Matrix& A, int row)
     {
         int nrow = A.Nrows(), ncols = A.Ncols();
         Matrix At(nrow - 1, ncols);
@@ -163,7 +183,7 @@ namespace gnut
         A = At;
     }
 
-    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix &A, vector<int> &ind)
+    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix& A, vector<int>& ind)
     {
         vector<int>::iterator it;
         vector<int>::iterator it2;
@@ -171,13 +191,14 @@ namespace gnut
         {
             Matrix_remR(A, *it);
             for (it2 = it; it2 != ind.end(); it2++)
+            {
                 (*it2)--;
+            }
         }
     }
 
-    void Matrix_addRC(DiagonalMatrix &Q, int row)
+    void Matrix_addRC(DiagonalMatrix& Q, int row)
     {
-
         DiagonalMatrix Qt(Q.Nrows());
         Qt = Q;
         Q.ReSize(Q.Nrows() + 1);
@@ -187,7 +208,9 @@ namespace gnut
         for (int r = 1; r <= Q.Nrows(); r++)
         {
             if (r == row)
+            {
                 continue;
+            }
             else
             {
                 Q(r, r) = Qt(rr, rr);
@@ -196,7 +219,7 @@ namespace gnut
         }
     }
 
-    void Vector_add(ColumnVector &V, int row)
+    void Vector_add(ColumnVector& V, int row)
     {
         ColumnVector Vt(V.Nrows());
         Vt = V;
@@ -207,7 +230,9 @@ namespace gnut
         for (int r = 1; r <= V.Nrows(); r++)
         {
             if (r == row)
+            {
                 continue;
+            }
             else
             {
                 V(r) = Vt(rr);
@@ -267,7 +292,7 @@ namespace gnut
         return UU;
     }
 
-    void Matrix_swap(SymmetricMatrix &Q, int a, int b)
+    void Matrix_swap(SymmetricMatrix& Q, int a, int b)
     {
         // Copy symmetric matrix to normal matrix
         Matrix T(Q.Nrows(), Q.Ncols());
@@ -305,7 +330,7 @@ namespace gnut
         }
     }
 
-    void Matrix_cpRC(SymmetricMatrix Q1, SymmetricMatrix &Q2, int r, int c)
+    void Matrix_cpRC(SymmetricMatrix Q1, SymmetricMatrix& Q2, int r, int c)
     {
         if (Q1.Nrows() != Q2.Nrows())
         {
@@ -317,9 +342,11 @@ namespace gnut
             for (int j = 1; j <= Q1.Ncols(); j++)
             {
                 if (i == r || j == c)
+                {
                     Q2(i, j) = Q1(i, j);
+                }
             }
         }
     }
 
-} // namespace
+} // namespace gnut

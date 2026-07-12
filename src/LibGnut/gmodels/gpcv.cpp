@@ -1,7 +1,7 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
 
@@ -22,15 +22,15 @@ using namespace std;
 
 namespace gnut
 {
-    t_gpcv::t_gpcv()
-        : t_gdata(),
-          _trans(true), // transmitter (default yes)
-          _anten(""),   // antenna type
-          _ident(""),   // antenna identification
-          _svcod(""),   // SVN code
-          _method(""),  // calibartion method
-          _source(""),  // source of calibration
-          _snxcod("")   // sinex code
+    t_gpcv::t_gpcv() :
+        t_gdata(),
+        _trans(true), // transmitter (default yes)
+        _anten(""),   // antenna type
+        _ident(""),   // antenna identification
+        _svcod(""),   // SVN code
+        _method(""),  // calibartion method
+        _source(""),  // source of calibration
+        _snxcod("")   // sinex code
     {
         _beg.tsys(t_gtime::GPS);
         _end.tsys(t_gtime::GPS);
@@ -38,26 +38,11 @@ namespace gnut
         _pcv_noazi = false;
     }
 
-    t_gpcv::t_gpcv(t_spdlog spdlog)
-        : t_gdata(spdlog),
-          _trans(true), // transmitter (default yes)
-          _anten(""),   // antenna type
-          _ident(""),   // antenna identification
-          _svcod(""),   // SVN code
-          _method(""),  // calibartion method
-          _source(""),  // source of calibration
-          _snxcod("")   // sinex code
+    t_gpcv::~t_gpcv()
     {
-        _beg.tsys(t_gtime::GPS);
-        _end.tsys(t_gtime::GPS);
-        id_type(t_gdata::PCV);
-        _pcv_noazi = false;
     }
 
-    t_gpcv::~t_gpcv() {}
-
-
-    double t_gpcv::pco(const double &zen, const double &azi, const GFRQ &f)
+    double t_gpcv::pco(const double& zen, const double& azi, const GFRQ& f)
     {
         _gmutex.lock();
 
@@ -66,8 +51,7 @@ namespace gnut
         {
             ostringstream lg;
             lg << "not valid zenith angle:" << zen * R2D << endl;
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, lg.str());
+            GREAT_ERROR(lg.str());
             _gmutex.unlock();
             return corr;
         }
@@ -82,77 +66,76 @@ namespace gnut
         return corr;
     }
 
-    int t_gpcv::pcoS(t_gsatdata &satdata, t_gtriple &pco, OBSCOMBIN lc, GOBSBAND &b1, GOBSBAND &b2)
+    int t_gpcv::pcoS(t_gsatdata& satdata, t_gtriple& pco, OBSCOMBIN lc, GOBSBAND& b1, GOBSBAND& b2)
     {
         switch (lc)
         {
-        case OBSCOMBIN::IONO_FREE:
-            return pcoS_cmb(satdata, pco, b1, b2);
-            break;
-        case OBSCOMBIN::RAW_ALL:
-        case OBSCOMBIN::RAW_MIX:
-            return pcoS_raw(satdata, pco, b1);
-            break;
-        default:
-            return -1;
-            break;
+            case OBSCOMBIN::IONO_FREE:
+                return pcoS_cmb(satdata, pco, b1, b2);
+                break;
+            case OBSCOMBIN::RAW_ALL:
+            case OBSCOMBIN::RAW_MIX:
+                return pcoS_raw(satdata, pco, b1);
+                break;
+            default:
+                return -1;
+                break;
         }
     }
 
-    int t_gpcv::pcoR(t_gsatdata &satdata, t_gtriple &pco, OBSCOMBIN lc, GOBSBAND &b1, GOBSBAND &b2)
+    int t_gpcv::pcoR(t_gsatdata& satdata, t_gtriple& pco, OBSCOMBIN lc, GOBSBAND& b1, GOBSBAND& b2)
     {
         switch (lc)
         {
-        case OBSCOMBIN::IONO_FREE:
-            return pcoR_cmb(satdata, pco, b1, b2);
-            break;
-        case OBSCOMBIN::RAW_ALL:
-        case OBSCOMBIN::RAW_MIX:
-            return pcoR_raw(satdata, pco, b1);
-            break;
-        default:
-            return -1;
-            break;
+            case OBSCOMBIN::IONO_FREE:
+                return pcoR_cmb(satdata, pco, b1, b2);
+                break;
+            case OBSCOMBIN::RAW_ALL:
+            case OBSCOMBIN::RAW_MIX:
+                return pcoR_raw(satdata, pco, b1);
+                break;
+            default:
+                return -1;
+                break;
         }
     }
 
-    int t_gpcv::pcvS(double &corr, t_gsatdata &satdata, OBSCOMBIN lc, GOBSBAND &b1, GOBSBAND &b2, t_gtriple &site)
+    int t_gpcv::pcvS(double& corr, t_gsatdata& satdata, OBSCOMBIN lc, GOBSBAND& b1, GOBSBAND& b2, t_gtriple& site)
     {
         switch (lc)
         {
-        case OBSCOMBIN::IONO_FREE:
-            return pcvS_cmb(corr, satdata, b1, b2, site);
-            break;
-        case OBSCOMBIN::RAW_ALL:
-        case OBSCOMBIN::RAW_MIX:
-            return pcvS_raw(corr, satdata, b1, site);
-            break;
-        default:
-            return -1;
-            break;
+            case OBSCOMBIN::IONO_FREE:
+                return pcvS_cmb(corr, satdata, b1, b2, site);
+                break;
+            case OBSCOMBIN::RAW_ALL:
+            case OBSCOMBIN::RAW_MIX:
+                return pcvS_raw(corr, satdata, b1, site);
+                break;
+            default:
+                return -1;
+                break;
         }
     }
 
-    int t_gpcv::pcvR(double &corr, t_gsatdata &satdata, OBSCOMBIN lc, GOBSBAND &b1, GOBSBAND &b2)
+    int t_gpcv::pcvR(double& corr, t_gsatdata& satdata, OBSCOMBIN lc, GOBSBAND& b1, GOBSBAND& b2)
     {
         switch (lc)
         {
-        case OBSCOMBIN::IONO_FREE:
-            return pcvR_cmb(corr, satdata, b1, b2);
-            break;
-        case OBSCOMBIN::RAW_ALL:
-        case OBSCOMBIN::RAW_MIX:
-            return pcvR_raw(corr, satdata, b1);
-            break;
-        default:
-            return -1;
-            break;
+            case OBSCOMBIN::IONO_FREE:
+                return pcvR_cmb(corr, satdata, b1, b2);
+                break;
+            case OBSCOMBIN::RAW_ALL:
+            case OBSCOMBIN::RAW_MIX:
+                return pcvR_raw(corr, satdata, b1);
+                break;
+            default:
+                return -1;
+                break;
         }
     }
 
-    int t_gpcv::pcoS_cmb(t_gsatdata &satdata, t_gtriple &pco, GOBSBAND &b1, GOBSBAND &b2)
+    int t_gpcv::pcoS_cmb(t_gsatdata& satdata, t_gtriple& pco, GOBSBAND& b1, GOBSBAND& b2)
     {
-
         GSYS gsys = satdata.gsys();
         string sat = satdata.sat();
 
@@ -171,7 +154,7 @@ namespace gnut
             f2 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
-        //TODO COMMENT
+        // TODO COMMENT
         if (_mappco.find(f1) != _mappco.end() && _mappco.find(f2) != _mappco.end())
         {
             apcf1 = _mappco.at(f1);
@@ -182,9 +165,13 @@ namespace gnut
             if (_gnote)
             {
                 if (_mappco.find(f1) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
+                }
                 if (_mappco.find(f2) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], using hardwired values");
+                }
             }
 
             t_map_offs offs = GNSS_PCO_OFFSETS();
@@ -226,7 +213,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcoR_cmb(t_gsatdata &satdata, t_gtriple &pco, GOBSBAND &b1, GOBSBAND &b2)
+    int t_gpcv::pcoR_cmb(t_gsatdata& satdata, t_gtriple& pco, GOBSBAND& b1, GOBSBAND& b2)
     {
         _gmutex.lock();
         t_gtriple apcf1;
@@ -240,26 +227,34 @@ namespace gnut
         if (_mappco.find(f1) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
         if (_mappco.find(f2) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+            }
             f2 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
         if (_mappco.find(f1) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
         if (_mappco.find(f2) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+            }
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
         // ==================================================
@@ -299,7 +294,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcvS_cmb(double &corr, t_gsatdata &satdata, GOBSBAND &b1, GOBSBAND &b2, t_gtriple &site)
+    int t_gpcv::pcvS_cmb(double& corr, t_gsatdata& satdata, GOBSBAND& b1, GOBSBAND& b2, t_gtriple& site)
     {
         _gmutex.lock();
         corr = 0.0;
@@ -311,14 +306,18 @@ namespace gnut
         if (_mapzen.find(f1) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GSYS L1");
+            }
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f2) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GSYS L1");
+            }
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
@@ -347,7 +346,7 @@ namespace gnut
         double corrf1 = 0.0;
         double corrf2 = 0.0;
 
-        t_ginterp interp(_spdlog);
+        t_ginterp interp;
 
         if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
         {
@@ -367,7 +366,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcvR_cmb(double &corr, t_gsatdata &satdata, GOBSBAND &b1, GOBSBAND &b2)
+    int t_gpcv::pcvR_cmb(double& corr, t_gsatdata& satdata, GOBSBAND& b1, GOBSBAND& b2)
     {
         _gmutex.lock();
         GSYS gsys = satdata.gsys();
@@ -378,28 +377,36 @@ namespace gnut
         if (_mapzen.find(f1) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f2) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+            }
             f2 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f2) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+            }
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
@@ -433,7 +440,9 @@ namespace gnut
             {
                 GFRQ f = itGFRQ->first;
                 if (f != f1 && f != f2)
+                {
                     continue;
+                }
 
                 map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
                 if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
@@ -469,9 +478,9 @@ namespace gnut
 
                 if (f == f1)
                 {
-                    mapDataf1[p1] = itZ1->second; 
+                    mapDataf1[p1] = itZ1->second;
                     mapDataf1[p2] = itZ2->second;
-                    mapDataf1[p3] = itZ3->second; 
+                    mapDataf1[p3] = itZ3->second;
                     mapDataf1[p4] = itZ4->second;
                 }
                 else if (f == f2)
@@ -487,7 +496,7 @@ namespace gnut
                 }
             }
 
-            t_ginterp interp(_spdlog);
+            t_ginterp interp;
             if (interp.bilinear(mapDataf1, p_az, corrf1) < 0 || interp.bilinear(mapDataf2, p_az, corrf2) < 0)
             {
                 _gmutex.unlock();
@@ -513,7 +522,7 @@ namespace gnut
 
             mapDataf1 = _mapzen[f1];
             mapDataf2 = _mapzen[f2];
-            t_ginterp interp(_spdlog);
+            t_ginterp interp;
             if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
             {
                 _gmutex.unlock();
@@ -533,9 +542,8 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcoS_raw(t_gsatdata &satdata, t_gtriple &pco, GOBSBAND &b1)
+    int t_gpcv::pcoS_raw(t_gsatdata& satdata, t_gtriple& pco, GOBSBAND& b1)
     {
-
         GSYS gsys = satdata.gsys();
         string sat = satdata.sat();
 
@@ -560,7 +568,9 @@ namespace gnut
             if (_gnote)
             {
                 if (_mappco.find(f1) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
+                }
             }
 
             t_map_offs offs = GNSS_PCO_OFFSETS();
@@ -589,9 +599,8 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcoR_raw(t_gsatdata &satdata, t_gtriple &pco, GOBSBAND &b1)
+    int t_gpcv::pcoR_raw(t_gsatdata& satdata, t_gtriple& pco, GOBSBAND& b1)
     {
-
         t_gtriple apcf1, apcLC;
         GSYS gsys = satdata.gsys();
 
@@ -606,14 +615,18 @@ namespace gnut
         if (_mappco.find(f1) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L2");
+            }
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mappco.find(f1) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L2");
+            }
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
@@ -639,12 +652,11 @@ namespace gnut
 
         pco = apcf1;
 
-            return 1;
+        return 1;
     }
 
-    int t_gpcv::pcvS_raw(double &corr, t_gsatdata &satdata, GOBSBAND &b1, t_gtriple &site)
+    int t_gpcv::pcvS_raw(double& corr, t_gsatdata& satdata, GOBSBAND& b1, t_gtriple& site)
     {
-
         GSYS gsys = satdata.gsys();
 
         GFRQ f1 = t_gsys::band2gfrq(gsys, b1);
@@ -656,13 +668,14 @@ namespace gnut
         if (_mapzen.find(f1) == _mapzen.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GSYS L1");
+            }
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-
             return -1;
         }
 
@@ -684,124 +697,9 @@ namespace gnut
                 GFRQ f = itGFRQ->first;
 
                 if (f != f1)
-                    continue;
-
-                map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
-                if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
-                {
-                    return -1;
-                }
-                map<double, t_map_Z>::iterator itA2 = itA1;
-                itA2--;
-
-                map<double, double>::iterator itZ1 = itA1->second.lower_bound(zen);
-                if (itZ1 == itA1->second.end() || itZ1 == itA1->second.begin())
-                {
-                    return -1;
-                }
-                map<double, double>::iterator itZ2 = itZ1;
-                itZ2--;
-
-                map<double, double>::iterator itZ3 = itA2->second.lower_bound(zen);
-                if (itZ3 == itA2->second.end() || itZ3 == itA2->second.begin())
-                {
-                    return -1;
-                }
-                map<double, double>::iterator itZ4 = itZ3;
-                itZ4--;
-
-                t_gpair p1(itA1->first, itZ1->first);
-                t_gpair p2(itA1->first, itZ2->first);
-                t_gpair p3(itA2->first, itZ3->first);
-                t_gpair p4(itA2->first, itZ4->first);
-
-                if (f == f1)
-                {
-                    mapDataf1[p1] = itZ1->second;
-                    mapDataf1[p2] = itZ2->second; 
-                    mapDataf1[p3] = itZ3->second; 
-                    mapDataf1[p4] = itZ4->second; 
-                }
-                else
                 {
                     continue;
                 }
-            }
-            t_ginterp interp(_spdlog);
-            if (interp.bilinear(mapDataf1, p_az, corrf1) < 0)
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            map<double, double> mapDataf1;
-            mapDataf1 = _mapzen.at(f1);
-
-            t_ginterp interp(_spdlog);
-            if (interp.linear(mapDataf1, zen, corrf1) < 0)
-            {
-                return -1;
-            }
-        }
-
-        corrf1 /= 1000.0;
-
-        // PCV for linear combination
-        corr = corrf1;
-
-        return 1;
-    }
-
-    int t_gpcv::pcvR_raw(double &corr, t_gsatdata &satdata, GOBSBAND &b1)
-    {
-        GSYS gsys = satdata.gsys();
-
-        GFRQ f1 = t_gsys::band2gfrq(gsys, b1);
-
-        if (_mapzen.find(f1) == _mapzen.end() && f1 == C09)
-        {
-            f1 = C07;
-        }
-
-        if (_mapzen.find(f1) == _mapzen.end())
-        {
-            if (_gnote)
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
-        }
-
-        if (_mapzen.find(f1) == _mapzen.end())
-        {
-            if (_gnote)
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
-        }
-
-        if (_mapzen.find(f1) == _mapzen.end())
-        {
-            return -1;
-        }
-
-        double zen = G_PI / 2.0 - satdata.ele();
-        zen *= R2D;
-
-        double azi = satdata.azi();
-        azi *= R2D;
-
-        double corrf1 = 0.0;
-
-        if (_azi_dependent(f1))
-        {
-            // AZI-dependant calibration available
-            t_gpair p_az(azi, zen);
-            map<t_gpair, double> mapDataf1;
-            for (map<GFRQ, t_map_A>::iterator itGFRQ = _mapazi.begin(); itGFRQ != _mapazi.end(); itGFRQ++)
-            {
-                GFRQ f = itGFRQ->first;
-
-                if (f != f1)
-                    continue;
 
                 map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
                 if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
@@ -837,7 +735,130 @@ namespace gnut
                     mapDataf1[p1] = itZ1->second;
                     mapDataf1[p2] = itZ2->second;
                     mapDataf1[p3] = itZ3->second;
-                    mapDataf1[p4] = itZ4->second; 
+                    mapDataf1[p4] = itZ4->second;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            t_ginterp interp;
+            if (interp.bilinear(mapDataf1, p_az, corrf1) < 0)
+            {
+                return -1;
+            }
+        }
+        else
+        {
+            map<double, double> mapDataf1;
+            mapDataf1 = _mapzen.at(f1);
+
+            t_ginterp interp;
+            if (interp.linear(mapDataf1, zen, corrf1) < 0)
+            {
+                return -1;
+            }
+        }
+
+        corrf1 /= 1000.0;
+
+        // PCV for linear combination
+        corr = corrf1;
+
+        return 1;
+    }
+
+    int t_gpcv::pcvR_raw(double& corr, t_gsatdata& satdata, GOBSBAND& b1)
+    {
+        GSYS gsys = satdata.gsys();
+
+        GFRQ f1 = t_gsys::band2gfrq(gsys, b1);
+
+        if (_mapzen.find(f1) == _mapzen.end() && f1 == C09)
+        {
+            f1 = C07;
+        }
+
+        if (_mapzen.find(f1) == _mapzen.end())
+        {
+            if (_gnote)
+            {
+                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
+            f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
+        }
+
+        if (_mapzen.find(f1) == _mapzen.end())
+        {
+            if (_gnote)
+            {
+                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
+            f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
+        }
+
+        if (_mapzen.find(f1) == _mapzen.end())
+        {
+            return -1;
+        }
+
+        double zen = G_PI / 2.0 - satdata.ele();
+        zen *= R2D;
+
+        double azi = satdata.azi();
+        azi *= R2D;
+
+        double corrf1 = 0.0;
+
+        if (_azi_dependent(f1))
+        {
+            // AZI-dependant calibration available
+            t_gpair p_az(azi, zen);
+            map<t_gpair, double> mapDataf1;
+            for (map<GFRQ, t_map_A>::iterator itGFRQ = _mapazi.begin(); itGFRQ != _mapazi.end(); itGFRQ++)
+            {
+                GFRQ f = itGFRQ->first;
+
+                if (f != f1)
+                {
+                    continue;
+                }
+
+                map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
+                if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
+                {
+                    return -1;
+                }
+                map<double, t_map_Z>::iterator itA2 = itA1;
+                itA2--;
+
+                map<double, double>::iterator itZ1 = itA1->second.lower_bound(zen);
+                if (itZ1 == itA1->second.end() || itZ1 == itA1->second.begin())
+                {
+                    return -1;
+                }
+                map<double, double>::iterator itZ2 = itZ1;
+                itZ2--;
+
+                map<double, double>::iterator itZ3 = itA2->second.lower_bound(zen);
+                if (itZ3 == itA2->second.end() || itZ3 == itA2->second.begin())
+                {
+                    return -1;
+                }
+                map<double, double>::iterator itZ4 = itZ3;
+                itZ4--;
+
+                t_gpair p1(itA1->first, itZ1->first);
+                t_gpair p2(itA1->first, itZ2->first);
+                t_gpair p3(itA2->first, itZ3->first);
+                t_gpair p4(itA2->first, itZ4->first);
+
+                if (f == f1)
+                {
+                    mapDataf1[p1] = itZ1->second;
+                    mapDataf1[p2] = itZ2->second;
+                    mapDataf1[p3] = itZ3->second;
+                    mapDataf1[p4] = itZ4->second;
                 }
                 else
                 {
@@ -845,7 +866,7 @@ namespace gnut
                 }
             }
 
-            t_ginterp interp(_spdlog);
+            t_ginterp interp;
             if (interp.bilinear(mapDataf1, p_az, corrf1) < 0)
             {
                 return -1;
@@ -869,7 +890,7 @@ namespace gnut
                 return -1;
             }
 
-            t_ginterp interp(_spdlog);
+            t_ginterp interp;
             if (interp.linear(mapDataf1, zen, corrf1) < 0)
             {
                 return -1;
@@ -883,7 +904,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcoS(t_gsatdata &satdata, t_gtriple &pco, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
+    int t_gpcv::pcoS(t_gsatdata& satdata, t_gtriple& pco, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
         t_gtime epo = satdata.epoch();
         t_gtriple Satcrd_t = satdata.satcrd();
@@ -934,15 +955,25 @@ namespace gnut
             if (_gnote)
             {
                 if (_mappco.find(f1) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
+                }
                 if (_mappco.find(f2) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], using hardwired values");
+                }
                 if (_mappco.find(f3) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f3) + "], using hardwired values");
+                }
                 if (_mappco.find(f4) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f4) + "], using hardwired values");
+                }
                 if (_mappco.find(f5) != _mappco.end())
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f5) + "], using hardwired values");
+                }
             }
 
             t_map_offs offs = GNSS_PCO_OFFSETS();
@@ -1041,7 +1072,7 @@ namespace gnut
 
     // Receiver pco
     // -----------------------------------------------
-    int t_gpcv::pcoR(t_gsatdata &satdata, t_gtriple &pco, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
+    int t_gpcv::pcoR(t_gsatdata& satdata, t_gtriple& pco, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
         _gmutex.lock();
 
@@ -1058,13 +1089,17 @@ namespace gnut
         if (_mappco.find(f1) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
             f1 = t_gsys::freq_priority(GPS, (FREQ_1));
         }
         if (_mappco.find(f2) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+            }
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
         // ==================================================
@@ -1113,14 +1148,16 @@ namespace gnut
             apcLC = apcf2;
         }
         else
+        {
             apcLC = apcf2;
+        }
 
         pco = apcLC;
         _gmutex.unlock();
         return 1;
     }
 
-    int t_gpcv::pcoR(t_gsatdata &satdata, t_gtriple &dx, t_gtriple &site, GOBS_LC lc)
+    int t_gpcv::pcoR(t_gsatdata& satdata, t_gtriple& dx, t_gtriple& site, GOBS_LC lc)
     {
         _gmutex.lock();
 
@@ -1129,17 +1166,21 @@ namespace gnut
         GSYS gsys = satdata.gsys();
         GFRQ f1 = t_gsys::freq_priority(gsys, FREQ_1);
         GFRQ f2 = t_gsys::freq_priority(gsys, FREQ_2);
-        GOBSBAND b1, b2; 
+        GOBSBAND b1, b2;
         if (_mappco.find(f1) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+            }
             f1 = t_gsys::freq_priority(GPS, (FREQ_1));
         }
         if (_mappco.find(f2) == _mappco.end())
         {
             if (_gnote)
+            {
                 _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+            }
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
         if (_mappco.find(f1) == _mappco.end() || _mappco.find(f2) == _mappco.end())
@@ -1186,7 +1227,9 @@ namespace gnut
             apcLC = apcf2;
         }
         else
+        {
             apcLC = apcf2;
+        }
 
         t_gtriple ell(0.0, 0.0, 0.0);
         xyz2ell(site, ell, false);
@@ -1196,9 +1239,8 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pco_proj(double &corr, t_gsatdata &satdata, t_gtriple &site, t_gtriple &dx)
+    int t_gpcv::pco_proj(double& corr, t_gsatdata& satdata, t_gtriple& site, t_gtriple& dx)
     {
-
         t_gtriple satcrd = satdata.satcrd();
         t_gtriple SatRec(0.0, 0.0, 0.0);
         SatRec = satcrd - site;
@@ -1209,7 +1251,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gpcv::pcvS(double &corrLC, t_gsatdata &satdata, t_gtriple &site, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
+    int t_gpcv::pcvS(double& corrLC, t_gsatdata& satdata, t_gtriple& site, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
         _gmutex.lock();
 
@@ -1217,7 +1259,7 @@ namespace gnut
 
         GFRQ f1 = t_gsys::freq_priority(gsys, FREQ_1);
         GFRQ f2 = t_gsys::freq_priority(gsys, FREQ_2);
-        GFRQ f3 = t_gsys::freq_priority(gsys, FREQ_3); 
+        GFRQ f3 = t_gsys::freq_priority(gsys, FREQ_3);
         GFRQ f4 = t_gsys::freq_priority(gsys, FREQ_4);
         GFRQ f5 = t_gsys::freq_priority(gsys, FREQ_5);
 
@@ -1238,52 +1280,58 @@ namespace gnut
         {
             switch (lc)
             {
-            case GOBS_LC::LC_L1:
-                if (_mapzen.find(f1) == _mapzen.end())
+                case GOBS_LC::LC_L1:
+                    if (_mapzen.find(f1) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L2:
+                    if (_mapzen.find(f2) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L3:
+                    if (_mapzen.find(f3) == _mapzen.end())
+                    {
+                        f3 = f2;
+                    }
+                    if (_mapzen.find(f3) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L4:
+                    if (_mapzen.find(f4) == _mapzen.end())
+                    {
+                        f4 = f2;
+                    }
+                    if (_mapzen.find(f4) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L5:
+                    if (_mapzen.find(f5) == _mapzen.end())
+                    {
+                        f5 = f2;
+                    }
+                    if (_mapzen.find(f5) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                default:
                 {
                     _gmutex.unlock();
                     return -1;
                 }
-                break;
-            case GOBS_LC::LC_L2:
-                if (_mapzen.find(f2) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L3:
-                if (_mapzen.find(f3) == _mapzen.end())
-                    f3 = f2;
-                if (_mapzen.find(f3) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L4:
-                if (_mapzen.find(f4) == _mapzen.end())
-                    f4 = f2;
-                if (_mapzen.find(f4) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L5:
-                if (_mapzen.find(f5) == _mapzen.end())
-                    f5 = f2;
-                if (_mapzen.find(f5) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            default:
-            {
-                _gmutex.unlock();
-                return -1;
-            }
             }
         }
 
@@ -1311,7 +1359,7 @@ namespace gnut
         double corrf4 = 0.0;
         double corrf5 = 0.0;
 
-        t_ginterp interp(_spdlog);
+        t_ginterp interp;
         if (lc == GOBS_LC::LC_IF)
         {
             if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
@@ -1322,61 +1370,60 @@ namespace gnut
         }
         else
         {
-            
             switch (lc)
             {
-            case GOBS_LC::LC_L1:
-                if (interp.linear(mapDataf1, zen, corrf1) < 0)
+                case GOBS_LC::LC_L1:
+                    if (interp.linear(mapDataf1, zen, corrf1) < 0)
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L2:
+                    if (interp.linear(mapDataf2, zen, corrf2) < 0)
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L3:
+                    if (interp.linear(mapDataf3, zen, corrf3) < 0)
+                    {
+                        mapDataf3 = mapDataf2;
+                    }
+                    if (interp.linear(mapDataf3, zen, corrf3) < 0)
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L4:
+                    if (interp.linear(mapDataf4, zen, corrf4) < 0)
+                    {
+                        mapDataf4 = mapDataf2;
+                    }
+                    if (interp.linear(mapDataf4, zen, corrf4) < 0)
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L5:
+                    if (interp.linear(mapDataf5, zen, corrf5) < 0)
+                    {
+                        mapDataf5 = mapDataf2;
+                    }
+                    if (interp.linear(mapDataf5, zen, corrf5) < 0)
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                default:
                 {
                     _gmutex.unlock();
                     return -1;
                 }
-                break;
-            case GOBS_LC::LC_L2:
-                if (interp.linear(mapDataf2, zen, corrf2) < 0)
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L3:
-                if (interp.linear(mapDataf3, zen, corrf3) < 0)
-                {
-                    mapDataf3 = mapDataf2;
-                }
-                if (interp.linear(mapDataf3, zen, corrf3) < 0)
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L4:
-                if (interp.linear(mapDataf4, zen, corrf4) < 0)
-                {
-                    mapDataf4 = mapDataf2;
-                }
-                if (interp.linear(mapDataf4, zen, corrf4) < 0)
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L5:
-                if (interp.linear(mapDataf5, zen, corrf5) < 0)
-                {
-                    mapDataf5 = mapDataf2;
-                }
-                if (interp.linear(mapDataf5, zen, corrf5) < 0)
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            default:
-            {
-                _gmutex.unlock();
-                return -1;
-            }
             }
         }
         // [mm] -> [m]
@@ -1416,13 +1463,15 @@ namespace gnut
             corrLC = corrf5;
         }
         else
+        {
             corrLC = corrf2;
+        }
 
         _gmutex.unlock();
         return 1;
     }
 
-    int t_gpcv::pcvR(double &corrLC, t_gsatdata &satdata, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
+    int t_gpcv::pcvR(double& corrLC, t_gsatdata& satdata, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
         _gmutex.lock();
 
@@ -1439,13 +1488,17 @@ namespace gnut
             if (_mapzen.find(f1) == _mapzen.end())
             {
                 if (_gnote)
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+                }
                 f1 = t_gsys::freq_priority(GPS, (FREQ_1));
             }
             if (_mapzen.find(f2) == _mapzen.end())
             {
                 if (_gnote)
+                {
                     _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+                }
                 f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
             }
 
@@ -1464,74 +1517,94 @@ namespace gnut
         {
             switch (lc)
             {
-            case GOBS_LC::LC_L1:
-                if (_mapzen.find(f1) == _mapzen.end())
-                {
-                    if (_gnote)
-                        _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-                    f1 = t_gsys::freq_priority(GPS, (FREQ_1));
-                }
-                if (_mapzen.find(f1) == _mapzen.end())
-                {
+                case GOBS_LC::LC_L1:
+                    if (_mapzen.find(f1) == _mapzen.end())
+                    {
+                        if (_gnote)
+                        {
+                            _gnote->mesg(GWARNING,
+                                         "gpcv",
+                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
+                        }
+                        f1 = t_gsys::freq_priority(GPS, (FREQ_1));
+                    }
+                    if (_mapzen.find(f1) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L2:
+                    if (_mapzen.find(f2) == _mapzen.end())
+                    {
+                        if (_gnote)
+                        {
+                            _gnote->mesg(GWARNING,
+                                         "gpcv",
+                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+                        }
+                        f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
+                    }
+                    if (_mapzen.find(f2) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L3:
+                    if (_mapzen.find(f3) == _mapzen.end())
+                    {
+                        if (_gnote)
+                        {
+                            _gnote->mesg(GWARNING,
+                                         "gpcv",
+                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+                        }
+                        f3 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
+                    }
+                    if (_mapzen.find(f3) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L4:
+                    if (_mapzen.find(f4) == _mapzen.end())
+                    {
+                        if (_gnote)
+                        {
+                            _gnote->mesg(GWARNING,
+                                         "gpcv",
+                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+                        }
+                        f4 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
+                    }
+                    if (_mapzen.find(f4) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                case GOBS_LC::LC_L5:
+                    if (_mapzen.find(f5) == _mapzen.end())
+                    {
+                        if (_gnote)
+                        {
+                            _gnote->mesg(GWARNING,
+                                         "gpcv",
+                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
+                        }
+                        f5 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
+                    }
+                    if (_mapzen.find(f5) == _mapzen.end())
+                    {
+                        _gmutex.unlock();
+                        return -1;
+                    }
+                    break;
+                default:
                     _gmutex.unlock();
                     return -1;
-                }
-                break;
-            case GOBS_LC::LC_L2:
-                if (_mapzen.find(f2) == _mapzen.end())
-                {
-                    if (_gnote)
-                        _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                    f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
-                }
-                if (_mapzen.find(f2) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L3:
-                if (_mapzen.find(f3) == _mapzen.end())
-                {
-                    if (_gnote)
-                        _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                    f3 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
-                }
-                if (_mapzen.find(f3) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L4:
-                if (_mapzen.find(f4) == _mapzen.end())
-                {
-                    if (_gnote)
-                        _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                    f4 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
-                }
-                if (_mapzen.find(f4) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            case GOBS_LC::LC_L5:
-                if (_mapzen.find(f5) == _mapzen.end())
-                {
-                    if (_gnote)
-                        _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                    f5 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
-                }
-                if (_mapzen.find(f5) == _mapzen.end())
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
-                break;
-            default:
-                _gmutex.unlock();
-                return -1;
             }
         }
 
@@ -1551,19 +1624,33 @@ namespace gnut
 
         bool isAzi = false;
         if (lc == GOBS_LC::LC_IF && _azi_dependent(f1) && _azi_dependent(f2))
+        {
             isAzi = true;
+        }
         else if (lc == GOBS_LC::LC_L1 && _azi_dependent(f1))
+        {
             isAzi = true;
+        }
         else if (lc == GOBS_LC::LC_L2 && _azi_dependent(f2))
+        {
             isAzi = true;
+        }
         else if (lc == GOBS_LC::LC_L3 && _azi_dependent(f3))
+        {
             isAzi = true;
+        }
         else if (lc == GOBS_LC::LC_L4 && _azi_dependent(f4))
+        {
             isAzi = true;
+        }
         else if (lc == GOBS_LC::LC_L5 && _azi_dependent(f5))
+        {
             isAzi = true;
+        }
         else
+        {
             isAzi = _azi_dependent(f2);
+        }
 
         if (isAzi)
         {
@@ -1581,17 +1668,29 @@ namespace gnut
                 GFRQ f = itGFRQ->first;
 
                 if (lc == GOBS_LC::LC_IF && (f != f1 && f != f2))
+                {
                     continue;
+                }
                 if (lc == GOBS_LC::LC_L1 && (f != f1))
+                {
                     continue;
+                }
                 if (lc == GOBS_LC::LC_L2 && (f != f2))
+                {
                     continue;
+                }
                 if (lc == GOBS_LC::LC_L3 && (f != f3))
+                {
                     continue;
+                }
                 if (lc == GOBS_LC::LC_L4 && (f != f4))
+                {
                     continue;
+                }
                 if (lc == GOBS_LC::LC_L5 && (f != f5))
+                {
                     continue;
+                }
 
                 map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
                 if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
@@ -1628,9 +1727,9 @@ namespace gnut
                 if (f == f1)
                 {
                     mapDataf1[p1] = itZ1->second;
-                    mapDataf1[p2] = itZ2->second; 
-                    mapDataf1[p3] = itZ3->second; 
-                    mapDataf1[p4] = itZ4->second; 
+                    mapDataf1[p2] = itZ2->second;
+                    mapDataf1[p3] = itZ3->second;
+                    mapDataf1[p4] = itZ4->second;
                 }
                 else if (f == f2)
                 {
@@ -1666,7 +1765,7 @@ namespace gnut
                 }
             }
 
-            t_ginterp interp(_spdlog);
+            t_ginterp interp;
             if (lc == GOBS_LC::LC_IF)
             {
                 if (interp.bilinear(mapDataf1, p_az, corrf1) < 0 || interp.bilinear(mapDataf2, p_az, corrf2) < 0)
@@ -1679,46 +1778,46 @@ namespace gnut
             {
                 switch (lc)
                 {
-                case GOBS_LC::LC_L1:
-                    if (interp.bilinear(mapDataf1, p_az, corrf1) < 0)
+                    case GOBS_LC::LC_L1:
+                        if (interp.bilinear(mapDataf1, p_az, corrf1) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L2:
+                        if (interp.bilinear(mapDataf2, p_az, corrf2) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L3:
+                        if (interp.bilinear(mapDataf3, p_az, corrf3) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L4:
+                        if (interp.bilinear(mapDataf4, p_az, corrf4) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L5:
+                        if (interp.bilinear(mapDataf5, p_az, corrf5) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    default:
                     {
                         _gmutex.unlock();
                         return -1;
                     }
-                    break;
-                case GOBS_LC::LC_L2:
-                    if (interp.bilinear(mapDataf2, p_az, corrf2) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                case GOBS_LC::LC_L3:
-                    if (interp.bilinear(mapDataf3, p_az, corrf3) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                case GOBS_LC::LC_L4:
-                    if (interp.bilinear(mapDataf4, p_az, corrf4) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                case GOBS_LC::LC_L5:
-                    if (interp.bilinear(mapDataf5, p_az, corrf5) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                default:
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
                 }
             }
         }
@@ -1746,7 +1845,7 @@ namespace gnut
 
                 mapDataf1 = _mapzen[f1];
                 mapDataf2 = _mapzen[f2];
-                t_ginterp interp(_spdlog);
+                t_ginterp interp;
                 if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
                 {
                     _gmutex.unlock();
@@ -1776,50 +1875,50 @@ namespace gnut
                     mapDataf5 = _mapzen[f5];
                 }
 
-                t_ginterp interp(_spdlog);
+                t_ginterp interp;
 
                 switch (lc)
                 {
-                case GOBS_LC::LC_L1:
-                    if (interp.linear(mapDataf1, zen, corrf1) < 0)
+                    case GOBS_LC::LC_L1:
+                        if (interp.linear(mapDataf1, zen, corrf1) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L2:
+                        if (interp.linear(mapDataf2, zen, corrf2) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L3:
+                        if (interp.linear(mapDataf3, zen, corrf3) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L4:
+                        if (interp.linear(mapDataf4, zen, corrf4) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    case GOBS_LC::LC_L5:
+                        if (interp.linear(mapDataf5, zen, corrf5) < 0)
+                        {
+                            _gmutex.unlock();
+                            return -1;
+                        }
+                        break;
+                    default:
                     {
                         _gmutex.unlock();
                         return -1;
                     }
-                    break;
-                case GOBS_LC::LC_L2:
-                    if (interp.linear(mapDataf2, zen, corrf2) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                case GOBS_LC::LC_L3:
-                    if (interp.linear(mapDataf3, zen, corrf3) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                case GOBS_LC::LC_L4:
-                    if (interp.linear(mapDataf4, zen, corrf4) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                case GOBS_LC::LC_L5:
-                    if (interp.linear(mapDataf5, zen, corrf5) < 0)
-                    {
-                        _gmutex.unlock();
-                        return -1;
-                    }
-                    break;
-                default:
-                {
-                    _gmutex.unlock();
-                    return -1;
-                }
                 }
             }
         }
@@ -1860,7 +1959,9 @@ namespace gnut
             corrLC = corrf5;
         }
         else
+        {
             corrLC = corrf2;
+        }
 
         _gmutex.unlock();
         return 1;
@@ -1878,7 +1979,6 @@ namespace gnut
         }
         else
         {
-
             int size = _mapazi[f].size();
             if (size > 0)
             {
@@ -1890,8 +1990,10 @@ namespace gnut
             }
         }
         if (_pcv_noazi)
+        {
             ret = false;
+        }
         return ret;
     }
 
-} // namespace
+} // namespace gnut

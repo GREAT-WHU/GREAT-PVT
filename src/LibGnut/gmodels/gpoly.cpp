@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include <math.h>
@@ -22,12 +22,12 @@ using namespace std;
 namespace gnut
 {
 
-    t_gpoly::t_gpoly()
-        : _valid(false),
-          _ncoeff(0),
-          _rms(0.0),
-          _xref(0.0),
-          _span(0.0)
+    t_gpoly::t_gpoly() :
+        _valid(false),
+        _ncoeff(0),
+        _rms(0.0),
+        _xref(0.0),
+        _span(0.0)
     {
         _coef.resize(0);
     }
@@ -45,17 +45,15 @@ namespace gnut
         _coef.erase(_coef.begin(), _coef.end());
     }
 
-    int t_gpoly::interpolate(const vector<double> &X,
-                             const vector<double> &Y,
-                             const double &x,
-                             double &y,
-                             double &dy)
+    int t_gpoly::interpolate(const vector<double>& X, const vector<double>& Y, const double& x, double& y, double& dy)
     {
-        y = dy = 0.0; 
+        y = dy = 0.0;
 
         int N = X.size();
         if (N <= 0 || X.size() != Y.size())
+        {
             return -1;
+        }
         if (N == 1)
         {
             y = Y[0];
@@ -74,20 +72,30 @@ namespace gnut
         bool reverse = false;
 
         if (fabs(x - X[0]) > fabs(x - X[N - 1]))
+        {
             reverse = true;
+        }
 
         for (int i = 0; i < N; i++)
         {
             if (reverse)
+            {
                 c[i] = d[i] = Y[N - 1 - i]; // reverse order/interpolation
+            }
             else
+            {
                 c[i] = d[i] = Y[i]; // standard order/interpolation
+            }
         }
 
         if (reverse)
+        {
             y = Y[0];
+        }
         else
+        {
             y = Y[N - 1];
+        }
 
         int ns = N - 1;
 
@@ -96,7 +104,6 @@ namespace gnut
         {
             for (int i = 0; i < N - m; i++)
             {
-
                 if (reverse)
                 { // reverse order
                     ho = X[N - 1 - i] - x;
@@ -126,12 +133,13 @@ namespace gnut
         return 1;
     }
 
-    int t_gpoly::polynomials(const vector<double> &X,
-                             const vector<double> &Y)
+    int t_gpoly::polynomials(const vector<double>& X, const vector<double>& Y)
     {
         _ncoeff = X.size(); // # polynomials
         if (_ncoeff <= 0)
+        {
             return 1;
+        }
 
         int N = _ncoeff - 1; // vector dimension (upper index)
 
@@ -143,7 +151,9 @@ namespace gnut
         _span = X[N] - X[0];
 
         if (!_coef.empty())
+        {
             _coef.erase(_coef.begin(), _coef.end());
+        }
 
         for (int i = 0; i < _ncoeff; i++)
         {
@@ -155,7 +165,9 @@ namespace gnut
         for (int i = 1; i <= N; i++)
         {
             for (int j = N - i; j <= N - 1; j++)
+            {
                 s[j] -= (X[i] - _xref) * s[j + 1];
+            }
             s[N] -= (X[i] - _xref);
         }
 
@@ -164,7 +176,9 @@ namespace gnut
             phi = N + 1;
 
             for (int k = N; k >= 1; k--)
+            {
                 phi = k * s[k] + (X[j] - _xref) * phi;
+            }
 
             ff = Y[j] / phi;
             b = 1.0;
@@ -180,19 +194,15 @@ namespace gnut
         if (verb > 2)
         {
             for (int j = 0; j < N; j++)
-                cerr << _span
-                     << fixed
-                     << " N=" << N
-                     << " R=" << _xref
-                     << " X=" << setprecision(3) << setw(12) << X[j] - _xref
-                     << " Y=" << setprecision(6) << setw(16) << Y[j]
-                     << " C=" << setprecision(6) << setw(16) << _coef[j]
-                     << endl;
+            {
+                cerr << _span << fixed << " N=" << N << " R=" << _xref << " X=" << setprecision(3) << setw(12) << X[j] - _xref
+                     << " Y=" << setprecision(6) << setw(16) << Y[j] << " C=" << setprecision(6) << setw(16) << _coef[j] << endl;
+            }
         }
         return 0;
     }
 
-    void t_gpoly::evaluate(double x, int I, double &y)
+    void t_gpoly::evaluate(double x, int I, double& y)
     {
         y = 0.0;
         if (_valid)
@@ -213,10 +223,11 @@ namespace gnut
         }
     }
 
-    int t_gpoly::fitpolynom(const vector<double> &X, // x data  time-difference
-                            const vector<double> &Y, // y data
-                            int N, double tunit,     // degree of polynom and X-time units [sec]
-                            const t_gtime &t)        // reference time
+    int t_gpoly::fitpolynom(const vector<double>& X, // x data  time-difference
+                            const vector<double>& Y, // y data
+                            int N,
+                            double tunit,     // degree of polynom and X-time units [sec]
+                            const t_gtime& t) // reference time
     {
         _valid = true;
         _ncoeff = N + 1;
@@ -230,9 +241,13 @@ namespace gnut
         int observ = X.size();
 
         if (!_coef.empty())
+        {
             _coef.erase(_coef.begin(), _coef.end());
+        }
         for (int i = 0; i < _ncoeff; i++)
+        {
             _coef.push_back(0.0);
+        }
 
         if (observ - unknwn < 0)
         {
@@ -253,7 +268,9 @@ namespace gnut
         for (int n = 0; n < observ; ++n)
         {
             for (int k = 0; k < unknwn; ++k)
+            {
                 A(n + 1, k + 1) = pow(X[n], k);
+            }
             L(n + 1) = Y[n];
             P(n + 1) = 1.0;
             SumP += P(n + 1);
@@ -269,7 +286,9 @@ namespace gnut
         RES = (A * C * XXX - L);
 
         for (int k = 0; k < unknwn; ++k)
+        {
             _coef[k] = C(k + 1) * XXX(k + 1);
+        }
         for (int n = 0; n < observ; ++n)
         {
             epo = t + X[n] * tunit;
@@ -283,7 +302,7 @@ namespace gnut
         return 0;
     }
 
-    double lagrange_interpolate(const vector<double> &X, const vector<double> &Y, double x, const bool &lvel)
+    double lagrange_interpolate(const vector<double>& X, const vector<double>& Y, double x, const bool& lvel)
     {
         // check
         const int maxorder = 30;
@@ -352,7 +371,7 @@ namespace gnut
             temp = 1.0;
             temp_up = 0.0;
             temp_down = coeff[Num][i];
-            if (lvel) 
+            if (lvel)
             {
                 if (up != 0)
                 {
@@ -394,4 +413,4 @@ namespace gnut
         return result;
     }
 
-} // namespace
+} // namespace gnut

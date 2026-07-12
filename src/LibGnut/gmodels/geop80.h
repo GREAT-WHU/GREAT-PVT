@@ -41,7 +41,6 @@ namespace gnut
     /** @brief class for t_geop80 based on t_geop. */
     class LibGnut_LIBRARY_EXPORT t_geop80 : public t_geop
     {
-
     public:
         /** @brief default constructor. */
         t_geop80();
@@ -59,6 +58,6 @@ namespace gnut
         /** @brief Frac part of double. */
         double _frac(double x);
     };
-}
+} // namespace gnut
 
 #endif

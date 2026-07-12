@@ -4,9 +4,9 @@
  * @brief        pos data structure for storing pos data
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef GPOSDATA_H
 #define GPOSDATA_H
@@ -20,26 +20,25 @@ using namespace gnut;
 namespace gsins
 {
     /**
-    *@brief t_gposdata Class for storing the pos data
-    *
-    * t_gposdata is used for loosely coupled integration.
-    * The data contains information about position,velocity,their std and so on.
-    * The gcoder t_gposdata corresponding to the gcoder t_posfile.
-    */
+     *@brief t_gposdata Class for storing the pos data
+     *
+     * t_gposdata is used for loosely coupled integration.
+     * The data contains information about position,velocity,their std and so on.
+     * The gcoder t_gposdata corresponding to the gcoder t_posfile.
+     */
     class LibGREAT_LIBRARY_EXPORT t_gposdata : public t_gdata
     {
     public:
         /** @brief default constructor. */
         t_gposdata();
 
-        t_gposdata(t_spdlog spdlog);
         /** @brief default destructor. */
         ~t_gposdata();
 
         /**
-        * @struct data_pos
-        * @brief describe pos data information
-        */
+         * @struct data_pos
+         * @brief describe pos data information
+         */
         struct data_pos
         {
             double t;             ///< time
@@ -53,20 +52,20 @@ namespace gsins
             double sigma0_2;      ///< the value of sigma0^2 (added by tyx for cps)
 
             /** @brief override operator. */
-            bool operator<(const data_pos &dp) const
-            { 
+            bool operator<(const data_pos& dp) const
+            {
                 return (t < dp.t);
             }
-            bool operator<(const double &d) const
-            { 
+            bool operator<(const double& d) const
+            {
                 return (t < d);
             }
-            bool operator>(const double &d) const
-            { 
+            bool operator>(const double& d) const
+            {
                 return (t > d);
             }
-            void operator=(const double &d)
-            { 
+            void operator=(const double& d)
+            {
                 t = d;
                 pos = Eigen::Vector3d::Zero();
                 vn = Eigen::Vector3d::Zero();
@@ -95,28 +94,25 @@ namespace gsins
             double sigma0_2;           ///< the value of sigma0^2
 
             /** @brief override operator. */
-            bool operator<(const rtk_pos &dp) const
-            { 
-                return (t < dp.t);
+            bool operator<(const rtk_pos& dp) const
+            {
             }
-            bool operator<(const double &d) const
-            { 
-                return (t < d);
+            bool operator<(const double& d) const
+            {
             }
-            bool operator>(const rtk_pos &dp) const
-            { 
+            bool operator>(const rtk_pos& dp) const
+            {
                 return (t > dp.t);
             }
-            bool operator>(const double &d) const
-            { 
-                return (t > d);
+            bool operator>(const double& d) const
+            {
             }
-            bool operator==(const rtk_pos &dp)
-            { 
+            bool operator==(const rtk_pos& dp)
+            {
                 return t == dp.t;
             }
-            bool operator==(const double &d)
-            { 
+            bool operator==(const double& d)
+            {
                 return t == d;
             }
         };
@@ -127,6 +123,6 @@ namespace gsins
         int _ptr;
     };
 
-}
+} // namespace gsins
 
 #endif

@@ -16,59 +16,22 @@ using namespace std;
 namespace gnut
 {
 
-    t_gallobj::t_gallobj()
-        : t_gdata(),
-          _gpcv(0),
-          _gotl(0)
+    t_gallobj::t_gallobj() :
+        t_gdata(),
+        _gpcv(0),
+        _gotl(0)
     {
         id_type(t_gdata::ALLOBJ);
         id_group(t_gdata::GRP_OBJECT);
         _aloctrn();
     }
-    t_gallobj::t_gallobj(t_spdlog spdlog)
-        : t_gdata(spdlog),
-          _gpcv(0),
-          _gotl(0)
-    {
-        if (nullptr == spdlog)
-        {
-            spdlog::critical("your spdlog is nullptr !");
-            throw logic_error("");
-        }
-        else
-        {
-            _spdlog = spdlog;
-        }
-        id_type(t_gdata::ALLOBJ);
-        id_group(t_gdata::GRP_OBJECT);
-        _aloctrn();
-    }
-
-    t_gallobj::t_gallobj(t_gallpcv *pcv, t_gallotl *otl) : t_gdata(),
-                                                           _gpcv(pcv),
-                                                           _gotl(otl)
-    {
-
-        id_type(t_gdata::ALLOBJ);
-        id_group(t_gdata::GRP_OBJECT);
-        _aloctrn();
-    }
-
-    t_gallobj::t_gallobj(t_spdlog spdlog, t_gallpcv *pcv, t_gallotl *otl) : t_gdata(spdlog),
-                                                                            _gpcv(pcv),
-                                                                            _gotl(otl)
+    t_gallobj::t_gallobj(t_gallpcv* pcv, t_gallotl* otl) :
+        t_gdata(),
+        _gpcv(pcv),
+        _gotl(otl)
     {
         id_type(t_gdata::ALLOBJ);
         id_group(t_gdata::GRP_OBJECT);
-        if (nullptr == spdlog)
-        {
-            spdlog::critical("your spdlog is nullptr !");
-            throw logic_error("");
-        }
-        else
-        {
-            _spdlog = spdlog;
-        }
         _aloctrn();
     }
 
@@ -82,7 +45,6 @@ namespace gnut
 
     int t_gallobj::add(shared_ptr<t_gobj> obj)
     {
-
         _gmutex.lock();
 
         string s = obj->id();
@@ -96,17 +58,12 @@ namespace gnut
 
         if (_mapobj.find(s) == _mapobj.end())
         {
-
             _mapobj[s] = obj;
-
-            _mapobj[s]->spdlog(_spdlog);
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "add new obj " + s);
+            GREAT_DEBUG("add new obj " + s);
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "warning - cannot overwrite object: " + s);
+            GREAT_DEBUG("warning - cannot overwrite object: " + s);
             _gmutex.unlock();
             return -1;
         }
@@ -117,7 +74,7 @@ namespace gnut
         return 0;
     }
 
-    shared_ptr<t_gobj> t_gallobj::obj(const string &s)
+    shared_ptr<t_gobj> t_gallobj::obj(const string& s)
     {
         _gmutex.lock();
 
@@ -138,7 +95,7 @@ namespace gnut
         return p_obj;
     }
 
-    map<string, shared_ptr<t_gobj>> t_gallobj::objects(const t_gdata::ID_TYPE &id)
+    map<string, shared_ptr<t_gobj>> t_gallobj::objects(const t_gdata::ID_TYPE& id)
     {
         _gmutex.lock();
 
@@ -151,7 +108,7 @@ namespace gnut
             {
                 ++itOBJ;
                 continue;
-            } 
+            }
             string site = itOBJ->second->id();
             all_obj[site] = itOBJ->second;
             ++itOBJ;
@@ -178,7 +135,6 @@ namespace gnut
 
     void t_gallobj::_aloctrn()
     {
-
         for (int i = 0; i != GNS; ++i)
         {
             GSYS sys = static_cast<GSYS>(i);
@@ -186,16 +142,15 @@ namespace gnut
             for (auto iter = sats.begin(); iter != sats.end(); ++iter)
             {
                 string satID = *iter;
-                shared_ptr<t_gtrn> trn_new = make_shared<t_gtrn>(_spdlog);
+                shared_ptr<t_gtrn> trn_new = make_shared<t_gtrn>();
                 trn_new->id(satID);
                 _mapobj[satID] = trn_new;
             }
         }
     }
 
-    void t_gallobj::read_satinfo(t_gtime &epo)
+    void t_gallobj::read_satinfo(t_gtime& epo)
     {
-
         cout << _mapobj["G01"]->name();
         t_map_obj::iterator it;
         for (it = _mapobj.begin(); it != _mapobj.end(); ++it)
@@ -208,4 +163,4 @@ namespace gnut
         }
     }
 
-} // namespace
+} // namespace gnut

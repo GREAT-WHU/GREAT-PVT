@@ -38,23 +38,25 @@ namespace gnut
         _crd[2] = crd[2];
     }
 
-    t_gtriple::t_gtriple(const ColumnVector &crd)
+    t_gtriple::t_gtriple(const ColumnVector& crd)
     {
         _crd[0] = crd(1);
         _crd[1] = crd(2);
         _crd[2] = crd(3);
     }
 
-    t_gtriple::t_gtriple(const Eigen::Vector3d &crd)
+    t_gtriple::t_gtriple(const Eigen::Vector3d& crd)
     {
         _crd[0] = crd(0);
         _crd[1] = crd(1);
         _crd[2] = crd(2);
     }
-    
-    t_gtriple::~t_gtriple() {}
 
-    double &t_gtriple::operator[](const size_t idx)
+    t_gtriple::~t_gtriple()
+    {
+    }
+
+    double& t_gtriple::operator[](const size_t idx)
     {
         if (idx > 2)
         {
@@ -67,12 +69,14 @@ namespace gnut
     double t_gtriple::operator[](const size_t idx) const
     {
         if (idx < 3)
+        {
             return _crd[idx];
+        }
 
         return 0.0;
     }
 
-    t_gtriple &t_gtriple::operator=(const t_gtriple &other)
+    t_gtriple& t_gtriple::operator=(const t_gtriple& other)
     {
         if (this != &other)
         {
@@ -83,7 +87,7 @@ namespace gnut
         return *this;
     }
 
-    t_gtriple &t_gtriple::operator+=(const t_gtriple &other)
+    t_gtriple& t_gtriple::operator+=(const t_gtriple& other)
     {
         if (this != &other)
         {
@@ -94,7 +98,7 @@ namespace gnut
         return *this;
     }
 
-    t_gtriple &t_gtriple::operator-=(const t_gtriple &other)
+    t_gtriple& t_gtriple::operator-=(const t_gtriple& other)
     {
         if (this != &other)
         {
@@ -105,7 +109,7 @@ namespace gnut
         return *this;
     }
 
-    t_gtriple &t_gtriple::operator*=(const double &x)
+    t_gtriple& t_gtriple::operator*=(const double& x)
     {
         _crd[0] *= x;
         _crd[1] *= x;
@@ -113,7 +117,7 @@ namespace gnut
         return *this;
     }
 
-    t_gtriple &t_gtriple::operator/=(const double &x)
+    t_gtriple& t_gtriple::operator/=(const double& x)
     {
         _crd[0] /= x;
         _crd[1] /= x;
@@ -124,12 +128,14 @@ namespace gnut
     double t_gtriple::crd(int idx) const
     {
         if (idx >= 0 && idx < 3)
+        {
             return _crd[static_cast<unsigned int>(idx)];
+        }
 
         return 0.0;
     }
 
-    t_gtriple t_gtriple::operator+(const t_gtriple &other) const
+    t_gtriple t_gtriple::operator+(const t_gtriple& other) const
     {
         t_gtriple tmp(*this);
         tmp[0] += other[0];
@@ -139,7 +145,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple t_gtriple::operator-(const t_gtriple &other) const
+    t_gtriple t_gtriple::operator-(const t_gtriple& other) const
     {
         t_gtriple tmp(*this);
         tmp[0] -= other[0];
@@ -149,7 +155,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple t_gtriple::operator*(const double &x) const
+    t_gtriple t_gtriple::operator*(const double& x) const
     {
         t_gtriple tmp(*this);
         tmp[0] *= x;
@@ -159,7 +165,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple t_gtriple::operator/(const double &x) const
+    t_gtriple t_gtriple::operator/(const double& x) const
     {
         t_gtriple tmp(*this);
         tmp[0] /= x;
@@ -172,31 +178,28 @@ namespace gnut
     void t_gtriple::set(int idx, double newValue)
     {
         if (idx >= 0 && idx < 3)
+        {
             _crd[static_cast<unsigned int>(idx)] = newValue;
+        }
     }
 
-    bool t_gtriple::operator==(const t_gtriple &tr) const
+    bool t_gtriple::operator==(const t_gtriple& tr) const
     {
-        return (_crd[0] == tr.crd(0) &&
-                _crd[1] == tr.crd(1) &&
-                _crd[2] == tr.crd(2));
+        return (_crd[0] == tr.crd(0) && _crd[1] == tr.crd(1) && _crd[2] == tr.crd(2));
     }
 
-    bool t_gtriple::operator!=(const t_gtriple &tr) const
+    bool t_gtriple::operator!=(const t_gtriple& tr) const
     {
-        return (!double_eq(_crd[0], tr.crd(0)) ||
-                !double_eq(_crd[1], tr.crd(1)) ||
-                !double_eq(_crd[2], tr.crd(2)));
+        return (!double_eq(_crd[0], tr.crd(0)) || !double_eq(_crd[1], tr.crd(1)) || !double_eq(_crd[2], tr.crd(2)));
     }
 
-    bool t_gtriple::operator<(const t_gtriple &tr) const
+    bool t_gtriple::operator<(const t_gtriple& tr) const
     {
-        return ((_crd[0] < tr.crd(0)) ||
-                (_crd[0] == tr.crd(0) && _crd[1] < tr.crd(1)) ||
+        return ((_crd[0] < tr.crd(0)) || (_crd[0] == tr.crd(0) && _crd[1] < tr.crd(1)) ||
                 (_crd[0] == tr.crd(0) && _crd[1] == tr.crd(1) && _crd[2] < tr.crd(2)));
     }
 
-    double *t_gtriple::crd_array()
+    double* t_gtriple::crd_array()
     {
         return _crd;
     }
@@ -219,19 +222,19 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple &t_gtriple::crd_tripl()
+    t_gtriple& t_gtriple::crd_tripl()
     {
         return *this;
     }
 
-    void t_gtriple::set(const ColumnVector &crd)
+    void t_gtriple::set(const ColumnVector& crd)
     {
         _crd[0] = crd(1);
         _crd[1] = crd(2);
         _crd[2] = crd(3);
     }
 
-    void t_gtriple::set(const Eigen::Vector3d &crd)
+    void t_gtriple::set(const Eigen::Vector3d& crd)
     {
         _crd[0] = crd(0);
         _crd[1] = crd(1);
@@ -270,10 +273,9 @@ namespace gnut
         return t_gpair(_crd[0], _crd[1]);
     }
 
-    ostream &operator<<(ostream &os, const t_gtriple &x)
+    ostream& operator<<(ostream& os, const t_gtriple& x)
     {
-        os << fixed << setprecision(5)
-           << dbl2str(x[0]) + " " + dbl2str(x[1]) + " " + dbl2str(x[2]);
+        os << fixed << setprecision(5) << dbl2str(x[0]) + " " + dbl2str(x[1]) + " " + dbl2str(x[2]);
         return os;
     }
 
@@ -289,22 +291,26 @@ namespace gnut
 
     bool t_gtriple::zero() const
     {
-        if (double_eq(_crd[0], 0.0) &&
-            double_eq(_crd[1], 0.0) &&
-            double_eq(_crd[2], 0.0))
+        if (double_eq(_crd[0], 0.0) && double_eq(_crd[1], 0.0) && double_eq(_crd[2], 0.0))
+        {
             return true;
+        }
         else
+        {
             return false;
+        }
     }
 
     bool t_gtriple::nan() const
     {
-        if (std::isnan(_crd[0]) ||
-            std::isnan(_crd[1]) ||
-            std::isnan(_crd[2]))
+        if (std::isnan(_crd[0]) || std::isnan(_crd[1]) || std::isnan(_crd[2]))
+        {
             return true;
+        }
         else
+        {
             return false;
+        }
     }
 
-} // namespace
+} // namespace gnut

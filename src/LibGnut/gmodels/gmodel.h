@@ -42,57 +42,71 @@ namespace gnut
     {
     public:
         t_gmodel();
-        t_gmodel(t_spdlog spdlog);
         /** @brief default destructor. */
         virtual ~t_gmodel();
 
         /** @brief set site. */
-        void setSite(const string &site);
+        void setSite(const string& site);
 
         /** @brief set log. */
-        void spdlog(t_spdlog spdlog);
-
         /** @brief model computed range value (phase/code). */
-        virtual double cmpObs(t_gtime &epoch, t_gallpar &param, t_gsatdata &, t_gobs &gobs, bool = false) = 0;
+        virtual double cmpObs(t_gtime& epoch, t_gallpar& param, t_gsatdata&, t_gobs& gobs, bool = false) = 0;
 
         /** @brief model computed D range value (phase/code). */
-        virtual double cmpObsD(t_gtime &epoch, t_gallpar &param, t_gsatdata &gsatdata, t_gobs &gobs) = 0;
+        virtual double cmpObsD(t_gtime& epoch, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) = 0;
 
         /** @brief get WindUp. */
-        virtual double windUp(t_gtime &epoch, const string, const ColumnVector &, const ColumnVector &) { return 0.0; };
+        virtual double windUp(t_gtime& epoch, const string, const ColumnVector&, const ColumnVector&)
+        {
+            return 0.0;
+        };
 
         /** @brief get trop Delay. */
-        virtual double tropoDelay(t_gtime &epoch, t_gallpar &param, t_gtriple ell, t_gsatdata &satdata) { return 0.0; };
+        virtual double tropoDelay(t_gtime& epoch, t_gallpar& param, t_gtriple ell, t_gsatdata& satdata)
+        {
+            return 0.0;
+        };
 
         /** @brief get ZHD. */
-        virtual double getZHD(const string &site, const t_gtime &epo) { return 0.0; };
+        virtual double getZHD(const string& site, const t_gtime& epo)
+        {
+            return 0.0;
+        };
 
         /** @brief get ZWD. */
-        virtual double getZWD(const string &site, const t_gtime &epo) { return 0.0; };
+        virtual double getZWD(const string& site, const t_gtime& epo)
+        {
+            return 0.0;
+        };
 
         /** @brief reset observation. */
-        virtual void reset_observ(OBSCOMBIN obs){};
+        virtual void reset_observ(OBSCOMBIN obs) {};
         /** @brief reset sat PCO. */
-        virtual void reset_SatPCO(bool cal = true){}; 
+        virtual void reset_SatPCO(bool cal = true) {};
 
         /** @brief Outliers detection. */
-        virtual int outlierDetect(vector<t_gsatdata> &data, SymmetricMatrix &Qx, const SymmetricMatrix &) = 0;
+        virtual int outlierDetect(vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&) = 0;
 
         /** @brief get tropoModel. */
-        shared_ptr<t_gtropo> tropoModel() { return _tropoModel; }
+        shared_ptr<t_gtropo> tropoModel()
+        {
+            return _tropoModel;
+        }
 
         /** @brief set allbias. */
-        void setBIAS(t_gallbias *bia) { _gallbias = bia; }
+        void setBIAS(t_gallbias* bia)
+        {
+            _gallbias = bia;
+        }
 
     protected:
         shared_ptr<t_gtropo> _tropoModel; ///< trop model
-        t_gsetbase *_settings;            ///< setting
+        t_gsetbase* _settings;            ///< setting
         string _site;                     ///< site
-        t_spdlog _spdlog;                 /// spdlog ptr
         bool _phase;                      ///< phase
-        t_gallbias *_gallbias;            ///< allbias
+        t_gallbias* _gallbias;            ///< allbias
     };
 
-}
+} // namespace gnut
 
 #endif //  GMODEL_H

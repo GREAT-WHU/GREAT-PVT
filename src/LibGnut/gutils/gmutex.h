@@ -44,13 +44,13 @@ namespace gnut
         t_gmutex();
 
         /** @brief copy constructor. */
-        t_gmutex(const t_gmutex &Other);
+        t_gmutex(const t_gmutex& Other);
 
         /** @brief default destructor. */
         ~t_gmutex();
 
         /** @brief override operator =. */
-        t_gmutex operator=(const t_gmutex &Other);
+        t_gmutex operator=(const t_gmutex& Other);
 
         /** @brief lock. */
         void lock();
@@ -66,8 +66,8 @@ namespace gnut
 #else
         mutex _mutex;
 
-#endif 
+#endif
     };
-} // namespace
+} // namespace gnut
 
 #endif // MUTEX_H

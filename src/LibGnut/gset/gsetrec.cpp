@@ -24,16 +24,16 @@ using namespace pugi;
 
 #ifndef XMLKEY_GEN
 #define XMLKEY_GEN "gen"
-#endif 
+#endif
 
 #ifndef XMLKEY_REC_REC
 #define XMLKEY_REC_REC "rec"
-#endif 
+#endif
 
 namespace gnut
 {
-    t_gsetrec::t_gsetrec()
-        : t_gsetbase()
+    t_gsetrec::t_gsetrec() :
+        t_gsetbase()
     {
         _set.insert(XMLKEY_REC);
         _id = "";
@@ -51,12 +51,12 @@ namespace gnut
     {
     }
 
-    shared_ptr<t_grec> t_gsetrec::grec(string s, t_spdlog spdlog)
+    shared_ptr<t_grec> t_gsetrec::grec(string s)
     {
         _gmutex.lock();
 
         string str;
-        shared_ptr<t_grec> tmp = make_shared<t_grec>(spdlog);
+        shared_ptr<t_grec> tmp = make_shared<t_grec>();
 
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
         if (!site)
@@ -72,13 +72,11 @@ namespace gnut
         t_gtriple blh = _get_crd_blh(s);
         t_gtriple eccneu = _get_ecc_neu(s);
 
-        if (double_eq(xyz.crd(0), 0.0) &&
-            double_eq(xyz.crd(1), 0.0) &&
-            double_eq(xyz.crd(2), 0.0))
+        if (double_eq(xyz.crd(0), 0.0) && double_eq(xyz.crd(1), 0.0) && double_eq(xyz.crd(2), 0.0))
         {
             if (double_eq(blh.crd(2), HSL_UNKNOWN))
             {
-                SPDLOG_LOGGER_WARN(spdlog, "warning - invalid coordinates for rec: ");
+                GREAT_WARN("warning - invalid coordinates for rec: ");
             }
             else
             {
@@ -90,28 +88,35 @@ namespace gnut
         substitute(str_beg_gen, "\"", "");
         t_gtime gen_beg(t_gtime::GPS);
         if (!str_beg_gen.empty())
+        {
             gen_beg.from_str("%Y-%m-%d %H:%M:%S", trim(str_beg_gen));
+        }
         else
+        {
             gen_beg = FIRST_TIME;
+        }
 
         string str_end_gen = _doc.child(XMLKEY_ROOT).child("gen").child_value("end");
         substitute(str_end_gen, "\"", "");
         t_gtime gen_end(t_gtime::GPS);
         if (!str_end_gen.empty())
+        {
             gen_end.from_str("%Y-%m-%d %H:%M:%S", trim(str_end_gen));
+        }
         else
+        {
             gen_end = FIRST_TIME;
+        }
 
-        tmp->spdlog(spdlog);
         tmp->overwrite(site.attribute("overwrite").as_bool());
         tmp->id(site.attribute("id").value());
 
-        t_gtriple std(10, 10, 10);    
-        tmp->crd(xyz, std, beg, end); 
+        t_gtriple std(10, 10, 10);
+        tmp->crd(xyz, std, beg, end);
 
-        tmp->eccneu(eccneu, beg, end);                     
-        tmp->rec(site.attribute("rec").value(), beg, end); 
-        tmp->ant(site.attribute("ant").value(), beg, end); 
+        tmp->eccneu(eccneu, beg, end);
+        tmp->rec(site.attribute("rec").value(), beg, end);
+        tmp->ant(site.attribute("ant").value(), beg, end);
 
         string x = site.attribute("X").value();
         string y = site.attribute("Y").value();
@@ -121,7 +126,7 @@ namespace gnut
             xyz[0] = str2dbl(x);
             xyz[1] = str2dbl(y);
             xyz[2] = str2dbl(z);
-            t_gtriple std(10, 10, 10); 
+            t_gtriple std(10, 10, 10);
             tmp->crd(xyz, std, beg, end);
         }
 
@@ -146,7 +151,6 @@ namespace gnut
             xyz[2] = str2dbl(du);
             tmp->eccneu(xyz, beg, end);
         }
-
 
         _gmutex.unlock();
         return tmp;
@@ -211,9 +215,7 @@ namespace gnut
     {
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
 
-        t_gtriple xyz(site.attribute("X").as_double(),
-                      site.attribute("Y").as_double(),
-                      site.attribute("Z").as_double());
+        t_gtriple xyz(site.attribute("X").as_double(), site.attribute("Y").as_double(), site.attribute("Z").as_double());
         return xyz;
     }
 
@@ -221,9 +223,7 @@ namespace gnut
     {
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
 
-        t_gtriple neu(site.attribute("DN").as_double(),
-                      site.attribute("DE").as_double(),
-                      site.attribute("DU").as_double());
+        t_gtriple neu(site.attribute("DN").as_double(), site.attribute("DE").as_double(), site.attribute("DU").as_double());
         return neu;
     }
 
@@ -234,30 +234,28 @@ namespace gnut
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
         xml_attribute attr;
 
-        if ((attr = site.attribute("LAT")) &&
-            (attr = site.attribute("LON")) &&
-            (attr = site.attribute("HSL")))
+        if ((attr = site.attribute("LAT")) && (attr = site.attribute("LON")) && (attr = site.attribute("HSL")))
         {
-            t_gtriple blh(site.attribute("LAT").as_double(),
-                          site.attribute("LON").as_double(),
-                          site.attribute("HSL").as_double());
+            t_gtriple blh(site.attribute("LAT").as_double(), site.attribute("LON").as_double(), site.attribute("HSL").as_double());
             double pres, temp, undu = 0.0;
-            _ggpt.gpt_v1(51544.0, blh[0] * D2R, blh[1] * D2R, blh[2], pres, temp, undu); 
-            blh[2] += undu;                                                              
+            _ggpt.gpt_v1(51544.0, blh[0] * D2R, blh[1] * D2R, blh[2], pres, temp, undu);
+            blh[2] += undu;
             return blh;
         }
 
         t_gtriple xyz = _get_crd_xyz(s);
 
-        if (!double_eq(xyz.crd(0), 0.0) &&
-            !double_eq(xyz.crd(1), 0.0) &&
-            !double_eq(xyz.crd(2), 0.0))
+        if (!double_eq(xyz.crd(0), 0.0) && !double_eq(xyz.crd(1), 0.0) && !double_eq(xyz.crd(2), 0.0))
         {
             t_gtriple blh;
             if (xyz2ell(xyz, blh, true) == 1)
+            {
                 return blh;
+            }
             else
+            {
                 return zero;
+            }
         }
 
         return zero;
@@ -276,12 +274,11 @@ namespace gnut
 
         _default_attr(node, "overwrite", _overwrite);
 
-
         map<string, xml_node> mchild;
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC); node;)
         {
             xml_node rec = node;
-            node = node.next_sibling(XMLKEY_REC); 
+            node = node.next_sibling(XMLKEY_REC);
 
             string id = rec.attribute("id").value();
             string name = rec.attribute("name").value();
@@ -292,7 +289,7 @@ namespace gnut
                 rec.insert_attribute_after("name", rec.attribute("id")) = id.c_str();
             }
             if (domes.empty())
-            { 
+            {
                 if (name.length() < 14)
                 {
                     domes = "XXXXXXXXX";
@@ -320,7 +317,7 @@ namespace gnut
             for (xml_node set = rec.child("set"); set;)
             {
                 xml_node tmp = set;
-                set = set.next_sibling("set"); 
+                set = set.next_sibling("set");
 
                 string beg = tmp.attribute("beg").value();
                 if (mattr.find(beg) == mattr.end())
@@ -350,9 +347,8 @@ namespace gnut
              << " Z=\"4857067.0\""
              << " </rec>\n";
 
-
         _gmutex.unlock();
         return;
     }
 
-} // namespace
+} // namespace gnut

@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <sstream>
 #include <cstring>
+#include <string>
 
 #include "gall/gallprec.h"
 #include "gcoders/sp3.h"
@@ -25,19 +26,17 @@ using namespace std;
 namespace gnut
 {
 
-    t_sp3::t_sp3(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz)
+    t_sp3::t_sp3(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz)
     {
-
         _start.tsys(t_gtime::GPS);
         _lastepo.tsys(t_gtime::GPS);
         _nrecord = -1;
         _nrecmax = -1;
     }
 
-    int t_sp3::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_sp3::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -52,11 +51,9 @@ namespace gnut
 
         while ((tmpsize = t_gcoder::_getline(tmp)) >= 0)
         {
-
             consume += tmpsize;
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Current Line is : {}", tmp);
+            GREAT_DEBUG(std::string("Current Line is : ") + tmp);
             // first information
             if (tmp.substr(0, 1) == "#")
             {
@@ -65,7 +62,6 @@ namespace gnut
                     tmp.substr(1, 1) == "c"    // 80-columns
                 )
                 {
-
                     _version = tmp.substr(1, 1);
                     _start.from_str("%Y %m %d  %H %M %S", tmp.substr(3, 30));
                     _nepochs = str2int(tmp.substr(32, 7));
@@ -84,21 +80,15 @@ namespace gnut
                 else if (tmp.substr(1, 1) == "#")
                 {
                     _orbintv = (long)str2dbl(tmp.substr(24, 14)); // [sec]
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "start time = {}", _start.str(" %Y-%m-%d %H:%M:%S"));
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "refs       = {}", _orbrefs);
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "type       = {}", _orbtype);
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "intv       = {}", _orbintv);
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "nepo       = {}", _nepochs);
+                    GREAT_DEBUG(std::string("start time = ") + _start.str(" %Y-%m-%d %H:%M:%S"));
+                    GREAT_DEBUG(std::string("refs       = ") + _orbrefs);
+                    GREAT_DEBUG(std::string("type       = ") + _orbtype);
+                    GREAT_DEBUG(std::string("intv       = ") + std::to_string(_orbintv));
+                    GREAT_DEBUG(std::string("nepo       = ") + std::to_string(_nepochs));
                 }
                 else
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_WARN(_spdlog, "unknown record");
+                    GREAT_WARN("unknown record");
                 }
             }
             else if (tmp.substr(0, 2) == "+ ")
@@ -123,8 +113,7 @@ namespace gnut
                     _prn.push_back(ssat);
                     ltmp << " " << tmp.substr(i, 3);
                 }
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "decoder for {} ", ltmp.str());
+                GREAT_DEBUG(std::string("decoder for ") + ltmp.str() + " ");
             }
             else if (tmp.substr(0, 2) == "++")
             {
@@ -134,8 +123,7 @@ namespace gnut
                     _acc.push_back(str2int(tmp.substr(i, 3)));
                     ltmp << " " << tmp.substr(i, 3);
                 }
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "decoder for {} ", ltmp.str());
+                GREAT_DEBUG(std::string("decoder for ") + ltmp.str() + " ");
             }
             else if (tmp.substr(0, 2) == "%c")
             {
@@ -151,37 +139,31 @@ namespace gnut
                 _timesys.push_back(tmp.substr(43, 5));
                 _timesys.push_back(tmp.substr(49, 5));
                 _timesys.push_back(tmp.substr(55, 5));
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading satellite systems");
+                GREAT_DEBUG("reading satellite systems");
             }
             else if (tmp.substr(0, 2) == "%f")
             {
                 _accbase.push_back(str2int(tmp.substr(3, 9)));
                 _accbase.push_back(str2int(tmp.substr(14, 9)));
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading PV base");
+                GREAT_DEBUG("reading PV base");
             }
             else if (tmp.substr(0, 2) == "%i")
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "additional info");
+                GREAT_DEBUG("additional info");
             }
             else if (tmp.substr(0, 2) == "/*")
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "comments");
+                GREAT_DEBUG("comments");
             }
             else if (tmp.substr(0, 2) == "* ")
             { // END OF HEADER !!!
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "END OF HEADER");
+                GREAT_DEBUG("END OF HEADER");
                 _mutex.unlock();
                 return -1;
             }
             else
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "warning: unknown header message");
+                GREAT_DEBUG("warning: unknown header message");
             }
 
             t_gcoder::_consume(tmpsize);
@@ -191,9 +173,8 @@ namespace gnut
         return consume;
     }
 
-    int t_sp3::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_sp3::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -207,14 +188,11 @@ namespace gnut
         while ((tmpsize = t_gcoder::_getline(tmp, 0)) >= 0)
         {
             // EPOCH record
-            if (tmp.substr(0, 1) == "*" ||
-                tmp.substr(0, 3) == "EOF")
+            if (tmp.substr(0, 1) == "*" || tmp.substr(0, 3) == "EOF")
             {
-
                 if (tmp.substr(0, 3) == "EOF")
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "EOF found");
+                    GREAT_DEBUG("EOF found");
                     t_gcoder::_consume(tmpsize);
                     _mutex.unlock();
                     return tmpsize;
@@ -222,9 +200,8 @@ namespace gnut
 
                 if (_nrecord > 0 && _nrecord != _nrecmax)
                 {
-
-                    if (_spdlog)
-                        SPDLOG_LOGGER_WARN(_spdlog, "not equal number of satellites _nrecord is {}, _nrecmax is {}!", _nrecord, _nrecmax);
+                    GREAT_WARN(std::string("not equal number of satellites _nrecord is ") + std::to_string(_nrecord) + ", _nrecmax is " +
+                               std::to_string(_nrecmax) + "!");
                 }
 
                 char dummy;
@@ -235,8 +212,7 @@ namespace gnut
 
                 if (ss.fail())
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_CRITICAL(_spdlog, "incorrect SP3 epoch record : {}!", ss.str().c_str());
+                    GREAT_CRITICAL(std::string("incorrect SP3 epoch record : ") + ss.str() + "!");
                     t_gcoder::_consume(tmpsize);
                     _mutex.unlock();
                     return -1;
@@ -245,15 +221,13 @@ namespace gnut
                 int sod = hr * 3600 + mi * 60 + (int)sc;
                 _lastepo.from_ymd(yr, mn, dd, sod);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading EPOCH [{}] - {} ", _nrecord, _lastepo.str(" %Y-%m-%d %H:%M:%S"));
+                GREAT_DEBUG(std::string("reading EPOCH [") + std::to_string(_nrecord) + "] - " + _lastepo.str(" %Y-%m-%d %H:%M:%S") + " ");
                 _nrecord = -1;
             }
 
             // POSITION reccord
             if (tmp.substr(0, 1) == "P")
-            { 
-
+            {
                 t_gtriple xyz(0.0, 0.0, 0.0);
                 t_gtriple dxyz(0.0, 0.0, 0.0);
                 double t = 0.0, dt = 0.9;
@@ -269,20 +243,29 @@ namespace gnut
                 prn = t_gsys::eval_sat(string(sat));
 
                 for (int i = 0; i < 3; i++)
+                {
                     if (pos[i] == 0.0)
+                    {
                         xyz[i] = UNDEFVAL_POS; // gephprec
+                    }
                     else
+                    {
                         xyz[i] = pos[i] * 1000; // km -> m
+                    }
+                }
 
                 if (pos[3] > 999999)
+                {
                     t = UNDEFVAL_CLK; // gephprec
+                }
                 else
+                {
                     t = pos[3] / 1000000; // us -> s
+                }
                 // fill single data record
                 if (!_filter_gnss(prn))
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "skip satellite : {} for you do not set at the xml file", prn);
+                    GREAT_DEBUG(std::string("skip satellite : ") + prn + " for you do not set at the xml file");
                 }
                 else
                 {
@@ -297,13 +280,12 @@ namespace gnut
                         }
 
                         it++;
+                    }
                 }
-            }
 
                 if (ss.fail())
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_ERROR(_spdlog, "incorrect SP3 data record: {}", ss.str());
+                    GREAT_ERROR(std::string("incorrect SP3 data record: ") + ss.str());
                     t_gcoder::_consume(tmpsize);
                     _mutex.unlock();
                     return -1;
@@ -328,12 +310,11 @@ namespace gnut
                 prn = t_gsys::eval_sat(string(sat));
 
                 // fill single data record
-                map<string, t_gdata *>::iterator it = _data.begin();
+                map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
                     if (!_filter_gnss(prn))
                     {
-
                         it++;
                     }
                     else
@@ -351,8 +332,7 @@ namespace gnut
 
                 if (ss.fail())
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_ERROR(_spdlog, "incorrect SP3 data record: {}", ss.str());
+                    GREAT_ERROR(std::string("incorrect SP3 data record: ") + ss.str());
                     t_gcoder::_consume(tmpsize);
                     _mutex.unlock();
                     return -1;
@@ -362,7 +342,9 @@ namespace gnut
             _nrecord++;
 
             if (_nrecord > _nrecmax)
+            {
                 _nrecmax = _nrecord;
+            }
 
             t_gcoder::_consume(tmpsize);
         }
@@ -370,5 +352,4 @@ namespace gnut
         return tmpsize;
     }
 
-
-} // namespace
+} // namespace gnut

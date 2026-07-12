@@ -1,7 +1,7 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
 -*/
@@ -35,15 +35,17 @@ namespace gnut
         _crd[1] = crd[1];
     }
 
-    t_gpair::t_gpair(const ColumnVector &crd)
+    t_gpair::t_gpair(const ColumnVector& crd)
     {
         _crd[0] = crd(1);
         _crd[1] = crd(2);
     }
 
-    t_gpair::~t_gpair() {}
+    t_gpair::~t_gpair()
+    {
+    }
 
-    double &t_gpair::operator[](const size_t idx)
+    double& t_gpair::operator[](const size_t idx)
     {
         if (idx > 1)
         {
@@ -57,12 +59,14 @@ namespace gnut
     double t_gpair::operator[](const size_t idx) const
     {
         if (idx < 2)
+        {
             return _crd[idx];
+        }
 
         return 0.0;
     }
 
-    t_gpair t_gpair::operator+(const t_gpair &other) const
+    t_gpair t_gpair::operator+(const t_gpair& other) const
     {
         t_gpair tmp(*this);
         tmp[0] += other[0];
@@ -74,7 +78,9 @@ namespace gnut
     double t_gpair::crd(int idx) const
     {
         if (idx >= 0 && idx < 2)
+        {
             return _crd[static_cast<unsigned int>(idx)];
+        }
 
         return 0.0;
     }
@@ -82,10 +88,12 @@ namespace gnut
     void t_gpair::set(int idx, double newValue)
     {
         if (idx >= 0 && idx < 2)
+        {
             _crd[static_cast<unsigned int>(idx)] = newValue;
+        }
     }
 
-    t_gpair &t_gpair::operator=(const t_gpair &other)
+    t_gpair& t_gpair::operator=(const t_gpair& other)
     {
         if (this != &other)
         {
@@ -95,19 +103,17 @@ namespace gnut
         return *this;
     }
 
-    bool t_gpair::operator==(const t_gpair &tr) const
+    bool t_gpair::operator==(const t_gpair& tr) const
     {
-        return (_crd[0] == tr.crd(0) &&
-                _crd[1] == tr.crd(1));
+        return (_crd[0] == tr.crd(0) && _crd[1] == tr.crd(1));
     }
 
-    bool t_gpair::operator<(const t_gpair &tr) const
+    bool t_gpair::operator<(const t_gpair& tr) const
     {
-        return ((_crd[0] < tr.crd(0)) ||
-                (_crd[0] == tr.crd(0) && _crd[1] < tr.crd(1)));
+        return ((_crd[0] < tr.crd(0)) || (_crd[0] == tr.crd(0) && _crd[1] < tr.crd(1)));
     }
 
-    double *t_gpair::crd_array()
+    double* t_gpair::crd_array()
     {
         return _crd;
     }
@@ -120,12 +126,12 @@ namespace gnut
         return tmp;
     }
 
-    t_gpair &t_gpair::crd_pair()
+    t_gpair& t_gpair::crd_pair()
     {
         return *this;
     }
 
-    void t_gpair::set(const ColumnVector &crd)
+    void t_gpair::set(const ColumnVector& crd)
     {
         _crd[0] = crd(1);
         _crd[1] = crd(2);
@@ -147,20 +153,22 @@ namespace gnut
         return tmp;
     }
 
-    ostream &operator<<(ostream &os, const t_gpair &x)
+    ostream& operator<<(ostream& os, const t_gpair& x)
     {
-        os << fixed << setprecision(3)
-           << dbl2str(x[0]) + " " + dbl2str(x[1]);
+        os << fixed << setprecision(3) << dbl2str(x[0]) + " " + dbl2str(x[1]);
         return os;
     }
 
     bool t_gpair::zero()
     {
-        if (double_eq(_crd[0], 0.0) &&
-            double_eq(_crd[1], 0.0))
+        if (double_eq(_crd[0], 0.0) && double_eq(_crd[1], 0.0))
+        {
             return true;
+        }
         else
+        {
             return false;
+        }
     }
 
-} // namespace
+} // namespace gnut

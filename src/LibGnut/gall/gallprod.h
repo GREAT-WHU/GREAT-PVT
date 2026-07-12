@@ -33,20 +33,18 @@ namespace gnut
 {
 
     /**
-    *@brief Class for t_gallprod derive from t_gdata
-    */
+     *@brief Class for t_gallprod derive from t_gdata
+     */
     class LibGnut_LIBRARY_EXPORT t_gallprod : public t_gdata
     {
-
     public:
         /** @brief default constructor. */
         t_gallprod();
         /**
          * @brief Construct a new t gallprod object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gallprod(t_spdlog spdlog);
         /** @brief default destructor. */
         virtual ~t_gallprod();
 
@@ -58,30 +56,31 @@ namespace gnut
         int add(shared_ptr<t_gprod> prod, string site = "");
 
         /** @brief get product. */
-        shared_ptr<t_gprod> get(const string &site, ID_TYPE type, const t_gtime &t);
+        shared_ptr<t_gprod> get(const string& site, ID_TYPE type, const t_gtime& t);
 
         /** @brief remove appropriate element t_gprod*. */
-        void rem(const string &site, ID_TYPE type, const t_gtime &t);
+        void rem(const string& site, ID_TYPE type, const t_gtime& t);
 
         /** @brief get the list of sites*. */
         set<string> prod_sites();
 
         /** @brief get the list of product types. */
-        set<t_gtime> prod_epochs(const string &site, ID_TYPE type);
+        set<t_gtime> prod_epochs(const string& site, ID_TYPE type);
 
         /** @brief clean. */
         void clear();
 
         /** @brief clean data out of the interval. */
-        void clean_outer(const t_gtime &beg = FIRST_TIME, const t_gtime &end = LAST_TIME);
+        void clean_outer(const t_gtime& beg = FIRST_TIME, const t_gtime& end = LAST_TIME);
 
     protected:
         /** @brief find appropriate element t_gprod*. */
-        shared_ptr<t_gprod> _find(const string &site, ID_TYPE type, const t_gtime &t); // find element
+        shared_ptr<t_gprod> _find(const string& site, ID_TYPE type,
+                                  const t_gtime& t); // find element
 
         t_map_prd _map_prod; ///< t_map_prd
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

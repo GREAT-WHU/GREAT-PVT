@@ -75,89 +75,123 @@ namespace gnut
     /** @brief class for navigation data. */
     class LibGnut_LIBRARY_EXPORT t_geph : public t_gdata
     {
-
     public:
         /** @brief default constructor. */
         explicit t_geph();
-        explicit t_geph(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_geph();
 
         /**
-        * @brief get the clock offset value
-        * @param[in]  t            GPST.
-        * @param[in]  clk        clock offset value.
-        * @param[in]  var        clock variation, default value is NULL.
-        * @param[in]  dclk        clock difference, default value is NULL.
-        * @param[in]  chk_health    the heath of satellite, default value is true.
-        * @return      int 
-        */
-        virtual int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) { return -1; } // [s]
+         * @brief get the clock offset value
+         * @param[in]  t            GPST.
+         * @param[in]  clk        clock offset value.
+         * @param[in]  var        clock variation, default value is NULL.
+         * @param[in]  dclk        clock difference, default value is NULL.
+         * @param[in]  chk_health    the heath of satellite, default value is true.
+         * @return      int
+         */
+        virtual int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, bool chk_health = true)
+        {
+            return -1;
+        } // [s]
 
         /**
-        * @brief get the position value
-        * @param[in]  t            GPST.
-        * @param[in]  xyz        position value.
-        * @param[in]  var        position variation, default value is NULL.
-        * @param[in]  vel        vel, default value is NULL.
-        * @param[in]  chk_health    the heath of satellite, default value is true.
-        * @return      int
-        */
-        virtual int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) { return -1; } // [m]
+         * @brief get the position value
+         * @param[in]  t            GPST.
+         * @param[in]  xyz        position value.
+         * @param[in]  var        position variation, default value is NULL.
+         * @param[in]  vel        vel, default value is NULL.
+         * @param[in]  chk_health    the heath of satellite, default value is true.
+         * @return      int
+         */
+        virtual int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true)
+        {
+            return -1;
+        } // [m]
 
         /**
-        * @brief get the nav position value
-        * @param[in]  t            GPST.
-        * @param[in]  xyz        position value.
-        * @param[in]  var        position variation, default value is NULL.
-        * @param[in]  vel        vel, default value is NULL.
-        * @param[in]  chk_health    the heath of satellite, default value is true.
-        * @return      int
-        */
-        virtual int nav(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true)
+         * @brief get the nav position value
+         * @param[in]  t            GPST.
+         * @param[in]  xyz        position value.
+         * @param[in]  var        position variation, default value is NULL.
+         * @param[in]  vel        vel, default value is NULL.
+         * @param[in]  chk_health    the heath of satellite, default value is true.
+         * @return      int
+         */
+        virtual int nav(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true)
         {
             return this->pos(t, xyz, var, vel, chk_health);
         } // [m]
 
         /** @brief get the heath of satellite. */
-        virtual bool healthy() const { return true; }
+        virtual bool healthy() const
+        {
+            return true;
+        }
 
         /** @brief get the heath of satellite. (string) */
-        virtual string health_str() const { return ""; }
+        virtual string health_str() const
+        {
+            return "";
+        }
 
         /** @brief get the chk. */
-        virtual int chk() const { return -1; }
+        virtual int chk() const
+        {
+            return -1;
+        }
 
         /** @brief get the nav type. */
-        virtual GNAVTYPE gnavtype(bool full = true) const { return NAV; }
+        virtual GNAVTYPE gnavtype(bool full = true) const
+        {
+            return NAV;
+        }
 
         /** @brief get the src. */
-        virtual int src(bool full = true) const { return 0; }
+        virtual int src(bool full = true) const
+        {
+            return 0;
+        }
 
         /** @brief get the line format. */
-        virtual string linefmt() const { return ""; }
+        virtual string linefmt() const
+        {
+            return "";
+        }
 
         /** @brief get the line. */
-        virtual string line() const { return ""; }
+        virtual string line() const
+        {
+            return "";
+        }
 
         /** @brief print line format. */
-        virtual void print() const { cout << linefmt(); }
+        virtual void print() const
+        {
+            cout << linefmt();
+        }
 
         /** @brief get the parameter of nav. */
-        virtual t_timdbl param(const NAVDATA &n);
+        virtual t_timdbl param(const NAVDATA& n);
 
         /** @brief override param. */
-        virtual int param(const NAVDATA &n, double val);
+        virtual int param(const NAVDATA& n, double val);
 
         /** @brief cyclic. */
-        virtual bool param_cyclic(const NAVDATA &n);
+        virtual bool param_cyclic(const NAVDATA& n);
 
         /** @brief set the value of gio. */
-        virtual void gio(shared_ptr<t_gio> p) { _gio_ptr = p; }
+        virtual void gio(shared_ptr<t_gio> p)
+        {
+            _gio_ptr = p;
+        }
 
         /** @brief get the value of gio. */
-        shared_ptr<t_gio> gio() { return _gio_ptr; }
+        shared_ptr<t_gio> gio()
+        {
+            return _gio_ptr;
+        }
 
         /** @brief clear data. */
         void clear();
@@ -166,7 +200,10 @@ namespace gnut
         bool valid();
 
         /** @brief override valid. */
-        void valid(bool validity) { _validity = validity; }
+        void valid(bool validity)
+        {
+            _validity = validity;
+        }
 
         /** @brief get the name of GNSS system. */
         GSYS gsys() const;
@@ -176,22 +213,40 @@ namespace gnut
 
         // POZDEJI JEN GSAT a vse pres MUTEX !!!
         /** @brief get the value of _sat. */
-        string sat() const { return _sat; }
+        string sat() const
+        {
+            return _sat;
+        }
 
         /** @brief get the value of validity interval. */
-        double interval() const { return _interval; }
+        double interval() const
+        {
+            return _interval;
+        }
 
         /** @brief get the value of reference epoch. */
-        t_gtime epoch() const { return _epoch; }
+        t_gtime epoch() const
+        {
+            return _epoch;
+        }
 
         /** @brief get the begin time of validity. */
-        t_gtime begin() const { return _epoch - _interval / 2; }
+        t_gtime begin() const
+        {
+            return _epoch - _interval / 2;
+        }
 
         /** @brief get the end time of validity. */
-        t_gtime end() const { return _epoch + _interval / 2; }
+        t_gtime end() const
+        {
+            return _epoch + _interval / 2;
+        }
 
         /** @brief chktot. */
-        virtual bool chktot(const t_gtime &t) { return true; }
+        virtual bool chktot(const t_gtime& t)
+        {
+            return true;
+        }
 
     protected:
         /** @brief clear. */
@@ -209,6 +264,6 @@ namespace gnut
 
     private:
     };
-}
+} // namespace gnut
 
 #endif

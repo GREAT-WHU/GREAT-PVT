@@ -19,7 +19,7 @@
 #ifndef GSETOUT_H
 #define GSETOUT_H
 
-#define XMLKEY_OUT "outputs"   ///< The defination of outputs module in xml file
+#define XMLKEY_OUT "outputs" ///< The defination of outputs module in xml file
 
 #define DEFAULT_FILE_VER ""    ///< default version for file format
 #define DEFAULT_FILE_UPD 0     ///< default auto update [min] for file saving
@@ -63,14 +63,14 @@ namespace gnut
          * @param[in] s file format
          * @return OFMT : file format
          */
-        static OFMT str2ofmt(const string &s);
+        static OFMT str2ofmt(const string& s);
 
         /**
          * @brief change from OFMT to string
          * @param[in] f file format
          * @return string : file format
          */
-        static string ofmt2str(const OFMT &f);
+        static string ofmt2str(const OFMT& f);
 
         /**@brief settings check */
         void check();
@@ -97,33 +97,33 @@ namespace gnut
          * @param[in] fmt file format
          * @return int : format output size
          */
-        int output_size(const string &fmt);
+        int output_size(const string& fmt);
 
         /**
          * @brief  get string outputs
          * @param[in] fmt file format
          * @return string : string outputs
          */
-        string outputs(const string &fmt);
+        string outputs(const string& fmt);
 
         /*
          * @brief  get string log type
-        */
+         */
         string log_type();
 
         /*
          * @brief  get string log name
-        */
+         */
         string log_name();
 
         /*
          * @brief  get string log level
-        */
+         */
         level::level_enum log_level();
 
         /*
-        * @brief  get string log pattern
-        */
+         * @brief  get string log pattern
+         */
         string log_pattern();
 
         /**
@@ -137,7 +137,7 @@ namespace gnut
          * @param[in] fmt file format
          * @return string : string output version
          */
-        string version(const string &fmt);
+        string version(const string& fmt);
 
     protected:
         /**
@@ -145,7 +145,7 @@ namespace gnut
          * @param[in] fmt file format
          * @return string : string output file
          */
-        string _outputs(const string &fmt);
+        string _outputs(const string& fmt);
 
         /**
          * @brief  get all string output file
@@ -160,5 +160,5 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 #endif

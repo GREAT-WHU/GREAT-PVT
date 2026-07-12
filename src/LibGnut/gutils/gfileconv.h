@@ -45,11 +45,11 @@ using namespace std;
 
 namespace gnut
 {
-    LibGnut_LIBRARY_EXPORT string base_name(const string &path); ///< extract file base name
-    LibGnut_LIBRARY_EXPORT string dir_name(const string &path);  ///< extract file dir  name
-    LibGnut_LIBRARY_EXPORT bool dir_exists(const string &path);  ///< check existance of path
-    LibGnut_LIBRARY_EXPORT int make_path(const string &path);    ///< create path recursively
-    LibGnut_LIBRARY_EXPORT int make_dir(const string &path);     ///< create single directory
-} // namespace
+    LibGnut_LIBRARY_EXPORT string base_name(const string& path); ///< extract file base name
+    LibGnut_LIBRARY_EXPORT string dir_name(const string& path);  ///< extract file dir  name
+    LibGnut_LIBRARY_EXPORT bool dir_exists(const string& path);  ///< check existance of path
+    LibGnut_LIBRARY_EXPORT int make_path(const string& path);    ///< create path recursively
+    LibGnut_LIBRARY_EXPORT int make_dir(const string& path);     ///< create single directory
+} // namespace gnut
 
 #endif

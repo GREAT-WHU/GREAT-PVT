@@ -4,9 +4,9 @@
  * @brief        main control class for RTK/PPP Processing
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gpvtflt.h"
 #include "gutils/gtimesync.h"
@@ -14,62 +14,65 @@
 #include "gmodels/gprecisebiasGPP.h"
 #include <algorithm>
 #include "gproc/gqualitycontrol.h"
-#include "gio/grtlog.h"
+#include "gio/great_log.h"
 
-great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase *gset, t_gallproc *allproc)
-    : t_gspp(mark, gset),
-      t_gpppflt(mark, gset),
-      _fix_mode(FIX_MODE::NO),
-      _isFirstFix(true),
-      _amb_state(false),
-      _site_base(mark_base),
-      _gModel_base(nullptr),
-      _allproc(allproc),
-      _gquality_control(gset, nullptr)
+great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase* gset, t_gallproc* allproc) :
+    t_gspp(mark, gset),
+    t_gpppflt(mark, gset),
+    _fix_mode(FIX_MODE::NO),
+    _isFirstFix(true),
+    _amb_state(false),
+    _site_base(mark_base),
+    _gModel_base(nullptr),
+    _allproc(allproc),
+    _gquality_control(gset, nullptr)
 {
     _vel = t_gtriple(0, 0, 0);
     _Qx_vel.ReSize(4);
     _Qx_vel = 0.0;
-    _dclkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_dclk());
-    _velStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_vel());
-    _fix_mode = dynamic_cast<t_gsetamb *>(_set)->fix_mode();
-    _upd_mode = dynamic_cast<t_gsetamb *>(_set)->upd_mode();
-    _max_res_norm = dynamic_cast<t_gsetproc *>(_set)->max_res_norm();
-    _minsat = dynamic_cast<t_gsetproc *>(_set)->minsat();
+    _dclkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_dclk());
+    _velStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_vel());
+    _fix_mode = dynamic_cast<t_gsetamb*>(_set)->fix_mode();
+    _upd_mode = dynamic_cast<t_gsetamb*>(_set)->upd_mode();
+    _max_res_norm = dynamic_cast<t_gsetproc*>(_set)->max_res_norm();
+    _minsat = dynamic_cast<t_gsetproc*>(_set)->minsat();
     _isBase = false;
     if (!_site_base.empty())
+    {
         _isBase = true;
+    }
     if (_isBase)
+    {
         _rtkinit();
+    }
     if (!_pos_kin)
     {
-        xyz_standard = dynamic_cast<t_gsetrec *>(gset)->get_crd_xyz(_site);
+        xyz_standard = dynamic_cast<t_gsetrec*>(gset)->get_crd_xyz(_site);
     }
 
-    _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::GPS);
-    _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::GAL);
-    _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::GLO);
-    _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::BDS);
-    _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::QZS);
-    _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::GPS);
-    _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::GAL);
-    _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::GLO);
-    _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::BDS);
-    _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::QZS);
+    _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GPS);
+    _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GAL);
+    _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GLO);
+    _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::BDS);
+    _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::QZS);
+    _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GPS);
+    _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GAL);
+    _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GLO);
+    _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::BDS);
+    _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::QZS);
 
-    _gobs = dynamic_cast<t_gallobs *>((*_allproc)[t_gdata::ALLOBS]);
-    _gnav = dynamic_cast<t_gallprec *>((*_allproc)[t_gdata::GRP_EPHEM]);
-    _gupd = dynamic_cast<t_gupd *>((*_allproc)[t_gdata::UPD]);
+    _gobs = dynamic_cast<t_gallobs*>((*_allproc)[t_gdata::ALLOBS]);
+    _gnav = dynamic_cast<t_gallprec*>((*_allproc)[t_gdata::GRP_EPHEM]);
+    _gupd = dynamic_cast<t_gupd*>((*_allproc)[t_gdata::UPD]);
 
-    this->setOTL(dynamic_cast<t_gallotl *>((*_allproc)[t_gdata::ALLOTL]));
-    this->setOBJ(dynamic_cast<t_gallobj *>((*_allproc)[t_gdata::ALLOBJ]));
-    this->setDCB(dynamic_cast<t_gallbias *>((*_allproc)[t_gdata::ALLBIAS]));
-    this->setFCB(dynamic_cast<t_gallbias *>((*_allproc)[t_gdata::ALLBIAS]));
+    this->setOTL(dynamic_cast<t_gallotl*>((*_allproc)[t_gdata::ALLOTL]));
+    this->setOBJ(dynamic_cast<t_gallobj*>((*_allproc)[t_gdata::ALLOBJ]));
+    this->setDCB(dynamic_cast<t_gallbias*>((*_allproc)[t_gdata::ALLBIAS]));
+    this->setFCB(dynamic_cast<t_gallbias*>((*_allproc)[t_gdata::ALLBIAS]));
 
-    _frequency = dynamic_cast<t_gsetproc *>(gset)->frequency();
-    _slip_model = dynamic_cast<t_gsetproc *>(gset)->slip_model();
+    _frequency = dynamic_cast<t_gsetproc*>(gset)->frequency();
+    _slip_model = dynamic_cast<t_gsetproc*>(gset)->slip_model();
     _gpre = make_shared<t_gpreproc>(_gobs, gset);
-    _gpre->spdlog(_spdlog);
     _gpre->setNav(_gnav);
 
     if (_ambfix)
@@ -88,122 +91,31 @@ great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase *gset, t_g
     {
         switch (_observ)
         {
-        case OBSCOMBIN::RAW_ALL:
-        case OBSCOMBIN::RAW_MIX:
-            _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
-            break;
-        case OBSCOMBIN::IONO_FREE:
-            _base_model = shared_ptr<t_gbasemodel>(new t_gcombIF(gset, precise_bias, _allproc));
-            break;
-        default:
-            _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
-            break;
+            case OBSCOMBIN::RAW_ALL:
+            case OBSCOMBIN::RAW_MIX:
+                _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
+                break;
+            case OBSCOMBIN::IONO_FREE:
+                _base_model = shared_ptr<t_gbasemodel>(new t_gcombIF(gset, precise_bias, _allproc));
+                break;
+            default:
+                _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
+                break;
         }
     }
     else
     {
         _base_model = shared_ptr<t_gbasemodel>(new t_gcombDD(gset, precise_bias, _allproc));
-        dynamic_cast<t_gcombDD *>(&(*_base_model))->set_observ(_observ);
-        dynamic_cast<t_gcombDD *>(&(*_base_model))->set_site(_site, _site_base);
+        dynamic_cast<t_gcombDD*>(&(*_base_model))->set_observ(_observ);
+        dynamic_cast<t_gcombDD*>(&(*_base_model))->set_site(_site, _site_base);
     }
 
     _wl_Upd_time = t_gtime(WL_IDENTIFY);
     _ewl_Upd_time = t_gtime(EWL_IDENTIFY);
-    _receiverType = dynamic_cast<t_gsetproc *>(_set)->get_receiverType();
+    _receiverType = dynamic_cast<t_gsetproc*>(_set)->get_receiverType();
 }
-great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase *gset, t_spdlog spdlog, t_gallproc *allproc)
-    : t_gspp(mark, gset, spdlog),
-      t_gpppflt(mark, gset, spdlog),
-      _fix_mode(FIX_MODE::NO),
-      _isFirstFix(true),
-      _amb_state(false),
-      _site_base(mark_base),
-      _gModel_base(nullptr),
-      _allproc(allproc),
-      _gquality_control(gset, nullptr)
-{
-    _gquality_control.spdlog(spdlog);
-    _vel = t_gtriple(0, 0, 0);
-    _Qx_vel.ReSize(4);
-    _Qx_vel = 0.0;
-    _dclkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_dclk());
-    _velStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_vel());
-    _fix_mode = dynamic_cast<t_gsetamb *>(_set)->fix_mode();
-    _upd_mode = dynamic_cast<t_gsetamb *>(_set)->upd_mode();
-    _max_res_norm = dynamic_cast<t_gsetproc *>(_set)->max_res_norm();
-    _minsat = dynamic_cast<t_gsetproc *>(_set)->minsat();
-    _isBase = false;
-    if (!_site_base.empty())
-        _isBase = true;
-    if (_isBase)
-        _rtkinit();
-    if (!_pos_kin)
-    {
-        xyz_standard = dynamic_cast<t_gsetrec *>(gset)->get_crd_xyz(_site);
-    }
-    _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::GPS);
-    _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::GAL);
-    _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::GLO);
-    _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::BDS);
-    _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(gset)->band_index(gnut::QZS);
-    _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::GPS);
-    _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::GAL);
-    _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::GLO);
-    _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::BDS);
-    _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(gset)->freq_index(gnut::QZS);
-    _gobs = dynamic_cast<t_gallobs *>((*_allproc)[t_gdata::ALLOBS]);
-    _gnav = dynamic_cast<t_gallprec *>((*_allproc)[t_gdata::GRP_EPHEM]);
-    _gupd = dynamic_cast<t_gupd *>((*_allproc)[t_gdata::UPD]);
-    this->setOTL(dynamic_cast<t_gallotl *>((*_allproc)[t_gdata::ALLOTL]));
-    this->setOBJ(dynamic_cast<t_gallobj *>((*_allproc)[t_gdata::ALLOBJ]));
-    this->setDCB(dynamic_cast<t_gallbias *>((*_allproc)[t_gdata::ALLBIAS]));
-    this->setFCB(dynamic_cast<t_gallbias *>((*_allproc)[t_gdata::ALLBIAS]));
-    _frequency = dynamic_cast<t_gsetproc *>(gset)->frequency();
-    _slip_model = dynamic_cast<t_gsetproc *>(gset)->slip_model();
-    _gpre = make_shared<t_gpreproc>(_gobs, gset);
-    _gpre->spdlog(_spdlog);
-    _gpre->setNav(_gnav);
-    if (_ambfix)
-    {
-        delete _ambfix;
-        _ambfix = nullptr;
-    }
-    if (_fix_mode != FIX_MODE::NO)
-    {
-        _ambfix = new t_gambiguity(_site, _set);
-    }
-    shared_ptr<t_gbiasmodel> precise_bias(new t_gprecisebiasGPP(_allproc, _spdlog, gset));
-    if (!_isBase)
-    {
-        switch (_observ)
-        {
-        case OBSCOMBIN::RAW_ALL:
-        case OBSCOMBIN::RAW_MIX:
-            _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, _spdlog, precise_bias, _allproc));
-            break;
-        case OBSCOMBIN::IONO_FREE:
-            _base_model = shared_ptr<t_gbasemodel>(new t_gcombIF(gset, _spdlog, precise_bias, _allproc));
-            break;
-        default:
-            _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, _spdlog, precise_bias, _allproc));
-            break;
-        }
-    }
-    else
-    {
-        _base_model = shared_ptr<t_gbasemodel>(new t_gcombDD(gset, _spdlog, precise_bias, _allproc));
-        dynamic_cast<t_gcombDD *>(&(*_base_model))->set_observ(_observ);
-        dynamic_cast<t_gcombDD *>(&(*_base_model))->set_site(_site, _site_base);
-    }
-
-    _wl_Upd_time = t_gtime(WL_IDENTIFY);
-    _ewl_Upd_time = t_gtime(EWL_IDENTIFY);
-    _receiverType = dynamic_cast<t_gsetproc *>(_set)->get_receiverType();
-}
-
 great::t_gpvtflt::~t_gpvtflt()
 {
-
     if (_ambfix)
     {
         delete _ambfix;
@@ -216,9 +128,14 @@ great::t_gpvtflt::~t_gpvtflt()
     }
 }
 
-int great::t_gpvtflt::_addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpar &param, t_gtriple &XYZ, Matrix &A, ColumnVector &l, DiagonalMatrix &P)
+int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
+                               unsigned int& iobs,
+                               t_gallpar& param,
+                               t_gtriple& XYZ,
+                               Matrix& A,
+                               ColumnVector& l,
+                               DiagonalMatrix& P)
 {
-
     t_gsys gsys(satdata.gsys());
     GSYS gs = gsys.gsys();
     GOBSBAND b1, b2, b3, b4, b5;
@@ -229,7 +146,9 @@ int great::t_gpvtflt::_addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpa
         set<GOBSBAND> bands = satdata.band_avail();
         auto itBAND = bands.begin();
         if (bands.size() < 2)
+        {
             return -1;
+        }
         b1 = *itBAND;
         itBAND++;
         b2 = *itBAND;
@@ -257,11 +176,17 @@ int great::t_gpvtflt::_addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpa
     D1 = satdata.obs_D(gobs1);
     D2 = satdata.obs_D(gobs2);
     if (b3 != BAND)
+    {
         D3 = satdata.obs_D(gobs3);
+    }
     if (b4 != BAND)
+    {
         D4 = satdata.obs_D(gobs4);
+    }
     if (b5 != BAND)
+    {
         D5 = satdata.obs_D(gobs5);
+    }
 
     double weight_coef = _weightObs(satdata, gobs1);
     int obsnum = 0;
@@ -292,31 +217,33 @@ int great::t_gpvtflt::_addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpa
     }
 
     if (obsnum == 0)
+    {
         return -1;
+    }
 
     double sigDoppler = 0.0;
     switch (gs)
     {
-    case GPS:
-        sigDoppler = _sigDopplerGPS;
-        break;
-    case GLO:
-        sigDoppler = _sigDopplerGLO;
-        break;
-    case GAL:
-        sigDoppler = _sigDopplerGAL;
-        break;
-    case BDS:
-        sigDoppler = _sigDopplerBDS;
-        break;
-    case QZS:
-        sigDoppler = _sigDopplerQZS;
-        break;
-    default:
-        sigDoppler = 0.0;
+        case GPS:
+            sigDoppler = _sigDopplerGPS;
+            break;
+        case GLO:
+            sigDoppler = _sigDopplerGLO;
+            break;
+        case GAL:
+            sigDoppler = _sigDopplerGAL;
+            break;
+        case BDS:
+            sigDoppler = _sigDopplerBDS;
+            break;
+        case QZS:
+            sigDoppler = _sigDopplerQZS;
+            break;
+        default:
+            sigDoppler = 0.0;
     }
 
-    //Create reduced measurements (prefit residuals)
+    // Create reduced measurements (prefit residuals)
     double modObsD = 0.0;
     for (int i = 0; i < obsnum; i++)
     {
@@ -347,7 +274,9 @@ int great::t_gpvtflt::_addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpa
             Di = D5;
         }
         if (double_eq(modObsD, 0.0) || double_eq(Di, 0.0))
+        {
             continue;
+        }
         l(iobs + i) = -Di - modObsD;
     }
 
@@ -369,17 +298,29 @@ int great::t_gpvtflt::_addObsD(t_gsatdata &satdata, unsigned int &iobs, t_gallpa
         for (unsigned int ipar = 1; ipar <= param.parNumber(); ipar++)
         {
             if (i == 0)
+            {
                 A_conf = param[ipar - 1].partial_doppler(satdata, XYZ, groundVel);
+            }
             if (i == 1)
+            {
                 A_conf = param[ipar - 1].partial_doppler(satdata, XYZ, groundVel);
+            }
             if (i == 2)
+            {
                 A_conf = param[ipar - 1].partial_doppler(satdata, XYZ, groundVel);
+            }
             if (i == 3)
+            {
                 A_conf = param[ipar - 1].partial_doppler(satdata, XYZ, groundVel);
+            }
             if (i == 4)
+            {
                 A_conf = param[ipar - 1].partial_doppler(satdata, XYZ, groundVel);
+            }
             if (double_eq(A_conf, 0.0) || double_eq(l(iobs + i), 0))
+            {
                 continue;
+            }
             A(iobs + i, ipar) = A_conf;
         }
     }
@@ -406,11 +347,11 @@ int great::t_gpvtflt::_rtkinit()
     // Add tropospheric wet delay parameter
     if (_tropo_est)
     {
-        //rover
+        // rover
         t_gpar trp_rover(_site, par_type::TRP, ++ipar, "");
         trp_rover.setMF(_ztd_mf);
         _param.addParam(trp_rover);
-        //base
+        // base
         t_gpar trp_base(_site_base, par_type::TRP, ++ipar, "");
         trp_base.setMF(_ztd_mf);
         _param.addParam(trp_base);
@@ -424,13 +365,21 @@ int great::t_gpvtflt::_rtkinit()
     for (unsigned int i = 1; i <= _param.parNumber(); i++)
     {
         if (_param[i - 1].parType == par_type::CRD_X)
+        {
             _Qx(i, i) = crdInit * crdInit;
+        }
         else if (_param[i - 1].parType == par_type::CRD_Y)
+        {
             _Qx(i, i) = crdInit * crdInit;
+        }
         else if (_param[i - 1].parType == par_type::CRD_Z)
+        {
             _Qx(i, i) = crdInit * crdInit;
+        }
         else if (_param[i - 1].parType == par_type::TRP)
+        {
             _Qx(i, i) = ztdInit * ztdInit;
+        }
     }
 
     return 1;
@@ -438,24 +387,26 @@ int great::t_gpvtflt::_rtkinit()
 
 int great::t_gpvtflt::_setCrd()
 {
-    //save base coordinate to grec
+    // save base coordinate to grec
     shared_ptr<gnut::t_gobj> grec_base = _gallobj->obj(_site_base);
     if (grec_base == nullptr)
+    {
         return -1;
+    }
 
-    _gModel_base = new t_gpppmodel(_site_base, _spdlog, _set);
+    _gModel_base = new t_gpppmodel(_site_base, _set);
     _gModel_base->reset_observ(_observ);
     _gModel_base->setOBJ(_gallobj);
 
-    //get base coordinate
-    BASEPOS basepos = dynamic_cast<t_gsetproc *>(_set)->basepos();
-    t_gtime beg = dynamic_cast<t_gsetgen *>(_set)->beg();
-    t_gtime end = dynamic_cast<t_gsetgen *>(_set)->end();
+    // get base coordinate
+    BASEPOS basepos = dynamic_cast<t_gsetproc*>(_set)->basepos();
+    t_gtime beg = dynamic_cast<t_gsetgen*>(_set)->beg();
+    t_gtime end = dynamic_cast<t_gsetgen*>(_set)->end();
 
     if (basepos == BASEPOS::SPP)
-    { 
+    {
         t_gtime time = _gobs->beg_obs(_site_base);
-        shared_ptr<t_gsppflt> sppflt = make_shared<t_gsppflt>(_site_base, _set, _spdlog);
+        shared_ptr<t_gsppflt> sppflt = make_shared<t_gsppflt>(_site_base, _set);
         sppflt->minsat(5);
         sppflt->setDAT(_gobs, _gnav);
         sppflt->setOBJ(_gallobj);
@@ -467,22 +418,25 @@ int great::t_gpvtflt::_setCrd()
     else if (basepos == BASEPOS::CFILE)
     {
         // set the value [read from xml]
-        auto crd = dynamic_cast<t_gsetrec *>(_set)->get_crd_xyz(_site_base);
+        auto crd = dynamic_cast<t_gsetrec*>(_set)->get_crd_xyz(_site_base);
         grec_base->crd(crd, t_gtriple(0.01, 0.01, 0.01), beg, end, true);
     }
 
-    //rover
+    // rover
     if (_crd_est == CONSTRPAR::FIX && !_pos_kin)
     {
         // set the value [read from xml/snx/rnxo]
-        auto crd = dynamic_cast<t_gsetrec *>(_set)->get_crd_xyz(_site);
+        auto crd = dynamic_cast<t_gsetrec*>(_set)->get_crd_xyz(_site);
         _grec->crd(crd, t_gtriple(0.01, 0.01, 0.01), beg, end, true);
     }
 
     return 1;
 }
 
-bool great::t_gpvtflt::_valid_residual(bool phase_process, string sat_name, enum FREQ_SEQ &f, map<string, map<FREQ_SEQ, pair<int, int>>> &index_l)
+bool great::t_gpvtflt::_valid_residual(bool phase_process,
+                                       string sat_name,
+                                       enum FREQ_SEQ& f,
+                                       map<string, map<FREQ_SEQ, pair<int, int>>>& index_l)
 {
     try
     {
@@ -504,7 +458,7 @@ bool great::t_gpvtflt::_valid_residual(bool phase_process, string sat_name, enum
     return true;
 }
 
-int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
+int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
 {
     try
     {
@@ -523,22 +477,26 @@ int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
                 index_l[sat].insert(make_pair(f, make_pair(-1, -1)));
             }
             if (obstype == TYPE_C)
+            {
                 index_l[sat][f].first = i + 1;
+            }
             else if (obstype == GOBSTYPE::TYPE_L)
+            {
                 index_l[sat][f].second = i + 1;
+            }
         }
 
         _obs_index.clear();
         int iobs = 1;
 
-        set<string> sysall = dynamic_cast<t_gsetgen *>(_set)->sys();
+        set<string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
 
         int nrows = A.Nrows();
         Matrix DD;
         DD.ReSize(nrows, nrows);
         DD = 0.0;
         _sat_ref.clear();
-        bool isSetRefSat = dynamic_cast<t_gsetamb *>(_set)->isSetRefSat();
+        bool isSetRefSat = dynamic_cast<t_gsetamb*>(_set)->isSetRefSat();
 
         bool isPhaseProcess = true;
         for (auto sys_iter = sysall.begin(); sys_iter != sysall.end(); sys_iter++)
@@ -547,30 +505,38 @@ int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
             vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(sys);
             int nf = 5;
             if (band.size())
+            {
                 nf = band.size();
+            }
             if (_observ == OBSCOMBIN::IONO_FREE)
+            {
                 nf = 1;
+            }
             FREQ_SEQ f;
             string sat_ref;
             for (FREQ_SEQ freq = FREQ_1; freq <= 2 * nf; freq = (FREQ_SEQ)(freq + 1))
             {
                 if (freq <= nf)
-                { //phase equations
+                { // phase equations
                     isPhaseProcess = true;
                     f = freq;
                 }
                 else
-                { //code equations
+                { // code equations
                     isPhaseProcess = false;
                     f = (FREQ_SEQ)(freq - nf);
                 }
                 if (f > _frequency)
+                {
                     continue;
+                }
                 string sat;
                 t_gsatdata obs_sat_ref;
                 enum GSYS gs;
                 if (!isSetRefSat || (_observ == OBSCOMBIN::RAW_MIX && !isPhaseProcess))
+                {
                     sat_ref.clear();
+                }
                 if (sat_ref.empty())
                 {
                     for (auto it = _data.begin(); it != _data.end(); it++)
@@ -579,13 +545,21 @@ int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
 
                         gs = it->gsys();
                         if (gs == QZS)
+                        {
                             gs = GPS;
+                        }
                         if (gs != sys)
+                        {
                             continue;
+                        }
                         if ((gs == BDS) && t_gsys::bds_geo(sat))
+                        {
                             continue;
+                        }
                         if (!_reset_amb && !_reset_par && it->islip())
+                        {
                             continue;
+                        }
 
                         if (isSetRefSat && (_observ == gnut::OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX))
                         {
@@ -594,11 +568,19 @@ int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
                             FREQ_SEQ f3 = FREQ_3;
                             FREQ_SEQ f4 = FREQ_4;
                             FREQ_SEQ f5 = FREQ_5;
-                            if (_valid_residual(isPhaseProcess, sat, f1, index_l) == false || (_frequency >= 2 && nf >= 2 && _valid_residual(isPhaseProcess, sat, f2, index_l) == false) || (_frequency >= 3 && nf >= 3 && _valid_residual(isPhaseProcess, sat, f3, index_l) == false) || (_frequency >= 4 && nf >= 4 && _valid_residual(isPhaseProcess, sat, f4, index_l) == false) || (_frequency >= 5 && nf >= 5 && _valid_residual(isPhaseProcess, sat, f5, index_l) == false))
+                            if (_valid_residual(isPhaseProcess, sat, f1, index_l) == false ||
+                                (_frequency >= 2 && nf >= 2 && _valid_residual(isPhaseProcess, sat, f2, index_l) == false) ||
+                                (_frequency >= 3 && nf >= 3 && _valid_residual(isPhaseProcess, sat, f3, index_l) == false) ||
+                                (_frequency >= 4 && nf >= 4 && _valid_residual(isPhaseProcess, sat, f4, index_l) == false) ||
+                                (_frequency >= 5 && nf >= 5 && _valid_residual(isPhaseProcess, sat, f5, index_l) == false))
+                            {
                                 continue;
+                            }
                         }
                         else if (_valid_residual(isPhaseProcess, sat, f, index_l) == false)
+                        {
                             continue;
+                        }
 
                         if (sat_ref.empty())
                         {
@@ -615,56 +597,78 @@ int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
                     }
                 }
                 if (sat_ref.empty())
+                {
                     continue;
+                }
                 if (_ipSatRep[sys] != "" && sat_ref != _ipSatRep[sys])
                 {
                     cerr << "refsat bug" << endl;
                     continue;
                 }
                 if (freq == FREQ_1)
+                {
                     _sat_ref.insert(sat_ref);
+                }
 
                 int index_ref;
                 if (isPhaseProcess)
+                {
                     index_ref = index_l[sat_ref][f].second;
+                }
                 else
+                {
                     index_ref = index_l[sat_ref][f].first;
+                }
 
                 for (auto it = _data.begin(); it != _data.end(); it++)
                 {
                     sat = it->sat();
                     if (sat == sat_ref)
+                    {
                         continue;
+                    }
 
                     gs = it->gsys();
                     if (gs == QZS)
+                    {
                         gs = GPS;
+                    }
                     if (gs != sys)
+                    {
                         continue;
+                    }
 
                     if (_valid_residual(isPhaseProcess, sat, f, index_l) == false)
+                    {
                         continue;
+                    }
                     int index_sat;
                     if (isPhaseProcess)
+                    {
                         index_sat = index_l[sat][f].second;
+                    }
                     else
+                    {
                         index_sat = index_l[sat][f].first;
+                    }
 
                     DD(iobs, index_ref) = -1;
                     DD(iobs, index_sat) = 1;
                     GOBSTYPE obstype = TYPE_C;
                     if (isPhaseProcess)
+                    {
                         obstype = GOBSTYPE::TYPE_L;
+                    }
                     _obs_index.push_back(make_pair(it->sat(), make_pair(f, obstype)));
                     iobs++;
-                } //end sat
-            }     //end f
-        }         //end sys
+                } // end sat
+            } // end f
+        } // end sys
         // delete zero rows/cols
         iobs--;
         if (iobs <= 0)
         {
-            SPDLOG_LOGGER_INFO(_spdlog, _site + " and "+_site_base+" have no common satellite in one system!");
+            GREAT_INFO(_site + " and " + _site_base + " have no common satellite in one system!");
             _delPar(par_type::AMB_IF);
             _delPar(par_type::AMB_L1);
             _delPar(par_type::AMB_L2);
@@ -686,16 +690,17 @@ int great::t_gpvtflt::_combineDD(Matrix &A, SymmetricMatrix &P, ColumnVector &l)
     }
     catch (...)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "t_gpvtflt_newmodelmodel", "generate double-differented equation failed!");
+        GREAT_INFO(std::string("t_gpvtflt_newmodelmodel ") + "generate double-differented equation failed!");
         return -1;
     }
 }
 
-int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l,const ColumnVector &dx)
+int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, const ColumnVector& dx)
 {
     if (_sat_ref.empty())
+    {
         return -1;
+    }
     if (!_amb_state)
     {
         _post_A = A;
@@ -705,7 +710,7 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
     }
     string site = _site;
     t_gallpar par_temp = _param;
-    double amb_correct=0, amb_correct_2=0,amb_correct_dd=0;
+    double amb_correct = 0, amb_correct_2 = 0, amb_correct_dd = 0;
     int idx = 0, idx2 = 0;
     map<string, map<FREQ_SEQ, pair<int, int>>> index_l;
     for (int i = 0; i < _obs_index.size(); i++)
@@ -722,9 +727,13 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
             index_l[sat].insert(make_pair(f, make_pair(-1, -1)));
         }
         if (obstype == TYPE_C)
+        {
             index_l[sat][f].first = i + 1;
+        }
         else if (obstype == GOBSTYPE::TYPE_L)
+        {
             index_l[sat][f].second = i + 1;
+        }
     }
 
     int nobs = P.Nrows();
@@ -743,7 +752,9 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
     int iobs = 0;
     vector<int> ind;
     for (auto it = 1; it <= nobs; it++)
+    {
         ind.push_back(it);
+    }
 
     for (auto itref = _sat_ref.begin(); itref != _sat_ref.end(); itref++)
     {
@@ -757,9 +768,13 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
 
                 string crt_sat = sat1;
                 if (crt_sat.substr(0, 1) != satref.substr(0, 1))
+                {
                     continue;
+                }
                 if (sat1 != satref && sat2 != satref)
+                {
                     continue;
+                }
                 if (sat1 == satref && sat2 != satref)
                 {
                     crt_sat = sat2;
@@ -775,7 +790,7 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
                 bool f2_use = true;
                 if (_observ == OBSCOMBIN::IONO_FREE)
                 {
-                    t_gobsgnss gnss(_spdlog, satref);
+                    t_gobsgnss gnss(satref);
                     auto gs = gnss.gsys();
                     double lambda_1 = gnss.wavelength(_band_index[gs][FREQ_1]);
                     double lambda_2 = gnss.wavelength(_band_index[gs][FREQ_2]);
@@ -785,30 +800,45 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
                     dif = itdd->rlc - (itdd->inl * itdd->factor + wl * mw_coef);
                     freq = FREQ_1;
                 }
-                else if (_observ == OBSCOMBIN::RAW_ALL||_observ==OBSCOMBIN::RAW_MIX)
+                else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
                 {
                     if (itdd->ambtype == "AMB_L1")
+                    {
                         freq = FREQ_1;
+                    }
                     else if (itdd->ambtype == "AMB_L2")
+                    {
                         freq = FREQ_2;
+                    }
                     else if (itdd->ambtype == "AMB_L3")
+                    {
                         freq = FREQ_3;
+                    }
                     else if (itdd->ambtype == "AMB_L4")
+                    {
                         freq = FREQ_4;
+                    }
                     else if (itdd->ambtype == "AMB_L5")
+                    {
                         freq = FREQ_5;
+                    }
                     else
+                    {
                         continue;
+                    }
 
                     for (auto itdd_sav = DD_sav.begin(); itdd_sav != DD_sav.end(); itdd_sav++)
                     {
-                        if (itdd_sav->ambtype == "AMB_L2" && get<0>(itdd_sav->ddSats[0]) == get<0>(itdd->ddSats[0])&& get<0>(itdd_sav->ddSats[1])== get<0>(itdd->ddSats[1]))
+                        if (itdd_sav->ambtype == "AMB_L2" && get<0>(itdd_sav->ddSats[0]) == get<0>(itdd->ddSats[0]) &&
+                            get<0>(itdd_sav->ddSats[1]) == get<0>(itdd->ddSats[1]))
                         {
                             factor_L2 = itdd_sav->factor;
                             f2_use = true;
                         }
                         else
+                        {
                             f2_use = false;
+                        }
                         if (f2_use)
                         {
                             idx = par_temp.getParam(_site, par_type::AMB_L2, crt_sat);
@@ -822,10 +852,10 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
                     }
                     idx = par_temp.getParam(_site, par_type::AMB_L1, crt_sat);
                     idx2 = par_temp.getParam(_site, par_type::AMB_L1, satref);
-                    amb_correct =dx(idx);
-                    amb_correct_2 =dx(idx2);
+                    amb_correct = dx(idx);
+                    amb_correct_2 = dx(idx2);
                     amb_correct_dd = amb_correct - amb_correct_2;
-                    dif = itdd->rlc-amb_correct_dd - itdd->inl * itdd->factor;
+                    dif = itdd->rlc - amb_correct_dd - itdd->inl * itdd->factor;
                 }
                 if (freq != FREQ_X)
                 {
@@ -835,23 +865,29 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
                     }
                     auto index = index_l[crt_sat][freq].second;
                     _post_l(index) += dif;
-                     vector<int>::iterator it = find(ind.begin(), ind.end(), index);
-                    if (it != ind.end())ind.erase(it);
+                    vector<int>::iterator it = find(ind.begin(), ind.end(), index);
+                    if (it != ind.end())
+                    {
+                        ind.erase(it);
+                    }
 
                     if (f2_use)
                     {
                         auto index2 = index_l[crt_sat][FREQ_2].second;
-                        if (index2>0)
+                        if (index2 > 0)
                         {
                             _post_l(index2) += dif2;
                             vector<int>::iterator it2 = find(ind.begin(), ind.end(), index2);
-                            if (it2 != ind.end())ind.erase(it2);
+                            if (it2 != ind.end())
+                            {
+                                ind.erase(it2);
+                            }
                         }
                     }
                 }
             }
-        }  //end dd
-    }      //end satref
+        } // end dd
+    } // end satref
 
     vector<int> ind1 = ind, ind2 = ind;
 
@@ -866,27 +902,24 @@ int great::t_gpvtflt::_postRes(const Matrix &A, const SymmetricMatrix &P, const 
 
 int great::t_gpvtflt::_prepareData()
 {
-
     int flag = 1;
     if (_isBase)
     {
         if (_preprocess(_site_base, _data_base) < 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _site +  ": Preparing data failed!");
+            GREAT_INFO(_site + ": Preparing data failed!");
             flag = -1;
         }
         _vBanc_base = _vBanc;
     }
     if (_preprocess(_site, _data) < 0)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, _site + ": Preparing data failed!");
+        GREAT_INFO(_site + ": Preparing data failed!");
         flag = -1;
     }
     if (_cntrep == 0)
     {
-        t_gtriple xyz = t_gtriple(_vBanc.Rows(1, 3)); 
+        t_gtriple xyz = t_gtriple(_vBanc.Rows(1, 3));
         _gquality_control.processOneEpoch(_epoch, _site, xyz, _data);
         if (_isBase)
         {
@@ -899,8 +932,7 @@ int great::t_gpvtflt::_prepareData()
     {
         if ((_nSat = _selcomsat(_data_base, _data)) < _minsat)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "no common satellite");
+            GREAT_INFO("no common satellite");
             flag = -1;
         }
     }
@@ -911,17 +943,15 @@ int great::t_gpvtflt::_prepareData()
 
     if (_data.size() < _minsat)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, _site + _epoch.str_ymdhms(" epoch ") + int2str(_data.size()) + " skipped (data.size < minsat)");
+        GREAT_INFO(_site + _epoch.str_ymdhms(" epoch ") + int2str(_data.size()) + " skipped (data.size < minsat)");
         return -1;
     }
 
     return flag;
 }
 
-int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata)
+int great::t_gpvtflt::_preprocess(const string& ssite, vector<t_gsatdata>& sdata)
 {
-
     Matrix BB;
 
     BB.ReSize(sdata.size(), 4);
@@ -929,8 +959,8 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
     int iobs = 0;
     vector<t_gsatdata>::iterator iter = sdata.begin();
 
-    _nSat = sdata.size(); 
-    set<string> sat_rm = dynamic_cast<t_gsetgen *>(_set)->sat_rm();
+    _nSat = sdata.size();
+    set<string> sat_rm = dynamic_cast<t_gsetgen*>(_set)->sat_rm();
     while (iter != sdata.end())
     {
         // except sat from config file
@@ -940,7 +970,7 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
             iter = sdata.erase(iter);
             continue;
         }
-        
+
         if (!_isBase)
         {
             shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(satname);
@@ -952,7 +982,7 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
             }
         }
 
-        //check each satellite obs and crd
+        // check each satellite obs and crd
         if (!_check_sat(ssite, &*iter, BB, iobs))
         {
             iter = sdata.erase(iter);
@@ -962,12 +992,12 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
         {
             ++iter;
         }
-    } //end sdata
+    } // end sdata
 
     if (sdata.size() < _minsat)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, _epoch.str_ymdhms(ssite + " epoch ") + " skipped (Bancroft not calculated: " + int2str(sdata.size()) + " < _minsat: " + int2str(_minsat) + ")");
+        GREAT_INFO(_epoch.str_ymdhms(ssite + " epoch ") + " skipped (Bancroft not calculated: " + int2str(sdata.size()) +
+                   " < _minsat: " + int2str(_minsat) + ")");
         return -1;
     }
 
@@ -975,9 +1005,7 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
 
     if (BB.Nrows() < static_cast<int>(_minsat))
     {
-        if (SPDLOG_LEVEL_TRACE == _spdlog->level())
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: BB.Nrows < _minsat)");
+        GREAT_TRACE(_epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: BB.Nrows < _minsat)");
         return -1;
     }
 
@@ -986,17 +1014,16 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
         return -1;
     }
 
-    //Compute sat elevation and rho
+    // Compute sat elevation and rho
     iter = sdata.begin();
     while (iter != sdata.end())
     {
         if (!_cmp_sat_info(ssite, &*iter))
         {
-            iter = sdata.erase(iter); 
+            iter = sdata.erase(iter);
             if (sdata.size() < _minsat)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, ssite + _epoch.str_ymdhms(" epoch ") + int2str(sdata.size()) + " skipped (data.size < _rtk_set->minsat)");
+                GREAT_INFO(ssite + _epoch.str_ymdhms(" epoch ") + int2str(sdata.size()) + " skipped (data.size < _rtk_set->minsat)");
                 return -1;
             }
         }
@@ -1005,14 +1032,13 @@ int great::t_gpvtflt::_preprocess(const string &ssite, vector<t_gsatdata> &sdata
             ++iter;
         }
 
-    } //end sdata
+    } // end sdata
 
     return 0;
 }
 
 void great::t_gpvtflt::_predict(const t_gtime& runEpoch)
 {
-
     // Predict coordinates, clock and troposphere
     // state vector is the same, covariance matrix is predicted with noise
     double bl = 0.0;
@@ -1020,13 +1046,17 @@ void great::t_gpvtflt::_predict(const t_gtime& runEpoch)
     _cntrep++;
 
     if (!_isBase)
+    {
         _syncSys();
+    }
 
     // add/remove ionosphere delay
-    //Actually,we only estimate sion/sdsion by using white noise here.   
+    // Actually,we only estimate sion/sdsion by using white noise here.
     if (_iono_est)
+    {
         _syncIono();
-    if (_isBase && 1) 
+    }
+    if (_isBase && 1)
     {
         if (_iono_est)
         {
@@ -1048,7 +1078,9 @@ void great::t_gpvtflt::_predict(const t_gtime& runEpoch)
 
     // add/remove inter-frequency biases
     if (!_isBase && _frequency >= 3)
+    {
         _syncIFB();
+    }
 
     _Noise.ReSize(_Qx.Nrows());
     _Noise = 0;
@@ -1059,7 +1091,7 @@ void great::t_gpvtflt::_predict(const t_gtime& runEpoch)
     {
         _syncAmb();
     }
-  
+
     _predictCrd();
     _predictClk();
     _predictBias();
@@ -1085,9 +1117,8 @@ void great::t_gpvtflt::_delPar(const par_type par)
     return;
 }
 
-int great::t_gpvtflt::_combineMW(t_gsatdata &satdata)
+int great::t_gpvtflt::_combineMW(t_gsatdata& satdata)
 {
-
     string sat = satdata.sat();
     double obs_intv = _sampling;
     t_gtime crt_time = _epoch;
@@ -1111,7 +1142,7 @@ int great::t_gpvtflt::_combineMW(t_gsatdata &satdata)
     }
     else
     { // select fix defined band according the table
-        vector<GOBSBAND> band = dynamic_cast<t_gsetgnss *>(_set)->band(satdata.gsys());
+        vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(satdata.gsys());
         if (band.size())
         {
             b1 = band[0];
@@ -1136,10 +1167,14 @@ int great::t_gpvtflt::_combineMW(t_gsatdata &satdata)
         for (int i = 0; i < _data_base.size(); i++)
         {
             if (_data_base[i].sat() == satdata.sat())
+            {
                 satdata_base = _data_base[i];
+            }
         }
         if (satdata_base.site() == "")
+        {
             mw_obs = 0.0;
+        }
         else
         {
             gobsP1 = t_gobs(satdata_base.select_range(b1));
@@ -1149,12 +1184,18 @@ int great::t_gpvtflt::_combineMW(t_gsatdata &satdata)
             double mw_obs_base = satdata_base.MW_cycle(gobsL1, gobsL2, gobsP1, gobsP2);
 
             if (double_eq(mw_obs, 0.0) || double_eq(mw_obs_base, 0.0))
+            {
                 mw_obs = 0.0;
+            }
             else
+            {
                 mw_obs -= mw_obs_base;
+            }
 
             if (!islip)
+            {
                 islip = (satdata_base.getlli(gobsL1.gobs()) >= 1 || satdata_base.getlli(gobsL2.gobs()) >= 1);
+            }
         }
     }
 
@@ -1162,14 +1203,14 @@ int great::t_gpvtflt::_combineMW(t_gsatdata &satdata)
     {
         // calculate smooth MW
         t_gtime pre_time = crt_time - obs_intv;
-        if (_MW.find(pre_time) != _MW.end() && _MW[pre_time].find(sat) != _MW[pre_time].end() && !double_eq(_MW[pre_time][sat][4], 0.0) && !islip)
+        if (_MW.find(pre_time) != _MW.end() && _MW[pre_time].find(sat) != _MW[pre_time].end() && !double_eq(_MW[pre_time][sat][4], 0.0) &&
+            !islip)
         {
             _MW[crt_time][sat][1] = _MW[pre_time][sat][1] + 1;
             _MW[crt_time][sat][4] = mw_obs;
             if (!double_eq(_MW[crt_time][sat][1], 1.0) && _MW[crt_time][sat][1] > 1.0)
             {
-                _MW[crt_time][sat][3] = _MW[pre_time][sat][3] * (_MW[crt_time][sat][1] - 2) /
-                                            (_MW[crt_time][sat][1] - 1) +
+                _MW[crt_time][sat][3] = _MW[pre_time][sat][3] * (_MW[crt_time][sat][1] - 2) / (_MW[crt_time][sat][1] - 1) +
                                         pow(mw_obs - _MW[pre_time][sat][2], 2) / _MW[crt_time][sat][1];
             }
             else
@@ -1305,8 +1346,7 @@ int great::t_gpvtflt::_processEpochVel()
         int freedom = A.Nrows() - A.Ncols();
         if (freedom < 1)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "t_gpvtflt", "No redundant observations!");
+            GREAT_INFO(std::string("t_gpvtflt ") + "No redundant observations!");
             freedom = 1;
         }
 
@@ -1320,17 +1360,18 @@ int great::t_gpvtflt::_processEpochVel()
     } while (threshold > 1e-2);
 
     if (param_vel.getVelParam(_site, _vel) < 0)
+    {
         return -1;
+    }
 
     return 1;
 }
 
-int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
+int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
 {
     if (_grec == nullptr)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "No receiver settings available!!!");
+        GREAT_INFO("No receiver settings available!!!");
         return -1;
     }
 
@@ -1338,7 +1379,9 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
     _amb_state = false;
 
     if (!_crd_xml_valid())
+    {
         _sig_init_crd = 100.0;
+    }
 
     Matrix A;
     SymmetricMatrix P;
@@ -1350,7 +1393,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
     int nobs_total, npar_number;
     string outlier = "";
     // number of iterations caused by outliers
-    _cntrep = 0; 
+    _cntrep = 0;
     _crt_SNR.clear();
 
     do
@@ -1364,7 +1407,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         {
             if (_initialized)
             {
-                _predict(runEpoch); 
+                _predict(runEpoch);
             }
             return -1;
         }
@@ -1376,8 +1419,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
 
         if (_data.size() < _minsat)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "Not enough visible satellites!");
+            GREAT_INFO("Not enough visible satellites!");
             _restore(QsavBP, XsavBP);
             return -1;
         }
@@ -1385,11 +1427,11 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         // define a number of measurements
         unsigned int nObs = _data.size();
         unsigned int mult = 1;
-        if (_observ == OBSCOMBIN::RAW_ALL )
+        if (_observ == OBSCOMBIN::RAW_ALL)
         {
             mult = 2;
             nObs *= 5;
-        } 
+        }
         if (_observ == OBSCOMBIN::RAW_MIX)
         {
             mult = 1;
@@ -1399,7 +1441,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         {
             mult *= 2;
             nObs *= 2;
-        } 
+        }
 
         unsigned int nPar = _param.parNumber();
         unsigned int iobs = 1;
@@ -1408,8 +1450,8 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         _obs_index.clear();
         if (_isBase)
         {
-            dynamic_cast<t_gcombDD *>(&(*_base_model))->set_base_data(&_data_base);
-            dynamic_cast<t_gcombDD *>(&(*_base_model))->set_rec_info(_gallobj->obj(_site_base)->crd_arp(_epoch), _vBanc(4), _vBanc_base(4));
+            dynamic_cast<t_gcombDD*>(&(*_base_model))->set_base_data(&_data_base);
+            dynamic_cast<t_gcombDD*>(&(*_base_model))->set_rec_info(_gallobj->obj(_site_base)->crd_arp(_epoch), _vBanc(4), _vBanc_base(4));
         }
         // use combmodel
         t_gfltEquationMatrix equ;
@@ -1425,15 +1467,14 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         t_out("l:", l);
         t_out("P:", P);
         t_out("Qx:", _Qx);*/
-        
+
         // generate obs_index
         _obs_index.clear();
         _generateObsIndex(equ);
 
         if (iobs < _minsat * mult)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "Not enough processable observations!");
+            GREAT_INFO("Not enough processable observations!");
             _restore(QsavBP, XsavBP);
             return -1;
         }
@@ -1441,7 +1482,9 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         if (_isBase)
         {
             if (_combineDD(A, P, l) < 0)
+            {
                 return -1;
+            }
         }
 
         Qsav = _Qx;
@@ -1452,8 +1495,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         }
         catch (...)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "t_gpvtflt", " filter update failed!");
+            GREAT_INFO(std::string("t_gpvtflt ") + " filter update failed!");
             _Qx = Qsav;
             return -1;
         }
@@ -1469,17 +1511,23 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
                     if (_newAMB.find(sat) != _newAMB.end())
                     {
                         if (_newAMB[sat] == 1)
+                        {
                             _Qx(iPar + 1, iPar + 1) += 10;
+                        }
                         if (_newAMB[sat] == 2 && _Qx(iPar + 1, iPar + 1) > 0.01)
+                        {
                             _Qx(iPar + 1, iPar + 1) += 1;
+                        }
                     }
                 }
             }
             auto amb_prn = _param.amb_prns();
-            for (const auto &sat : amb_prn)
+            for (const auto& sat : amb_prn)
             {
                 if (_newAMB.find(sat) != _newAMB.end())
+                {
                     _newAMB[sat]++;
+                }
             }
         }
         _posterioriTest(A, P, l, dx, _Qx, v_norm, vtpv);
@@ -1502,8 +1550,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
 
     if (_data.size() < _minsat)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, _site + _epoch.str_ymdhms(" epoch ") + " skipped: " + int2str(_data.size()) + " < _minsat)");
+        GREAT_INFO(_site + _epoch.str_ymdhms(" epoch ") + " skipped: " + int2str(_data.size()) + " < _minsat)");
         _restore(QsavBP, XsavBP);
         return -1;
     }
@@ -1513,8 +1560,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
         int irc = _processEpochVel();
         if (irc < 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "t_gpvtflt", "estimate velocity by doppler failed!");
+            GREAT_INFO(std::string("t_gpvtflt ") + "estimate velocity by doppler failed!");
             _vel = t_gtriple(0, 0, 0);
             _Qx_vel = 0;
         }
@@ -1526,8 +1572,11 @@ int great::t_gpvtflt::_processEpoch(const t_gtime &runEpoch)
 
     t_gallpar param_after = _param;
 
-	_amb_resolution();
-	if (_amb_state) _postRes(A, P, l,dx);
+    _amb_resolution();
+    if (_amb_state)
+    {
+        _postRes(A, P, l, dx);
+    }
 
     for (unsigned int iPar = 0; iPar < _param.parNumber(); iPar++)
     {
@@ -1547,10 +1596,13 @@ int great::t_gpvtflt::_amb_resolution()
     /*cout << _epoch.str_ymdhms() << endl;
     for (int i = 0; i < _param_fixed.parNumber(); i++)
     {
-        cout << fixed << setw(20) << " Float EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20) << setprecision(5) << _filter->param()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->stdx()(i + 1) << endl;
+        cout << fixed << setw(20) << " Float EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20) <<
+    setprecision(5) << _filter->param()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i + 1) << setw(20) <<
+    setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) << setprecision(5) <<
+    _filter->stdx()(i + 1) << endl;
     }*/
 
-    if (_fix_mode != FIX_MODE::NO )
+    if (_fix_mode != FIX_MODE::NO)
     {
         if (_gupd && _gupd->wl_epo_mode())
         {
@@ -1566,7 +1618,6 @@ int great::t_gpvtflt::_amb_resolution()
             {
                 _glofrq_num = _gnav->glo_freq_num();
             }
-            _ambfix->setLOG(_spdlog);
             _ambfix->setWaveLength(_glofrq_num);
             _ambfix->setUPD(_gupd);
             _isFirstFix = false;
@@ -1574,7 +1625,9 @@ int great::t_gpvtflt::_amb_resolution()
         _ambfix->setObsType(_observ);
         _ambfix->setActiveAmb(_filter->npar_number());
         if (_observ == OBSCOMBIN::IONO_FREE)
+        {
             _ambfix->setMW(_MW[_epoch]);
+        }
         else
         {
             _ambfix->setELE(_crt_ele);
@@ -1582,15 +1635,19 @@ int great::t_gpvtflt::_amb_resolution()
         }
 
         // getting the reference satellite
-        bool isSetRefSat = dynamic_cast<t_gsetamb *>(_set)->isSetRefSat();
+        bool isSetRefSat = dynamic_cast<t_gsetamb*>(_set)->isSetRefSat();
         if (isSetRefSat && !_isBase)
-        { //ppp mode
+        { // ppp mode
             bool ref_valid = _getSatRef();
             if (!ref_valid)
+            {
                 return 0;
+            }
         }
         if (!isSetRefSat)
+        {
             _sat_ref.clear();
+        }
         _ambfix->setSatRef(_sat_ref);
 
         if ((_observ == gnut::OBSCOMBIN::RAW_ALL || _observ == gnut::OBSCOMBIN::RAW_MIX) && _frequency >= 3)
@@ -1605,37 +1662,40 @@ int great::t_gpvtflt::_amb_resolution()
         {
             _ambfix->processBatch(_epoch, _filter, "EWL25");
         }
-        if (_observ == OBSCOMBIN::RAW_ALL || (_observ == OBSCOMBIN::RAW_MIX  && _frequency >= 2))
+        if (_observ == OBSCOMBIN::RAW_ALL || (_observ == OBSCOMBIN::RAW_MIX && _frequency >= 2))
         {
             _ambfix->processBatch(_epoch, _filter, "WL");
         }
-
 
         int nlfix_valid = _ambfix->processBatch(_epoch, _filter, "NL");
         if (nlfix_valid < 0)
         {
             _amb_state = false;
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _site + _epoch.str_ymdhms(" epoch ") + ": fix ambiguity failed !");
+            GREAT_INFO(_site + _epoch.str_ymdhms(" epoch ") + ": fix ambiguity failed !");
         }
         else
+        {
             _amb_state = _ambfix->amb_fixed();
+        }
     }
 
     // output the fixed result
     ostringstream os;
-    if (_amb_state) //fixed
+    if (_amb_state) // fixed
     {
         /*cout << _epoch.str_ymdhms() << endl;
         for (int i = 0; i < _param_fixed.parNumber(); i++)
         {
-            cout << fixed << setw(20) << " Fix EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20) << setprecision(5) << _ambfix->getFinalParams()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) << setprecision(5) << _filter->stdx()(i + 1) << endl;
+            cout << fixed << setw(20) << " Fix EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20)
+        << setprecision(5) << _ambfix->getFinalParams()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i +
+        1) << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) <<
+        setprecision(5) << _filter->stdx()(i + 1) << endl;
         }*/
         _param_fixed = _ambfix->getFinalParams();
         _prtOut(_epoch, _param_fixed, _filter->Qx(), _data, os, line, true);
         _prt_port(_epoch, _param_fixed, _filter->Qx(), _data);
         cout << _epoch.str_ymdhms() << endl;
-	}
+    }
     else
     {
         for (unsigned int iPar = 0; iPar < _param_fixed.parNumber(); iPar++)
@@ -1656,7 +1716,6 @@ int great::t_gpvtflt::_amb_resolution()
     return 1;
 }
 
-
 bool t_gpvtflt::_getSatRef()
 {
     _sat_ref.clear();
@@ -1676,7 +1735,7 @@ bool t_gpvtflt::_getSatRef()
         }
     }
     t_gallpar params_ALL = _filter->param();
-    set<string> sysall = dynamic_cast<t_gsetgen *>(_set)->sys();
+    set<string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
     for (auto sys_iter = sysall.begin(); sys_iter != sysall.end(); sys_iter++)
     {
         GSYS sys = t_gsys::str2gsys(*sys_iter);
@@ -1686,32 +1745,49 @@ bool t_gpvtflt::_getSatRef()
         for (int i = 0; i < params_ALL.parNumber(); i++)
         {
             if (params_ALL[i].str_type().find("AMB") == string::npos)
+            {
                 continue;
+            }
 
             if (t_gsys::sat2gsys(params_ALL[i].prn) != sys)
+            {
                 continue;
+            }
 
             if (sys == GSYS::BDS && stoi(params_ALL[i].prn.substr(1, 3)) <= 5)
+            {
                 continue; // exclude BDS C01~C05
+            }
 
             if (_observ == gnut::OBSCOMBIN::RAW_MIX && _receiverType != RECEIVERTYPE::And)
             {
                 if (_sat_freqs[params_ALL[i].prn] == "1")
+                {
                     continue;
+                }
             }
 
             if (_upd_mode == UPD_MODE::UPD)
             {
-                if (_gupd && _frequency >= 3 && (ewl_upd.find(params_ALL[i].prn) == ewl_upd.end() || ewl_upd[params_ALL[i].prn]->npoint <= 2))
+                if (_gupd && _frequency >= 3 &&
+                    (ewl_upd.find(params_ALL[i].prn) == ewl_upd.end() || ewl_upd[params_ALL[i].prn]->npoint <= 2))
+                {
                     continue;
+                }
                 if (_gupd && !(wl_upd.find(params_ALL[i].prn) != wl_upd.end() && nl_upd.find(params_ALL[i].prn) != nl_upd.end()))
+                {
                     continue;
+                }
                 if (_gupd && !(wl_upd[params_ALL[i].prn]->npoint > 2))
+                {
                     continue;
+                }
             }
 
             if (_crt_ele[params_ALL[i].prn] < 15 || (_epoch - params_ALL[i].beg <= 0))
+            {
                 continue;
+            }
 
             double temp = (_epoch - params_ALL[i].beg + 1) * _crt_ele[params_ALL[i].prn];
 
@@ -1728,14 +1804,17 @@ bool t_gpvtflt::_getSatRef()
         }
     }
     if (_sat_ref.empty())
+    {
         return false;
+    }
     else
+    {
         return true;
+    }
 }
 
-int great::t_gpvtflt::_outlierDetect(const ColumnVector &v, const SymmetricMatrix &Qsav, string &sat)
+int great::t_gpvtflt::_outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, string& sat)
 {
-
     int nobs = v.Nrows();
     double max = 0.0;
     int idx = 0;
@@ -1753,10 +1832,9 @@ int great::t_gpvtflt::_outlierDetect(const ColumnVector &v, const SymmetricMatri
         sat = _obs_index[idx - 1].first;
         string obsType = gobstype2str(_obs_index[idx - 1].second.second);
         ostringstream os;
-        os << _site << " outlier (" << obsType << _obs_index[idx - 1].second.first << ") " << sat
-           << " v: " << fixed << setw(16) << right << setprecision(3) << max;
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, _epoch.str_ymdhms(" epoch ") + os.str());
+        os << _site << " outlier (" << obsType << _obs_index[idx - 1].second.first << ") " << sat << " v: " << fixed << setw(16) << right
+           << setprecision(3) << max;
+        GREAT_INFO(_epoch.str_ymdhms(" epoch ") + os.str());
     }
     else
     {
@@ -1766,11 +1844,12 @@ int great::t_gpvtflt::_outlierDetect(const ColumnVector &v, const SymmetricMatri
     return idx;
 }
 
-string great::t_gpvtflt::_gen_kml_description(const t_gtime &epoch, const t_gposdata::data_pos &posdata)
+string great::t_gpvtflt::_gen_kml_description(const t_gtime& epoch, const t_gposdata::data_pos& posdata)
 {
     char s[1000];
     string grade = _quality_grade(posdata);
-    sprintf(s, "<B>Epoch:</B><BR><BR>\
+    sprintf(s,
+            "<B>Epoch:</B><BR><BR>\
         <TABLE border = \"1\"  width=\"100%%\"  Align = \"center\">\
         <TR ALIGN = RIGHT>\
         <TR ALIGN = RIGHT><TD ALIGN = LEFT>Time : </TD><TD>%s</TD><TD>%s</TD><TR>\
@@ -1781,66 +1860,82 @@ string great::t_gpvtflt::_gen_kml_description(const t_gtime &epoch, const t_gpos
         <TR ALIGN = RIGHT><TD ALIGN = LEFT>Sig(m) : </TD><TD>%.3f</TD><TD>%.3f</TD><TD>%.3f</TD><TR>\
         <TR ALIGN = RIGHT><TD ALIGN = LEFT>Vel(m/s) : </TD><TD>%.3f</TD><TD>%.3f</TD><TD>%.3f</TD><TR>\
         </TABLE>",
-        epoch.str_ymd().c_str(), epoch.str_hms().c_str(),
-        epoch.str_gwk().c_str(), posdata.t,
-        posdata.pos[0], posdata.pos[1], posdata.pos[2],
-        grade.c_str(), posdata.amb_state ? "FIXED" : "FLOAT",
-        _param.amb_prns().size(), posdata.PDOP,
-        sqrt(posdata.Rpos[0]), sqrt(posdata.Rpos[1]), sqrt(posdata.Rpos[2]),
-        posdata.vn[0], posdata.vn[1], posdata.vn[2]
-    );
+            epoch.str_ymd().c_str(),
+            epoch.str_hms().c_str(),
+            epoch.str_gwk().c_str(),
+            posdata.t,
+            posdata.pos[0],
+            posdata.pos[1],
+            posdata.pos[2],
+            grade.c_str(),
+            posdata.amb_state ? "FIXED" : "FLOAT",
+            _param.amb_prns().size(),
+            posdata.PDOP,
+            sqrt(posdata.Rpos[0]),
+            sqrt(posdata.Rpos[1]),
+            sqrt(posdata.Rpos[2]),
+            posdata.vn[0],
+            posdata.vn[1],
+            posdata.vn[2]);
 
     return string(s);
 }
 
-string great::t_gpvtflt::_quality_grade(const t_gposdata::data_pos & pos)
+string great::t_gpvtflt::_quality_grade(const t_gposdata::data_pos& pos)
 {
-    if (sqrt(pos.Rpos[0]) < 0.1 &&
-        sqrt(pos.Rpos[1]) < 0.1&&
-        sqrt(pos.Rpos[2]) < 0.1)
+    if (sqrt(pos.Rpos[0]) < 0.1 && sqrt(pos.Rpos[1]) < 0.1 && sqrt(pos.Rpos[2]) < 0.1)
     {
         if (pos.amb_state)
+        {
             return "1";
+        }
         else
+        {
             return "2"; // for float PPP
+        }
     }
-    else if (
-        sqrt(pos.Rpos[0]) < 0.2 &&
-        sqrt(pos.Rpos[1]) < 0.2&&
-        sqrt(pos.Rpos[2]) < 0.2)
+    else if (sqrt(pos.Rpos[0]) < 0.2 && sqrt(pos.Rpos[1]) < 0.2 && sqrt(pos.Rpos[2]) < 0.2)
     {
         if (pos.amb_state)
+        {
             return "2";
+        }
         else
+        {
             return "3";
+        }
     }
-    else if (
-        sqrt(pos.Rpos[0]) < 0.5 &&
-        sqrt(pos.Rpos[1]) < 0.5 &&
-        sqrt(pos.Rpos[2]) < 0.5)
+    else if (sqrt(pos.Rpos[0]) < 0.5 && sqrt(pos.Rpos[1]) < 0.5 && sqrt(pos.Rpos[2]) < 0.5)
+    {
         if (pos.amb_state)
+        {
             return "3";
+        }
         else
+        {
             return "4";
-    else if (
-        sqrt(pos.Rpos[0]) < 1 &&
-        sqrt(pos.Rpos[1]) < 1 &&
-        sqrt(pos.Rpos[2]) < 1)
+        }
+    }
+    else if (sqrt(pos.Rpos[0]) < 1 && sqrt(pos.Rpos[1]) < 1 && sqrt(pos.Rpos[2]) < 1)
+    {
         return "5";
+    }
     else
+    {
         return "6";
+    }
 }
 
-int great::t_gpvtflt::processBatch(const t_gtime &beg_r, const t_gtime &end_r, bool prtOut)
+int great::t_gpvtflt::processBatch(const t_gtime& beg_r, const t_gtime& end_r, bool prtOut)
 {
     _gmutex.lock();
 
     if (_grec == nullptr)
     {
         ostringstream os;
-        os << "ERROR: No object found (" << _site << "). Processing terminated!!! " << beg_r.str_ymdhms() << " -> " << end_r.str_ymdhms() << endl;
-        if (_spdlog)
-            SPDLOG_LOGGER_ERROR(_spdlog, os.str());
+        os << "ERROR: No object found (" << _site << "). Processing terminated!!! " << beg_r.str_ymdhms() << " -> " << end_r.str_ymdhms()
+           << endl;
+        GREAT_ERROR(os.str());
         _gmutex.unlock();
         return -1;
     }
@@ -1849,20 +1944,23 @@ int great::t_gpvtflt::processBatch(const t_gtime &beg_r, const t_gtime &end_r, b
     double subint = 0.1;
 
     if (!_beg_end)
+    {
         sign = -1;
+    }
 
     InitProc(beg_r, end_r, &subint);
 
     t_gtime now(_beg_time);
 
-    if (_spdlog)
-        SPDLOG_LOGGER_INFO(_spdlog, _site + ": Start GNSS Processing filtering: " + now.str_ymdhms() + " " + _end_time.str_ymdhms());
+    GREAT_INFO(_site + ": Start GNSS Processing filtering: " + now.str_ymdhms() + " " + _end_time.str_ymdhms());
     bool time_loop = true;
 
     while (time_loop)
     {
         if (_beg_end && (now < _end_time || now == _end_time))
+        {
             time_loop = true;
+        }
         else if (_beg_end && now > _end_time)
         {
             time_loop = false;
@@ -1870,7 +1968,9 @@ int great::t_gpvtflt::processBatch(const t_gtime &beg_r, const t_gtime &end_r, b
         }
 
         if (!_beg_end && (now > _end_time || now == _end_time))
+        {
             time_loop = true;
+        }
         else if (!_beg_end && now < _end_time)
         {
             time_loop = false;
@@ -1880,15 +1980,17 @@ int great::t_gpvtflt::processBatch(const t_gtime &beg_r, const t_gtime &end_r, b
         // synchronization
         if (now != _end_time)
         {
-            if (!time_sync(now, _sampling, _scale, _spdlog))
-            {                                       
+            if (!time_sync(now, _sampling, _scale))
+            {
                 now.add_dsec(sign * subint / 100); // add_dsec used for synchronization!
 
                 continue;
             }
             if (_sampling > 1)
+            {
                 now.reset_dsec();
-        }   
+            }
+        }
 
         _slip_detect(now);
 
@@ -1896,36 +1998,46 @@ int great::t_gpvtflt::processBatch(const t_gtime &beg_r, const t_gtime &end_r, b
         if (irc_epo < 0)
         {
             if (_sampling > 1)
+            {
                 now.add_secs(int(sign * _sampling)); // =<1Hz data
+            }
             else
+            {
                 now.add_dsec(sign * _sampling); //  >1Hz data
+            }
             continue;
         }
         else
+        {
             _success = true;
+        }
 
-        if (SPDLOG_LEVEL_TRACE == _spdlog->level())
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _site + now.str_ymdhms(" processing epoch: "));
+        GREAT_TRACE(_site + now.str_ymdhms(" processing epoch: "));
 
         double percent = now.diff(_beg_time) / _end_time.diff(_beg_time) * 100.0;
         if (double_eq(now.sow() % 1, 0.0))
-            std::cerr << "\r" << _site << "   " << now.str_ymdhms() << setw(5) << " Q = " << (_amb_state ? 1 : 2) << fixed << setprecision(1) << setw(6) << percent << "%";
+        {
+            std::cerr << "\r" << _site << "   " << now.str_ymdhms() << setw(5) << " Q = " << (_amb_state ? 1 : 2) << fixed
+                      << setprecision(1) << setw(6) << percent << "%";
+        }
         if (_sampling > 1)
+        {
             now.add_secs(int(sign * _sampling)); // =<1Hz data
+        }
         else
+        {
             now.add_dsec(sign * _sampling); //  >1Hz data
-
+        }
     }
 
     _running = false;
 
     if (beg_r != end_r)
-    { 
+    {
         double npd_perc = 0;
         npd_perc = (double(_n_NPD_flt) / double(_n_ALL_flt)) * 100;
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, _site + ": Forward filter -     Not positive definite covariance matrices: " + dbl2str(npd_perc, 0) + " %   (" + int2str(_n_NPD_flt) + ", " + int2str(_n_ALL_flt) + ")");
+        GREAT_INFO(_site + ": Forward filter -     Not positive definite covariance matrices: " + dbl2str(npd_perc, 0) + " %   (" +
+                   int2str(_n_NPD_flt) + ", " + int2str(_n_ALL_flt) + ")");
     }
 
     _gmutex.unlock();
@@ -1933,27 +2045,27 @@ int great::t_gpvtflt::processBatch(const t_gtime &beg_r, const t_gtime &end_r, b
     return 1;
 }
 
-bool great::t_gpvtflt::InitProc(const t_gtime &begT, const t_gtime &endT, double *subint)
+bool great::t_gpvtflt::InitProc(const t_gtime& begT, const t_gtime& endT, double* subint)
 {
     if (_beg_end)
     {
         _beg_time = begT;
         _end_time = endT;
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "t_gpvtflt", "Filtering in begin -> end direction!");
+        GREAT_INFO(std::string("t_gpvtflt ") + "Filtering in begin -> end direction!");
     }
     else
     {
         _beg_time = endT;
         _end_time = begT;
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "t_gpvtflt", "Filtering in end -> begin direction!");
+        GREAT_INFO(std::string("t_gpvtflt ") + "Filtering in end -> begin direction!");
     }
 
     if (_isBase)
     {
         if (_setCrd() < 0)
+        {
             return -1;
+        }
     }
 
     _gquality_control.setNav(_gnav);
@@ -1963,16 +2075,24 @@ bool great::t_gpvtflt::InitProc(const t_gtime &begT, const t_gtime &endT, double
     if (!_isBase)
     {
         for (int i = 0; i < _param.parNumber(); i++)
+        {
             if (_param[i].site == "")
+            {
                 _param.setSite(_site);
+            }
+        }
     }
 
     if (subint)
     {
         if (_scale > 0)
+        {
             *subint = 1.0 / _scale;
+        }
         if (_sampling > 1)
+        {
             *subint = pow(10, floor(log10(_sampling)));
+        }
     }
 
     _prtOutHeader();
@@ -1980,23 +2100,18 @@ bool great::t_gpvtflt::InitProc(const t_gtime &begT, const t_gtime &endT, double
     return true;
 }
 
-int great::t_gpvtflt::ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *data_rover, vector<t_gsatdata> *data_base)
+int great::t_gpvtflt::ProcessOneEpoch(const t_gtime& now, vector<t_gsatdata>* data_rover, vector<t_gsatdata>* data_base)
 {
-
     if (_getData(now, data_rover, false) == 0)
     {
-        if (SPDLOG_LEVEL_TRACE == _spdlog->level())
-        {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _site + now.str_ymdhms(" no observation found at epoch: "));
-        }
+        GREAT_TRACE(_site + now.str_ymdhms(" no observation found at epoch: "));
         return -1;
     }
 
     // apply dcb
     if (_gallbias)
     {
-        for (auto &itdata : _data)
+        for (auto& itdata : _data)
         {
             itdata.apply_bias(_gallbias);
         }
@@ -2038,17 +2153,13 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *da
     {
         if (_getData(now, data_base, true) == 0)
         {
-            if (SPDLOG_LEVEL_TRACE == _spdlog->level())
-            {
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, string("gpvtflt:  ") +  _site_base + now.str_ymdhms(" no observation found at epoch: "));
-            }
+            GREAT_TRACE(string("gpvtflt:  ") + _site_base + now.str_ymdhms(" no observation found at epoch: "));
             return -1;
         }
         // apply dcb
         if (_gallbias)
         {
-            for (auto &itdata_base : _data_base)
+            for (auto& itdata_base : _data_base)
             {
                 itdata_base.apply_bias(_gallbias);
             }
@@ -2069,7 +2180,9 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *da
 
     // save apriory coordinates
     if (_crd_est != CONSTRPAR::FIX)
+    {
         _saveApr(obsEpo, _param, _Qx);
+    }
     BASEPOS basepos = dynamic_cast<t_gsetproc*>(_set)->basepos();
 
     int irc_epo = t_gpvtflt::_processEpoch(obsEpo);
@@ -2078,30 +2191,30 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime &now, vector<t_gsatdata> *da
     {
         _success = false;
         _removeApr(obsEpo);
-        if (SPDLOG_LEVEL_TRACE == _spdlog->level())
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _site + now.str_ymdhms(" epoch ") + " was not calculated");
+        GREAT_TRACE(_site + now.str_ymdhms(" epoch ") + " was not calculated");
     }
     else
+    {
         _success = true;
+    }
 
     return irc_epo;
 }
 
-void great::t_gpvtflt::Add_UPD(t_gupd *gupd)
+void great::t_gpvtflt::Add_UPD(t_gupd* gupd)
 {
     _gupd = gupd;
 }
 
-int great::t_gpvtflt::_selcomsat(vector<t_gsatdata> &data_base, vector<t_gsatdata> &data_rover)
+int great::t_gpvtflt::_selcomsat(vector<t_gsatdata>& data_base, vector<t_gsatdata>& data_rover)
 {
     int nSat = 0;
     vector<t_gsatdata> bdata, rdata;
-    //first to recycle on base-site observations
+    // first to recycle on base-site observations
     for (auto iter_base = data_base.begin(); iter_base != data_base.end(); iter_base++)
     {
         string comsat = iter_base->sat();
-        //second to recycle on rover-site obserations
+        // second to recycle on rover-site obserations
         for (auto iter_rover = data_rover.begin(); iter_rover != data_rover.end(); iter_rover++)
         {
             if (iter_rover->sat() == comsat)
@@ -2123,28 +2236,25 @@ int great::t_gpvtflt::_selcomsat(vector<t_gsatdata> &data_base, vector<t_gsatdat
 
 void great::t_gpvtflt::_udsdAmb()
 {
-
     for (map<string, int>::iterator it = _newAMB.begin(); it != _newAMB.end();)
     {
         if (it->second > 2)
+        {
             _newAMB.erase(it++);
+        }
         else
+        {
             ++it;
+        }
     }
     if (_nSat == 0)
     {
         for (unsigned int i = 0; i < _param.parNumber(); i++)
         {
-            if (_param[i].parType == par_type::AMB_IF ||
-                _param[i].parType == par_type::AMB_L1 ||
-                _param[i].parType == par_type::AMB_L2 ||
-                _param[i].parType == par_type::AMB_L3 ||
-                _param[i].parType == par_type::AMB_L4 ||
-                _param[i].parType == par_type::AMB_L5)
+            if (_param[i].parType == par_type::AMB_IF || _param[i].parType == par_type::AMB_L1 || _param[i].parType == par_type::AMB_L2 ||
+                _param[i].parType == par_type::AMB_L3 || _param[i].parType == par_type::AMB_L4 || _param[i].parType == par_type::AMB_L5)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
+                GREAT_INFO("AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
 
                 _amb_obs.erase(make_pair(_param[i].prn, _param[i].parType));
 
@@ -2169,7 +2279,7 @@ void great::t_gpvtflt::_udsdAmb()
         string sat = rsatdata.sat();
         mapPRN.insert(rsatdata.sat());
 
-        vector<GOBSBAND> band = dynamic_cast<t_gsetgnss *>(_set)->band(gs);
+        vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(gs);
 
         tuple<GOBS, GOBS, GOBS, GOBS> amb_obs_identifier = make_tuple(X, X, X, X);
 
@@ -2181,7 +2291,9 @@ void great::t_gpvtflt::_udsdAmb()
                 set<GOBSBAND> bands = rsatdata.band_avail();
                 auto itBAND = bands.begin();
                 if (bands.size() < 2)
+                {
                     continue;
+                }
                 b1 = *itBAND;
                 itBAND++;
                 b2 = *itBAND;
@@ -2201,12 +2313,14 @@ void great::t_gpvtflt::_udsdAmb()
             }
             bool update_amb = false;
             double amb[2] = {0};
-            
+
             for (int j = 0; j < 2; j++)
             {
                 t_gsatdata tmpsatdata = rsatdata;
                 if (j == 1)
+                {
                     tmpsatdata = bsatdata;
+                }
                 t_gobs gobs1(tmpsatdata.select_phase(b1));
                 t_gobs gobs1_P(tmpsatdata.select_range(b1));
                 t_gobs gobs2(tmpsatdata.select_phase(b2));
@@ -2248,13 +2362,11 @@ void great::t_gpvtflt::_udsdAmb()
             {
                 if (_amb_obs.find(make_pair(sat, par_type::AMB_IF)) == _amb_obs.end())
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, "amb_obs not correct!" + sat + " " + _epoch.str_hms());
+                    GREAT_INFO("amb_obs not correct!" + sat + " " + _epoch.str_hms());
                 }
                 else if (_amb_obs[make_pair(sat, par_type::AMB_IF)] != amb_obs_identifier)
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, "Warning: amb_obs switched silently!" + sat + " " + _epoch.str_hms());
+                    GREAT_INFO("Warning: amb_obs switched silently!" + sat + " " + _epoch.str_hms());
                     _amb_obs[make_pair(sat, par_type::AMB_IF)] = amb_obs_identifier;
                 }
                 continue;
@@ -2278,7 +2390,6 @@ void great::t_gpvtflt::_udsdAmb()
             }
 
             _amb_obs[make_pair(sat, par_type::AMB_IF)] = amb_obs_identifier;
-
         }
         else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
         {
@@ -2290,7 +2401,9 @@ void great::t_gpvtflt::_udsdAmb()
                 set<GOBSBAND> bands = rsatdata.band_avail();
                 auto itBAND = bands.begin();
                 if (bands.size() < 2)
+                {
                     continue;
+                }
                 b1 = *itBAND;
                 itBAND++;
                 b2 = *itBAND;
@@ -2299,39 +2412,45 @@ void great::t_gpvtflt::_udsdAmb()
                 band.push_back(b2);
             }
             if (band.size())
+            {
                 nf = band.size();
+            }
             for (FREQ_SEQ f = FREQ_1; f <= nf; f = (FREQ_SEQ)(f + 1))
             {
                 GOBSBAND b;
                 par_type amb_type;
                 switch (f)
                 {
-                case gnut::FREQ_1:
-                    amb_type = par_type::AMB_L1;
-                    break;
-                case gnut::FREQ_2:
-                    amb_type = par_type::AMB_L2;
-                    break;
-                case gnut::FREQ_3:
-                    amb_type = par_type::AMB_L3;
-                    break;
-                case gnut::FREQ_4:
-                    amb_type = par_type::AMB_L4;
-                    break;
-                case gnut::FREQ_5:
-                    amb_type = par_type::AMB_L5;
-                    break;
-                default:
-                    break;
+                    case gnut::FREQ_1:
+                        amb_type = par_type::AMB_L1;
+                        break;
+                    case gnut::FREQ_2:
+                        amb_type = par_type::AMB_L2;
+                        break;
+                    case gnut::FREQ_3:
+                        amb_type = par_type::AMB_L3;
+                        break;
+                    case gnut::FREQ_4:
+                        amb_type = par_type::AMB_L4;
+                        break;
+                    case gnut::FREQ_5:
+                        amb_type = par_type::AMB_L5;
+                        break;
+                    default:
+                        break;
                 }
                 if (f > _frequency)
+                {
                     continue;
+                }
                 if (band.size() >= f)
                 { // automatic dual band selection -> for Anubis purpose
                     b = band[f - 1];
                 }
                 else
+                {
                     b = t_gsys::band_priority(gs, f);
+                }
 
                 bool update_amb = false;
                 bool skip = false;
@@ -2341,7 +2460,9 @@ void great::t_gpvtflt::_udsdAmb()
                 {
                     t_gsatdata tmpsatdata = rsatdata;
                     if (j == 1)
+                    {
                         tmpsatdata = bsatdata;
+                    }
                     t_gobs gobs(tmpsatdata.select_phase(b));
                     if (gobs.gobs() == X)
                     {
@@ -2383,20 +2504,20 @@ void great::t_gpvtflt::_udsdAmb()
                         update_amb = true;
                         _data[i].addslip(true); // save slip information in rover's data
                     }
-                } //end base+rove
+                } // end base+rove
                 if (skip)
+                {
                     continue;
+                }
                 if (update_amb == false)
                 {
                     if (_amb_obs.find(make_pair(sat, amb_type)) == _amb_obs.end())
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_INFO(_spdlog, "amb_obs not correct!" + sat + " " + _epoch.str_hms());
+                        GREAT_INFO("amb_obs not correct!" + sat + " " + _epoch.str_hms());
                     }
                     else if (_amb_obs[make_pair(sat, amb_type)] != amb_obs_identifier)
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_INFO(_spdlog, "Warning: amb_obs switched silently!" + sat + " " + _epoch.str_hms());
+                        GREAT_INFO("Warning: amb_obs switched silently!" + sat + " " + _epoch.str_hms());
                         _amb_obs[make_pair(sat, amb_type)] = amb_obs_identifier;
                     }
                     continue;
@@ -2420,32 +2541,26 @@ void great::t_gpvtflt::_udsdAmb()
                 }
 
                 _amb_obs[make_pair(sat, amb_type)] = amb_obs_identifier;
-
-            } 
+            }
             if (newAmb)
+            {
                 _newAMB[sat] = 1;
-        } //end uc
+            }
+        } // end uc
 
-    } //end data
+    } // end data
 
     // Remove ambiguity parameter and appropriate rows/columns covar. matrix
 
     for (unsigned int i = 0; i < _param.parNumber(); i++)
     {
-        if (_param[i].parType == par_type::AMB_IF ||
-            _param[i].parType == par_type::AMB_L1 ||
-            _param[i].parType == par_type::AMB_L2 ||
-            _param[i].parType == par_type::AMB_L3 ||
-            _param[i].parType == par_type::AMB_L4 ||
-            _param[i].parType == par_type::AMB_L5)
+        if (_param[i].parType == par_type::AMB_IF || _param[i].parType == par_type::AMB_L1 || _param[i].parType == par_type::AMB_L2 ||
+            _param[i].parType == par_type::AMB_L3 || _param[i].parType == par_type::AMB_L4 || _param[i].parType == par_type::AMB_L5)
         {
-
             set<string>::iterator prnITER = mapPRN.find(_param[i].prn);
             if (prnITER == mapPRN.end())
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
+                GREAT_INFO("AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
 
                 _amb_obs.erase(make_pair(_param[i].prn, _param[i].parType));
 
@@ -2467,9 +2582,13 @@ void great::t_gpvtflt::_udAmb()
     for (map<string, int>::iterator it = _newAMB.begin(); it != _newAMB.end();)
     {
         if (it->second > 2)
+        {
             _newAMB.erase(it++);
+        }
         else
+        {
             ++it;
+        }
     }
 
     // Add ambiguity parameter and appropriate rows/columns covar. matrix
@@ -2516,7 +2635,9 @@ void great::t_gpvtflt::_udAmb()
         L2 = it->obs_L(gobs2);
         P2 = it->obs_C(gobs2_P);
         if (!double_eq(L2, 0.0))
-        L3 = it->obs_L(gobs3);
+        {
+            L3 = it->obs_L(gobs3);
+        }
         P3 = it->obs_C(gobs3_P);
         L4 = it->obs_L(gobs4);
         P4 = it->obs_C(gobs4_P);
@@ -2528,7 +2649,9 @@ void great::t_gpvtflt::_udAmb()
             if (idx < 0)
             {
                 if (double_eq(LIF, 0.0) || double_eq(PIF, 0.0))
+                {
                     continue;
+                }
 
                 t_gpar newPar(it->site(), par_type::AMB_IF, _param.parNumber() + 1, it->sat());
 
@@ -2539,13 +2662,14 @@ void great::t_gpvtflt::_udAmb()
 
                 Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
                 _Qx(_param.parNumber(), _param.parNumber()) = _sigAmbig * _sigAmbig;
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "AMB_IF was added! For Sat PRN " + it->sat() + " Epoch: " + _epoch.str_ymdhms());
+                GREAT_INFO("AMB_IF was added! For Sat PRN " + it->sat() + " Epoch: " + _epoch.str_ymdhms());
             }
             else if (it->getlli(gobs1.gobs()) >= 1 || it->getlli(gobs2.gobs()) >= 1)
             {
                 if (double_eq(LIF, 0.0) || double_eq(PIF, 0.0))
+                {
                     continue;
+                }
                 it->addslip(true);
                 _param[idx].value(LIF - PIF);
                 _param[idx].setTime(_epoch, LAST_TIME); // beg -> end  (because of cycle slip)
@@ -2556,26 +2680,28 @@ void great::t_gpvtflt::_udAmb()
             // check amb_obs
             amb_obs_identifier = make_tuple(gobs1.gobs(), gobs2.gobs(), X, X);
             if (idx < 0 || it->getlli(gobs1.gobs()) >= 1 || it->getlli(gobs2.gobs()) >= 1)
+            {
                 _amb_obs[make_pair(it->sat(), par_type::AMB_IF)] = amb_obs_identifier;
+            }
             else if (_amb_obs.find(make_pair(it->sat(), par_type::AMB_IF)) == _amb_obs.end())
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "amb_obs not correct!" + it->sat() + " " + _epoch.str_hms());
+                GREAT_INFO("amb_obs not correct!" + it->sat() + " " + _epoch.str_hms());
             }
             else if (_amb_obs[make_pair(it->sat(), par_type::AMB_IF)] != amb_obs_identifier)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "Warning: amb_obs switched silently!" + it->sat() + " " + _epoch.str_hms());
+                GREAT_INFO("Warning: amb_obs switched silently!" + it->sat() + " " + _epoch.str_hms());
                 _amb_obs[make_pair(it->sat(), par_type::AMB_IF)] = amb_obs_identifier;
             }
         }
         else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
         {
             int newAmb = 0;
-            for (const auto &ib : _band_index[gs])
+            for (const auto& ib : _band_index[gs])
             {
                 if (ib.first > _frequency)
+                {
                     continue;
+                }
                 t_gobs gobsi;
                 double Li;
                 double Pi;
@@ -2622,18 +2748,21 @@ void great::t_gpvtflt::_udAmb()
                 };
 
                 if (double_eq(Li, 0.0) || double_eq(Pi, 0.0))
+                {
                     continue;
+                }
                 int idx = -1;
                 // add L1 amb - everytime when RAW observations
                 idx = _param.getParam(_site, amb_type, it->sat());
                 amb_obs_identifier = make_tuple(gobsi.gobs(), X, X, X);
                 // check amb_obs
                 if (idx < 0 || it->getlli(gobsi.gobs()) >= 1)
+                {
                     _amb_obs[make_pair(it->sat(), amb_type)] = amb_obs_identifier;
+                }
                 else if (_amb_obs[make_pair(it->sat(), amb_type)] != amb_obs_identifier)
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, "Warning: amb_obs switched silently!" + it->sat() + " " + _epoch.str_hms());
+                    GREAT_INFO("Warning: amb_obs switched silently!" + it->sat() + " " + _epoch.str_hms());
                     _amb_obs[make_pair(it->sat(), amb_type)] = amb_obs_identifier;
                     it->addlli(gobsi.gobs(), 1);
                 }
@@ -2646,8 +2775,7 @@ void great::t_gpvtflt::_udAmb()
 
                     Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
                     _Qx(_param.parNumber(), _param.parNumber()) = _sigAmbig * _sigAmbig;
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, "RAW AMB_L1 was added! For Sat PRN " + it->sat() + " Epoch: " + _epoch.str_ymdhms());
+                    GREAT_INFO("RAW AMB_L1 was added! For Sat PRN " + it->sat() + " Epoch: " + _epoch.str_ymdhms());
                     newAmb = 1;
                 }
                 else if (it->getlli(gobsi.gobs()) >= 1) // check cycle slip
@@ -2658,12 +2786,16 @@ void great::t_gpvtflt::_udAmb()
                     _Qx(idx + 1, idx + 1) = _sigAmbig * _sigAmbig;
                     _newAMB[it->sat()] = 1;
                     if (_param[idx].amb_ini == true)
+                    {
                         std::cout << "reset AMB  " << _epoch.str_hms() << endl;
+                    }
                 }
             }
 
             if (newAmb)
+            {
                 _newAMB[it->sat()] = 1;
+            }
         }
 
     } // end loop over all observations
@@ -2672,22 +2804,17 @@ void great::t_gpvtflt::_udAmb()
 
     for (unsigned int i = 0; i < _param.parNumber(); i++)
     {
-        if (_param[i].parType == par_type::AMB_IF ||
-            _param[i].parType == par_type::AMB_L1 ||
-            _param[i].parType == par_type::AMB_L2 ||
-            _param[i].parType == par_type::AMB_L3 ||
-            _param[i].parType == par_type::AMB_L4 ||
-            _param[i].parType == par_type::AMB_L5)
+        if (_param[i].parType == par_type::AMB_IF || _param[i].parType == par_type::AMB_L1 || _param[i].parType == par_type::AMB_L2 ||
+            _param[i].parType == par_type::AMB_L3 || _param[i].parType == par_type::AMB_L4 || _param[i].parType == par_type::AMB_L5)
         {
-
             if (_param[i].site != _site)
+            {
                 continue;
+            }
             set<string>::iterator prnITER = mapPRN.find(_param[i].prn);
             if (prnITER == mapPRN.end())
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_INFO(_spdlog, "AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
+                GREAT_INFO("AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
 
                 _amb_obs.erase(make_pair(_param[i].prn, _param[i].parType));
 
@@ -2704,9 +2831,7 @@ void great::t_gpvtflt::_udAmb()
     return;
 }
 
-
-
-void great::t_gpvtflt::Add_rho_azel(const string &site_name, t_gtriple &xyz_s, const t_gtriple &xyz_r, t_gsatdata &obs_sat)
+void great::t_gpvtflt::Add_rho_azel(const string& site_name, t_gtriple& xyz_s, const t_gtriple& xyz_r, t_gsatdata& obs_sat)
 {
     t_gtriple xyz_rho = xyz_s - xyz_r;
     t_gtriple ell_r, neu_s;
@@ -2731,7 +2856,9 @@ void great::t_gpvtflt::Add_rho_azel(const string &site_name, t_gtriple &xyz_s, c
         _site = tmp;
     }
     else
+    {
         _apply_tides(_epoch, xRec);
+    }
 
     double tmp = (xyz_s.crd_cvect() - xRec.crd_cvect()).norm_Frobenius();
 
@@ -2744,21 +2871,32 @@ void great::t_gpvtflt::Add_rho_azel(const string &site_name, t_gtriple &xyz_s, c
     }
 
     if (sqrt(NE2) / tmp > 1.0)
+    {
         obs_sat.addele(0.0);
+    }
     else
+    {
         obs_sat.addele(ele);
+    }
 
     double azi = atan2(neu_s[1], neu_s[0]);
     if (azi < 0)
+    {
         azi += 2 * G_PI;
+    }
     obs_sat.addazi_rec(azi);
 
     return;
 }
 
-void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatrix &Q, vector<t_gsatdata> &data, ostringstream &os, xml_node &node, bool saveProd)
+void great::t_gpvtflt::_prtOut(t_gtime& epoch,
+                               t_gallpar& X,
+                               const SymmetricMatrix& Q,
+                               vector<t_gsatdata>& data,
+                               ostringstream& os,
+                               xml_node& node,
+                               bool saveProd)
 {
-
     // get CRD params
     t_gtriple xyz, ell;
     X.getCrdParam(_site, xyz);
@@ -2773,8 +2911,7 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
     t_gtriple xyz_ecc = xyz - _grec->eccxyz(epoch); // MARKER + ECC = ARP
 
     // get CRD rms  (XYZ)
-    double Xrms = 0.0, Yrms = 0.0, Zrms = 0.0,
-           Vxrms = 0.0, Vyrms = 0.0, Vzrms = 0.0;
+    double Xrms = 0.0, Yrms = 0.0, Zrms = 0.0, Vxrms = 0.0, Vyrms = 0.0, Vzrms = 0.0;
     double cov_xy = 0.0, cov_xz = 0.0, cov_yz = 0.0;
     int icrdx = _param.getParam(_site, par_type::CRD_X, "");
     int icrdy = _param.getParam(_site, par_type::CRD_Y, "");
@@ -2788,17 +2925,29 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
     if (icrdx >= 0 && icrdy >= 0 && icrdz >= 0)
     {
         if (Q(icrdx + 1, icrdx + 1) < 0)
+        {
             Xrms = -1;
+        }
         else
+        {
             Xrms = sqrt(Q(icrdx + 1, icrdx + 1));
+        }
         if (Q(icrdy + 1, icrdy + 1) < 0)
+        {
             Yrms = -1;
+        }
         else
+        {
             Yrms = sqrt(Q(icrdy + 1, icrdy + 1));
+        }
         if (Q(icrdz + 1, icrdz + 1) < 0)
+        {
             Zrms = -1;
+        }
         else
+        {
             Zrms = sqrt(Q(icrdz + 1, icrdz + 1));
+        }
         cov_xy = Q(icrdy + 1, icrdx + 1);
         cov_xz = Q(icrdz + 1, icrdx + 1);
         cov_yz = Q(icrdz + 1, icrdy + 1);
@@ -2811,17 +2960,29 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
     {
         vRec = _vel;
         if (_Qx_vel(1, 1) < 0)
+        {
             Vxrms = -1;
+        }
         else
+        {
             Vxrms = sqrt(_Qx_vel(1, 1));
+        }
         if (_Qx_vel(2, 2) < 0)
+        {
             Vyrms = -1;
+        }
         else
+        {
             Vyrms = sqrt(_Qx_vel(2, 2));
+        }
         if (_Qx_vel(3, 3) < 0)
+        {
             Vzrms = -1;
+        }
         else
+        {
             Vzrms = sqrt(_Qx_vel(3, 3));
+        }
     }
     else
     {
@@ -2830,7 +2991,9 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
 
     set<string> sat_list;
     for (auto it = _data.begin(); it != _data.end(); it++)
+    {
         sat_list.insert(it->sat());
+    }
     _dop.set_sats(sat_list);
     double pdop = -1, hdop = -1;
     if (_dop.calculate(epoch, xyz) >= 0)
@@ -2845,7 +3008,9 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
     // get amb status
     string amb = "Float";
     if (_amb_state)
+    {
         amb = "Fixed";
+    }
 
     if (_allprod != 0 && saveProd)
     {
@@ -2860,7 +3025,7 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
         }
         else
         {
-            prdcrd = make_shared<t_gprodcrd>(_spdlog, epoch);
+            prdcrd = make_shared<t_gprodcrd>(epoch);
             dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz(xyz_ecc);
             dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz_rms(crd_rms);
             dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_XY, cov_xy);
@@ -2880,22 +3045,26 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
         xyz2ell(XYZ, Ell, false);
         int itrp = _param.getParam(_site, par_type::TRP, "");
         if (itrp >= 0)
+        {
             _param[itrp].apriori(_gModel->tropoModel()->getZHD(Ell, _epoch));
+        }
     }
-    t_gtriple blh; 
+    t_gtriple blh;
     xyz2ell(xyz_ecc, blh, true);
     double crt = epoch.sow() + epoch.dsec();
-    Eigen::Vector3d Qpos(Xrms*Xrms, Yrms*Yrms, Zrms*Zrms), Qvel(Vxrms*Vxrms, Vyrms*Vyrms, Vzrms*Vzrms);
+    Eigen::Vector3d Qpos(Xrms * Xrms, Yrms * Yrms, Zrms * Zrms), Qvel(Vxrms * Vxrms, Vyrms * Vyrms, Vzrms * Vzrms);
     Eigen::Vector3d position(xyz_ecc[0], xyz_ecc[1], xyz_ecc[2]), velocity(vRec[0], vRec[1], vRec[2]);
-    t_gposdata::data_pos posdata = t_gposdata::data_pos{ crt, position, velocity, Qpos, Qvel, pdop, nsat, _amb_state };
-    bool ins = dynamic_cast<t_gsetinp *>(_set)->input_size("imu") > 0 ? true : false;
+    t_gposdata::data_pos posdata = t_gposdata::data_pos{crt, position, velocity, Qpos, Qvel, pdop, nsat, _amb_state};
+    bool ins = dynamic_cast<t_gsetinp*>(_set)->input_size("imu") > 0 ? true : false;
     // write kml
     if (_kml)
     {
         ostringstream out;
         t_gtriple ell1(ell);
         if (ell1[1] > G_PI)
+        {
             ell1[1] = ell1[1] - 2 * G_PI;
+        }
         out << fixed << setprecision(11) << " " << setw(0) << ell1[1] * R2D << ',' << ell1[0] * R2D;
         string val = out.str();
 
@@ -2916,7 +3085,7 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
         this->_default_node(TimeStamp, "when", time.c_str());
         xml_node Placemark = document.child("Placemark");
         xml_node LineString = Placemark.child("LineString");
-        this->_default_node(LineString, "coordinates", val.c_str(), false); 
+        this->_default_node(LineString, "coordinates", val.c_str(), false);
     }
 
     string str_dsec = dbl2str(epoch.dsec());
@@ -2932,40 +3101,35 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
         bl = tmpneu.norm();
     }
 
-
     os << fixed << setprecision(4) << " "
        << " " << epoch.sow() + epoch.dsec();
     if (_crd_est != CONSTRPAR::FIX)
     {
-        os << fixed << setprecision(4)
-           << " " << setw(15) << xyz_ecc[0] // [m]
-           << " " << setw(15) << xyz_ecc[1] // [m]
-           << " " << setw(15) << xyz_ecc[2] // [m]
-           << " " << setw(10) << vRec[0]    // [m/s]
-           << " " << setw(10) << vRec[1]    // [m/s]
-           << " " << setw(10) << vRec[2]    // [m/s]
-           << fixed << setprecision(4)
-           << " " << setw(9) << Xrms  // [m]
-           << " " << setw(9) << Yrms  // [m]
-           << " " << setw(9) << Zrms  // [m]
-           << " " << setw(9) << Vxrms // [m/s]
-           << " " << setw(9) << Vyrms // [m/s]
-           << " " << setw(9) << Vzrms // [m/s]
+        os << fixed << setprecision(4) << " " << setw(15) << xyz_ecc[0] // [m]
+           << " " << setw(15) << xyz_ecc[1]                             // [m]
+           << " " << setw(15) << xyz_ecc[2]                             // [m]
+           << " " << setw(10) << vRec[0]                                // [m/s]
+           << " " << setw(10) << vRec[1]                                // [m/s]
+           << " " << setw(10) << vRec[2]                                // [m/s]
+           << fixed << setprecision(4) << " " << setw(9) << Xrms        // [m]
+           << " " << setw(9) << Yrms                                    // [m]
+           << " " << setw(9) << Zrms                                    // [m]
+           << " " << setw(9) << Vxrms                                   // [m/s]
+           << " " << setw(9) << Vyrms                                   // [m/s]
+           << " " << setw(9) << Vzrms                                   // [m/s]
             ;
     }
-    os << fixed << setprecision(0)
-       << " " << setw(5) << nsat // nsat
-       << fixed << setprecision(1)
-       << fixed << setprecision(2)
-       << " " << setw(5) << pdop // pdop
-       << fixed << setprecision(2)
-       << " " << setw(8) << _sig_unit // m0
+    os << fixed << setprecision(0) << " " << setw(5) << nsat                             // nsat
+       << fixed << setprecision(1) << fixed << setprecision(2) << " " << setw(5) << pdop // pdop
+       << fixed << setprecision(2) << " " << setw(8) << _sig_unit                        // m0
        << " " << setw(8) << amb;
     if (_fix_mode != FIX_MODE::NO)
+    {
         os << setprecision(2) << " " << fixed << setw(10) << _ambfix->get_ratio();
+    }
     if (_isBase)
     {
-        os << " " << fixed << setprecision(3) << setw(10) << bl; 
+        os << " " << fixed << setprecision(3) << setw(10) << bl;
     }
     os << " " << setw(8) << _quality_grade(posdata);
     if (_observ == OBSCOMBIN::RAW_MIX)
@@ -2978,9 +3142,8 @@ void great::t_gpvtflt::_prtOut(t_gtime &epoch, t_gallpar &X, const SymmetricMatr
     return;
 }
 
-void great::t_gpvtflt::_prt_port(t_gtime &epoch, t_gallpar &X, const SymmetricMatrix &Q, vector<t_gsatdata> &data)
+void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMatrix& Q, vector<t_gsatdata>& data)
 {
-
     ostringstream os;
     // get CRD params
     t_gtriple xyz, ell;
@@ -3002,17 +3165,29 @@ void great::t_gpvtflt::_prt_port(t_gtime &epoch, t_gallpar &X, const SymmetricMa
     if (icrdx >= 0 && icrdy >= 0 && icrdz >= 0)
     {
         if (Q(icrdx + 1, icrdx + 1) < 0)
+        {
             Xrms = -1;
+        }
         else
+        {
             Xrms = sqrt(Q(icrdx + 1, icrdx + 1));
+        }
         if (Q(icrdy + 1, icrdy + 1) < 0)
+        {
             Yrms = -1;
+        }
         else
+        {
             Yrms = sqrt(Q(icrdy + 1, icrdy + 1));
+        }
         if (Q(icrdz + 1, icrdz + 1) < 0)
+        {
             Zrms = -1;
+        }
         else
+        {
             Zrms = sqrt(Q(icrdz + 1, icrdz + 1));
+        }
     }
 
     t_gtriple crd_rms(Xrms, Yrms, Zrms);
@@ -3028,11 +3203,15 @@ void great::t_gpvtflt::_prt_port(t_gtime &epoch, t_gallpar &X, const SymmetricMa
 
     set<string> sat_list;
     for (auto it = _data.begin(); it != _data.end(); it++)
+    {
         sat_list.insert(it->sat());
+    }
     _dop.set_sats(sat_list);
     double pdop = -1;
     if (_dop.calculate(epoch, xyz) >= 0)
+    {
         pdop = _dop.pdop();
+    }
 
     set<string> ambs = X.amb_prns();
     int nsat = ambs.size();
@@ -3040,7 +3219,9 @@ void great::t_gpvtflt::_prt_port(t_gtime &epoch, t_gallpar &X, const SymmetricMa
     // get amb status
     string amb = "Float";
     if (_amb_state)
+    {
         amb = "Fixed";
+    }
 
     t_gtriple blh;
     xyz2ell(xyz_ecc, blh, true);
@@ -3057,22 +3238,15 @@ void great::t_gpvtflt::_prt_port(t_gtime &epoch, t_gallpar &X, const SymmetricMa
     }
 
     os << fixed << setprecision(4) << " "
-       << " " << epoch.sow() + epoch.dsec()
-       << fixed << setprecision(4)
-       << " " << setw(15) << xyz_ecc[0] // [m]
-       << " " << setw(15) << xyz_ecc[1] // [m]
-       << " " << setw(15) << xyz_ecc[2] // [m]
-       << " " << setw(10) << vRec[0]    // [m/s]
-       << " " << setw(10) << vRec[1]    // [m/s]
-       << " " << setw(10) << vRec[2]    // [m/s]
-       << fixed << setprecision(0)
-       << " " << setw(5) << nsat // nsat
-       << fixed << setprecision(2)
-       << " " << setw(5) << pdop // pdop
-       << fixed << setprecision(2)
-       << " " << setw(8) << amb
-       << setw(10) << (_amb_state ? _ambfix->get_ratio() : 0.0)
-       << endl;
+       << " " << epoch.sow() + epoch.dsec() << fixed << setprecision(4) << " " << setw(15) << xyz_ecc[0] // [m]
+       << " " << setw(15) << xyz_ecc[1]                                                                  // [m]
+       << " " << setw(15) << xyz_ecc[2]                                                                  // [m]
+       << " " << setw(10) << vRec[0]                                                                     // [m/s]
+       << " " << setw(10) << vRec[1]                                                                     // [m/s]
+       << " " << setw(10) << vRec[2]                                                                     // [m/s]
+       << fixed << setprecision(0) << " " << setw(5) << nsat                                             // nsat
+       << fixed << setprecision(2) << " " << setw(5) << pdop                                             // pdop
+       << fixed << setprecision(2) << " " << setw(8) << amb << setw(10) << (_amb_state ? _ambfix->get_ratio() : 0.0) << endl;
 }
 
 void great::t_gpvtflt::_prtOutHeader()
@@ -3081,13 +3255,15 @@ void great::t_gpvtflt::_prtOutHeader()
 
     if (_isBase)
     {
-        auto beg = dynamic_cast<t_gsetgen *>(_set)->beg();
+        auto beg = dynamic_cast<t_gsetgen*>(_set)->beg();
         auto crd_base = _gallobj->obj(_site_base)->crd(beg);
-        os << "# base -" << _site_base << " Pos(XYZ): " << fixed << setprecision(4) << crd_base[0] << setw(15) << crd_base[1] << setw(15) << crd_base[2] << endl;
+        os << "# base -" << _site_base << " Pos(XYZ): " << fixed << setprecision(4) << crd_base[0] << setw(15) << crd_base[1] << setw(15)
+           << crd_base[2] << endl;
         if (_crd_est == CONSTRPAR::FIX)
         {
             auto crd = _gallobj->obj(_site)->crd(beg);
-            os << "# rover-" << _site << " Pos(XYZ): " << fixed << setprecision(4) << crd[0] << setw(15) << crd[1] << setw(15) << crd[2] << endl;
+            os << "# rover-" << _site << " Pos(XYZ): " << fixed << setprecision(4) << crd[0] << setw(15) << crd[1] << setw(15) << crd[2]
+               << endl;
         }
     }
 
@@ -3096,11 +3272,11 @@ void great::t_gpvtflt::_prtOutHeader()
     if (_crd_est != CONSTRPAR::FIX)
     {
         os << " " << setw(12) << "X-ECEF " << // [m]
-            " " << setw(15) << "Y-ECEF" <<      // [m]
-            " " << setw(15) << "Z-ECEF" <<      // [m]
-            " " << setw(10) << "Vx-ECEF" <<      // [m/s]
-            " " << setw(10) << "Vy-ECEF" <<      // [m/s]
-            " " << setw(10) << "Vz-ECEF" <<      // [m/s]
+            " " << setw(15) << "Y-ECEF" <<    // [m]
+            " " << setw(15) << "Z-ECEF" <<    // [m]
+            " " << setw(10) << "Vx-ECEF" <<   // [m/s]
+            " " << setw(10) << "Vy-ECEF" <<   // [m/s]
+            " " << setw(10) << "Vz-ECEF" <<   // [m/s]
             " " << setw(9) << "X-RMS"
            << " " << setw(9) << "Y-RMS"
            << " " << setw(9) << "Z-RMS"
@@ -3113,10 +3289,14 @@ void great::t_gpvtflt::_prtOutHeader()
        << " " << setw(8) << "sigma0"
        << " " << setw(10) << "AmbStatus";
     if (_fix_mode != FIX_MODE::NO)
-        os << " " << setw(10) << "Ratio"; 
+    {
+        os << " " << setw(10) << "Ratio";
+    }
     if (_isBase)
-        os << " " << setw(10) << "BL"; 
-    os << " " << setw(8) << "Quality"; 
+    {
+        os << " " << setw(10) << "BL";
+    }
+    os << " " << setw(8) << "Quality";
     os << endl;
 
     // second line
@@ -3124,17 +3304,17 @@ void great::t_gpvtflt::_prtOutHeader()
     if (_crd_est != CONSTRPAR::FIX)
     {
         os << " " << setw(12) << "(m)" << // [m]
-            " " << setw(15) << "(m)" <<      // [m]
-            " " << setw(15) << "(m)" <<      // [m]
+            " " << setw(15) << "(m)" <<   // [m]
+            " " << setw(15) << "(m)" <<   // [m]
             " " << setw(10) << "(m/s)" << // [m/s]
             " " << setw(10) << "(m/s)" << // [m/s]
             " " << setw(10) << "(m/s)" << // [m/s]
-            " " << setw(9) << "(m)" <<      // [m]
-            " " << setw(9) << "(m)" <<      // [m]
-            " " << setw(9) << "(m)" <<      // [m]
+            " " << setw(9) << "(m)" <<    // [m]
+            " " << setw(9) << "(m)" <<    // [m]
+            " " << setw(9) << "(m)" <<    // [m]
             " " << setw(9) << "(m/s)" <<  // [m/s]
             " " << setw(9) << "(m/s)" <<  // [m/s]
-            " " << setw(9) << "(m/s)"      // [m/s]
+            " " << setw(9) << "(m/s)"     // [m/s]
             ;
     }
     os << " " << setw(5) << "(#)"
@@ -3142,9 +3322,13 @@ void great::t_gpvtflt::_prtOutHeader()
        << " " << setw(8) << "(m)"
        << " " << setw(10) << " ";
     if (_fix_mode != FIX_MODE::NO)
-        os << setw(10) << " "; 
+    {
+        os << setw(10) << " ";
+    }
     if (_isBase)
-        os << " " << setw(10) << "(m)"; 
+    {
+        os << " " << setw(10) << "(m)";
+    }
     os << setw(8) << " ";
     os << endl;
 
@@ -3156,10 +3340,10 @@ void great::t_gpvtflt::_prtOutHeader()
     }
 }
 
-void great::t_gpvtflt::_generateObsIndex(t_gfltEquationMatrix &equ)
+void great::t_gpvtflt::_generateObsIndex(t_gfltEquationMatrix& equ)
 {
-    auto band_index = dynamic_cast<t_gcombmodel *>(&(*_base_model))->get_band_index();
-    auto freq_index = dynamic_cast<t_gcombmodel *>(&(*_base_model))->get_freq_index();
+    auto band_index = dynamic_cast<t_gcombmodel*>(&(*_base_model))->get_band_index();
+    auto freq_index = dynamic_cast<t_gcombmodel*>(&(*_base_model))->get_freq_index();
     for (int i = 0; i < equ.num_equ(); i++)
     {
         char sys_char = equ.get_satname(i)[0];
@@ -3167,27 +3351,29 @@ void great::t_gpvtflt::_generateObsIndex(t_gfltEquationMatrix &equ)
         bool sys_valid = true;
         switch (sys_char)
         {
-        case 'G':
-            sys = GSYS::GPS;
-            break;
-        case 'R':
-            sys = GSYS::GLO;
-            break;
-        case 'E':
-            sys = GSYS::GAL;
-            break;
-        case 'C':
-            sys = GSYS::BDS;
-            break;
-        case 'J':
-            sys = GSYS::QZS;
-            break;
-        default:
-            sys_valid = false;
-            break;
+            case 'G':
+                sys = GSYS::GPS;
+                break;
+            case 'R':
+                sys = GSYS::GLO;
+                break;
+            case 'E':
+                sys = GSYS::GAL;
+                break;
+            case 'C':
+                sys = GSYS::BDS;
+                break;
+            case 'J':
+                sys = GSYS::QZS;
+                break;
+            default:
+                sys_valid = false;
+                break;
         }
         if (!sys_valid)
+        {
             throw exception();
+        }
         GOBSBAND b = equ.get_obscombtype(i).getBand_1();
         FREQ_SEQ f = freq_index[sys][b];
         GOBSTYPE obstype = equ.get_obscombtype(i).is_code() ? TYPE_C : GOBSTYPE::TYPE_L;
@@ -3205,7 +3391,7 @@ bool great::t_gpvtflt::_slip_detect(const t_gtime& now)
     return true;
 }
 
-int great::t_gpvtflt::_getData(const t_gtime& now, vector <t_gsatdata>* data, bool isBase)
+int great::t_gpvtflt::_getData(const t_gtime& now, vector<t_gsatdata>* data, bool isBase)
 {
     // clean/collect/filter epoch data
     if (data != NULL)
@@ -3220,7 +3406,6 @@ int great::t_gpvtflt::_getData(const t_gtime& now, vector <t_gsatdata>* data, bo
             _data_base.erase(_data_base.begin(), _data_base.end());
             _data_base = *data;
         }
-
     }
     else
     {
@@ -3234,7 +3419,6 @@ int great::t_gpvtflt::_getData(const t_gtime& now, vector <t_gsatdata>* data, bo
             _data_base.erase(_data_base.begin(), _data_base.end());
             _data_base = _gobs->obs(_site_base, now);
         }
-        
     }
 
     return (isBase ? static_cast<int>(_data_base.size()) : static_cast<int>(_data.size()));
@@ -3244,8 +3428,7 @@ bool great::t_gpvtflt::_crd_xml_valid()
 {
     t_gtriple crdapr = _grec->crd_arp(_epoch);
 
-    if (double_eq(crdapr[0], 0.0) && double_eq(crdapr[1], 0.0) &&
-        double_eq(crdapr[2], 0.0))
+    if (double_eq(crdapr[0], 0.0) && double_eq(crdapr[1], 0.0) && double_eq(crdapr[2], 0.0))
     {
         _valid_crd_xml = false;
     }
@@ -3263,7 +3446,7 @@ void great::t_gpvtflt::_remove_sat(const string& satid)
     // erase sat satellite because of outliers
     it = _data.begin();
     if (!satid.empty())
-    { 
+    {
         while (it != _data.end())
         {
             if (it->sat() == satid)
@@ -3282,12 +3465,9 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
 {
     GSYS gs = iter->gsys();
 
-    //GOBSBAND b1, b2;
+    // GOBSBAND b1, b2;
     GOBSBAND b1 = _band_index[gs][FREQ_1];
     GOBSBAND b2 = _band_index[gs][FREQ_2];
-
-    iter->spdlog(_spdlog);
-
     // check data availability
     auto l1 = iter->select_phase(b1);
     auto l2 = iter->select_phase(b2);
@@ -3343,8 +3523,7 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
         str << "prepareData: erasing data due to no phase double bands observation, "
             << "epo: " << _epoch.str_hms() << ", "
             << "prn: " << iter->sat() << " (" << iter->channel() << ")";
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, str.str());
+        GREAT_INFO(str.str());
         return false;
     }
 
@@ -3354,19 +3533,17 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
         str << "prepareData: erasing data due to no code double bands observation, "
             << "epo: " << _epoch.str_hms() << ", "
             << "prn: " << iter->sat();
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, str.str());
+        GREAT_INFO(str.str());
         return false;
     }
 
     if (_satPos(_epoch, *iter) < 0)
     {
-       ostringstream str;
-       str << "prepareData: erasing data since _satPos failed, "
-           << "epo: " << _epoch.str_hms() << ", "
-           << "prn: " << iter->sat();
-       if (_spdlog)
-           SPDLOG_LOGGER_INFO(_spdlog, str.str());
+        ostringstream str;
+        str << "prepareData: erasing data since _satPos failed, "
+            << "epo: " << _epoch.str_hms() << ", "
+            << "prn: " << iter->sat();
+        GREAT_INFO(str.str());
         return false;
     }
     else
@@ -3385,17 +3562,23 @@ bool great::t_gpvtflt::_cmp_rec_crd(const string& ssite, Matrix& BB)
     _vBanc = 0.0;
 
     if (BB.Nrows() >= 4)
+    {
         gbancroft(BB, _vBanc);
+    }
     shared_ptr<t_gobj> grec = _gallobj->obj(ssite);
     if (grec == nullptr)
+    {
         return false;
+    }
 
     if (!_initialized && (_vBanc.Rows(1, 3) - grec->crd_arp(_epoch).crd_cvect()).NormFrobenius() > 1000)
     {
         if (ssite == _site)
+        {
             _valid_crd_xml = false;
+        }
         else
-        { 
+        {
             _vBanc(1) = grec->crd_arp(_epoch)[0];
             _vBanc(2) = grec->crd_arp(_epoch)[1];
             _vBanc(3) = grec->crd_arp(_epoch)[2];
@@ -3421,14 +3604,13 @@ bool great::t_gpvtflt::_cmp_rec_crd(const string& ssite, Matrix& BB)
     double radius = test_xyz.norm();
     if (radius < B_WGS - 500)
     {
-        string warning = "WARNING: Unexpected site (" + ssite + ") coordinates from Bancroft. Orbits/clocks or code observations should be checked.";
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, warning + _epoch.str_ymdhms(" Epoch "));
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, warning + _epoch.str_ymdhms(" Epoch "));
+        string warning =
+            "WARNING: Unexpected site (" + ssite + ") coordinates from Bancroft. Orbits/clocks or code observations should be checked.";
+        GREAT_INFO(warning + _epoch.str_ymdhms(" Epoch "));
+        GREAT_INFO(warning + _epoch.str_ymdhms(" Epoch "));
         if (!_phase)
         {
-            return false;            
+            return false;
         }
         return false;
     }
@@ -3444,7 +3626,7 @@ bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter
     shared_ptr<t_gobj> grec = _gallobj->obj(ssite);
 
     if (_isBase && ssite == _site_base)
-    { 
+    {
         xyz_r = grec->crd_arp(_epoch);
         if (xyz_r.norm() == 0)
         {
@@ -3477,7 +3659,9 @@ bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter
                     xyz_r.set(_vBanc.Rows(1, 3));
                 }
                 else
+                {
                     _param.getCrdParam(ssite, xyz_r);
+                }
             }
             if (_pos_kin)
             {
@@ -3486,16 +3670,15 @@ bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter
             }
         }
     }
-    Add_rho_azel(ssite, xyz_s, xyz_r, *iter); 
+    Add_rho_azel(ssite, xyz_s, xyz_r, *iter);
 
     // check elevation cut-off
     if (iter->ele_deg() < _minElev)
     {
         ostringstream os;
-        os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << fixed << setprecision(1) << iter->ele_deg()
-            << ") " << iter->epoch().str_ymdhms();
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, os.str());
+        os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << fixed << setprecision(1) << iter->ele_deg() << ") "
+           << iter->epoch().str_ymdhms();
+        GREAT_INFO(os.str());
         return false;
     }
 
@@ -3506,19 +3689,22 @@ bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter
     {
         ostringstream os;
         os << "Erasing " << iter->sat() << " data due to satellite eclipsing (beta = " << fixed << setprecision(1) << iter->beta()
-            << " ,orbit angle = " << iter->orb_angle() << ") " << iter->epoch().str_ymdhms();
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, string("gpvtflt:  ") +  os.str());
+           << " ,orbit angle = " << iter->orb_angle() << ") " << iter->epoch().str_ymdhms();
+        GREAT_INFO(string("gpvtflt:  ") + os.str());
         return false;
     }
     else
+    {
         return true;
+    }
 }
 
 void great::t_gpvtflt::_syncAmb()
 {
     if (_isBase)
+    {
         _udsdAmb();
+    }
     else
     {
         _udAmb();
@@ -3543,9 +3729,13 @@ void great::t_gpvtflt::_predictCrd()
         else
         {
             if (_pos_kin)
+            {
                 _param[i].value(_vBanc(1));
+            }
             if (_cntrep == 1 && _success)
+            {
                 _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+            }
         }
     }
 
@@ -3560,9 +3750,13 @@ void great::t_gpvtflt::_predictCrd()
         else
         {
             if (_pos_kin)
+            {
                 _param[i].value(_vBanc(2));
+            }
             if (_cntrep == 1 && _success)
+            {
                 _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+            }
         }
     }
 
@@ -3577,9 +3771,13 @@ void great::t_gpvtflt::_predictCrd()
         else
         {
             if (_pos_kin)
+            {
                 _param[i].value(_vBanc(3));
+            }
             if (_cntrep == 1 && _success)
+            {
                 _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+            }
         }
     }
 
@@ -3595,7 +3793,9 @@ void great::t_gpvtflt::_predictClk()
     {
         _param[i].value(_vBanc(4));
         for (unsigned int jj = 1; jj <= _param.parNumber(); jj++)
+        {
             _Qx(i + 1, jj) = 0.0;
+        }
         _Qx(i + 1, i + 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
     }
     return;
@@ -3616,7 +3816,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+            }
         }
     }
 
@@ -3631,7 +3833,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+            }
         }
     }
 
@@ -3646,7 +3850,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _galStoModel->getQ();
+            }
         }
     }
 
@@ -3661,7 +3867,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+            }
         }
     }
 
@@ -3676,7 +3884,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _qzsStoModel->getQ();
+            }
         }
     }
 
@@ -3691,7 +3901,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _gpsStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_GAL, "");
@@ -3705,7 +3917,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _galStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_GAL_2, "");
@@ -3719,7 +3933,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _galStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_GAL_3, "");
@@ -3733,7 +3949,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _galStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_BDS, "");
@@ -3747,7 +3965,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_BDS_2, "");
@@ -3761,7 +3981,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_BDS_3, "");
@@ -3775,7 +3997,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+            }
         }
     }
     i = _param.getParam(_site, par_type::IFB_QZS, "");
@@ -3788,7 +4012,9 @@ void great::t_gpvtflt::_predictBias()
         else
         {
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _qzsStoModel->getQ();
+            }
         }
     }
     return;
@@ -3815,18 +4041,19 @@ void great::t_gpvtflt::_predictIono(const double& bl, const t_gtime& runEpoch)
 
                     _param.getCrdParam(_site, site_xyz);
                     if (site_xyz.zero())
+                    {
                         site_xyz.set(_vBanc);
+                    }
                     xyz2ell(site_xyz, site_ell, false);
                     ell2ipp(*it, site_ell, ipp_ell);
 
                     // use iono-free combination instead ! //
-                    double ionomodel = 1.0; 
+                    double ionomodel = 1.0;
 
                     _param[i].apriori(ionomodel);
                 }
 
-                if (_cntrep == 1 &&
-                    !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
+                if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
                 {
                     _Qx(i + 1, i + 1) += _ionStoModel->getQ(); // *_ionStoModel->getQ();
                 }
@@ -3846,7 +4073,6 @@ void great::t_gpvtflt::_predictIono(const double& bl, const t_gtime& runEpoch)
                 _Qx(i + 1, i + 1) = var;
                 if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), var))
                 {
-
                     if (_isBase)
                     {
                         _Qx(i + 1, i + 1) += SQR(bl / (1e4) * cos(it->ele())) * _ionStoModel->getQ();
@@ -3870,18 +4096,26 @@ void great::t_gpvtflt::_predictTropo()
     if (i >= 0)
     {
         if (_cntrep == 1 && _initialized)
+        {
             _Qx(i + 1, i + 1) += _grdStoModel->getQ();
+        }
         if (_smooth)
+        {
             _Noise(i + 1, i + 1) = _grdStoModel->getQ();
+        }
     }
 
     i = _param.getParam(_site, par_type::GRD_E, "");
     if (i >= 0)
     {
         if (_cntrep == 1 && _initialized)
+        {
             _Qx(i + 1, i + 1) += _grdStoModel->getQ();
+        }
         if (_smooth)
+        {
             _Noise(i + 1, i + 1) = _grdStoModel->getQ();
+        }
     }
 
     if (_tropo_est)
@@ -3935,7 +4169,9 @@ void great::t_gpvtflt::_predictTropo()
                 else
                 {
                     if (_cntrep == 1)
+                    {
                         _Qx(i + 1, i + 1) += _trpStoModel->getQ();
+                    }
                 }
             }
         }
@@ -3948,25 +4184,24 @@ void great::t_gpvtflt::_predictAmb()
     // ambiguity randomwalk
     for (unsigned int i = 0; i < _param.parNumber(); i++)
     {
-        if (_param[i].parType == par_type::AMB_IF ||
-            _param[i].parType == par_type::AMB_L1 ||
-            _param[i].parType == par_type::AMB_L2 ||
-            _param[i].parType == par_type::AMB_L3 ||
-            _param[i].parType == par_type::AMB_L4 ||
-            _param[i].parType == par_type::AMB_L5)
+        if (_param[i].parType == par_type::AMB_IF || _param[i].parType == par_type::AMB_L1 || _param[i].parType == par_type::AMB_L2 ||
+            _param[i].parType == par_type::AMB_L3 || _param[i].parType == par_type::AMB_L4 || _param[i].parType == par_type::AMB_L5)
         {
-
             if (_cntrep == 1)
+            {
                 _Qx(i + 1, i + 1) += _ambStoModel->getQ();
+            }
             if (_smooth)
+            {
                 _Noise(i + 1, i + 1) = _ambStoModel->getQ();
+            }
             _param[i].stime = _param[i].end = _epoch;
         }
     }
     return;
 }
 
-unsigned int great::t_gpvtflt::_cmp_equ(t_gfltEquationMatrix &equ)
+unsigned int great::t_gpvtflt::_cmp_equ(t_gfltEquationMatrix& equ)
 {
     vector<t_gsatdata>::iterator it = _data.begin();
     for (it = _data.begin(); it != _data.end();)
@@ -3977,16 +4212,24 @@ unsigned int great::t_gpvtflt::_cmp_equ(t_gfltEquationMatrix &equ)
             continue;
         }
         if (_observ == OBSCOMBIN::IONO_FREE)
+        {
             _combineMW(*it);
+        }
         ++it;
     }
 
     return equ.num_equ();
 }
 
-void great::t_gpvtflt::_posterioriTest(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l,
-    const ColumnVector& dx, const SymmetricMatrix& Q, ColumnVector& v_norm, double& vtpv)
-{;
+void great::t_gpvtflt::_posterioriTest(const Matrix& A,
+                                       const SymmetricMatrix& P,
+                                       const ColumnVector& l,
+                                       const ColumnVector& dx,
+                                       const SymmetricMatrix& Q,
+                                       ColumnVector& v_norm,
+                                       double& vtpv)
+{
+    ;
     ColumnVector v_orig, v_test;
     // post-fit residuals
     v_orig = l - A * dx;
@@ -4002,8 +4245,7 @@ void great::t_gpvtflt::_posterioriTest(const Matrix& A, const SymmetricMatrix& P
     int freedom = A.Nrows() - A.Ncols();
     if (freedom < 1)
     {
-        if (_spdlog)
-            SPDLOG_LOGGER_INFO(_spdlog, "No redundant observations!");
+        GREAT_INFO("No redundant observations!");
         freedom = 1;
     }
 
@@ -4012,4 +4254,3 @@ void great::t_gpvtflt::_posterioriTest(const Matrix& A, const SymmetricMatrix& P
     vtpv = vtPv(1);
     return;
 }
-

@@ -33,7 +33,6 @@ namespace gnut
     /** @brief class for t_gpair. */
     class LibGnut_LIBRARY_EXPORT t_gpair
     {
-
     public:
         /** @brief default constructor. */
         t_gpair();
@@ -45,52 +44,52 @@ namespace gnut
         explicit t_gpair(double crd[2]);
 
         /** @brief constructor 3. */
-        explicit t_gpair(const ColumnVector &crd);
+        explicit t_gpair(const ColumnVector& crd);
 
         /** @brief default destructor. */
         virtual ~t_gpair();
 
         /** @brief override operator. */
-        t_gpair &operator=(const t_gpair &other);      
-        t_gpair operator+(const t_gpair &other) const; 
-        bool operator==(const t_gpair &tr) const;      
-        bool operator<(const t_gpair &tr) const;
-        double &operator[](const size_t idx);      
-        double operator[](const size_t idx) const; 
-        friend ostream &operator<<(ostream &os, const t_gpair &x);
+        t_gpair& operator=(const t_gpair& other);
+        t_gpair operator+(const t_gpair& other) const;
+        bool operator==(const t_gpair& tr) const;
+        bool operator<(const t_gpair& tr) const;
+        double& operator[](const size_t idx);
+        double operator[](const size_t idx) const;
+        friend ostream& operator<<(ostream& os, const t_gpair& x);
 
         /**@brief get single element */
-        double crd(int idx) const;         
+        double crd(int idx) const;
 
         /**@brief set single element */
         void set(int idx, double newValue);
 
         /**@brief set array by ColumnVector */
-        void set(const ColumnVector &);    
+        void set(const ColumnVector&);
 
         /**@brief set array by array */
-        void set(double crd[2]);           
+        void set(double crd[2]);
 
         /**@brief get array */
-        double *crd_array();              
+        double* crd_array();
 
         /**@brief get ColumnVector */
-        ColumnVector crd_cvect();        
+        ColumnVector crd_cvect();
 
         /**@brief get pair */
-        t_gpair &crd_pair();               
+        t_gpair& crd_pair();
 
         /**@brief get unit ColumnVector */
-        ColumnVector unitary();         
+        ColumnVector unitary();
 
         /**@brief true: zero elements, false: not zero elements */
-        bool zero();                       
+        bool zero();
 
     protected:
     private:
-        double _crd[2];   ///< Two-dimensional coordinates
+        double _crd[2]; ///< Two-dimensional coordinates
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

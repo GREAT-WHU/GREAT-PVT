@@ -57,7 +57,7 @@ namespace gnut
         COSZ,
         GMF,
         NO_MF
-    }; 
+    };
 
     enum class IONMPFUNC
     {
@@ -76,7 +76,7 @@ namespace gnut
         SINEL4,
         PARTELE,
         SNR,
-        SNRELE          
+        SNRELE
     };
 
     enum class TROPMODEL
@@ -100,8 +100,8 @@ namespace gnut
     {
         DEF_OBSCOMBIN,
         IONO_FREE,
-        RAW_SINGLE,    ///< nonsupport
-        RAW_DOUBLE,    ///< nonsupport
+        RAW_SINGLE, ///< nonsupport
+        RAW_DOUBLE, ///< nonsupport
         RAW_ALL,
         RAW_MIX
     };
@@ -133,10 +133,10 @@ namespace gnut
         F9P,
         And
     };
-  
+
     enum class SLIPMODEL
     {
-        DEF_DETECT_MODEL, 
+        DEF_DETECT_MODEL,
         SLIPMODEL_UNDEF
     };
 
@@ -158,26 +158,31 @@ namespace gnut
 
     class LibGnut_LIBRARY_EXPORT t_gobscombtype
     {
-
     public:
         /** @brief constructor */
         t_gobscombtype();
-        t_gobscombtype(const t_gobscombtype &other);
-        explicit t_gobscombtype(const string &obscombtype);
-        t_gobscombtype(const t_gobs &obstype, OBSCOMBIN combtype);
-        t_gobscombtype(const t_gobs &obstype, GOBSBAND b1, FREQ_SEQ freq_1, OBSCOMBIN combtype);
-        t_gobscombtype(const t_gobs &obstype, GOBSBAND b1, GOBSBAND b2, FREQ_SEQ freq_1, FREQ_SEQ freq_2, OBSCOMBIN combtype);
+        t_gobscombtype(const t_gobscombtype& other);
+        explicit t_gobscombtype(const string& obscombtype);
+        t_gobscombtype(const t_gobs& obstype, OBSCOMBIN combtype);
+        t_gobscombtype(const t_gobs& obstype, GOBSBAND b1, FREQ_SEQ freq_1, OBSCOMBIN combtype);
+        t_gobscombtype(const t_gobs& obstype, GOBSBAND b1, GOBSBAND b2, FREQ_SEQ freq_1, FREQ_SEQ freq_2, OBSCOMBIN combtype);
         t_gobscombtype(GOBSTYPE t, GOBSBAND b, OBSCOMBIN obscomb);
 
         /** @brief convert2str */
         string convert2str() const;
 
-        bool operator==(const t_gobscombtype &g) const;
-        bool operator<(const t_gobscombtype &g) const;
+        bool operator==(const t_gobscombtype& g) const;
+        bool operator<(const t_gobscombtype& g) const;
 
         /** @brief get Band */
-        GOBSBAND getBand_1() const { return _obs_band_1; };
-        GOBSBAND getBand_2() const { return _obs_band_2; };
+        GOBSBAND getBand_1() const
+        {
+            return _obs_band_1;
+        };
+        GOBSBAND getBand_2() const
+        {
+            return _obs_band_2;
+        };
 
         /** @brief is code */
         bool is_code() const;
@@ -185,10 +190,10 @@ namespace gnut
     protected:
         GOBSTYPE _obs_type = GOBSTYPE::TYPE;
         GOBSBAND _obs_band = BAND;
-        GOBSBAND _obs_band_1 = BAND;   
-        GOBSBAND _obs_band_2 = BAND;   
-        FREQ_SEQ _obs_freq_1 = FREQ_X; 
-        FREQ_SEQ _obs_freq_2 = FREQ_X; 
+        GOBSBAND _obs_band_1 = BAND;
+        GOBSBAND _obs_band_2 = BAND;
+        FREQ_SEQ _obs_freq_1 = FREQ_X;
+        FREQ_SEQ _obs_freq_2 = FREQ_X;
         OBSCOMBIN _obs_combine = OBSCOMBIN::DEF_OBSCOMBIN;
     };
 
@@ -255,15 +260,15 @@ namespace gnut
         CBIASCHAR cbiaschar();
 
         /**@brief str convert */
-        GRDMPFUNC str2grdmpfunc(const string &mf);
-        ZTDMPFUNC str2ztdmpfunc(const string &mf);
-        IONMPFUNC str2ionmpfunc(const string &mf);
-        OBSWEIGHT str2obsweight(const string &wg);
-        TROPMODEL str2tropmodel(const string &tm);
-        RESIDTYPE str2residtype(const string &rs);
-        OBSCOMBIN str2obscombin(const string &oc);
-        ATTITUDES str2attitudes(const string &at);
-        CBIASCHAR str2cbiaschar(const string &cb);
+        GRDMPFUNC str2grdmpfunc(const string& mf);
+        ZTDMPFUNC str2ztdmpfunc(const string& mf);
+        IONMPFUNC str2ionmpfunc(const string& mf);
+        OBSWEIGHT str2obsweight(const string& wg);
+        TROPMODEL str2tropmodel(const string& tm);
+        RESIDTYPE str2residtype(const string& rs);
+        OBSCOMBIN str2obscombin(const string& oc);
+        ATTITUDES str2attitudes(const string& at);
+        CBIASCHAR str2cbiaschar(const string& cb);
 
         /**@brief str convert */
         static string grdmpfunc2str(GRDMPFUNC MF);
@@ -278,13 +283,13 @@ namespace gnut
         static string basepos2str(BASEPOS BP);
 
         /**@brief ifcb_model */
-        IFCB_MODEL ifcb_model(); 
+        IFCB_MODEL ifcb_model();
 
         /**@brief base position */
-        BASEPOS basepos(); 
+        BASEPOS basepos();
 
         /**@brief str convert */
-        BASEPOS str2basepos(const string &str);
+        BASEPOS str2basepos(const string& str);
 
         /**@brief bds code bias correction */
         bool bds_code_bias_correction();
@@ -296,7 +301,7 @@ namespace gnut
         modeofmeanpole mean_pole_model();
 
         /**@brief str convert */
-        modeofmeanpole str2meanpolemodel(const string &tm);
+        modeofmeanpole str2meanpolemodel(const string& tm);
 
     protected:
         bool _phase;            ///< use phase data [true=1, false=0]
@@ -360,6 +365,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

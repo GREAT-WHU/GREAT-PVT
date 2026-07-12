@@ -39,39 +39,37 @@ namespace gnut
     /** @brief class for t_gprodcrd derive from t_gprod. */
     class LibGnut_LIBRARY_EXPORT t_gprodcrd : public t_gprod
     {
-
     public:
         /** @brief constructor 1. */
-        t_gprodcrd(const t_gtime &t, shared_ptr<t_gobj> pt = nullobj);
+        t_gprodcrd(const t_gtime& t, shared_ptr<t_gobj> pt = nullobj);
 
-        t_gprodcrd(t_spdlog spdlog, const t_gtime &t, shared_ptr<t_gobj> pt = nullobj);
         /** @brief default destructor. */
         virtual ~t_gprodcrd();
 
         /** @brief set/get xyz. */
-        void xyz(const t_gtriple &xyz);
+        void xyz(const t_gtriple& xyz);
         t_gtriple xyz() const;
 
         /** @brief set/get xyz rms. */
-        void xyz_rms(const t_gtriple &xyz_rms);
+        void xyz_rms(const t_gtriple& xyz_rms);
         t_gtriple xyz_rms() const;
 
         /** @brief get xyz var. */
         t_gtriple xyz_var() const;
 
         /** @brief set/get apr. */
-        void apr(const t_gtriple &apr);
+        void apr(const t_gtriple& apr);
         t_gtriple apr() const;
 
         /** @brief set/get apr rms. */
-        void apr_rms(const t_gtriple &apr_rms);
+        void apr_rms(const t_gtriple& apr_rms);
         t_gtriple apr_rms() const;
 
         /** @brief get apr var. */
         t_gtriple apr_var() const;
 
         /** @brief add cov. */
-        void cov(COV_TYPE type, double &cov);
+        void cov(COV_TYPE type, double& cov);
 
         /** @brief get xyz cov. */
         double cov(COV_TYPE type) const;
@@ -89,6 +87,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

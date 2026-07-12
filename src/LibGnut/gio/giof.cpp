@@ -16,21 +16,23 @@ using namespace std;
 namespace gnut
 {
 
-    t_giof::t_giof(string mask)
-        : _irc(0),
-          _mask(mask),
-          _name(""),
-          _omode(ios::trunc),
-          _repl(false),
-          _toff(0),
-          _loop(false),
-          _tsys(t_gtime::UTC)
+    t_giof::t_giof(string mask) :
+        _irc(0),
+        _mask(mask),
+        _name(""),
+        _omode(ios::trunc),
+        _repl(false),
+        _toff(0),
+        _loop(false),
+        _tsys(t_gtime::UTC)
     {
         substitute(mask, GFILE_PREFIX, "");
 
         this->exceptions(fstream::failbit | fstream::badbit);
         if (_mask.find('%') != string::npos)
+        {
             _repl = true;
+        }
         _name = _replace();
     }
 
@@ -54,7 +56,6 @@ namespace gnut
 
     int t_giof::mask(string mask)
     {
-
         _gmutex.lock();
 
         _irc = 0;
@@ -80,18 +81,21 @@ namespace gnut
             }
         }
         if (mask.find('%') != string::npos)
+        {
             _repl = true;
+        }
         _mask = mask;
         _name = _replace();
         _gmutex.unlock();
         return 1;
     }
 
-    int t_giof::write(const char *buff, int size)
+    int t_giof::write(const char* buff, int size)
     {
-
         if (_mask == "" || size < 1)
+        {
             return -1;
+        }
 
         _gmutex.lock();
 
@@ -100,7 +104,6 @@ namespace gnut
         this->clear();
         if (!this->is_open() || name != _name)
         {
-
             if (this->is_open())
             {
                 try
@@ -148,11 +151,12 @@ namespace gnut
         return size;
     }
 
-    int t_giof::read(char *buff, int size)
+    int t_giof::read(char* buff, int size)
     {
-
         if (_mask == "")
+        {
             return -1;
+        }
 
         _gmutex.lock();
         _name = _replace();
@@ -160,7 +164,6 @@ namespace gnut
         int nbytes;
         for (int i = 0; i < 2; i++)
         {
-
             this->clear();
             if (!this->is_open())
             {
@@ -190,7 +193,9 @@ namespace gnut
                     nbytes = (int)this->gcount();
 
                     if (_loop)
+                    {
                         this->close();
+                    }
 
                     if (nbytes < 1)
                     {
@@ -212,13 +217,16 @@ namespace gnut
         return nbytes;
     }
 
-    void t_giof::append(const bool &b)
+    void t_giof::append(const bool& b)
     {
-
         if (b)
+        {
             _omode = ios::app;
+        }
         else
+        {
             _omode = ios::trunc;
+        }
     }
 
     void t_giof::tsys(t_gtime::t_tsys ts)
@@ -240,11 +248,13 @@ namespace gnut
     string t_giof::_replace()
     {
         if (!_repl)
+        {
             return _mask;
+        }
 
         t_gtime file_tm = t_gtime::current_time(_tsys);
         file_tm.add_secs(_toff * 60.0);
         return file_tm.str(_mask);
     }
 
-} // namespace
+} // namespace gnut

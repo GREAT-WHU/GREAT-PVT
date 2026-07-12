@@ -1,12 +1,12 @@
 /**
  * @file         gbasemodel.cpp
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        base interface model  
+ * @brief        base interface model
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gmodels/gbasemodel.h"
 
@@ -20,7 +20,7 @@ namespace great
     {
     }
 
-    t_gbaseEquation &t_gbaseEquation::operator+(t_gbaseEquation &Other)
+    t_gbaseEquation& t_gbaseEquation::operator+(t_gbaseEquation& Other)
     {
         this->B.insert(this->B.begin(), Other.B.begin(), Other.B.end());
         this->P.insert(this->P.begin(), Other.P.begin(), Other.P.end());
@@ -35,4 +35,4 @@ namespace great
     t_gbasemodel::~t_gbasemodel()
     {
     }
-}
+} // namespace great

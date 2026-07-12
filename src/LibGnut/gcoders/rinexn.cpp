@@ -40,8 +40,8 @@ using namespace std;
 namespace gnut
 {
 
-    t_rinexn::t_rinexn(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz)
+    t_rinexn::t_rinexn(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz)
     {
         _gnsssys = 'G';
         _rxnhdr_all = true;
@@ -50,9 +50,8 @@ namespace gnut
         _gset(s); // HAVE TO BE EXPLICITLY CALLED HERE (AT THE END OF CONSTRUCTOR)
     }
 
-    int t_rinexn::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_rinexn::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -66,7 +65,6 @@ namespace gnut
         int tmpsize = 0;
         while ((tmpsize = t_gcoder::_getline(line)) >= 0)
         {
-
             consume += tmpsize;
 
             // -------- "RINEX VERSION" --------
@@ -74,72 +72,74 @@ namespace gnut
             { // first line
                 switch (line[20])
                 {
-                case 'N':
-                    _gnsssys = 'G';
-                    break; // Navigation data - according to Rinex specification
-                case 'G':
-                    _gnsssys = 'R';
-                    break; // GLONASS NAVIGATION - occures sometimes in brdc
-                default:
-                {
-                    string lg("warning: not rinex navigation data file");
+                    case 'N':
+                        _gnsssys = 'G';
+                        break; // Navigation data - according to Rinex specification
+                    case 'G':
+                        _gnsssys = 'R';
+                        break; // GLONASS NAVIGATION - occures sometimes in brdc
+                    default:
+                    {
+                        string lg("warning: not rinex navigation data file");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, lg);
-                    _mutex.unlock();
-                    return -1;
-                }
+                        GREAT_INFO(lg);
+                        _mutex.unlock();
+                        return -1;
+                    }
                 }
 
                 switch (line[40])
                 {
-                case 'G':
-                    _gnsssys = 'G';
-                    break; // GPS
-                case 'R':
-                    _gnsssys = 'R';
-                    break; // GLONASS
-                case 'E':
-                    _gnsssys = 'E';
-                    break; // GALILEO
-                case 'J':
-                    _gnsssys = 'J';
-                    break; // QZSS
-                case 'S':
-                    _gnsssys = 'S';
-                    break; // SBAS
-                case 'I':
-                    _gnsssys = 'I';
-                    break; // IRNSS
-                case 'M':
-                    _gnsssys = 'M';
-                    break; // MIXED
-                case ' ':
-                {
-                    if (line[20] == 'N')
+                    case 'G':
                         _gnsssys = 'G';
-                    if (line[20] == 'G')
+                        break; // GPS
+                    case 'R':
                         _gnsssys = 'R';
+                        break; // GLONASS
+                    case 'E':
+                        _gnsssys = 'E';
+                        break; // GALILEO
+                    case 'J':
+                        _gnsssys = 'J';
+                        break; // QZSS
+                    case 'S':
+                        _gnsssys = 'S';
+                        break; // SBAS
+                    case 'I':
+                        _gnsssys = 'I';
+                        break; // IRNSS
+                    case 'M':
+                        _gnsssys = 'M';
+                        break; // MIXED
+                    case ' ':
+                    {
+                        if (line[20] == 'N')
+                        {
+                            _gnsssys = 'G';
+                        }
+                        if (line[20] == 'G')
+                        {
+                            _gnsssys = 'R';
+                        }
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_WARN(_spdlog, "warning - RINEXN system not defined, used " + t_gsys::char2str(_gnsssys));
-                    break;
-                }
-                default:
-                {
-                    string lg("warning: not supported satellite system " + line.substr(40, 1));
+                        GREAT_WARN("warning - RINEXN system not defined, used " + t_gsys::char2str(_gnsssys));
+                        break;
+                    }
+                    default:
+                    {
+                        string lg("warning: not supported satellite system " + line.substr(40, 1));
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, lg);
-                }
+                        GREAT_INFO(lg);
+                    }
                 }
 
                 _version = trim(line.substr(0, 9));
 
                 _rxnhdr.path(_fname);
-                if (_spdlog && substitute(_version, " ", "") > 0)
-                    if (_spdlog)
-                        SPDLOG_LOGGER_INFO(_spdlog, "reading VER: " + _version + " SYS: " + string(1, _gnsssys));
+                if (substitute(_version, " ", "") > 0)
+                {
+                    GREAT_INFO("reading VER: " + _version + " SYS: " + string(1, _gnsssys));
+                }
             }
             else if (line.find("PGM / RUN BY / DATE", 60) != string::npos)
             {
@@ -147,148 +147,142 @@ namespace gnut
                 _rxnhdr.runby(trim(line.substr(20, 20)));
                 t_gtime gtime(t_gtime::UTC);
                 if (line.substr(56, 3) != "UTC")
+                {
                     gtime.tsys(t_gtime::LOC);
+                }
 
                 if (gtime.from_str("%Y%m%d %H%M%S", line.substr(40, 15)) == 0)
+                {
                     ;
+                }
                 else if (gtime.from_str("%Y-%m-%d %H-%M-%S", line.substr(40, 20)) == 0)
+                {
                     ;
+                }
                 else
                 {
                     gtime = FIRST_TIME;
                 }
                 _rxnhdr.gtime(gtime);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "PGM / RUN BY / DATE: " + _rxnhdr.program() + " " + _rxnhdr.runby() + " " + _rxnhdr.gtime().str_ymdhms());
+                GREAT_DEBUG("PGM / RUN BY / DATE: " + _rxnhdr.program() + " " + _rxnhdr.runby() + " " + _rxnhdr.gtime().str_ymdhms());
 
                 // -------- "IONOSPHERIC CORR" --------
             }
             else if (line.find("IONOSPHERIC CORR", 60) != string::npos)
             {
-
-                IONO_CORR IO = str2iono_corr(line.substr(0, 4)); 
+                IONO_CORR IO = str2iono_corr(line.substr(0, 4));
                 t_iono_corr io;
 
-                io.x0 = strSci2dbl(line.substr(5 + 0, 12)); 
-                io.x1 = strSci2dbl(line.substr(5 + 12, 12)); 
-                io.x2 = strSci2dbl(line.substr(5 + 24, 12)); 
-                io.x3 = strSci2dbl(line.substr(5 + 36, 12)); 
+                io.x0 = strSci2dbl(line.substr(5 + 0, 12));
+                io.x1 = strSci2dbl(line.substr(5 + 12, 12));
+                io.x2 = strSci2dbl(line.substr(5 + 24, 12));
+                io.x3 = strSci2dbl(line.substr(5 + 36, 12));
 
                 _rxnhdr.iono_corr(IO, io);
 
-                map<string, t_gdata *>::iterator it = _data.begin();
+                map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLNAV ||
-                        it->second->id_group() == t_gdata::GRP_EPHEM)
+                    if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
                     {
-
-                        ((t_gallnav *)it->second)->add_iono_corr(IO, io);
+                        ((t_gallnav*)it->second)->add_iono_corr(IO, io);
                     }
                     it++;
                 }
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "IONOSPHERIC CORR " + iono_corr2str(IO) + dbl2str(io.x0) + dbl2str(io.x1) + dbl2str(io.x2) + dbl2str(io.x3) + " " + base_name(_fname));
+                GREAT_DEBUG("IONOSPHERIC CORR " + iono_corr2str(IO) + dbl2str(io.x0) + dbl2str(io.x1) + dbl2str(io.x2) + dbl2str(io.x3) +
+                            " " + base_name(_fname));
 
                 // -------- "ION ALPHA" --------
             }
             else if (line.find("ION ALPHA", 60) != string::npos)
             {
-
                 IONO_CORR IO = IO_GPSA;
                 t_iono_corr io;
 
-                io.x0 = strSci2dbl(line.substr(2 + 0, 12));  
-                io.x1 = strSci2dbl(line.substr(2 + 12, 12)); 
-                io.x2 = strSci2dbl(line.substr(2 + 24, 12)); 
-                io.x3 = strSci2dbl(line.substr(2 + 36, 12)); 
+                io.x0 = strSci2dbl(line.substr(2 + 0, 12));
+                io.x1 = strSci2dbl(line.substr(2 + 12, 12));
+                io.x2 = strSci2dbl(line.substr(2 + 24, 12));
+                io.x3 = strSci2dbl(line.substr(2 + 36, 12));
 
                 _rxnhdr.iono_corr(IO, io);
-                map<string, t_gdata *>::iterator it = _data.begin();
+                map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLNAV ||
-                        it->second->id_group() == t_gdata::GRP_EPHEM)
+                    if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
                     {
-
-                        ((t_gallnav *)it->second)->add_iono_corr(IO, io);
+                        ((t_gallnav*)it->second)->add_iono_corr(IO, io);
                     }
                     it++;
                 }
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "ION ALPHA " + iono_corr2str(IO) + dbl2str(io.x0) + dbl2str(io.x1) + dbl2str(io.x2) + dbl2str(io.x3) + " " + base_name(_fname));
+                GREAT_DEBUG("ION ALPHA " + iono_corr2str(IO) + dbl2str(io.x0) + dbl2str(io.x1) + dbl2str(io.x2) + dbl2str(io.x3) + " " +
+                            base_name(_fname));
 
                 // -------- "ION BETA" --------
             }
             else if (line.find("ION BETA", 60) != string::npos)
             {
-
                 IONO_CORR IO = IO_GPSB;
                 t_iono_corr io;
 
-                io.x0 = strSci2dbl(line.substr(2 + 0, 12));  
-                io.x1 = strSci2dbl(line.substr(2 + 12, 12)); 
-                io.x2 = strSci2dbl(line.substr(2 + 24, 12)); 
-                io.x3 = strSci2dbl(line.substr(2 + 36, 12)); 
+                io.x0 = strSci2dbl(line.substr(2 + 0, 12));
+                io.x1 = strSci2dbl(line.substr(2 + 12, 12));
+                io.x2 = strSci2dbl(line.substr(2 + 24, 12));
+                io.x3 = strSci2dbl(line.substr(2 + 36, 12));
 
                 _rxnhdr.iono_corr(IO, io);
-                map<string, t_gdata *>::iterator it = _data.begin();
+                map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLNAV ||
-                        it->second->id_group() == t_gdata::GRP_EPHEM)
+                    if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
                     {
-
-                        ((t_gallnav *)it->second)->add_iono_corr(IO, io);
+                        ((t_gallnav*)it->second)->add_iono_corr(IO, io);
                     }
                     it++;
                 }
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "ION BETA " + iono_corr2str(IO) + dbl2str(io.x0) + dbl2str(io.x1) + dbl2str(io.x2) + dbl2str(io.x3) + " " + base_name(_fname));
+                GREAT_DEBUG("ION BETA " + iono_corr2str(IO) + dbl2str(io.x0) + dbl2str(io.x1) + dbl2str(io.x2) + dbl2str(io.x3) + " " +
+                            base_name(_fname));
 
                 // -------- "TIME SYSTEM CORR" --------
             }
             else if (line.find("TIME SYSTEM CORR", 60) != string::npos)
             {
-
-                TSYS_CORR TS = str2tsys_corr(line.substr(0, 4)); 
+                TSYS_CORR TS = str2tsys_corr(line.substr(0, 4));
                 t_tsys_corr ts;
 
                 if (line.substr(5, 2) != "  ")
                 { // ELIMINATE INCORRECT HEADERS FROM SOME RECEIVERS!
 
-                    ts.a0 = strSci2dbl(line.substr(5, 17));  
-                    ts.a1 = strSci2dbl(line.substr(22, 16)); 
-                    ts.T = str2int(line.substr(38, 7));      
-                    ts.W = str2int(line.substr(45, 5));      
+                    ts.a0 = strSci2dbl(line.substr(5, 17));
+                    ts.a1 = strSci2dbl(line.substr(22, 16));
+                    ts.T = str2int(line.substr(38, 7));
+                    ts.W = str2int(line.substr(45, 5));
 
                     _rxnhdr.tsys_corr(TS, ts);
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "TIME SYSTEM CORR " + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " + int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
+                    GREAT_DEBUG("TIME SYSTEM CORR " + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " +
+                                int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
                 }
 
                 // -------- "DELTA-UTC" --------
             }
             else if (line.find("DELTA-UTC: A0,A1,T,W", 60) != string::npos)
             {
-
                 TSYS_CORR TS = TS_GPUT;
                 t_tsys_corr ts;
 
-                ts.a0 = strSci2dbl(line.substr(3, 19));  
-                ts.a1 = strSci2dbl(line.substr(22, 19)); 
-                ts.T = str2int(line.substr(41, 9));      
-                ts.W = str2int(line.substr(50, 9));      
+                ts.a0 = strSci2dbl(line.substr(3, 19));
+                ts.a1 = strSci2dbl(line.substr(22, 19));
+                ts.T = str2int(line.substr(41, 9));
+                ts.W = str2int(line.substr(50, 9));
 
                 _rxnhdr.tsys_corr(TS, ts);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "DELTA-UTC: A0,A1,T,W" + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " + int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
+                GREAT_DEBUG("DELTA-UTC: A0,A1,T,W" + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " +
+                            int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
 
                 // -------- "CORR TO SYSTEM" --------
             }
@@ -305,11 +299,10 @@ namespace gnut
 
                 _rxnhdr.tsys_corr(TS, ts);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "TIME SYSTEM CORR " + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " + int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
+                GREAT_DEBUG("TIME SYSTEM CORR " + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " +
+                            int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading CORR TO SYSTEM");
+                GREAT_DEBUG("reading CORR TO SYSTEM");
 
                 // -------- "D-UTC" --------
             }
@@ -319,15 +312,15 @@ namespace gnut
                 TSYS_CORR TS = TS_SBUT;
                 t_tsys_corr ts;
 
-                ts.a0 = strSci2dbl(line.substr(0, 19));  
-                ts.a1 = strSci2dbl(line.substr(20, 19)); 
-                ts.T = str2int(line.substr(40, 7));      
-                ts.W = str2int(line.substr(48, 5));      
+                ts.a0 = strSci2dbl(line.substr(0, 19));
+                ts.a1 = strSci2dbl(line.substr(20, 19));
+                ts.T = str2int(line.substr(40, 7));
+                ts.W = str2int(line.substr(48, 5));
 
                 _rxnhdr.tsys_corr(TS, ts);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "D-UTC: A0,A1,T,W,S,U" + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " + int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
+                GREAT_DEBUG("D-UTC: A0,A1,T,W,S,U" + tsys_corr2str(TS) + dbl2str(ts.a0 * 1e9, 6) + dbl2str(ts.a1 * 1e9, 6) + " " +
+                            int2str(ts.T) + " " + int2str(ts.W) + " " + base_name(_fname));
 
                 // -------- "LEAP SECONDS" --------
             }
@@ -335,8 +328,7 @@ namespace gnut
             {
                 _rxnhdr.leapsec(str2int(line.substr(0, 6)));
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading LEAP SECONDS");
+                GREAT_DEBUG("reading LEAP SECONDS");
 
                 // -------- "COMMENT" --------
             }
@@ -344,8 +336,7 @@ namespace gnut
             {
                 _comment.push_back(line.substr(0, 60));
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading COMMENT");
+                GREAT_DEBUG("reading COMMENT");
 
                 // -------- "END OF HEADER" --------
             }
@@ -353,18 +344,17 @@ namespace gnut
             {
                 _fill_head();
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "reading END OF HEADER ");
+                GREAT_DEBUG("reading END OF HEADER ");
                 t_gcoder::_consume(tmpsize);
                 _mutex.unlock();
                 return -1;
             }
-			else
-			{
-                //t_gcoder::_consume(tmpsize);
-			    _mutex.unlock();
-			    return -1;
-			}
+            else
+            {
+                // t_gcoder::_consume(tmpsize);
+                _mutex.unlock();
+                return -1;
+            }
             t_gcoder::_consume(tmpsize);
         }
 
@@ -372,9 +362,8 @@ namespace gnut
         return consume;
     }
 
-    int t_rinexn::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_rinexn::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -404,7 +393,7 @@ namespace gnut
             e = 23;
             l = 19;
             s = 4; // timstr = "%3s %4d %02d %02d %02d %02d %02d";
-                   // RINEX ???
+                   // RINEX v4.xx or later
         }
         else
         {
@@ -421,8 +410,6 @@ namespace gnut
 
         while ((tmpsize = t_gcoder::_getline(line, 0)) >= 0)
         {
-
-
             consume += tmpsize;
             recsize += tmpsize;
             string epostr = line.substr(b, e);
@@ -440,16 +427,16 @@ namespace gnut
 
             switch (_version[0])
             {
-            case '2':
-                min_sz = 22;
-                break; // RINEX 2
-            case '3':
-                min_sz = 23;
-                break; // RINEX 3
+                case '2':
+                    min_sz = 22;
+                    break; // RINEX 2
+                case '3':
+                    min_sz = 23;
+                    break; // RINEX 3
             }
 
             if (line.size() > 82 || _decode_buffer.size() <= min_sz)
-            { 
+            {
                 t_gcoder::_consume(tmpsize);
                 recsize = consume = 0;
                 break; // read buffer
@@ -459,11 +446,11 @@ namespace gnut
             tmpbuff[line.size()] = '\0';
 
             if (_version[0] == '2')
-            { 
+            {
                 irc = sscanf(tmpbuff, "%2d%*[ ] %2d%*[ ] %2d%*[ ] %2d%*[ ] %2d%*[ ] %2d%*[ ] %5f", &svn, &yr, &mn, &dd, &hr, &mi, &sec);
 
                 if (irc < 7)
-                { 
+                {
                     t_gcoder::_consume(tmpsize);
                     recsize = consume = 0;
                     continue;
@@ -475,10 +462,19 @@ namespace gnut
                 int isec = 0;
                 char sat[3 + 1];
                 sat[3] = '\0'; // don't use '%2i' in scan, but '%2d' instead !
-                irc = sscanf(tmpbuff, "%c%2d%*[ ] %4d%*[ ] %2d%*[ ] %2d%*[ ]%2d%*[ ]%2d%*[ ]%2d", &sat[0], &svn, &yr, &mn, &dd, &hr, &mi, &isec);
+                irc = sscanf(tmpbuff,
+                             "%c%2d%*[ ] %4d%*[ ] %2d%*[ ] %2d%*[ ]%2d%*[ ]%2d%*[ ]%2d",
+                             &sat[0],
+                             &svn,
+                             &yr,
+                             &mn,
+                             &dd,
+                             &hr,
+                             &mi,
+                             &isec);
 
                 if (irc < 8)
-                { 
+                {
                     t_gcoder::_consume(tmpsize);
                     recsize = consume = 0;
                     continue;
@@ -488,62 +484,54 @@ namespace gnut
                 sec = isec;
             }
 
-            shared_ptr<t_gnav> geph = make_shared<t_gnav>(_spdlog);
+            shared_ptr<t_gnav> geph = make_shared<t_gnav>();
 
             if (prn[0] == 'G')
             {
                 maxrec = MAX_RINEXN_REC_GPS;
-                geph = make_shared<t_gnavgps>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavgps>();
                 epoch.tsys(t_gtime::GPS);
             }
             else if (prn[0] == 'R')
             {
                 maxrec = MAX_RINEXN_REC_GLO;
-                geph = make_shared<t_gnavglo>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavglo>();
                 epoch.tsys(t_gtime::UTC);
             }
             else if (prn[0] == 'E')
             {
                 maxrec = MAX_RINEXN_REC_GAL;
-                geph = make_shared<t_gnavgal>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavgal>();
                 epoch.tsys(t_gtime::GAL);
             }
             else if (prn[0] == 'J')
             {
                 maxrec = MAX_RINEXN_REC_QZS;
-                geph = make_shared<t_gnavqzs>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavqzs>();
                 epoch.tsys(t_gtime::GPS); // QZSS is equal to GPS time
             }
             else if (prn[0] == 'S')
             {
                 maxrec = MAX_RINEXN_REC_SBS;
-                geph = make_shared<t_gnavsbs>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavsbs>();
                 epoch.tsys(t_gtime::GPS); // SBAS is equal to GPS time
             }
             else if (prn[0] == 'C')
             {
                 maxrec = MAX_RINEXN_REC_BDS;
-                geph = make_shared<t_gnavbds>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavbds>();
                 epoch.tsys(t_gtime::BDS);
             }
             else if (prn[0] == 'I')
             {
                 maxrec = MAX_RINEXN_REC_IRN;
-                geph = make_shared<t_gnavirn>(_spdlog);
-                geph->spdlog(_spdlog);
+                geph = make_shared<t_gnavirn>();
                 epoch.tsys(t_gtime::GPS); // ??
             }
             else
             {
                 string lg("Warning: not supported satellite satellite system: " + prn);
-                if (_spdlog)
-                    SPDLOG_LOGGER_WARN(_spdlog, lg);
+                GREAT_WARN(lg);
             }
 
             epoch.from_ymdhms(yr, mn, dd, hr, mi, sec);
@@ -558,7 +546,9 @@ namespace gnut
             }
 
             if (tmpsize < 57 + s)
+            {
                 break;
+            }
 
             data[0] = strSci2dbl(line.substr(19 + s, l));
             data[1] = strSci2dbl(line.substr(38 + s, l));
@@ -567,7 +557,6 @@ namespace gnut
             i = 2;
             while (i < MAX_RINEXN_REC)
             {
-
                 // incomplete record
                 if ((tmpsize = t_gcoder::_getline(line, recsize)) < 0)
                 {
@@ -579,23 +568,31 @@ namespace gnut
                 if (++i < maxrec)
                 {
                     if (tmpsize > s)
+                    {
                         data[i] = strSci2dbl(line.substr(s, l));
-                } 
+                    }
+                }
                 if (++i < maxrec)
                 {
                     if (tmpsize > 19 + s)
+                    {
                         data[i] = strSci2dbl(line.substr(19 + s, l));
-                } 
+                    }
+                }
                 if (++i < maxrec)
                 {
                     if (tmpsize > 38 + s)
+                    {
                         data[i] = strSci2dbl(line.substr(38 + s, l));
-                } 
+                    }
+                }
                 if (++i < maxrec)
                 {
                     if (tmpsize > 57 + s)
+                    {
                         data[i] = strSci2dbl(line.substr(57 + s, l));
-                } 
+                    }
+                }
 
                 // is record complete and filter-out GNSS systems
                 if (geph && i + 1 >= maxrec)
@@ -606,17 +603,13 @@ namespace gnut
                     // filter GNSS and SAT
                     if (!_filter_gnss(prn))
                     {
-
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "skip " + prn);
+                        GREAT_DEBUG("skip " + prn);
                         break;
                     }
 
                     if (epoch < _beg - MAX_NAV_TIMEDIFF || epoch > _end + MAX_NAV_TIMEDIFF)
                     {
-
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "skip " + prn + " " + epoch.str_ymdhms());
+                        GREAT_DEBUG("skip " + prn + " " + epoch.str_ymdhms());
                         break;
                     }
 
@@ -631,37 +624,35 @@ namespace gnut
 
                     if (!_filter_gnav(geph, prn))
                     {
-
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "skip " + prn + " nav type [" + gnavtype2str(geph->gnavtype()) + "]");
+                        GREAT_DEBUG("skip " + prn + " nav type [" + gnavtype2str(geph->gnavtype()) + "]");
                         break;
                     }
 
                     // collect 1-line messages
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, geph->linefmt() + " " + base_name(_fname));
+                    GREAT_DEBUG(geph->linefmt() + " " + base_name(_fname));
 
                     // fill data
-                    map<string, t_gdata *>::iterator it = _data.begin();
+                    map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-
-                        if (it->second->id_type() == t_gdata::ALLNAV ||
-                            it->second->id_group() == t_gdata::GRP_EPHEM)
+                        if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
                         {
-                            ((t_gallnav *)it->second)->add(geph);
+                            ((t_gallnav*)it->second)->add(geph);
                         }
                         else if (it->second->id_type() == t_gdata::ALLOBJ)
                         {
-                            t_gallobj *all_obj = (t_gallobj *)it->second;
+                            t_gallobj* all_obj = (t_gallobj*)it->second;
                             shared_ptr<t_gobj> one_obj = all_obj->obj(geph->sat());
                             if (one_obj != 0)
-                                one_obj->spdlog(_spdlog);
-                            if (geph->id_type() == t_gdata::EPHGLO)
                             {
-                                int ch = dynamic_pointer_cast<t_gnavglo>(geph)->channel();
-                                if (one_obj != 0)
-                                    one_obj->channel(ch);
+                                if (geph->id_type() == t_gdata::EPHGLO)
+                                {
+                                    int ch = dynamic_pointer_cast<t_gnavglo>(geph)->channel();
+                                    if (one_obj != 0)
+                                    {
+                                        one_obj->channel(ch);
+                                    }
+                                }
                             }
                         }
                         it++;
@@ -671,7 +662,9 @@ namespace gnut
                 }
             }
             if (recsize != 0)
+            {
                 break; // break the initialization loop if read not finished correctly
+            }
         }
         _mutex.unlock();
         return consume;
@@ -679,34 +672,29 @@ namespace gnut
 
     int t_rinexn::_fill_head()
     {
-
         int cnt = 0;
 
         for (auto itDAT = _data.begin(); itDAT != _data.end(); ++itDAT)
         {
             if (itDAT->second->id_type() == t_gdata::ALLOBJ)
             {
-                t_gallobj *all_obj = (t_gallobj *)itDAT->second;
+                t_gallobj* all_obj = (t_gallobj*)itDAT->second;
 
                 shared_ptr<t_gtrn> obj = dynamic_pointer_cast<t_gtrn>(all_obj->obj(ID_ALLSAT));
 
                 if (obj == 0)
                 {
-                    obj = make_shared<t_gtrn>(_spdlog);
+                    obj = make_shared<t_gtrn>();
                     obj->id(ID_ALLSAT);
                     obj->name(ID_ALLSAT);
-                    obj->spdlog(_spdlog);
                     obj->header(_rxnhdr, _fname);
                     all_obj->add(obj);
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "Object created: " + obj->id());
+                    GREAT_DEBUG("Object created: " + obj->id());
                 }
                 else
                 {
-
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "Object completed: " + obj->id());
+                    GREAT_DEBUG("Object completed: " + obj->id());
                     obj->header(_rxnhdr, _fname);
                 }
                 ++cnt;
@@ -716,9 +704,8 @@ namespace gnut
         return cnt;
     }
 
-    bool t_rinexn::_filter_gnav(shared_ptr<t_gnav> geph, const string &prn)
+    bool t_rinexn::_filter_gnav(shared_ptr<t_gnav> geph, const string& prn)
     {
-
         bool ret = true;
 
         GSYS gs = t_gsys::char2gsys(prn[0]);
@@ -726,7 +713,6 @@ namespace gnut
         // currently only GALILEO can be filtered!
         if (gs == GAL)
         {
-
             GNAVTYPE gnav;
             if (_nav[gs].find(gnavtype2str(INAV)) != _nav[gs].end())
             {
@@ -737,8 +723,7 @@ namespace gnut
                 gnav = dynamic_pointer_cast<t_gnavgal>(geph)->gnavtype(true);
             } // exact fit for NAV source
 
-            if (_nav[gs].size() == 0 ||
-                _nav[gs].find(gnavtype2str(gnav)) != _nav[gs].end())
+            if (_nav[gs].size() == 0 || _nav[gs].find(gnavtype2str(gnav)) != _nav[gs].end())
             {
                 ret = true;
             }
@@ -751,5 +736,4 @@ namespace gnut
         return ret; // ALL OTHER SYSTEMS
     }
 
-
-} // namespace
+} // namespace gnut

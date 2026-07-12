@@ -41,18 +41,18 @@ namespace gnut
         ~t_gsetflt();
 
         /**
-        * @brief settings check.
-        * @return void
-        */
+         * @brief settings check.
+         * @return void
+         */
         void check();
 
         /**
-        * @brief settings help.
-        * @return void
-        */
+         * @brief settings help.
+         * @return void
+         */
         void help();
 
-        /** 
+        /**
          * @brief get the flt method
          * @return string : the method of flt
          */
@@ -83,9 +83,9 @@ namespace gnut
         double noise_vel();
 
         /**
-        * @brief get the random walk of glonass in flt
-        * @return double : the random walk of gps in flt
-        */
+         * @brief get the random walk of glonass in flt
+         * @return double : the random walk of gps in flt
+         */
         double rndwk_gps();
 
         /**
@@ -131,9 +131,9 @@ namespace gnut
         double noise_vion();
 
         /**
-        * @brief get the random walk of ion in flt
-        * @return double : the random walk of ion in flt
-        */
+         * @brief get the random walk of ion in flt
+         * @return double : the random walk of ion in flt
+         */
         double rndwk_vion();
 
         /**
@@ -152,7 +152,7 @@ namespace gnut
          * @brief get the reset value of par in flt
          * @return int : the reset value of par in flt
          */
-        int reset_par();        
+        int reset_par();
         /**
          * @brief get the reset value of par in flt
          * @return int : the reset value of par in flt
@@ -181,6 +181,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

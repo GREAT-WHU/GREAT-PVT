@@ -16,55 +16,58 @@
 namespace gnut
 {
 
-    t_gsppflt::t_gsppflt(string mark, t_gsetbase *set)
-        : t_gspp(mark, set),
-          _minsat(static_cast<size_t>(SPP_MINSAT)),
-          _filter(0),
-          _smooth(false),
-          _n_NPD_flt(0),
-          _n_ALL_flt(0),
-          _n_NPD_smt(0),
-          _n_ALL_smt(0)
+    t_gsppflt::t_gsppflt(string mark, t_gsetbase* set) :
+        t_gspp(mark, set),
+        _minsat(static_cast<size_t>(SPP_MINSAT)),
+        _filter(0),
+        _smooth(false),
+        _n_NPD_flt(0),
+        _n_ALL_flt(0),
+        _n_NPD_smt(0),
+        _n_ALL_smt(0)
     {
-
         t_gspp::_get_settings();
 
-        string fltModStr(dynamic_cast<t_gsetflt *>(_set)->method_flt());
+        string fltModStr(dynamic_cast<t_gsetflt*>(_set)->method_flt());
         if (fltModStr.compare("kalman") == 0)
+        {
             _filter = new t_kalman();
+        }
         else if (fltModStr.compare("srcf") == 0)
+        {
             _filter = new t_SRF();
+        }
 
         _trpStoModel = new t_randomwalk();
-        _trpStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_ztd());
+        _trpStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_ztd());
 
         _ionStoModel = new t_randomwalk();
-        _ionStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_vion());
+        _ionStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_vion());
 
         _gpsStoModel = new t_randomwalk();
-        _gpsStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_gps());
+        _gpsStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_gps());
 
         _gloStoModel = new t_randomwalk();
-        _gloStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_glo());
+        _gloStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_glo());
 
         _galStoModel = new t_randomwalk();
-        _galStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_gal());
+        _galStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_gal());
 
         _bdsStoModel = new t_randomwalk();
-        _bdsStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_bds());
+        _bdsStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_bds());
 
         _qzsStoModel = new t_randomwalk();
-        _qzsStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_qzs());
+        _qzsStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_qzs());
 
-        _clkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_clk());
-        _crdStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_crd());
+        _clkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_clk());
+        _crdStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_crd());
 
         _vBanc.ReSize(4);
         _vBanc = 0.0;
 
         int ipar = 0;
 
-        string refclk = dynamic_cast<t_gsetproc *>(_set)->ref_clk();
+        string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
         if (refclk != "")
         {
             _crd_est = CONSTRPAR::EST;
@@ -97,76 +100,102 @@ namespace gnut
         for (unsigned int i = 1; i <= _param.parNumber(); i++)
         {
             if (_param[i - 1].parType == par_type::CRD_X)
+            {
                 _Qx(i, i) = crdInit * crdInit;
+            }
             else if (_param[i - 1].parType == par_type::CRD_Y)
+            {
                 _Qx(i, i) = crdInit * crdInit;
+            }
             else if (_param[i - 1].parType == par_type::CRD_Z)
+            {
                 _Qx(i, i) = crdInit * crdInit;
+            }
             else if (_param[i - 1].parType == par_type::CLK)
+            {
                 _Qx(i, i) = _clkStoModel->getQ() * _clkStoModel->getQ();
+            }
             else if (_param[i - 1].parType == par_type::TRP)
+            {
                 _Qx(i, i) = ztdInit * ztdInit;
+            }
         }
 
-        _resid_type = dynamic_cast<t_gsetproc *>(_set)->residuals();
-        _cbiaschar = dynamic_cast<t_gsetproc *>(_set)->cbiaschar();
-        _frequency = dynamic_cast<t_gsetproc *>(_set)->frequency();
+        _resid_type = dynamic_cast<t_gsetproc*>(_set)->residuals();
+        _cbiaschar = dynamic_cast<t_gsetproc*>(_set)->cbiaschar();
+        _frequency = dynamic_cast<t_gsetproc*>(_set)->frequency();
 
         _success = true;
         _ifb3_init = false;
         _ifb4_init = false;
         _ifb5_init = false;
+
+        // freq_index and band_index
+        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GPS);
+        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GAL);
+        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GLO);
+        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::BDS);
+        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::QZS);
+
+        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GPS);
+        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GAL);
+        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GLO);
+        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::BDS);
+        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::QZS);
 
     } // end constructor
 
-    t_gsppflt::t_gsppflt(string mark, t_gsetbase *set, t_spdlog spdlog,string mode)
-        : t_gspp(mark, set, spdlog, mode),
-          _minsat(static_cast<size_t>(SPP_MINSAT)),
-          _filter(0),
-          _smooth(false),
-          _n_NPD_flt(0),
-          _n_ALL_flt(0),
-          _n_NPD_smt(0),
-          _n_ALL_smt(0)
+    t_gsppflt::t_gsppflt(string mark, t_gsetbase* set, string mode) :
+        t_gspp(mark, set, mode),
+        _minsat(static_cast<size_t>(SPP_MINSAT)),
+        _filter(0),
+        _smooth(false),
+        _n_NPD_flt(0),
+        _n_ALL_flt(0),
+        _n_NPD_smt(0),
+        _n_ALL_smt(0)
     {
         t_gspp::_get_settings();
-        string fltModStr(dynamic_cast<t_gsetflt *>(_set)->method_flt());
+        string fltModStr(dynamic_cast<t_gsetflt*>(_set)->method_flt());
         if (fltModStr.compare("kalman") == 0)
+        {
             _filter = new t_kalman();
+        }
         else if (fltModStr.compare("srcf") == 0)
+        {
             _filter = new t_SRF();
+        }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, _site + " not correct filter setting - check XML-config");
+            GREAT_INFO(_site + " not correct filter setting - check XML-config");
         }
         _trpStoModel = new t_randomwalk();
-        _trpStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_ztd());
+        _trpStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_ztd());
         _ionStoModel = new t_randomwalk();
-        _ionStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_vion());
+        _ionStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_vion());
         _gpsStoModel = new t_randomwalk();
-        _gpsStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_gps());
+        _gpsStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_gps());
 
         _gloStoModel = new t_randomwalk();
-        _gloStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_glo());
+        _gloStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_glo());
 
         _galStoModel = new t_randomwalk();
-        _galStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_gal());
+        _galStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_gal());
 
         _bdsStoModel = new t_randomwalk();
-        _bdsStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_bds());
+        _bdsStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_bds());
 
         _qzsStoModel = new t_randomwalk();
-        _qzsStoModel->setq(dynamic_cast<t_gsetflt *>(_set)->rndwk_qzs());
+        _qzsStoModel->setq(dynamic_cast<t_gsetflt*>(_set)->rndwk_qzs());
 
-        _clkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_clk());
-        _crdStoModel = new t_whitenoise(dynamic_cast<t_gsetflt *>(_set)->noise_crd());
+        _clkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_clk());
+        _crdStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_crd());
 
         _vBanc.ReSize(4);
         _vBanc = 0.0;
 
         int ipar = 0;
-        string refclk = dynamic_cast<t_gsetproc *>(_set)->ref_clk();
+        string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
         if (refclk != "")
         {
             _crd_est = CONSTRPAR::EST;
@@ -199,44 +228,53 @@ namespace gnut
         for (unsigned int i = 1; i <= _param.parNumber(); i++)
         {
             if (_param[i - 1].parType == par_type::CRD_X)
+            {
                 _Qx(i, i) = crdInit * crdInit;
+            }
             else if (_param[i - 1].parType == par_type::CRD_Y)
+            {
                 _Qx(i, i) = crdInit * crdInit;
+            }
             else if (_param[i - 1].parType == par_type::CRD_Z)
+            {
                 _Qx(i, i) = crdInit * crdInit;
+            }
             else if (_param[i - 1].parType == par_type::CLK)
+            {
                 _Qx(i, i) = _clkStoModel->getQ() * _clkStoModel->getQ();
+            }
             else if (_param[i - 1].parType == par_type::TRP)
+            {
                 _Qx(i, i) = ztdInit * ztdInit;
+            }
         }
 
-        _resid_type = dynamic_cast<t_gsetproc *>(_set)->residuals();
-        _cbiaschar = dynamic_cast<t_gsetproc *>(_set)->cbiaschar();
-        _frequency = dynamic_cast<t_gsetproc *>(_set)->frequency();
+        _resid_type = dynamic_cast<t_gsetproc*>(_set)->residuals();
+        _cbiaschar = dynamic_cast<t_gsetproc*>(_set)->cbiaschar();
+        _frequency = dynamic_cast<t_gsetproc*>(_set)->frequency();
 
         _success = true;
         _ifb3_init = false;
         _ifb4_init = false;
         _ifb5_init = false;
 
-		//freq_index and band_index 
-		_band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_set)->band_index(gnut::GPS);
-		_band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_set)->band_index(gnut::GAL);
-		_band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_set)->band_index(gnut::GLO);
-		_band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_set)->band_index(gnut::BDS);
-		_band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_set)->band_index(gnut::QZS);
+        // freq_index and band_index
+        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GPS);
+        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GAL);
+        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GLO);
+        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::BDS);
+        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::QZS);
 
-		_freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_set)->freq_index(gnut::GPS);
-		_freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_set)->freq_index(gnut::GAL);
-		_freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_set)->freq_index(gnut::GLO);
-		_freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_set)->freq_index(gnut::BDS);
-		_freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_set)->freq_index(gnut::QZS);
+        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GPS);
+        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GAL);
+        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GLO);
+        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::BDS);
+        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::QZS);
 
     } // end constructor
 
     t_gsppflt::~t_gsppflt()
     {
-
         if (_trpStoModel)
         {
             delete _trpStoModel;
@@ -289,9 +327,8 @@ namespace gnut
         }
     }
 
-    int t_gsppflt::processBatch(const t_gtime &beg, const t_gtime &end)
+    int t_gsppflt::processBatch(const t_gtime& beg, const t_gtime& end)
     {
-
         if (beg > end)
         {
             cerr << _site << " - processing not started [beg > end]\n";
@@ -310,9 +347,13 @@ namespace gnut
 
         double subint = 0.1;
         if (_scale > 0)
+        {
             subint = 1.0 / _scale;
+        }
         if (_sampling > 1)
+        {
             subint = pow(10, floor(log10(_sampling)));
+        }
 
         int sign = int(fabs(_sampling) / _sampling);
 
@@ -325,13 +366,15 @@ namespace gnut
             // synchronization of now != end
             if (now != end)
             {
-                if (!time_sync(now, _sampling, _scale, _spdlog))
-                {                                      
+                if (!time_sync(now, _sampling, _scale))
+                {
                     now.add_dsec(sign * subint / 100); // add_dsec used for synchronization!
                     continue;
                 }
                 if (_sampling > 1)
+                {
                     now.reset_dsec();
+                }
             }
 
             // clean/collect/filter epoch data
@@ -340,12 +383,15 @@ namespace gnut
 
             if (_data.size() == 0)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, _site + now.str_ymdhms(" no observation found at epoch: "));
+                GREAT_DEBUG(_site + now.str_ymdhms(" no observation found at epoch: "));
                 if (_sampling > 1)
+                {
                     now.add_secs(int(sign * _sampling)); // =<1Hz data
+                }
                 else
+                {
                     now.add_dsec(sign * _sampling); //  >1Hz data
+                }
                 continue;
             }
 
@@ -357,28 +403,31 @@ namespace gnut
             if (irc_epo < 0)
             {
                 _success = false;
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, _site + now.str_ymdhms(" epoch ") + " was not calculated");
+                GREAT_DEBUG(_site + now.str_ymdhms(" epoch ") + " was not calculated");
 
                 if (_sampling > 1)
+                {
                     now.add_secs(int(sign * _sampling)); // =<1Hz data
+                }
                 else
+                {
                     now.add_dsec(sign * _sampling); //  >1Hz data
+                }
                 continue;
             }
             else
+            {
                 _success = true;
+            }
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _site + now.str_ymdhms(" processing epoch: "));
+            GREAT_DEBUG(_site + now.str_ymdhms(" processing epoch: "));
 
             if (_param.getCrdParam(_site, xyz) <= 0)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, _site + now.str_ymdhms(" No coordinates included in params: "));
+                GREAT_DEBUG(_site + now.str_ymdhms(" No coordinates included in params: "));
             }
 
-            _map_crd[obsEpo] = xyz; 
+            _map_crd[obsEpo] = xyz;
 
             double clk = 0.0;
             double clk_std = 0.0;
@@ -393,8 +442,8 @@ namespace gnut
 
             if (_allprod != 0)
             {
-                shared_ptr<t_gprodcrd> prd_crd = make_shared<t_gprodcrd>(_spdlog, now); // now is rounded value !!
-                shared_ptr<t_gprodclk> prd_clk = make_shared<t_gprodclk>(_spdlog, now); // now is rounded value !!
+                shared_ptr<t_gprodcrd> prd_crd = make_shared<t_gprodcrd>(now); // now is rounded value !!
+                shared_ptr<t_gprodclk> prd_clk = make_shared<t_gprodclk>(now); // now is rounded value !!
                 prd_crd->xyz(xyz);
                 prd_clk->clk(clk, clk_std);
                 prd_crd->nSat(_nSat);
@@ -403,7 +452,9 @@ namespace gnut
                 // store DOP
                 set<string> sat_list;
                 for (auto it = _data.begin(); it != _data.end(); it++)
+                {
                     sat_list.insert(it->sat());
+                }
                 _dop.set_sats(sat_list);
 
                 _dop.calculate(now, xyz);
@@ -424,9 +475,13 @@ namespace gnut
             _initialized = true;
 
             if (_sampling > 1)
+            {
                 now.add_secs(int(sign * _sampling)); // =<1Hz data
+            }
             else
+            {
                 now.add_dsec(sign * _sampling); //  >1Hz data
+            }
         }
 
         _gmutex.unlock();
@@ -434,13 +489,12 @@ namespace gnut
         return 1;
     }
 
-    int t_gsppflt::_processEpoch(const t_gtime &runEpoch)
+    int t_gsppflt::_processEpoch(const t_gtime& runEpoch)
     {
         // Check whether the receiver is valid or not
         if (_grec == nullptr)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "No receiver settings available!!!");
+            GREAT_DEBUG("No receiver settings available!!!");
             return -1;
         }
         // Get the current epoch
@@ -448,8 +502,7 @@ namespace gnut
         // Get the prior coordinates
         t_gtriple crdapr = _grec->crd_arp(_epoch);
 
-        if ((double_eq(crdapr[0], 0.0) && double_eq(crdapr[1], 0.0) &&
-            double_eq(crdapr[2], 0.0)) || crdapr.nan())
+        if ((double_eq(crdapr[0], 0.0) && double_eq(crdapr[1], 0.0) && double_eq(crdapr[2], 0.0)) || crdapr.nan())
         {
             _valid_crd_xml = false;
         }
@@ -459,7 +512,9 @@ namespace gnut
         }
 
         if (!_valid_crd_xml)
+        {
             _sig_init_crd = 100.0;
+        }
 
         Matrix A;
         DiagonalMatrix P;
@@ -476,8 +531,7 @@ namespace gnut
         {
             if (_prepareData() < 0)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Preparing data failed!");
+                GREAT_DEBUG("Preparing data failed!");
                 return -1;
             }
 
@@ -487,8 +541,7 @@ namespace gnut
 
             if (_data.size() < _minsat)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Not enough visible satellites!");
+                GREAT_DEBUG("Not enough visible satellites!");
                 _restore(QsavBP, XsavBP);
                 return -1;
             }
@@ -508,7 +561,7 @@ namespace gnut
             // define a number of measurements
             unsigned int nObs = _data.size();
             unsigned int mult = 1;
-            if (_observ == OBSCOMBIN::RAW_ALL )
+            if (_observ == OBSCOMBIN::RAW_ALL)
             {
                 mult = 2;
                 nObs *= 5;
@@ -543,9 +596,10 @@ namespace gnut
 
             for (it = _data.begin(); it != _data.end();)
             {
-
                 if (_addObsP(*it, iobs, groundEll, A, l, P) > 0)
+                {
                     obstypes.push_back(TYPE_C);
+                }
                 else
                 {
                     it = _data.erase(it);
@@ -553,7 +607,9 @@ namespace gnut
                 } // just return next iterator
 
                 if (_addObsL(*it, iobs, groundEll, A, l, P) > 0)
+                {
                     obstypes.push_back(TYPE_L);
+                }
                 else
                 {
                     it = _data.erase(it);
@@ -574,8 +630,7 @@ namespace gnut
                     }
                     it++;
                 }
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Not enough processable observations!");
+                GREAT_DEBUG("Not enough processable observations!");
                 _restore(QsavBP, XsavBP);
                 return -1;
             }
@@ -599,9 +654,13 @@ namespace gnut
                     if (_newAMB.find(sat) != _newAMB.end() && _cntrep == 1)
                     {
                         if (_newAMB[sat] == 1)
+                        {
                             _Qx(iPar + 1, iPar + 1) += 10;
+                        }
                         if (_newAMB[sat] == 2 && _Qx(iPar + 1, iPar + 1) > 0.01)
+                        {
                             _Qx(iPar + 1, iPar + 1) += 1;
+                        }
                         _newAMB[sat]++;
                     }
                 }
@@ -621,8 +680,7 @@ namespace gnut
             int freedom = A.Nrows() - A.Ncols();
             if (freedom < 1)
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "No redundant observations!");
+                GREAT_DEBUG("No redundant observations!");
                 freedom = 1;
             }
 
@@ -635,7 +693,7 @@ namespace gnut
 
         } while (_gModel->outlierDetect(_data, _Qx, Qsav) != 0);
 
-        _outlier_sat = dynamic_cast<t_gsppmodel *>(_gModel)->get_outlier_sat();
+        _outlier_sat = dynamic_cast<t_gsppmodel*>(_gModel)->get_outlier_sat();
 
         _nSat_excl = _nSat - _data.size(); // number of excluded satellites due to different reasons
 
@@ -651,8 +709,7 @@ namespace gnut
 
         if (_data.size() < _minsat)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _site + _epoch.str_ymdhms(" epoch ") + " skipped: " + int2str(_data.size()) + " < _minsat)");
+            GREAT_DEBUG(_site + _epoch.str_ymdhms(" epoch ") + " skipped: " + int2str(_data.size()) + " < _minsat)");
             _restore(QsavBP, XsavBP);
             return -1;
         }
@@ -686,57 +743,67 @@ namespace gnut
         return 1;
     }
 
-    double t_gsppflt::_weightObs(t_gsatdata &satdata, t_gobs &go)
+    double t_gsppflt::_weightObs(t_gsatdata& satdata, t_gobs& go)
     {
         double weight_coef = 0;
 
         switch (_weight)
         {
-        case OBSWEIGHT::DEF_OBSWEIGHT:
-            cerr << "gsppflt: WeightObs (default) should not happened!\n";
-            break;
-        case OBSWEIGHT::EQUAL:
-            weight_coef = 1;
-            break;
-        case OBSWEIGHT::SINEL: 
-            if (satdata.ele() * 180.0 / G_PI > 40)
-                weight_coef = 1.0;
-            else
-                weight_coef = sin(satdata.ele()) * sin(satdata.ele());
-            break;
-        case OBSWEIGHT::SINEL2:
-            weight_coef = pow(sin(satdata.ele()), 2);
-            break;
-        case OBSWEIGHT::SINEL4:
-            weight_coef = pow(sin(satdata.ele()), 4);
-            break;
-        case OBSWEIGHT::PARTELE:
-            if (satdata.ele_leo_deg() > 30)
-                weight_coef = 1.0;
-            else
-                weight_coef = sin(satdata.ele_leo_deg()) * sin(satdata.ele_leo_deg());
-            break;
-        case OBSWEIGHT::SNR: // SNR=SINEL in sppflt
-            if (satdata.ele() * 180.0 / G_PI > 40)
-                weight_coef = 1.0;
-            else
-                weight_coef = sin(satdata.ele()) * sin(satdata.ele());
-            break;
-        default:
-            weight_coef = 0.0;
-            break;
+            case OBSWEIGHT::DEF_OBSWEIGHT:
+                cerr << "gsppflt: WeightObs (default) should not happened!\n";
+                break;
+            case OBSWEIGHT::EQUAL:
+                weight_coef = 1;
+                break;
+            case OBSWEIGHT::SINEL:
+                if (satdata.ele() * 180.0 / G_PI > 40)
+                {
+                    weight_coef = 1.0;
+                }
+                else
+                {
+                    weight_coef = sin(satdata.ele()) * sin(satdata.ele());
+                }
+                break;
+            case OBSWEIGHT::SINEL2:
+                weight_coef = pow(sin(satdata.ele()), 2);
+                break;
+            case OBSWEIGHT::SINEL4:
+                weight_coef = pow(sin(satdata.ele()), 4);
+                break;
+            case OBSWEIGHT::PARTELE:
+                if (satdata.ele_leo_deg() > 30)
+                {
+                    weight_coef = 1.0;
+                }
+                else
+                {
+                    weight_coef = sin(satdata.ele_leo_deg()) * sin(satdata.ele_leo_deg());
+                }
+                break;
+            case OBSWEIGHT::SNR: // SNR=SINEL in sppflt
+                if (satdata.ele() * 180.0 / G_PI > 40)
+                {
+                    weight_coef = 1.0;
+                }
+                else
+                {
+                    weight_coef = sin(satdata.ele()) * sin(satdata.ele());
+                }
+                break;
+            default:
+                weight_coef = 0.0;
+                break;
         }
 
         return weight_coef;
     }
 
-    int t_gsppflt::_addPseudoZTD(unsigned int &iobs, t_gtriple &ell, Matrix &A, ColumnVector &l, DiagonalMatrix &P)
+    int t_gsppflt::_addPseudoZTD(unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P)
     {
-
         // Design Matrix
         if (_epoch > _ztd_begStat && _epoch < _ztd_endStat)
         {
-
             Matrix_addRC(A, A.Nrows() + 1, 0);
             int i = _param.getParam(_site, par_type::TRP, "");
             A(A.Nrows(), i + 1) = 1;
@@ -744,7 +811,9 @@ namespace gnut
             // tropo (wet part) is constrained to this value
             double TRP_fix = 0;
             if (_gModel->tropoModel() != 0)
+            {
                 TRP_fix = _aprox_ztd_xml - _gModel->tropoModel()->getZHD(ell, _epoch);
+            }
 
             // Reduced measurement
             Vector_add(l, l.Nrows() + 1);
@@ -760,9 +829,8 @@ namespace gnut
         return 1;
     }
 
-    int t_gsppflt::_addObsP(t_gsatdata &satdata, unsigned int &iobs, t_gtriple &ell, Matrix &A, ColumnVector &l, DiagonalMatrix &P)
+    int t_gsppflt::_addObsP(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P)
     {
-
         t_gsys gsys(satdata.gsys());
         GSYS gs = gsys.gsys();
 
@@ -774,18 +842,20 @@ namespace gnut
             set<GOBSBAND> bands = satdata.band_avail(_phase);
             auto itBAND = bands.begin();
             if (bands.size() < 2)
+            {
                 return -1;
+            }
             b1 = *itBAND;
             itBAND++;
             b2 = *itBAND;
         }
         else
-        { 
-			b1 = _band_index[gs][FREQ_1];
-			b2 = _band_index[gs][FREQ_2];
-			b3 = _band_index[gs][FREQ_3];
-			b4 = _band_index[gs][FREQ_4];
-			b5 = _band_index[gs][FREQ_5];
+        {
+            b1 = _band_index[gs][FREQ_1];
+            b2 = _band_index[gs][FREQ_2];
+            b3 = _band_index[gs][FREQ_3];
+            b4 = _band_index[gs][FREQ_4];
+            b5 = _band_index[gs][FREQ_5];
         }
 
         t_gobs gobs1, gobs2, gobs3, gobs4, gobs5;
@@ -802,18 +872,30 @@ namespace gnut
         P1 = satdata.obs_C(gobs1);
         P2 = satdata.obs_C(gobs2);
         if (b3 != BAND)
+        {
             P3 = satdata.obs_C(gobs3);
+        }
         if (b4 != BAND)
+        {
             P4 = satdata.obs_C(gobs4);
+        }
         if (b5 != BAND)
+        {
             P5 = satdata.obs_C(gobs5);
+        }
 
         if (_observ == OBSCOMBIN::IONO_FREE && double_eq(PIF, 0.0))
+        {
             return -1;
+        }
         if (_observ == OBSCOMBIN::RAW_ALL && (double_eq(P1, 0.0) || double_eq(P2, 0.0)))
+        {
             return -1;
+        }
         if (_observ == OBSCOMBIN::RAW_MIX && double_eq(P1, 0.0))
-            return -1; 
+        {
+            return -1;
+        }
 
         double weight_coef_b1 = _weightObs(satdata, gobs1);
         double weight_coef_b2 = _weightObs(satdata, gobs2);
@@ -830,49 +912,65 @@ namespace gnut
             weight_coef = (weight_coef_b1 + weight_coef_b2) / 2;
         }
         else
+        {
             weight_coef = weight_coef_b1;
+        }
 
         int addIobs = 1;
         if (P3 > 0)
+        {
             addIobs++;
+        }
         if (P4 > 0)
+        {
             addIobs++;
+        }
         if (P5 > 0)
+        {
             addIobs++;
+        }
         if (_observ == OBSCOMBIN::RAW_MIX)
         {
             if (double_eq(P2, 0.0))
+            {
                 addIobs = 0;
+            }
             else
+            {
                 addIobs = 1;
+            }
         }
 
         int usedFrq = addIobs + 1;
         if (_observ == OBSCOMBIN::IONO_FREE)
+        {
             _frqNum[satdata.sat()] = 1;
+        }
         if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
+        {
             _frqNum[satdata.sat()] = usedFrq;
+        }
 
         double sigCode = 0.0;
         switch (gs)
         {
-        case GPS:
-            sigCode = _sigCodeGPS;
-            break;
-        case GLO:
-            sigCode = _sigCodeGLO;
-            break;
-        case GAL:
-            sigCode = _sigCodeGAL;
-            break;
-        case BDS:
-            sigCode = _sigCodeBDS;
-            break;
-        case QZS:
-            sigCode = _sigCodeQZS;
-            break;
-        default:
-            sigCode = 0.0;
+            case GPS:
+                sigCode = _sigCodeGPS;
+                break;
+            case GLO:
+                sigCode = _sigCodeGLO;
+                break;
+            case GAL:
+                sigCode = _sigCodeGAL;
+                break;
+            case BDS:
+                sigCode = _sigCodeBDS;
+                break;
+            case QZS:
+                sigCode = _sigCodeQZS;
+                break;
+            default:
+                sigCode = 0.0;
         }
 
         // Create weight matrix
@@ -886,11 +984,17 @@ namespace gnut
             for (int i = 2; i <= addIobs; i++)
             {
                 if (i == 2)
+                {
                     P(iobs + i, iobs + i) = weight_coef_b3 * (1 / (sigCode * sigCode));
+                }
                 if (i == 3)
+                {
                     P(iobs + i, iobs + i) = weight_coef_b4 * (1 / (sigCode * sigCode));
+                }
                 if (i == 4)
+                {
                     P(iobs + i, iobs + i) = weight_coef_b5 * (1 / (sigCode * sigCode));
+                }
             }
         }
         if (_observ == OBSCOMBIN::RAW_MIX)
@@ -898,20 +1002,26 @@ namespace gnut
             for (int i = 1; i <= addIobs; i++)
             {
                 if (i == 1)
+                {
                     P(iobs + i, iobs + i) = weight_coef_b2 * (1 / (sigCode * sigCode));
+                }
             }
         }
         bool com = true;
         if (_gnav)
+        {
             com = _gnav->com();
+        }
 
-        //Create reduced measurements (prefit residuals)
+        // Create reduced measurements (prefit residuals)
         double modObsP = 0.0;
         if (_observ == OBSCOMBIN::IONO_FREE)
         {
             modObsP = _gModel->cmpObs(_epoch, _param, satdata, gobs1, com);
             if (modObsP < 0)
+            {
                 return -1;
+            }
             _applyDCB(satdata, PIF, &gobs1, &gobs2);
             l(iobs) = PIF - modObsP;
         }
@@ -948,117 +1058,128 @@ namespace gnut
                     Pi = P5;
                 }
                 if (double_eq(modObsP, -1.0) || double_eq(Pi, 0.0))
-                    continue; 
+                {
+                    continue;
+                }
                 l(iobs + i) = Pi - modObsP;
             }
         }
 
         // Create first design matrix
-        if (gs == GLO ||
-            gs == GPS ||
-            gs == GAL ||
-            gs == BDS ||
-            gs == QZS)
+        if (gs == GLO || gs == GPS || gs == GAL || gs == BDS || gs == QZS)
         {
-
             for (unsigned int ipar = 1; ipar <= _param.parNumber(); ipar++)
             {
                 A(iobs, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs1);
                 if (_observ == OBSCOMBIN::RAW_ALL)
+                {
                     A(iobs + 1, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs2);
+                }
                 if (_observ == OBSCOMBIN::RAW_MIX && addIobs == 1)
+                {
                     A(iobs + 1, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs2);
+                }
                 if (_observ == OBSCOMBIN::RAW_ALL)
                 {
                     for (int i = 2; i <= addIobs; i++)
                     {
                         if (i == 2)
+                        {
                             A(iobs + i, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs3);
+                        }
                         if (i == 3)
+                        {
                             A(iobs + i, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs4);
+                        }
                         if (i == 4)
+                        {
                             A(iobs + i, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs5);
+                        }
                     }
                 }
             }
         }
         else
+        {
             return -1;
+        }
         if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
+        {
             iobs = iobs + addIobs + 1;
+        }
         else
+        {
             iobs++;
+        }
 
         return 1;
     }
 
-    int t_gsppflt::_addObsL(t_gsatdata &satdata, unsigned int &iobs, t_gtriple &ell, Matrix &A, ColumnVector &l, DiagonalMatrix &P)
+    int t_gsppflt::_addObsL(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P)
     {
-
         return 1;
     }
 
     int t_gsppflt::_prepareData()
     {
-
         vector<t_gsatdata>::iterator it = _data.begin();
         while (it != _data.end())
         {
             switch (_gnss)
             {
-            case GNS:
-                break;
-            case GPS:
-                if (it->gsys() != GPS)
-                {
-                    it = _data.erase(it);
+                case GNS:
+                    break;
+                case GPS:
+                    if (it->gsys() != GPS)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                case GLO:
+                    if (it->gsys() != GLO)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                case GAL:
+                    if (it->gsys() != GAL)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                case BDS:
+                    if (it->gsys() != BDS)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                case QZS:
+                    if (it->gsys() != QZS)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                case IRN:
+                    if (it->gsys() != IRN)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                case SBS:
+                    if (it->gsys() != SBS)
+                    {
+                        it = _data.erase(it);
+                        continue;
+                    }
+                    break;
+                default:
                     continue;
-                }
-                break;
-            case GLO:
-                if (it->gsys() != GLO)
-                {
-                    it = _data.erase(it);
-                    continue;
-                }
-                break;
-            case GAL:
-                if (it->gsys() != GAL)
-                {
-                    it = _data.erase(it);
-                    continue;
-                }
-                break;
-            case BDS:
-                if (it->gsys() != BDS)
-                {
-                    it = _data.erase(it);
-                    continue;
-                }
-                break;
-            case QZS:
-                if (it->gsys() != QZS)
-                {
-                    it = _data.erase(it);
-                    continue;
-                }
-                break;
-            case IRN:
-                if (it->gsys() != IRN)
-                {
-                    it = _data.erase(it);
-                    continue;
-                }
-                break;
-            case SBS:
-                if (it->gsys() != SBS)
-                {
-                    it = _data.erase(it);
-                    continue;
-                }
-                break;
-            default:
-                continue;
             }
             it++;
         }
@@ -1074,7 +1195,6 @@ namespace gnut
 
         while (iter != _data.end())
         {
-
             GSYS gs = iter->gsys();
 
             GOBSBAND b1, b2;
@@ -1095,12 +1215,9 @@ namespace gnut
             }
             else
             {
-				b1 = _band_index[gs][FREQ_1];
-				b2 = _band_index[gs][FREQ_2];
+                b1 = _band_index[gs][FREQ_1];
+                b2 = _band_index[gs][FREQ_2];
             }
-
-            iter->spdlog(_gspdlog);
-
             // check data availability
             double P3 = iter->P3(b1, b2);
             double L3 = iter->L3(b1, b2);
@@ -1109,7 +1226,9 @@ namespace gnut
             {
                 L3 = iter->obs_L(t_gband(b1, GOBSATTR::ATTR));
                 if (!double_eq(L3, 0.0))
+                {
                     P3 = iter->obs_C(t_gband(b1, GOBSATTR::ATTR));
+                }
             }
 
             if (double_eq(L3, 0.0) && _phase)
@@ -1142,8 +1261,8 @@ namespace gnut
 
         if (_data.size() < _minsat)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: " + int2str(_data.size()) + " < _minsat)");
+            GREAT_DEBUG(_epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: " + int2str(_data.size()) +
+                        " < _minsat)");
             return -1;
         }
 
@@ -1151,9 +1270,7 @@ namespace gnut
 
         if (BB.Nrows() < static_cast<int>(_minsat))
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: BB.Nrows < _minsat)");
+            GREAT_DEBUG(_epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: BB.Nrows < _minsat)");
             return -1;
         }
 
@@ -1161,7 +1278,9 @@ namespace gnut
         gbancroft(BB, _vBanc);
 
         if (!_initialized && (_vBanc.Rows(1, 3) - _grec->crd_arp(_epoch).crd_cvect()).NormFrobenius() > 1000)
+        {
             _valid_crd_xml = false;
+        }
 
         if (_valid_crd_xml && !_initialized)
         {
@@ -1176,18 +1295,17 @@ namespace gnut
         double radius = test_xyz.norm();
         if (radius < B_WGS - 500)
         {
-            string warning = "WARNING: Unexpected site (" + _site + ") coordinates from Bancroft. Orbits/clocks or code observations should be checked.";
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, warning + _epoch.str_ymdhms(" Epoch "));
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, warning + _epoch.str_ymdhms(" Epoch "));
+            string warning =
+                "WARNING: Unexpected site (" + _site + ") coordinates from Bancroft. Orbits/clocks or code observations should be checked.";
+            GREAT_DEBUG(warning + _epoch.str_ymdhms(" Epoch "));
+            GREAT_DEBUG(warning + _epoch.str_ymdhms(" Epoch "));
             if (!_phase)
             {
                 return -1;
             }
         }
 
-        //Compute sat elevation and rho
+        // Compute sat elevation and rho
         iter = _data.begin();
         while (iter != _data.end())
         {
@@ -1210,7 +1328,9 @@ namespace gnut
                         xyz_r.set(_vBanc.Rows(1, 3));
                     }
                     else
+                    {
                         _param.getCrdParam(_site, xyz_r);
+                    }
                 }
             }
             else
@@ -1247,16 +1367,24 @@ namespace gnut
             }
 
             if (sqrt(NE2) / iter->rho() > 1.0)
+            {
                 iter->addele(0.0);
+            }
             else
+            {
                 iter->addele(ele);
+            }
 
             double azi = atan2(neu_s[1], neu_s[0]);
             if (azi < 0)
+            {
                 azi += 2 * G_PI;
+            }
             iter->addazi_rec(azi);
             if (!_use_ecl)
+            {
                 iter->addecl(_lastEcl);
+            }
 
             // check elevation cut-off
             if (iter->ele_deg() < _minElev)
@@ -1264,13 +1392,11 @@ namespace gnut
                 ostringstream os;
                 os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << fixed << setprecision(1) << iter->ele_deg()
                    << ") " << iter->epoch().str_ymdhms();
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, os.str());
+                GREAT_DEBUG(os.str());
                 iter = _data.erase(iter); // !!!! zveda iterator !!!!
                 if (_data.size() < _minsat)
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, _site + _epoch.str_ymdhms(" epoch ") + int2str(_data.size()) + " skipped (data.size < _minsat)");
+                    GREAT_DEBUG(_site + _epoch.str_ymdhms(" epoch ") + int2str(_data.size()) + " skipped (data.size < _minsat)");
                     return -1;
                 }
                 continue;
@@ -1278,9 +1404,9 @@ namespace gnut
 
             // Printing beta and orbit angles for deep verbosity
             ostringstream os;
-            os << iter->sat() << " " << iter->epoch().str_ymdhms() << " " << fixed << setprecision(1) << iter->beta() << " " << iter->orb_angle() << endl;
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, os.str());
+            os << iter->sat() << " " << iter->epoch().str_ymdhms() << " " << fixed << setprecision(1) << iter->beta() << " "
+               << iter->orb_angle() << endl;
+            GREAT_DEBUG(os.str());
 
             // check satellite eclipsing
             if (iter->ecl())
@@ -1288,28 +1414,27 @@ namespace gnut
                 ostringstream os;
                 os << "Erasing " << iter->sat() << " data due to satellite eclipsing (beta = " << fixed << setprecision(1) << iter->beta()
                    << " ,orbit angle = " << iter->orb_angle() << ") " << iter->epoch().str_ymdhms();
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, os.str());
+                GREAT_DEBUG(os.str());
                 iter = _data.erase(iter); // !!!! zveda iterator !!!!
                 if (_data.size() < _minsat)
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, _site + _epoch.str_ymdhms(" epoch ") + int2str(_data.size()) + " skipped (data.size < _minsat)");
+                    GREAT_DEBUG(_site + _epoch.str_ymdhms(" epoch ") + int2str(_data.size()) + " skipped (data.size < _minsat)");
                     return -1;
                 }
             }
             else
+            {
                 iter++;
+            }
         }
         return 1;
     }
-    int t_gsppflt::_apply_tides(t_gtime &_epoch, t_gtriple &xRec)
+    int t_gsppflt::_apply_tides(t_gtime& _epoch, t_gtriple& xRec)
     {
         return 1;
     }
     void t_gsppflt::_predict()
     {
-
         _cntrep++;
 
         // add/remove inter system bias
@@ -1320,7 +1445,9 @@ namespace gnut
 
         // add/remove inter-frequency biases
         if (_frequency >= 3)
+        {
             _syncIFB();
+        }
 
         _Noise.ReSize(_Qx.Nrows());
         _Noise = 0;
@@ -1345,16 +1472,24 @@ namespace gnut
                 if (_epoch > _crd_begStat && _epoch < _crd_endStat)
                 {
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = 0.0;
+                    }
                 }
                 else
                 {
                     if (_pos_kin)
+                    {
                         _param[i].value(_vBanc(1));
+                    }
                     if (_cntrep == 1 && _success)
+                    {
                         _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
                 }
             }
         }
@@ -1372,16 +1507,24 @@ namespace gnut
                 if (_epoch > _crd_begStat && _epoch < _crd_endStat)
                 {
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = 0.0;
+                    }
                 }
                 else
                 {
                     if (_pos_kin)
+                    {
                         _param[i].value(_vBanc(2));
+                    }
                     if (_cntrep == 1 && _success)
+                    {
                         _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
                 }
             }
         }
@@ -1399,16 +1542,24 @@ namespace gnut
                 if (_epoch > _crd_begStat && _epoch < _crd_endStat)
                 {
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = 0.0;
+                    }
                 }
                 else
                 {
                     if (_pos_kin)
+                    {
                         _param[i].value(_vBanc(3));
+                    }
                     if (_cntrep == 1 && _success)
+                    {
                         _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
                 }
             }
         }
@@ -1418,10 +1569,14 @@ namespace gnut
         {
             _param[i].value(_vBanc(4));
             for (unsigned int jj = 1; jj <= _param.parNumber(); jj++)
+            {
                 _Qx(i + 1, jj) = 0.0;
+            }
             _Qx(i + 1, i + 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
             if (_smooth)
+            {
                 _Noise(i + 1, i + 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
+            }
         }
 
         i = _param.getParam(_site, par_type::GLO_ISB, "");
@@ -1434,9 +1589,13 @@ namespace gnut
             else
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = _gloStoModel->getQ();
+                }
             }
         }
 
@@ -1450,9 +1609,13 @@ namespace gnut
             else
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = _gloStoModel->getQ();
+                }
             }
         }
 
@@ -1466,9 +1629,13 @@ namespace gnut
             else
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += _galStoModel->getQ();
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = _galStoModel->getQ();
+                }
             }
         }
 
@@ -1482,9 +1649,13 @@ namespace gnut
             else
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = _bdsStoModel->getQ();
+                }
             }
         }
 
@@ -1498,9 +1669,13 @@ namespace gnut
             else
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += _qzsStoModel->getQ();
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = _qzsStoModel->getQ();
+                }
             }
         }
 
@@ -1543,14 +1718,20 @@ namespace gnut
                 if (_epoch > _ztd_begStat && _epoch < _ztd_endStat)
                 {
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = 0.0;
+                    }
                 }
                 else
                 {
                     if (_cntrep == 1)
+                    {
                         _Qx(i + 1, i + 1) += _trpStoModel->getQ();
+                    }
                     if (_smooth)
+                    {
                         _Noise(i + 1, i + 1) = _trpStoModel->getQ();
+                    }
                 }
             }
         }
@@ -1570,7 +1751,9 @@ namespace gnut
 
                     _param.getCrdParam(_site, site_xyz);
                     if (site_xyz.zero())
+                    {
                         site_xyz.set(_vBanc);
+                    }
                     xyz2ell(site_xyz, site_ell, false);
                     ell2ipp(*it, site_ell, ipp_ell);
 
@@ -1579,8 +1762,7 @@ namespace gnut
                     _param[i].apriori(ionomodel);
                 }
 
-                if (_cntrep == 1 &&
-                    !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
+                if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
                 {
                     _Qx(i + 1, i + 1) += _ionStoModel->getQ() * _ionStoModel->getQ();
                 }
@@ -1603,47 +1785,59 @@ namespace gnut
             if (i >= 0)
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += 0.001;
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = 0.001;
+                }
             }
             i = _param.getParam(_site, par_type::IFCB_F4, it->sat());
             if (i >= 0)
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += 0.001;
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = 0.001;
+                }
             }
             i = _param.getParam(_site, par_type::IFCB_F5, it->sat());
             if (i >= 0)
             {
                 if (_cntrep == 1)
+                {
                     _Qx(i + 1, i + 1) += 0.001;
+                }
                 if (_smooth)
+                {
                     _Noise(i + 1, i + 1) = 0.001;
+                }
             }
         }
     }
 
-    void t_gsppflt::_restore(const SymmetricMatrix &QsavBP, const t_gallpar &XsavBP)
+    void t_gsppflt::_restore(const SymmetricMatrix& QsavBP, const t_gallpar& XsavBP)
     {
         _Qx = QsavBP;
         _param = XsavBP;
     }
 
-    int t_gsppflt::_satPos(t_gtime &epo, t_gsatdata &gsatdata)
+    int t_gsppflt::_satPos(t_gtime& epo, t_gsatdata& gsatdata)
     {
-
-
         string satname = gsatdata.sat();
 
         int i;
-        int base_size = dynamic_cast<t_gsetgen *>(_set)->list_base().size();
-        i = gsatdata.addprd(_gnav); //add sat crd and clk
+        int base_size = dynamic_cast<t_gsetgen*>(_set)->list_base().size();
+        i = gsatdata.addprd(_gnav); // add sat crd and clk
 
         if (i < 0)
+        {
             return i;
+        }
 
         return 1;
     }
@@ -1657,15 +1851,19 @@ namespace gnut
         {
             GSYS satSys = it->gsys();
             if (satSys == gsys)
+            {
                 num++;
+            }
             else
+            {
                 continue;
+            }
         }
 
         return num;
     }
 
-    void t_gsppflt::_timeUpdate(const t_gtime &epo)
+    void t_gsppflt::_timeUpdate(const t_gtime& epo)
     {
         // tropo delay
         _trpStoModel->updateTime(epo);
@@ -1699,7 +1897,9 @@ namespace gnut
     void t_gsppflt::_syncSys()
     {
         if (_data.size() == 0)
+        {
             return;
+        }
         bool obsGps = false;
         bool obsGlo = false;
         bool obsGal = false;
@@ -1710,15 +1910,25 @@ namespace gnut
         { // loop over all observations
 
             if (it->gsys() == GPS)
+            {
                 obsGps = true;
+            }
             if (it->gsys() == GLO)
+            {
                 obsGlo = true;
+            }
             if (it->gsys() == GAL)
+            {
                 obsGal = true;
+            }
             if (it->gsys() == BDS)
+            {
                 obsBds = true;
+            }
             if (it->gsys() == QZS)
+            {
                 obsQzs = true;
+            }
         }
 
         bool onlyGlo = false;
@@ -1727,13 +1937,21 @@ namespace gnut
         bool onlyQzs = false;
 
         if (obsGlo && !obsGps && !obsGal && !obsBds && !obsQzs)
+        {
             onlyGlo = true;
+        }
         if (obsGal && !obsGps && !obsGlo && !obsBds && !obsQzs)
+        {
             onlyGal = true;
+        }
         if (obsBds && !obsGps && !obsGlo && !obsGal && !obsQzs)
+        {
             onlyBds = true;
+        }
         if (obsQzs && !obsGps && !obsGlo && !obsGal && !obsBds)
+        {
             onlyQzs = true;
+        }
 
         bool parGlo = false;
         bool parGal = false;
@@ -1742,15 +1960,25 @@ namespace gnut
         for (unsigned int i = 0; i < _param.parNumber(); i++)
         {
             if (_param[i].site != _site)
+            {
                 continue;
+            }
             if (_param[i].parType == par_type::GLO_ISB)
+            {
                 parGlo = true;
+            }
             if (_param[i].parType == par_type::GAL_ISB)
+            {
                 parGal = true;
+            }
             if (_param[i].parType == par_type::BDS_ISB)
+            {
                 parBds = true;
+            }
             if (_param[i].parType == par_type::QZS_ISB)
+            {
                 parQzs = true;
+            }
         }
 
         // Add GLO ISB parameter
@@ -1828,13 +2056,11 @@ namespace gnut
             _param.delParam(i);
             _param.reIndex();
         }
-
-    } 
+    }
 
     // Add/Remove ionosphere delay
     void t_gsppflt::_syncIono()
     {
-
         _param.reIndex();
 
         // Add ionosphere parameter and appropriate rows/columns covar. matrix
@@ -1846,7 +2072,9 @@ namespace gnut
             mapPRN.insert(it->sat());
 
             if (_observ == OBSCOMBIN::IONO_FREE)
+            {
                 return;
+            }
 
             if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
             {
@@ -1875,7 +2103,6 @@ namespace gnut
                 set<string>::iterator prnITER = mapPRN.find(sat);
                 if (prnITER == mapPRN.end())
                 {
-
                     Matrix_remRC(_Qx, _param[i].index, _param[i].index);
                     _param.delParam(i);
                     _param.reIndex();
@@ -1888,13 +2115,14 @@ namespace gnut
             if (_param[i].parType == par_type::SION)
             {
                 if (_param[i].site != _site)
+                {
                     continue;
+                }
                 string sat = _param[i].prn;
 
                 set<string>::iterator prnITER = mapPRN.find(sat);
                 if (prnITER == mapPRN.end())
                 {
-
                     Matrix_remRC(_Qx, _param[i].index, _param[i].index);
                     _param.delParam(i);
                     _param.reIndex();
@@ -1909,7 +2137,9 @@ namespace gnut
     void t_gsppflt::_syncIFB()
     {
         if (_data.size() == 0)
+        {
             return;
+        }
 
         bool parGps = false;
         bool parGal = false;
@@ -1921,23 +2151,38 @@ namespace gnut
         bool parBds_3 = false;
         for (unsigned int i = 0; i < _param.parNumber(); i++)
         {
-
             if (_param[i].parType == par_type::IFB_GPS)
+            {
                 parGps = true;
+            }
             if (_param[i].parType == par_type::IFB_GAL)
+            {
                 parGal = true;
+            }
             if (_param[i].parType == par_type::IFB_BDS)
+            {
                 parBds = true;
+            }
             if (_param[i].parType == par_type::IFB_QZS)
+            {
                 parQzs = true;
+            }
             if (_param[i].parType == par_type::IFB_GAL_2)
+            {
                 parGal_2 = true;
+            }
             if (_param[i].parType == par_type::IFB_BDS_2)
+            {
                 parBds_2 = true;
+            }
             if (_param[i].parType == par_type::IFB_GAL_3)
+            {
                 parGal_3 = true;
+            }
             if (_param[i].parType == par_type::IFB_BDS_3)
+            {
                 parBds_3 = true;
+            }
         }
 
         bool obsGps = false;
@@ -1967,14 +2212,16 @@ namespace gnut
                 // check Obs Valid
                 auto freq = iter.first;
                 if (freq > _frequency)
-                    continue; 
+                {
+                    continue;
+                }
 
                 if (obsP.type() == TYPE_C || obsP.type() == TYPE_P)
                 {
                     freq_num += 1;
                 }
                 // check whether 3 frequencies obs_P exist
-                //if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == FREQ_3)
+                // if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == FREQ_3)
                 if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 3)
                 {
                     if (gsys == GPS)
@@ -1992,10 +2239,10 @@ namespace gnut
                     if (gsys == QZS)
                     {
                         obsQzs = true;
-                    }      
+                    }
                 }
                 // check whether 4 frequencies obs_P exist
-                //if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_4)
+                // if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_4)
                 else if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 4)
                 {
                     if (gsys == GAL)
@@ -2008,7 +2255,7 @@ namespace gnut
                     }
                 }
                 // check whether 5 frequencies obs_P exist
-                //if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_5)
+                // if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_5)
                 else if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 5)
                 {
                     if (gsys == GAL)
@@ -2019,10 +2266,10 @@ namespace gnut
                     {
                         obsBds_5 = true;
                     }
-                }    
+                }
             }
             ++it;
-        }              
+        }
 
         // Add GPS IFB parameter
         if (!parGps && obsGps)
@@ -2031,7 +2278,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000; 
+            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000;
         }
 
         // Add GAL IFB parameter
@@ -2177,7 +2424,7 @@ namespace gnut
         }
     }
 
-    int t_gsppflt::_getgobs(string prn, GOBSTYPE type, GOBSBAND band, t_gobs &gobs)
+    int t_gsppflt::_getgobs(string prn, GOBSTYPE type, GOBSBAND band, t_gobs& gobs)
     {
         map<string, map<GOBSBAND, GOBSATTR>>::iterator itPRN = _signals.find(prn);
         if (itPRN == _signals.end())
@@ -2201,21 +2448,24 @@ namespace gnut
         return 1;
     }
 
-    void t_gsppflt::_save_residuals(ColumnVector &v, vector<t_gsatdata> &data, RESIDTYPE restype)
+    void t_gsppflt::_save_residuals(ColumnVector& v, vector<t_gsatdata>& data, RESIDTYPE restype)
     {
         int mult = 1;
         if (_phase)
+        {
             mult = 2;
+        }
         int k = 0;
 
         for (auto it = data.begin(); it != data.end(); it++)
         {
-
             vector<double> res;
 
             auto itFrq = _frqNum.find(it->sat());
             if (itFrq == _frqNum.end())
+            {
                 continue;
+            }
 
             // separate frequencies
             for (int i = 1; i <= itFrq->second * mult; i++)
@@ -2232,17 +2482,25 @@ namespace gnut
             if (_phase)
             {
                 for (unsigned int i = 0; i < sz / 2; i++)
+                {
                     it->addres(restype, TYPE_C, res[i]);
+                }
                 for (unsigned int i = sz / 2; i < sz; i++)
+                {
                     it->addres(restype, TYPE_L, res[i]);
+                }
             }
             else
+            {
                 for (unsigned int i = 0; i < sz; i++)
+                {
                     it->addres(restype, TYPE_C, res[i]);
+                }
+            }
         }
     }
 
-    int t_gsppflt::_applyDCB(t_gsatdata &satdata, double &P, t_gobs *gobs1, t_gobs *gobs2)
+    int t_gsppflt::_applyDCB(t_gsatdata& satdata, double& P, t_gobs* gobs1, t_gobs* gobs2)
     {
         GSYS gsys = satdata.gsys();
         GOBS g1_R2, g1_R3, g1_ref;
@@ -2275,16 +2533,24 @@ namespace gnut
         GOBS g2 = X;
 
         if (gobs1->attr() == ATTR)
+        {
             g1 = satdata.id_range(gobs1->band()); // automatic GOBS selection
+        }
         else
+        {
             g1 = gobs1->gobs(); // specific GOBS
+        }
 
         if (gobs2 != 0)
         {
             if (gobs2->attr() == ATTR)
+            {
                 g2 = satdata.id_range(gobs2->band()); // automatic GOBS selection
+            }
             else
+            {
                 g2 = gobs2->gobs(); // specific GOBS
+            }
         }
 
         FREQ_SEQ freq1 = t_gsys::band2freq(satdata.gsys(), gobs1->band());
@@ -2299,13 +2565,17 @@ namespace gnut
         t_gobs tmp1(g1);
         t_gobs tmp2;
         if (gobs2)
+        {
             tmp2.gobs(g2);
+        }
         // force 2char signals
         if (_cbiaschar == CBIASCHAR::CHAR2 && (gsys == GPS || gsys == GLO))
         {
             g1 = tmp1.gobs2CH(gsys);
             if (gobs2)
+            {
                 g2 = tmp2.gobs2CH(gsys);
+            }
             g1_ref = g1_R2;
             g2_ref = g2_R2;
             // force 3char sigals
@@ -2314,7 +2584,9 @@ namespace gnut
         {
             g1 = tmp1.gobs3CH();
             if (gobs2)
+            {
                 g2 = tmp2.gobs3CH();
+            }
             g1_ref = g1_R3;
             g2_ref = g2_R3;
             // original signals
@@ -2359,8 +2631,7 @@ namespace gnut
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: Code biases container not available!");
+            GREAT_DEBUG("Warning: Code biases container not available!");
         }
 
         if (gobs2 != 0)
@@ -2369,7 +2640,9 @@ namespace gnut
             alfa = beta = 0.0;
             satdata.coef_ionofree(gobs1->band(), alfa, gobs2->band(), beta);
             if (_observ == OBSCOMBIN::IONO_FREE)
+            {
                 P += alfa * corr1 + beta * corr2;
+            }
         }
         else
         {
@@ -2379,7 +2652,7 @@ namespace gnut
         return 1;
     }
 
-    t_gtriple t_gsppflt::getCrd(const t_gtime &time)
+    t_gtriple t_gsppflt::getCrd(const t_gtime& time)
     {
         if (_map_crd.find(time) != _map_crd.end())
         {
@@ -2409,4 +2682,4 @@ namespace gnut
         }
     }
 
-} // namespace
+} // namespace gnut

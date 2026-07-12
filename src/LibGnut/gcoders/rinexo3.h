@@ -43,36 +43,39 @@ using namespace std;
 namespace gnut
 {
     /**
-    *@brief Class for t_rinexo3 derive from t_rinexo2
-    */
+     *@brief Class for t_rinexo3 derive from t_rinexo2
+     */
     class LibGnut_LIBRARY_EXPORT t_rinexo3 : public t_rinexo2
     {
     public:
         /** @brief constructor set + version + sz. */
-        t_rinexo3(t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        t_rinexo3(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief constructor beg + end + set + version + sz. */
-        t_rinexo3(t_gtime beg, t_gtime end, t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        t_rinexo3(t_gtime beg, t_gtime end, t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief default destructor. */
-        virtual ~t_rinexo3(){};
+        virtual ~t_rinexo3() {};
 
         /** @brief decode head. */
-        virtual int decode_head(char *buff, int sz, vector<string> &errmsg) = 0;
+        virtual int decode_head(char* buff, int sz, vector<string>& errmsg) = 0;
 
         /**
-         * @brief 
-         * 
-         * @param buff 
-         * @param sz 
-         * @param cnt 
-         * @param errmsg 
-         * @return int 
+         * @brief
+         *
+         * @param buff
+         * @param sz
+         * @param cnt
+         * @param errmsg
+         * @return int
          */
-        virtual int decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg) = 0;
+        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg) = 0;
 
         /** @brief get epoch. */
-        t_gtime get_epoch() { return _epoch; };
+        t_gtime get_epoch()
+        {
+            return _epoch;
+        };
 
     protected:
         /** @brief decode head. */
@@ -80,8 +83,8 @@ namespace gnut
 
         /**
          * @brief decode data
-         * 
-         * @return int 
+         *
+         * @return int
          */
         virtual int _decode_data();
 
@@ -92,10 +95,10 @@ namespace gnut
         virtual int _read_epoch();
 
         /** @brief read single satellite observation types. */
-        virtual int _read_obstypes(const string &sat, const string &sys);
+        virtual int _read_obstypes(const string& sat, const string& sys);
 
         /** @brief fix band (BDS). */
-        virtual int _fix_band(string sys, string &go);
+        virtual int _fix_band(string sys, string& go);
 
         t_rnxhdr::t_obstypes _mapcyc;  ///< map of GOBS phase quater-cycle shifts
         t_rnxhdr::t_obstypes _glofrq;  ///< map of GLONASS slot/frequency
@@ -104,6 +107,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -75,25 +75,25 @@ namespace gnut
          * @param[in] s file format
          * @return IFMT : file format
          */
-        static IFMT str2ifmt(const string &s);
+        static IFMT str2ifmt(const string& s);
 
         /**
          * @brief change from IFMT to string
          * @param[in] f file format
          * @return string : file format
          */
-        static string ifmt2str(const IFMT &f);
+        static string ifmt2str(const IFMT& f);
 
         /**
          * @brief get format input size
          * @param[in] fmt file format
          * @return int : format input size
          */
-        int input_size(const string &fmt);
+        int input_size(const string& fmt);
 
         /**@brief check input */
-        bool check_input(const string &fmt);
-        void check_input(const string &fmt, const string &message);
+        bool check_input(const string& fmt);
+        void check_input(const string& fmt, const string& message);
 
         /**
          * @brief get format inputs (all in multimap)
@@ -106,8 +106,8 @@ namespace gnut
          * @param[in] fmt file format
          * @return vector<string> : format inputs (ordered)
          */
-        vector<string> inputs(const string &fmt);
-        vector<string> inputs(const IFMT &ifmt);
+        vector<string> inputs(const string& fmt);
+        vector<string> inputs(const IFMT& ifmt);
 
     protected:
         /**
@@ -115,8 +115,8 @@ namespace gnut
          * @param[in] ftm file format
          * @return vector<string> : all the file name of ftm
          */
-        vector<string> _inputs(const string &fmt);
-        vector<string> _inputs(const IFMT &fmt);
+        vector<string> _inputs(const string& fmt);
+        vector<string> _inputs(const IFMT& fmt);
 
         /**
          * @brief get all the ftm in input node
@@ -133,6 +133,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

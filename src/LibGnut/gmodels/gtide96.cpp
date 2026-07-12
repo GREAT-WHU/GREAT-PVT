@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include <stdlib.h>
@@ -20,7 +20,8 @@ using namespace std;
 
 namespace gnut
 {
-    t_gtide96::t_gtide96(t_spdlog spdlog) : t_gtide(spdlog)
+    t_gtide96::t_gtide96() :
+        t_gtide()
     {
     }
 
@@ -28,7 +29,7 @@ namespace gnut
     {
     }
 
-    t_gtriple t_gtide96::tide_searth(const t_gtime &epoch, t_gtriple &crd)
+    t_gtriple t_gtide96::tide_searth(const t_gtime& epoch, t_gtriple& crd)
     {
         _mutex.lock();
 
@@ -73,17 +74,16 @@ namespace gnut
         const double gms = 1.3271250e20;
         const double gmm = 4.9027890e12;
 
-        double facSun = gms / gmWGS *
-                        (rRec * rRec * rRec * rRec) / (rSun * rSun * rSun);
+        double facSun = gms / gmWGS * (rRec * rRec * rRec * rRec) / (rSun * rSun * rSun);
 
-        double facMoon = gmm / gmWGS *
-                         (rRec * rRec * rRec * rRec) / (rMoon * rMoon * rMoon);
+        double facMoon = gmm / gmWGS * (rRec * rRec * rRec * rRec) / (rMoon * rMoon * rMoon);
 
-        ColumnVector dX = facSun * (x2Sun * xSun + p2Sun * xyzUnit) +
-                          facMoon * (x2Moon * xMoon + p2Moon * xyzUnit);
+        ColumnVector dX = facSun * (x2Sun * xSun + p2Sun * xyzUnit) + facMoon * (x2Moon * xMoon + p2Moon * xyzUnit);
 
         for (int i = 0; i < 3; i++)
+        {
             dxyz[i] = dX(i + 1);
+        }
         _mutex.unlock();
         return dxyz;
     }
@@ -98,7 +98,7 @@ namespace gnut
         return dxyz;
     }
 
-    t_gtriple t_gtide96::load_ocean(const t_gtime &epoch, const string &site, const t_gtriple &xRec)
+    t_gtriple t_gtide96::load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec)
     {
         _mutex.lock();
 
@@ -107,8 +107,7 @@ namespace gnut
         t_gtriple dxyz(0.0, 0.0, 0.0);
         if (!_gotl || _gotl->data(otl, site) < 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "WARNING: Site " + site + " not found in ocean tide BLQ file!");
+            GREAT_DEBUG("WARNING: Site " + site + " not found in ocean tide BLQ file!");
             _mutex.unlock();
             return dxyz;
         }
@@ -149,9 +148,13 @@ namespace gnut
         {
             ang = 0.0;
             for (unsigned int j = 0; j < 5; j++)
+            {
                 ang += a[j] * args[i][j];
+            }
             for (unsigned int j = 0; j < 3; j++)
+            {
                 dp[j] += otl(j + 1, i + 1) * cos(ang - otl(j + 4, i + 1) * D2R);
+            }
         }
 
         t_gtriple dneu;
@@ -177,4 +180,4 @@ namespace gnut
         return dxyz;
     }
 
-} // namespace
+} // namespace gnut

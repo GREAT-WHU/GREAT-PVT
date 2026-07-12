@@ -39,39 +39,38 @@ namespace gnut
     };
 
     /**
-    *@brief Class for t_sinex derive from t_gcoder
-    */
+     *@brief Class for t_sinex derive from t_gcoder
+     */
     class LibGnut_LIBRARY_EXPORT t_sinex : public t_gcoder
     {
-
     public:
         /** @brief constructor set + version + sz + id. */
-        t_sinex(t_gsetbase *s, string version, int sz = DEFAULT_BUFFER_SIZE, string id = "sinex");
+        t_sinex(t_gsetbase* s, string version, int sz = DEFAULT_BUFFER_SIZE, string id = "sinex");
 
         /** @brief default destructor. */
-        virtual ~t_sinex(){};
+        virtual ~t_sinex() {};
 
         /** @brief decode head. */
-        virtual int decode_head(char *buff, int sz, vector<string> &errmsg);
+        virtual int decode_head(char* buff, int sz, vector<string>& errmsg);
 
         /**
-         * @brief 
-         * 
-         * @param buff 
-         * @param sz 
-         * @param cnt 
-         * @param errmsg 
-         * @return int 
+         * @brief
+         *
+         * @param buff
+         * @param sz
+         * @param cnt
+         * @param errmsg
+         * @return int
          */
-        virtual int decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg);
+        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg);
 
         /** @brief technique. */
         virtual void technique(char c);
 
         /**
-         * @brief 
-         * 
-         * @return char 
+         * @brief
+         *
+         * @return char
          */
         virtual char technique();
 
@@ -88,66 +87,66 @@ namespace gnut
 
         /**
          * @brief begin site
-         * 
-         * @param site 
-         * @return t_gtime 
+         *
+         * @param site
+         * @return t_gtime
          */
-        virtual t_gtime _site_beg(string site); 
+        virtual t_gtime _site_beg(string site);
 
         /**
          * @brief end site
-         * 
-         * @param site 
-         * @return t_gtime 
+         *
+         * @param site
+         * @return t_gtime
          */
-        virtual t_gtime _site_end(string site); 
+        virtual t_gtime _site_end(string site);
 
         /**
          * @brief get reciver
-         * 
-         * @param site 
-         * @return shared_ptr<t_grec> 
+         *
+         * @param site
+         * @return shared_ptr<t_grec>
          */
-        virtual shared_ptr<t_grec> _get_grec(string site); 
+        virtual shared_ptr<t_grec> _get_grec(string site);
 
         /**
          * @brief add data
-         * 
-         * @param id 
-         * @param pt_data 
+         *
+         * @param id
+         * @param pt_data
          */
-        virtual void _add_data(string id, t_gdata *pt_data); 
+        virtual void _add_data(string id, t_gdata* pt_data);
 
         /**
          * @brief decode head
-         * 
-         * @return int 
+         *
+         * @return int
          */
         virtual int _decode_vers();
 
         /**
          * @brief decode data
-         * 
-         * @return int 
+         *
+         * @return int
          */
         virtual int _decode_data();
 
         /**
          * @brief decode comm
-         * 
-         * @return int 
+         *
+         * @return int
          */
         virtual int _decode_comm();
 
         /**
          * @brief decode block
-         * 
-         * @return int 
+         *
+         * @return int
          */
-        virtual int _decode_block(); 
+        virtual int _decode_block();
 
         /** @brief complete metadata to object from _allobj. */
-        virtual void _complete_obj(shared_ptr<t_grec> obj, const t_gtime &epo);
+        virtual void _complete_obj(shared_ptr<t_grec> obj, const t_gtime& epo);
 
         t_snx_type _snx_type;    ///< TRO-SINEX TYPE
         char _technique;         ///< TECHNIQUE TYPE
@@ -166,13 +165,13 @@ namespace gnut
         vector<string> _comment; ///< vector of comments
 
         t_gpt _ggpt;          ///< t_gpt
-        t_gallprod *_pt_prod; ///< all prod
+        t_gallprod* _pt_prod; ///< all prod
 
         t_gtime _file_beg; ///< file first epoch
         t_gtime _file_end; ///< file last epoch
         t_gtime _file_run; ///< file created
 
-        t_gallobj *_allobj; ///< all obj
+        t_gallobj* _allobj; ///< all obj
         map<string, shared_ptr<t_gobj>> _mapobj;
         map<string, shared_ptr<t_gobj>>::const_iterator itOBJ;
 
@@ -190,6 +189,6 @@ namespace gnut
         void _set_rec_crd();                                        ///< set rec crd
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -37,37 +37,48 @@ namespace gnut
     /** @brief class for t_gprod derive from t_gdata. */
     class LibGnut_LIBRARY_EXPORT t_gprod : public t_gdata
     {
-
     public:
         /** @brief constructor 1. */
-        explicit t_gprod(const t_gtime &t, shared_ptr<t_gobj> pt = nullobj);
+        explicit t_gprod(const t_gtime& t, shared_ptr<t_gobj> pt = nullobj);
 
-        t_gprod(t_spdlog spdlog, const t_gtime &t, shared_ptr<t_gobj> pt = nullobj);
         /** @brief default destructor. */
         virtual ~t_gprod();
 
         typedef map<string, pair<double, double>> t_map_prod; ///< map of prod
 
         /** @brief get/set epo. */
-        t_gtime epoch() const { return _epo; }
+        t_gtime epoch() const
+        {
+            return _epo;
+        }
 
         /** @brief get/set obj. */
         string obj_id() const
         {
             if (_obj)
+            {
                 return _obj->id();
+            }
             else
+            {
                 return "";
+            }
         }
 
         /** @brief get/set val. */
-        int set_val(const string &str, const double &val, const double &rms = 0.0);
+        int set_val(const string& str, const double& val, const double& rms = 0.0);
 
         /** @brief get/set nSat. */
-        void nSat(const int &n) { _nSat = n; }
+        void nSat(const int& n)
+        {
+            _nSat = n;
+        }
 
         /** @brief get/set nSat_excl. */
-        void nSat_excl(const int &n) { _nSat_excl = n; }
+        void nSat_excl(const int& n)
+        {
+            _nSat_excl = n;
+        }
 
     protected:
         t_gtime _epo;                      ///< epo
@@ -81,6 +92,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

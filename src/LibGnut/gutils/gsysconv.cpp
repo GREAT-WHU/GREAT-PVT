@@ -20,7 +20,7 @@ using namespace std;
 namespace gnut
 {
 
-    int ell2xyz(const double *Ell, double *XYZ, bool degrees)
+    int ell2xyz(const double* Ell, double* XYZ, bool degrees)
     {
         const double bell = Aell * (1.0 - 1.0 / Finv);
         const double e2 = (Aell * Aell - bell * bell) / (Aell * Aell);
@@ -46,7 +46,7 @@ namespace gnut
         return 1;
     }
 
-    int xyz2ell(const double *XYZ, double *Ell, bool degrees)
+    int xyz2ell(const double* XYZ, double* Ell, bool degrees)
     {
         const double bell = Aell * (1.0 - 1.0 / Finv);
         const double e2 = (Aell * Aell - bell * bell) / (Aell * Aell);
@@ -86,10 +86,11 @@ namespace gnut
 
             if (fabs(phiOld - Ell[0]) <= 1.0e-11 && fabs(hOld - Ell[2]) <= 1.0e-5)
             {
-
                 // always convert longitude to 0-360
                 if (Ell[1] < 0.0)
+                {
                     Ell[1] += 2 * G_PI;
+                }
 
                 if (degrees)
                 {
@@ -104,7 +105,7 @@ namespace gnut
         return 1;
     }
 
-    int xyz2neu(const double *XYZ, const double *XYZ_Ref, double *neu)
+    int xyz2neu(const double* XYZ, const double* XYZ_Ref, double* neu)
     {
         double ele[3];
         xyz2ell(XYZ_Ref, ele, false);
@@ -127,7 +128,7 @@ namespace gnut
         return 1;
     }
 
-    int neu2xyz(const double *Ell, const double *neu, double *xyz)
+    int neu2xyz(const double* Ell, const double* neu, double* xyz)
     {
         double sinPhi = sin(Ell[0]);
         double cosPhi = cos(Ell[0]);
@@ -143,7 +144,7 @@ namespace gnut
         return 1;
     }
 
-    int rao2xyz_rot(const ColumnVector &pos, const ColumnVector &vel, Matrix &R)
+    int rao2xyz_rot(const ColumnVector& pos, const ColumnVector& vel, Matrix& R)
     {
         ColumnVector along = vel / vel.norm_Frobenius();
         ColumnVector cross = crossproduct(pos, vel);
@@ -157,8 +158,7 @@ namespace gnut
         return 1;
     }
 
-    int rao2xyz(const ColumnVector &pos, const ColumnVector &vel,
-                const ColumnVector &rao, ColumnVector &xyz)
+    int rao2xyz(const ColumnVector& pos, const ColumnVector& vel, const ColumnVector& rao, ColumnVector& xyz)
     {
         ColumnVector along = vel / vel.norm_Frobenius();
         ColumnVector cross = crossproduct(pos, vel);
@@ -177,11 +177,9 @@ namespace gnut
         rao2xyz_rot(pos, vel, R);
 
         return 1;
-
     }
 
-    int xyz2rao(const ColumnVector &pos, const ColumnVector &vel,
-                ColumnVector &xyz, ColumnVector &rao)
+    int xyz2rao(const ColumnVector& pos, const ColumnVector& vel, ColumnVector& xyz, ColumnVector& rao)
     {
         Matrix R(3, 3);
         rao2xyz_rot(pos, vel, R);
@@ -191,7 +189,7 @@ namespace gnut
         return 1;
     }
 
-    int ell2xyz(const t_gtriple &ell, t_gtriple &xyz, bool degrees)
+    int ell2xyz(const t_gtriple& ell, t_gtriple& xyz, bool degrees)
     {
         double ELL[3] = {ell[0], ell[1], ell[2]};
         double XYZ[3] = {0.0, 0.0, 0.0};
@@ -205,10 +203,12 @@ namespace gnut
             return 1;
         }
         else
+        {
             return -1;
+        }
     }
 
-    int xyz2ell(const t_gtriple &crd, t_gtriple &ell, bool degrees)
+    int xyz2ell(const t_gtriple& crd, t_gtriple& ell, bool degrees)
     {
         const double bell = Aell * (1.0 - 1.0 / Finv);
         const double e2 = (Aell * Aell - bell * bell) / (Aell * Aell);
@@ -246,7 +246,9 @@ namespace gnut
             if (fabs(phiOld - ell[0]) <= 1.0e-11 && fabs(hOld - ell[2]) <= 1.0e-5)
             {
                 if (ell[1] < 0.0)
+                {
                     ell[1] += 2 * G_PI;
+                }
 
                 if (degrees)
                 {
@@ -261,7 +263,7 @@ namespace gnut
         return 1;
     }
 
-    int xyz2ell_vlbi(const t_gtriple &crd, t_gtriple &ell)
+    int xyz2ell_vlbi(const t_gtriple& crd, t_gtriple& ell)
     {
         double a = 6378136.6;     // m      Equatorial radius of the Earth
         double f = 1 / 298.25642; // Flattening factor of the Earth
@@ -281,7 +283,7 @@ namespace gnut
         return 0;
     }
 
-    void xyz2neu(t_gtriple &ell, t_gtriple &xyz, t_gtriple &neu)
+    void xyz2neu(t_gtriple& ell, t_gtriple& xyz, t_gtriple& neu)
     {
         double sinPhi = sin(ell[0]);
         double cosPhi = cos(ell[0]);
@@ -295,7 +297,7 @@ namespace gnut
         neu.set(2, +cosPhi * cosLam * xyz[0] + cosPhi * sinLam * xyz[1] + sinPhi * xyz[2]);
     }
 
-    void neu2xyz(t_gtriple &ell, t_gtriple &neu, t_gtriple &xyz)
+    void neu2xyz(t_gtriple& ell, t_gtriple& neu, t_gtriple& xyz)
     {
         double sinPhi = sin(ell[0]);
         double cosPhi = cos(ell[0]);
@@ -309,9 +311,8 @@ namespace gnut
         xyz.set(2, +cosPhi * neu[0] + sinPhi * neu[2]);
     }
 
-    int xyz2neu(t_gtriple &xyz, SymmetricMatrix &Q_xyz, SymmetricMatrix &Q_neu)
+    int xyz2neu(t_gtriple& xyz, SymmetricMatrix& Q_xyz, SymmetricMatrix& Q_neu)
     {
-
         t_gtriple ele(0, 0, 0);
         xyz2ell(xyz, ele, false);
 
@@ -343,7 +344,7 @@ namespace gnut
         return 1;
     }
 
-    int ell2ipp(t_gsatdata &satdata, t_gtriple &ell_site, t_gtriple &ell_ipp, bool GPStkflag)
+    int ell2ipp(t_gsatdata& satdata, t_gtriple& ell_site, t_gtriple& ell_ipp, bool GPStkflag)
     {
         double radius = R_SPHERE;
         if (!GPStkflag)
@@ -352,12 +353,18 @@ namespace gnut
             double eps = ippE - satdata.ele();
             double ipp_lat = ell_site[0] + eps * cos(satdata.azi());
             if (fabs(ipp_lat * R2D) > 80)
+            {
                 return -1;
+            }
             double ipp_lon = ell_site[1] + eps * sin(satdata.azi()) / cos(ipp_lat);
             if (ipp_lon < 0)
+            {
                 ipp_lon += 2.0 * G_PI;
+            }
             if (ipp_lon > 2.0 * G_PI)
+            {
                 ipp_lon -= 2.0 * G_PI;
+            }
 
             ell_ipp[0] = ipp_lat;
             ell_ipp[1] = ipp_lon;
@@ -379,9 +386,13 @@ namespace gnut
             }
 
             if (ell_ipp_g[1] > G_PI)
+            {
                 ell_ipp_g[1] = ell_ipp_g[1] - 2 * G_PI;
+            }
             else if (ell_ipp_g[1] < -G_PI)
+            {
                 ell_ipp_g[1] = ell_ipp_g[1] + 2 * G_PI;
+            }
             ell_ipp = ell_ipp_g;
         }
 
@@ -395,27 +406,27 @@ namespace gnut
         double sa = sin(angle);
         switch (type)
         {
-        case 1:
-            R(1, 1) = 1;
-            R(2, 2) = ca;
-            R(2, 3) = sa;
-            R(3, 2) = -sa;
-            R(3, 3) = ca;
-            break;
-        case 2:
-            R(1, 1) = ca;
-            R(1, 3) = -sa;
-            R(2, 2) = 1;
-            R(3, 1) = sa;
-            R(3, 3) = ca;
-            break;
-        case 3:
-            R(1, 1) = ca;
-            R(1, 2) = sa;
-            R(2, 1) = -sa;
-            R(2, 2) = ca;
-            R(3, 3) = 1;
-            break;
+            case 1:
+                R(1, 1) = 1;
+                R(2, 2) = ca;
+                R(2, 3) = sa;
+                R(3, 2) = -sa;
+                R(3, 3) = ca;
+                break;
+            case 2:
+                R(1, 1) = ca;
+                R(1, 3) = -sa;
+                R(2, 2) = 1;
+                R(3, 1) = sa;
+                R(3, 3) = ca;
+                break;
+            case 3:
+                R(1, 1) = ca;
+                R(1, 2) = sa;
+                R(2, 1) = -sa;
+                R(2, 2) = ca;
+                R(3, 3) = 1;
+                break;
         }
         return R;
     }
@@ -427,29 +438,29 @@ namespace gnut
         double sa = sin(angle);
         switch (type)
         {
-        case 1:
-            R(1, 1) = 0.0;
-            R(2, 2) = -sa;
-            R(2, 3) = ca;
-            R(3, 2) = -ca;
-            R(3, 3) = -sa;
-            break;
-        case 2:
-            R(1, 1) = -sa;
-            R(1, 3) = -ca;
-            R(2, 2) = 0.0;
-            R(3, 1) = ca;
-            R(3, 3) = -sa;
-            break;
-        case 3:
-            R(1, 1) = -sa;
-            R(1, 2) = ca;
-            R(2, 1) = -ca;
-            R(2, 2) = -sa;
-            R(3, 3) = 0.0;
-            break;
+            case 1:
+                R(1, 1) = 0.0;
+                R(2, 2) = -sa;
+                R(2, 3) = ca;
+                R(3, 2) = -ca;
+                R(3, 3) = -sa;
+                break;
+            case 2:
+                R(1, 1) = -sa;
+                R(1, 3) = -ca;
+                R(2, 2) = 0.0;
+                R(3, 1) = ca;
+                R(3, 3) = -sa;
+                break;
+            case 3:
+                R(1, 1) = -sa;
+                R(1, 2) = ca;
+                R(2, 1) = -ca;
+                R(2, 2) = -sa;
+                R(3, 3) = 0.0;
+                break;
         }
         return R;
     }
 
-} // namespace
+} // namespace gnut

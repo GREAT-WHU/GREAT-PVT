@@ -40,7 +40,6 @@ namespace gnut
     /** @brief class for fstream. */
     class LibGnut_LIBRARY_EXPORT t_giof : public fstream
     {
-
     public:
         /** @brief constructor 1. */
         explicit t_giof(string mask = "");
@@ -50,30 +49,51 @@ namespace gnut
 
         /** @brief set/get file mask. */
         int mask(string mask);
-        string mask() const { return _mask; }
+        string mask() const
+        {
+            return _mask;
+        }
 
         /** @brief get last filename. */
-        string name() const { return _name; }
+        string name() const
+        {
+            return _name;
+        }
 
         /** @brief get irc status. */
-        int irc() const { return _irc; };
+        int irc() const
+        {
+            return _irc;
+        };
 
         /** @brief set/get loop read. */
-        void loop(bool l) { _loop = l; }
-        bool loop() const { return _loop; }
+        void loop(bool l)
+        {
+            _loop = l;
+        }
+        bool loop() const
+        {
+            return _loop;
+        }
 
         /** @brief set/get time offset [min] for the file name. */
-        void toff(int i) { _toff = i; }
-        int toff() const { return _toff; }
+        void toff(int i)
+        {
+            _toff = i;
+        }
+        int toff() const
+        {
+            return _toff;
+        }
 
         /** @brief writting. */
-        virtual int write(const char *buff, int size);
+        virtual int write(const char* buff, int size);
 
         /** @brief reading. */
-        int read(char *buff, int size);
+        int read(char* buff, int size);
 
         /** @brief append mode [false/true]. */
-        void append(const bool &b = true);
+        void append(const bool& b = true);
 
         /** @brief set/get time system for replacement. */
         void tsys(t_gtime::t_tsys);
@@ -95,6 +115,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

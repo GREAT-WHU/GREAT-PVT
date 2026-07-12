@@ -21,13 +21,14 @@
 
 #ifndef GNSS_H
 #define GNSS_H
+
 #include <map>
 #include <set>
 #include <vector>
 #include <string>
 
 #include "gutils/gtriple.h"
-#include "gutils/gcommon.h" 
+#include "gutils/gcommon.h"
 #include "gexport/ExportLibGnut.h"
 using namespace std;
 
@@ -166,13 +167,12 @@ namespace gnut
         ATTR_Y = 14,
         ATTR_Z = 15,
         ATTR_NULL = 16, // " " 2CHAR code
-        ATTR = 999 // ""  UNKNOWN
+        ATTR = 999      // ""  UNKNOWN
     };
 
     /** @brief GNSS observations. */
     enum GOBS
     {
-
         // psedorange [in meters] (RINEX 3.x)
         C1A = 0,
         C1B = 1,
@@ -498,7 +498,7 @@ namespace gnut
     LibGnut_LIBRARY_EXPORT GOBSBAND str2gobsband(string s); ///< get GOBSBAND enum from gobs string
     LibGnut_LIBRARY_EXPORT GOBSTYPE str2gobstype(string s); ///< get GOBSTYPE enum from gobs string
     LibGnut_LIBRARY_EXPORT GNAVTYPE str2gnavtype(string s); ///< get GNAVTYPE enum from gobs string
-    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2sysfreq(string s);  ///< get FREQ_SEQ enum from string 
+    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2sysfreq(string s);  ///< get FREQ_SEQ enum from string
     LibGnut_LIBRARY_EXPORT FREQ_SEQ str2gnssfreq(string s); ///< get FREQ_SEQ enum from gobs string
 
     LibGnut_LIBRARY_EXPORT GOBSATTR char2gobsattr(char c); ///< get GOBSATTR enum from char
@@ -513,34 +513,35 @@ namespace gnut
     LibGnut_LIBRARY_EXPORT string gobstype2str(GOBSTYPE e); ///< get string enum from GOBSTYPE
     LibGnut_LIBRARY_EXPORT string gnavtype2str(GNAVTYPE e); ///< get string enum from GNAVTYPE
 
-    LibGnut_LIBRARY_EXPORT string gobs2str(GOBS);                             ///< get string from GOBS enum
-    LibGnut_LIBRARY_EXPORT GOBS str2gobs(string s);                           ///< get GOBS enum from string
-    LibGnut_LIBRARY_EXPORT GOBS tba2gobs(GOBSTYPE t, GOBSBAND b, GOBSATTR a); ///< get GOBS from type, band, and attribute
-    LibGnut_LIBRARY_EXPORT string gfreqseq2str(FREQ_SEQ f);                   ///< convert FREQ_SEQ to string
+    LibGnut_LIBRARY_EXPORT string gobs2str(GOBS);   ///< get string from GOBS enum
+    LibGnut_LIBRARY_EXPORT GOBS str2gobs(string s); ///< get GOBS enum from string
+    LibGnut_LIBRARY_EXPORT GOBS tba2gobs(GOBSTYPE t, GOBSBAND b,
+                                         GOBSATTR a);       ///< get GOBS from type, band, and attribute
+    LibGnut_LIBRARY_EXPORT string gfreqseq2str(FREQ_SEQ f); ///< convert FREQ_SEQ to string
 
     LibGnut_LIBRARY_EXPORT int gobs2band(GOBS o); ///< get band from GOBS enum
 
-    LibGnut_LIBRARY_EXPORT GOBS pha2snr(GOBS o);        ///  get GOBS enum (pha->snr)
-    LibGnut_LIBRARY_EXPORT GOBS pl2snr(GOBS o);         ///  get GOBS enum (pha or code->snr) add wh
-    LibGnut_LIBRARY_EXPORT bool gobs_code(GOBS o);      ///< get true for code obs
-    LibGnut_LIBRARY_EXPORT bool gobs_phase(GOBS o);     ///< get true for phase obs
-    LibGnut_LIBRARY_EXPORT bool gobs_doppler(GOBS o);   ///< get true for doppler obs
-    LibGnut_LIBRARY_EXPORT bool gobs_snr(GOBS o);       ///< get true for snr obs
+    LibGnut_LIBRARY_EXPORT GOBS pha2snr(GOBS o);      ///  get GOBS enum (pha->snr)
+    LibGnut_LIBRARY_EXPORT GOBS pl2snr(GOBS o);       ///  get GOBS enum (pha or code->snr) add wh
+    LibGnut_LIBRARY_EXPORT bool gobs_code(GOBS o);    ///< get true for code obs
+    LibGnut_LIBRARY_EXPORT bool gobs_phase(GOBS o);   ///< get true for phase obs
+    LibGnut_LIBRARY_EXPORT bool gobs_doppler(GOBS o); ///< get true for doppler obs
+    LibGnut_LIBRARY_EXPORT bool gobs_snr(GOBS o);     ///< get true for snr obs
 
-    LibGnut_LIBRARY_EXPORT t_map_sats GNSS_SATS();      ///< static map of default GNSS satellites
-    LibGnut_LIBRARY_EXPORT t_map_gnav GNSS_GNAV();      ///< static map of default GNSS navigation types
+    LibGnut_LIBRARY_EXPORT t_map_sats GNSS_SATS(); ///< static map of default GNSS satellites
+    LibGnut_LIBRARY_EXPORT t_map_gnav GNSS_GNAV(); ///< static map of default GNSS navigation types
 
     LibGnut_LIBRARY_EXPORT t_map_gnss GNSS_DATA_PRIORITY(); ///< static map of default GNSS data types/bands/attrs priorities
-    LibGnut_LIBRARY_EXPORT t_map_band GNSS_BAND_SORTED();                             ///< static map of sorted GNSS band w.r.t. wavelength
+    LibGnut_LIBRARY_EXPORT t_map_band GNSS_BAND_SORTED();   ///< static map of sorted GNSS band w.r.t. wavelength
 
-    LibGnut_LIBRARY_EXPORT vector<GOBSBAND> sort_band(GSYS gs, set<GOBSBAND> &bands); // sort set of bands w.r.t. wavelength
+    LibGnut_LIBRARY_EXPORT vector<GOBSBAND> sort_band(GSYS gs,
+                                                      set<GOBSBAND>& bands); // sort set of bands w.r.t. wavelength
 
     LibGnut_LIBRARY_EXPORT t_map_offs GNSS_PCO_OFFSETS(); ///< static map of default GNSS PCO offsets
-    LibGnut_LIBRARY_EXPORT set<GSYS> GNSS_SUPPORTED(); ///< supported GNSS
+    LibGnut_LIBRARY_EXPORT set<GSYS> GNSS_SUPPORTED();    ///< supported GNSS
 
     /** @brief GNSS frequency. */
-    const t_map_freq GNSS_FREQ_PRIORITY = 
-    {
+    const t_map_freq GNSS_FREQ_PRIORITY = {
         {GPS, {LAST_GFRQ, G01, G02, G05}},
         {GLO, {LAST_GFRQ, R01, R02, R03_CDMA, R05_CDMA}},
         {GAL, {LAST_GFRQ, E01, E05, E07, E08, E06}},
@@ -551,8 +552,7 @@ namespace gnut
     }; // static map of default GNSS freq priorities
 
     /** @brief GNSS band. */
-    const t_map_band GNSS_BAND_PRIORITY = 
-    {
+    const t_map_band GNSS_BAND_PRIORITY = {
         {GPS, {BAND, BAND_1, BAND_2, BAND_5}},
         {GLO, {BAND, BAND_1, BAND_2, BAND_3, BAND_5}},
         {GAL, {BAND, BAND_1, BAND_5, BAND_7, BAND_8, BAND_6}},
@@ -562,6 +562,6 @@ namespace gnut
         {GNS, {}},
     }; // static map of default GNSS band priorities
 
-} // namespace
+} // namespace gnut
 
 #endif // GOBS_H

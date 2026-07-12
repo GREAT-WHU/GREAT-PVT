@@ -4,7 +4,7 @@
     History
     2012-06-06  JD: created
     2013-06-18  JD: joined gpppfilter & glsq
-  
+
   @endverbatim
 * Copyright (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com).
 *           (c) 2011-2017 Geodetic Observatory Pecny, http://www.pecny.cz (gnss@pecny.cz)
@@ -50,21 +50,20 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gppp(string mark, t_gsetbase *set);
+        t_gppp(string mark, t_gsetbase* set);
 
-        t_gppp(string mark, t_gsetbase *set, t_spdlog spdlog);
         /** @brief default destructor. */
         virtual ~t_gppp();
 
-        /** @brief set OTL. 
-        * @param[in] gotl ocean tide data
-        */
-        virtual void setOTL(t_gallotl *gotl);
+        /** @brief set OTL.
+         * @param[in] gotl ocean tide data
+         */
+        virtual void setOTL(t_gallotl* gotl);
 
-        /** @brief set OBJ. 
-        * @param[in] gobj object data
-        */
-        virtual void setOBJ(t_gallobj *gobj);
+        /** @brief set OBJ.
+         * @param[in] gobj object data
+         */
+        virtual void setOBJ(t_gallobj* gobj);
 
         /** @brief get isRunning. */
         virtual bool isRunning();
@@ -74,10 +73,10 @@ namespace gnut
         virtual int _get_settings();
 
         /** @brief Print results. */
-        virtual void _prt_results(t_giof *giof, const t_gallrslt &rslt);
+        virtual void _prt_results(t_giof* giof, const t_gallrslt& rslt);
 
-        t_gallotl *_gotl; ///< Ocean loading date.
-        t_gtide *_tides;  ///< Tides.
+        t_gallotl* _gotl; ///< Ocean loading date.
+        t_gtide* _tides;  ///< Tides.
 
         bool _running;    ///< Running status.
         double _sigAmbig; ///< Ambiguity sigma (constraints).
@@ -87,6 +86,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
-#endif //GPPP_H
+#endif // GPPP_H

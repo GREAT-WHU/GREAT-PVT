@@ -16,9 +16,8 @@
 namespace gnut
 {
 
-    int gbancroft(const Matrix &BBpass, ColumnVector &pos)
+    int gbancroft(const Matrix& BBpass, ColumnVector& pos)
     {
-
         if (pos.Nrows() != 4)
         {
             pos.ReSize(4);
@@ -37,11 +36,11 @@ namespace gnut
                 if (iter > 1)
                 {
                     double zz = BB(ii, 3);
-                    double rho2 = (xx - pos(1)) * (xx - pos(1)) +
-                                  (yy - pos(2)) * (yy - pos(2)) +
-                                  (zz - pos(3)) * (zz - pos(3));
+                    double rho2 = (xx - pos(1)) * (xx - pos(1)) + (yy - pos(2)) * (yy - pos(2)) + (zz - pos(3)) * (zz - pos(3));
                     if (rho2 < 0)
+                    {
                         return -1;
+                    }
 
                     double rho = sqrt(rho2);
 
@@ -81,7 +80,9 @@ namespace gnut
 
             double root2 = bb * bb - aa * cc;
             if (root2 < 0)
+            {
                 return -1;
+            }
             double root = sqrt(root2);
 
             Matrix hlpPos(4, 2);
@@ -96,11 +97,11 @@ namespace gnut
                             (BB(1, 2) - hlpPos(2, pp)) * (BB(1, 2) - hlpPos(2, pp)) +
                             (BB(1, 3) - hlpPos(3, pp)) * (BB(1, 3) - hlpPos(3, pp));
                 if (tm < 0)
+                {
                     return -1;
+                }
 
-                omc(pp) = BB(1, 4) -
-                          sqrt(tm) -
-                          hlpPos(4, pp);
+                omc(pp) = BB(1, 4) - sqrt(tm) - hlpPos(4, pp);
             }
             if (fabs(omc(1)) > fabs(omc(2)))
             {
@@ -114,9 +115,9 @@ namespace gnut
         return 0;
     }
 
-    double lorentz(const ColumnVector &aa, const ColumnVector &bb)
+    double lorentz(const ColumnVector& aa, const ColumnVector& bb)
     {
         return aa(1) * bb(1) + aa(2) * bb(2) + aa(3) * bb(3) - aa(4) * bb(4);
     }
 
-} // namespace
+} // namespace gnut

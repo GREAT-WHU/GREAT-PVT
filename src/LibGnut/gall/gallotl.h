@@ -39,38 +39,37 @@ namespace gnut
 
         /**
          * @brief Construct a new t gallotl object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gallotl(t_spdlog spdlog);
 
         /** @brief default destructor. */
         ~t_gallotl();
 
         /** @brief get data. */
-        int data(Matrix &data, const string &site);
+        int data(Matrix& data, const string& site);
 
         /**
-         * @brief 
-         * 
-         * @param data 
-         * @param lon 
-         * @param lat 
-         * @return int 
+         * @brief
+         *
+         * @param data
+         * @param lon
+         * @param lat
+         * @return int
          */
-        int data(Matrix &data, double lon, double lat);
+        int data(Matrix& data, double lon, double lat);
 
         /**
-         * @brief 
-         * 
-         * @param otl 
+         * @brief
+         *
+         * @param otl
          */
-        void add(t_gotl &otl);
+        void add(t_gotl& otl);
 
     private:
         map<string, t_gotl> _mapotl;
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

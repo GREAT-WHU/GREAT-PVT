@@ -50,20 +50,18 @@ namespace gnut
     /** @brief class for t_gpt. */
     class LibGnut_LIBRARY_EXPORT t_gpt
     {
-
     public:
         /** @brief default constructor. */
-        t_gpt(){};
+        t_gpt() {};
 
         /** @brief default destructor. */
-        ~t_gpt(){};
+        ~t_gpt() {};
 
         /**
-        *@brief       GPT empirical model v1
-        * dlat, dlon --> RADIANS !
-        */
-        int gpt_v1(double dmjd, double dlat, double dlon, double dhgt,
-                   double &pres, double &temp, double &undu);
+         *@brief       GPT empirical model v1
+         * dlat, dlon --> RADIANS !
+         */
+        int gpt_v1(double dmjd, double dlat, double dlon, double dhgt, double& pres, double& temp, double& undu);
 
     protected:
         static double a_geoid[55];
@@ -79,6 +77,6 @@ namespace gnut
 
     private:
     };
-}
+} // namespace gnut
 
 #endif

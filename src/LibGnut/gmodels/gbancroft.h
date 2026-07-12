@@ -31,10 +31,10 @@
 namespace gnut
 {
 
-    LibGnut_LIBRARY_EXPORT int gbancroft(const Matrix &BBpass, ColumnVector &pos);
+    LibGnut_LIBRARY_EXPORT int gbancroft(const Matrix& BBpass, ColumnVector& pos);
 
-    LibGnut_LIBRARY_EXPORT inline double lorentz(const ColumnVector &aa, const ColumnVector &bb);
+    LibGnut_LIBRARY_EXPORT inline double lorentz(const ColumnVector& aa, const ColumnVector& bb);
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -51,7 +51,7 @@ namespace gnut
         void help() override;
 
         /**
-         * @brief get sats of all systems 
+         * @brief get sats of all systems
          * @return set<string> : sats of all systems
          */
         set<string> sat();
@@ -116,10 +116,10 @@ namespace gnut
         map<FREQ_SEQ, GOBSBAND> band_index(GSYS gsys);
 
         /**
-        * @brief get the freq order
-        * @param[in] gsys system
-        * @return map<FREQ_SEQ, GOBSBAND> : freq index
-        */
+         * @brief get the freq order
+         * @param[in] gsys system
+         * @return map<FREQ_SEQ, GOBSBAND> : freq index
+         */
         map<GOBSBAND, FREQ_SEQ> freq_index(GSYS gsys);
 
         /**
@@ -191,7 +191,7 @@ namespace gnut
          * @param[in] gsys system
          * @return vector<GOBSBAND> : obs band of system:gsys form XML
          */
-        vector<FREQ_SEQ> _sysfreq(GSYS gsys); //add by xiongyun
+        vector<FREQ_SEQ> _sysfreq(GSYS gsys); // add by xiongyun
 
         /**
          * @brief get the freq used in proc
@@ -266,10 +266,9 @@ namespace gnut
         map<GSYS, double> _sigma_def_doppler;  ///< default set for doppler
         map<GSYS, double> _maxres_def_doppler; ///< default set for doppler
 
-
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

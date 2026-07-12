@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "gset/gsetbase.h"
-#include "gio/grtlog.h"
+#include "gio/great_log.h"
 #include "gutils/gsys.h"
 #include "gutils/gtime.h"
 #include "gutils/gtypeconv.h"
@@ -49,7 +49,7 @@ namespace gnut
 
         /**@brief destructor */
         ~t_gsetgen();
-        
+
         /**@brief settings check */
         void check() override;
 
@@ -77,7 +77,7 @@ namespace gnut
         /**
          * @brief get the default sampling time of process
          * @return double : the default sampling time of process
-         *  @retval DEF_SAMPLING default sampling 
+         *  @retval DEF_SAMPLING default sampling
          */
         double sampling_default() const;
 
@@ -85,13 +85,19 @@ namespace gnut
          * @brief get the decimals scale of sampling time in process
          * @return int : the decimals scale of sampling time in process
          */
-        int sampling_scalefc() { return (int)pow(10, _dec); }
+        int sampling_scalefc()
+        {
+            return (int)pow(10, _dec);
+        }
 
         /**
          * @brief get the decimals for sampling interval (for high-rate) in process
          * @return int : decimals for sampling interval (for high-rate) in process
          */
-        const int &sampling_decimal() { return _dec; }
+        const int& sampling_decimal()
+        {
+            return _dec;
+        }
 
         /**
          * @brief get the List of system names
@@ -121,9 +127,9 @@ namespace gnut
         virtual string estimator();
 
         /**
-        * @brief add for remove unused satellites
-        * @return set<string> : satellites which will be removed
-        */
+         * @brief add for remove unused satellites
+         * @return set<string> : satellites which will be removed
+         */
         virtual set<string> sat_rm();
         virtual void sat_rm(string str);
 
@@ -135,6 +141,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -20,8 +20,6 @@
 #include "gset/gsetproc.h"
 #include "gutils/gmutex.h"
 
-
-
 using namespace std;
 using namespace pugi;
 
@@ -30,8 +28,8 @@ using namespace pugi;
 namespace gnut
 {
 
-    t_gsetproc::t_gsetproc()
-        : t_gsetbase()
+    t_gsetproc::t_gsetproc() :
+        t_gsetbase()
     {
         _set.insert(XMLKEY_PROC);
         _phase = true;
@@ -66,7 +64,7 @@ namespace gnut
         _frequency = 2;
         _sd_sat = false;
         _basepos = BASEPOS::SPP;
-        _minsat = static_cast<size_t>(6); 
+        _minsat = static_cast<size_t>(6);
 
         _meanpolemodel = modeofmeanpole::cubic;
     }
@@ -82,7 +80,7 @@ namespace gnut
         return TM;
     }
 
-    modeofmeanpole t_gsetproc::str2meanpolemodel(const string &tm)
+    modeofmeanpole t_gsetproc::str2meanpolemodel(const string& tm)
     {
         if (tm == "linear" || tm == "LINEAR")
         {
@@ -106,7 +104,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = (tmp == "FALSE" ? false : true); 
+        bool tmp_bool = (tmp == "FALSE" ? false : true);
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -117,7 +115,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("iono");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = tmp == "FALSE" ? false : true; 
+        bool tmp_bool = tmp == "FALSE" ? false : true;
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -128,7 +126,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_slant");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = tmp == "TRUE" ? true : false; 
+        bool tmp_bool = tmp == "TRUE" ? true : false;
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -139,7 +137,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("gradient");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = (tmp == "TRUE" ? true : false); 
+        bool tmp_bool = (tmp == "TRUE" ? true : false);
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -150,7 +148,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("phase");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = (tmp == "TRUE" ? true : false); 
+        bool tmp_bool = (tmp == "TRUE" ? true : false);
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -161,7 +159,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("doppler");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = (tmp == "TRUE" ? true : false); 
+        bool tmp_bool = (tmp == "TRUE" ? true : false);
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -172,7 +170,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("pos_kin");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = (tmp == "TRUE" ? true : false); 
+        bool tmp_bool = (tmp == "TRUE" ? true : false);
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -183,17 +181,21 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("basepos");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        BASEPOS type = str2basepos(tmp); 
+        BASEPOS type = str2basepos(tmp);
         _gmutex.unlock();
         return type;
     }
 
-    BASEPOS t_gsetproc::str2basepos(const string &str)
+    BASEPOS t_gsetproc::str2basepos(const string& str)
     {
         if (str == "CFILE")
+        {
             return BASEPOS::CFILE;
+        }
         else
-            return BASEPOS::SPP; 
+        {
+            return BASEPOS::SPP;
+        }
     }
 
     double t_gsetproc::sig_init_ztd()
@@ -203,9 +205,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_ztd; 
+        {
+            tmp_double = _sig_init_ztd;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -218,9 +224,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_vion; 
+        {
+            tmp_double = _sig_init_vion;
+        }
 
         _gmutex.unlock();
         return tmp_double;
@@ -234,9 +244,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_grd; 
+        {
+            tmp_double = _sig_init_grd;
+        }
 
         _gmutex.unlock();
         return tmp_double;
@@ -249,9 +263,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_crd; 
+        {
+            tmp_double = _sig_init_crd;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -264,9 +282,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_vel; 
+        {
+            tmp_double = _sig_init_vel;
+        }
 
         _gmutex.unlock();
         return tmp_double;
@@ -279,9 +301,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_amb; 
+        {
+            tmp_double = _sig_init_amb;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -293,9 +319,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_glo; 
+        {
+            tmp_double = _sig_init_glo;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -307,9 +337,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_gal; 
+        {
+            tmp_double = _sig_init_gal;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -321,9 +355,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_bds; 
+        {
+            tmp_double = _sig_init_bds;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -335,9 +373,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _sig_init_qzs; 
+        {
+            tmp_double = _sig_init_qzs;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -349,9 +391,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _minimum_elev; 
+        {
+            tmp_double = _minimum_elev;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -363,9 +409,13 @@ namespace gnut
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
+        {
             tmp_double = std::stod(tmp);
+        }
         else
-            tmp_double = _max_res_norm; 
+        {
+            tmp_double = _max_res_norm;
+        }
         _gmutex.unlock();
         return tmp_double;
     }
@@ -377,9 +427,13 @@ namespace gnut
         str_erase(tmp);
         int tmp_int;
         if (tmp != "")
+        {
             tmp_int = std::stoi(tmp);
+        }
         else
-            tmp_int = _minsat; 
+        {
+            tmp_int = _minsat;
+        }
         _gmutex.unlock();
         return tmp_int;
     }
@@ -402,10 +456,14 @@ namespace gnut
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
         if (tmp == "default")
+        {
             return SLIPMODEL::DEF_DETECT_MODEL;
+        }
         else
-            return SLIPMODEL::DEF_DETECT_MODEL;  
-    } 
+        {
+            return SLIPMODEL::DEF_DETECT_MODEL;
+        }
+    }
 
     IONMODEL t_gsetproc::ion_model()
     {
@@ -415,11 +473,17 @@ namespace gnut
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
         if (tmp == "SION")
+        {
             return IONMODEL::SION;
+        }
         else if (tmp == "VION")
+        {
             return IONMODEL::VION;
+        }
         else
-            return IONMODEL::DEF_ION; 
+        {
+            return IONMODEL::DEF_ION;
+        }
     }
 
     TROPMODEL t_gsetproc::tropo_model()
@@ -435,7 +499,7 @@ namespace gnut
             xml_node node = _default_node(parent, XMLKEY_PROC);
             tmp = tropmodel2str(_tropo_model);
             _default_node(node, "tropo_model", tmp.c_str());
-            TM = _tropo_model; 
+            TM = _tropo_model;
         }
         _gmutex.unlock();
         return TM;
@@ -448,7 +512,7 @@ namespace gnut
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
-        return str2attitudes(tmp); 
+        return str2attitudes(tmp);
     }
 
     CBIASCHAR t_gsetproc::cbiaschar()
@@ -458,7 +522,7 @@ namespace gnut
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
-        return str2cbiaschar(tmp); 
+        return str2cbiaschar(tmp);
     }
 
     GRDMPFUNC t_gsetproc::grad_mf()
@@ -476,7 +540,7 @@ namespace gnut
             tmp = grdmpfunc2str(_grad_mf);
             _default_node(node, "grad_mf", tmp.c_str());
 
-            MF = _grad_mf; 
+            MF = _grad_mf;
         }
 
         _gmutex.unlock();
@@ -497,7 +561,7 @@ namespace gnut
             xml_node node = _default_node(parent, XMLKEY_PROC);
             tmp = obsweight2str(_obs_weight);
             _default_node(node, "obs_weight", tmp.c_str());
-            WG = _obs_weight; 
+            WG = _obs_weight;
         }
 
         _gmutex.unlock();
@@ -518,7 +582,7 @@ namespace gnut
             xml_node node = _default_node(parent, XMLKEY_PROC);
             tmp = residtype2str(_res_type);
             _default_node(node, "residuals", tmp.c_str());
-            RS = _res_type; 
+            RS = _res_type;
         }
 
         _gmutex.unlock();
@@ -539,7 +603,7 @@ namespace gnut
             xml_node node = _default_node(parent, XMLKEY_PROC);
             tmp = obscombin2str(_obs_combin);
             _default_node(node, "obs_combination", tmp.c_str());
-            OC = _obs_combin; 
+            OC = _obs_combin;
         }
 
         _gmutex.unlock();
@@ -561,7 +625,7 @@ namespace gnut
             xml_node node = _default_node(parent, XMLKEY_PROC);
             tmp = ztdmpfunc2str(_tropo_mf);
             _default_node(node, "tropo_mf", tmp.c_str());
-            MF = _tropo_mf; 
+            MF = _tropo_mf;
         }
 
         return MF;
@@ -576,14 +640,22 @@ namespace gnut
 
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         if (tmp.empty())
-            tmp = _crd_est; 
+        {
+            tmp = _crd_est;
+        }
 
         if (tmp == "EST")
+        {
             return CONSTRPAR::EST;
+        }
         else if (tmp == "KIN")
+        {
             return CONSTRPAR::KIN;
+        }
         else
+        {
             return CONSTRPAR::FIX;
+        }
     }
 
     void t_gsetproc::check()
@@ -652,7 +724,8 @@ namespace gnut
              << "\t tropo_slant   .. tropospheric slant delays produced\n"
              << "\t tropo_mf      .. tropospheric mapping function (COSZ, GMF, ...)\n"
              << "\t grad_mf       .. tropo gradient mapping function (TILTING,CHEN_HERRING, BAR_SEVER ...)\n"
-             << "\t obs_weight    .. observation elevation dependant weighting (EQUAL, SINEL, SINEL2, SINEL4, CODPHA, MLTPTH)\n"
+             << "\t obs_weight    .. observation elevation dependant weighting (EQUAL, SINEL, SINEL2, SINEL4, CODPHA, "
+                "MLTPTH)\n"
              << "\t residuals     .. type of residuals (RES_ORIG, RES_NORM, RES_ALL)\n"
              << "\t sig_init_crd  .. accuracy of initial coordinates [m]\n"
              << "\t sig_init_ztd  .. accuracy of initial zenith path delay [m]\n"
@@ -665,7 +738,7 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    ATTITUDES t_gsetproc::str2attitudes(const string &ati)
+    ATTITUDES t_gsetproc::str2attitudes(const string& ati)
     {
         if (ati == "NOMINAL")
         {
@@ -684,7 +757,7 @@ namespace gnut
         }
     }
 
-    GRDMPFUNC t_gsetproc::str2grdmpfunc(const string &mf)
+    GRDMPFUNC t_gsetproc::str2grdmpfunc(const string& mf)
     {
         if (mf == "TILTING")
         {
@@ -701,14 +774,14 @@ namespace gnut
         else
         {
             stringstream ostr;
-            ostr << "Unsupported GRD mapping function (" << grdmpfunc2str(_grad_mf) << ")! Used default value ("
-                 << grdmpfunc2str(_grad_mf) << ")";
+            ostr << "Unsupported GRD mapping function (" << grdmpfunc2str(_grad_mf) << ")! Used default value (" << grdmpfunc2str(_grad_mf)
+                 << ")";
             _add_log("gsetproc", ostr.str());
             return GRDMPFUNC::DEF_GRDMPFUNC;
         }
     }
 
-    CBIASCHAR t_gsetproc::str2cbiaschar(const string &cb)
+    CBIASCHAR t_gsetproc::str2cbiaschar(const string& cb)
     {
         if (cb == "2CHAR")
         {
@@ -731,7 +804,7 @@ namespace gnut
         }
     }
 
-    ZTDMPFUNC t_gsetproc::str2ztdmpfunc(const string &mf)
+    ZTDMPFUNC t_gsetproc::str2ztdmpfunc(const string& mf)
     {
         if (mf == "COSZ")
         {
@@ -754,7 +827,7 @@ namespace gnut
         }
     }
 
-    IONMPFUNC t_gsetproc::str2ionmpfunc(const string &mf)
+    IONMPFUNC t_gsetproc::str2ionmpfunc(const string& mf)
     {
         if (mf == "COSZ")
         {
@@ -777,7 +850,7 @@ namespace gnut
         }
     }
 
-    OBSWEIGHT t_gsetproc::str2obsweight(const string &wg)
+    OBSWEIGHT t_gsetproc::str2obsweight(const string& wg)
     {
         if (wg == "EQUAL")
         {
@@ -806,14 +879,13 @@ namespace gnut
         else
         {
             stringstream ostr;
-            ostr << "Unsupported observation weighting model (" << wg << ")! Used default value (" << obsweight2str(_obs_weight)
-                 << ")";
+            ostr << "Unsupported observation weighting model (" << wg << ")! Used default value (" << obsweight2str(_obs_weight) << ")";
             _add_log("gsetproc", ostr.str());
             return OBSWEIGHT::DEF_OBSWEIGHT;
         }
     }
 
-    TROPMODEL t_gsetproc::str2tropmodel(const string &tm)
+    TROPMODEL t_gsetproc::str2tropmodel(const string& tm)
     {
         if (tm == "SAASTAMOINEN")
         {
@@ -840,7 +912,7 @@ namespace gnut
         }
     }
 
-    RESIDTYPE t_gsetproc::str2residtype(const string &rs)
+    RESIDTYPE t_gsetproc::str2residtype(const string& rs)
     {
         if (rs == "RES_ORIG")
         {
@@ -863,7 +935,7 @@ namespace gnut
         }
     }
 
-    OBSCOMBIN t_gsetproc::str2obscombin(const string &oc)
+    OBSCOMBIN t_gsetproc::str2obscombin(const string& oc)
     {
         if (oc == "IONO_FREE")
         {
@@ -880,8 +952,7 @@ namespace gnut
         else
         {
             stringstream ostr;
-            ostr << "Unsupported observations combination (" << oc << ")! Used default value (" << obscombin2str(_obs_combin)
-                 << ")";
+            ostr << "Unsupported observations combination (" << oc << ")! Used default value (" << obscombin2str(_obs_combin) << ")";
             _add_log("gsetproc", ostr.str());
             return OBSCOMBIN::DEF_OBSCOMBIN;
         }
@@ -891,16 +962,16 @@ namespace gnut
     {
         switch (MF)
         {
-        case GRDMPFUNC::TILTING:
-            return "TILTING";
-        case GRDMPFUNC::CHEN_HERRING:
-            return "CHEN_HERRING";
-        case GRDMPFUNC::BAR_SEVER:
-            return "BAR_SEVER";
-        case GRDMPFUNC::DEF_GRDMPFUNC:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case GRDMPFUNC::TILTING:
+                return "TILTING";
+            case GRDMPFUNC::CHEN_HERRING:
+                return "CHEN_HERRING";
+            case GRDMPFUNC::BAR_SEVER:
+                return "BAR_SEVER";
+            case GRDMPFUNC::DEF_GRDMPFUNC:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -908,16 +979,16 @@ namespace gnut
     {
         switch (MF)
         {
-        case ZTDMPFUNC::COSZ:
-            return "COSZ";
-        case ZTDMPFUNC::GMF:
-            return "GMF";
-        case ZTDMPFUNC::NO_MF:
-            return "NO_MF";
-        case ZTDMPFUNC::DEF_ZTDMPFUNC:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case ZTDMPFUNC::COSZ:
+                return "COSZ";
+            case ZTDMPFUNC::GMF:
+                return "GMF";
+            case ZTDMPFUNC::NO_MF:
+                return "NO_MF";
+            case ZTDMPFUNC::DEF_ZTDMPFUNC:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -925,16 +996,16 @@ namespace gnut
     {
         switch (MF)
         {
-        case IONMPFUNC::ICOSZ:
-            return "ICOSZ";
-        case IONMPFUNC::QFAC:
-            return "QFAC";
-        case IONMPFUNC::NONE:
-            return "NONE";
-        case IONMPFUNC::DEF_IONMPFUNC:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case IONMPFUNC::ICOSZ:
+                return "ICOSZ";
+            case IONMPFUNC::QFAC:
+                return "QFAC";
+            case IONMPFUNC::NONE:
+                return "NONE";
+            case IONMPFUNC::DEF_IONMPFUNC:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -942,22 +1013,22 @@ namespace gnut
     {
         switch (WG)
         {
-        case OBSWEIGHT::EQUAL:
-            return "EQUAL";
-        case OBSWEIGHT::SINEL:
-            return "SINEL";
-        case OBSWEIGHT::SINEL2:
-            return "SINEL2";
-        case OBSWEIGHT::SINEL4:
-            return "SINEL4";
-        case OBSWEIGHT::PARTELE:
-            return "PARTELE";
-        case OBSWEIGHT::SNR:
-            return "SNR";
-        case OBSWEIGHT::DEF_OBSWEIGHT:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case OBSWEIGHT::EQUAL:
+                return "EQUAL";
+            case OBSWEIGHT::SINEL:
+                return "SINEL";
+            case OBSWEIGHT::SINEL2:
+                return "SINEL2";
+            case OBSWEIGHT::SINEL4:
+                return "SINEL4";
+            case OBSWEIGHT::PARTELE:
+                return "PARTELE";
+            case OBSWEIGHT::SNR:
+                return "SNR";
+            case OBSWEIGHT::DEF_OBSWEIGHT:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -965,18 +1036,18 @@ namespace gnut
     {
         switch (TM)
         {
-        case TROPMODEL::SAASTAMOINEN:
-            return "SAASTAMOINEN";
-        case TROPMODEL::DAVIS:
-            return "DAVIS";
-        case TROPMODEL::HOPFIELD:
-            return "HOPFIELD";
-        case TROPMODEL::EXTERN:
-            return "EXTERN";
-        case TROPMODEL::DEF_TROPMODEL:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case TROPMODEL::SAASTAMOINEN:
+                return "SAASTAMOINEN";
+            case TROPMODEL::DAVIS:
+                return "DAVIS";
+            case TROPMODEL::HOPFIELD:
+                return "HOPFIELD";
+            case TROPMODEL::EXTERN:
+                return "EXTERN";
+            case TROPMODEL::DEF_TROPMODEL:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -984,16 +1055,16 @@ namespace gnut
     {
         switch (RS)
         {
-        case RESIDTYPE::RES_ORIG:
-            return "RES_ORIG";
-        case RESIDTYPE::RES_NORM:
-            return "RES_NORM";
-        case RESIDTYPE::RES_ALL:
-            return "RES_ALL";
-        case RESIDTYPE::DEF_RESIDTYPE:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case RESIDTYPE::RES_ORIG:
+                return "RES_ORIG";
+            case RESIDTYPE::RES_NORM:
+                return "RES_NORM";
+            case RESIDTYPE::RES_ALL:
+                return "RES_ALL";
+            case RESIDTYPE::DEF_RESIDTYPE:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -1001,14 +1072,14 @@ namespace gnut
     {
         switch (AT)
         {
-        case ATTITUDES::YAW_NOMI:
-            return "YAW_NOMI";
-        case ATTITUDES::YAW_RTCM:
-            return "YAW_RTCM";
-        case ATTITUDES::DEF_YAWMODEL:
-            return "DEF_YAWMODEL";
-        default:
-            return "";
+            case ATTITUDES::YAW_NOMI:
+                return "YAW_NOMI";
+            case ATTITUDES::YAW_RTCM:
+                return "YAW_RTCM";
+            case ATTITUDES::DEF_YAWMODEL:
+                return "DEF_YAWMODEL";
+            default:
+                return "";
         }
     }
 
@@ -1016,16 +1087,16 @@ namespace gnut
     {
         switch (OC)
         {
-        case OBSCOMBIN::IONO_FREE:
-            return "IONO_FREE";
-        case OBSCOMBIN::RAW_ALL:
-            return "RAW_ALL";
-        case OBSCOMBIN::DEF_OBSCOMBIN:
-            return "NOT DEFINED";
-        case OBSCOMBIN::RAW_MIX:
-            return "RAW_MIX";
-        default:
-            return "";
+            case OBSCOMBIN::IONO_FREE:
+                return "IONO_FREE";
+            case OBSCOMBIN::RAW_ALL:
+                return "RAW_ALL";
+            case OBSCOMBIN::DEF_OBSCOMBIN:
+                return "NOT DEFINED";
+            case OBSCOMBIN::RAW_MIX:
+                return "RAW_MIX";
+            default:
+                return "";
         }
     }
 
@@ -1033,16 +1104,16 @@ namespace gnut
     {
         switch (CB)
         {
-        case CBIASCHAR::CHAR2:
-            return "2CHAR";
-        case CBIASCHAR::CHAR3:
-            return "3CHAR";
-        case CBIASCHAR::ORIG:
-            return "ORIG";
-        case CBIASCHAR::DEF_CBIASCHAR:
-            return "NOT DEFINED";
-        default:
-            return "";
+            case CBIASCHAR::CHAR2:
+                return "2CHAR";
+            case CBIASCHAR::CHAR3:
+                return "3CHAR";
+            case CBIASCHAR::ORIG:
+                return "ORIG";
+            case CBIASCHAR::DEF_CBIASCHAR:
+                return "NOT DEFINED";
+            default:
+                return "";
         }
     }
 
@@ -1050,33 +1121,36 @@ namespace gnut
     {
         switch (BP)
         {
-        case BASEPOS::CFILE:
-            return "CFILE";
-        case BASEPOS::SPP:
-            return "SPP";
-        default:
-            return "";
+            case BASEPOS::CFILE:
+                return "CFILE";
+            case BASEPOS::SPP:
+                return "SPP";
+            default:
+                return "";
         }
     }
 
-    t_gobscombtype::t_gobscombtype() : _obs_type(GOBSTYPE::TYPE),
-                                       _obs_band_1(GOBSBAND::BAND),
-                                       _obs_combine(OBSCOMBIN::DEF_OBSCOMBIN)
+    t_gobscombtype::t_gobscombtype() :
+        _obs_type(GOBSTYPE::TYPE),
+        _obs_band_1(GOBSBAND::BAND),
+        _obs_combine(OBSCOMBIN::DEF_OBSCOMBIN)
     {
     }
 
-    t_gobscombtype::t_gobscombtype(const t_gobscombtype &other) : _obs_type(other._obs_type),
-                                                                  _obs_band_1(other._obs_band_1),
-                                                                  _obs_band_2(other._obs_band_2),
-                                                                  _obs_freq_1(other._obs_freq_1),
-                                                                  _obs_freq_2(other._obs_freq_2),
-                                                                  _obs_combine(other._obs_combine)
+    t_gobscombtype::t_gobscombtype(const t_gobscombtype& other) :
+        _obs_type(other._obs_type),
+        _obs_band_1(other._obs_band_1),
+        _obs_band_2(other._obs_band_2),
+        _obs_freq_1(other._obs_freq_1),
+        _obs_freq_2(other._obs_freq_2),
+        _obs_combine(other._obs_combine)
     {
     }
 
-    t_gobscombtype::t_gobscombtype(const string &obscombtype) : _obs_type(GOBSTYPE::TYPE),
-                                                                _obs_band_1(GOBSBAND::BAND),
-                                                                _obs_combine(OBSCOMBIN::DEF_OBSCOMBIN)
+    t_gobscombtype::t_gobscombtype(const string& obscombtype) :
+        _obs_type(GOBSTYPE::TYPE),
+        _obs_band_1(GOBSBAND::BAND),
+        _obs_combine(OBSCOMBIN::DEF_OBSCOMBIN)
     {
         if (obscombtype.length() < 2)
         {
@@ -1084,7 +1158,9 @@ namespace gnut
         }
         string str_type = obscombtype.substr(0, 1);
         if (str_type == "P")
+        {
             str_type = "C";
+        }
         _obs_type = str2gobstype(str_type);
 
         string str_band = obscombtype.substr(1);
@@ -1100,36 +1176,35 @@ namespace gnut
         }
     }
 
-    t_gobscombtype::t_gobscombtype(const t_gobs &obstype, OBSCOMBIN combtype) : _obs_type(obstype.type()),
-                                                                                _obs_band_1(obstype.band()),
-                                                                                _obs_combine(combtype)
+    t_gobscombtype::t_gobscombtype(const t_gobs& obstype, OBSCOMBIN combtype) :
+        _obs_type(obstype.type()),
+        _obs_band_1(obstype.band()),
+        _obs_combine(combtype)
     {
     }
 
-    t_gobscombtype::t_gobscombtype(const t_gobs &obstype, GOBSBAND b1, FREQ_SEQ freq_1, OBSCOMBIN combtype) : _obs_type(obstype.type()),
-                                                                                                              _obs_band_1(b1),
-                                                                                                              _obs_freq_1(freq_1),
-                                                                                                              _obs_combine(combtype)
+    t_gobscombtype::t_gobscombtype(const t_gobs& obstype, GOBSBAND b1, FREQ_SEQ freq_1, OBSCOMBIN combtype) :
+        _obs_type(obstype.type()),
+        _obs_band_1(b1),
+        _obs_freq_1(freq_1),
+        _obs_combine(combtype)
     {
     }
 
-    t_gobscombtype::t_gobscombtype(const t_gobs &obstype,
-                                   GOBSBAND b1,
-                                   GOBSBAND b2,
-                                   FREQ_SEQ freq_1,
-                                   FREQ_SEQ freq_2,
-                                   OBSCOMBIN combtype) : _obs_type(obstype.type()),
-                                                         _obs_band_1(b1),
-                                                         _obs_band_2(b2),
-                                                         _obs_freq_1(freq_1),
-                                                         _obs_freq_2(freq_2),
-                                                         _obs_combine(combtype)
+    t_gobscombtype::t_gobscombtype(const t_gobs& obstype, GOBSBAND b1, GOBSBAND b2, FREQ_SEQ freq_1, FREQ_SEQ freq_2, OBSCOMBIN combtype) :
+        _obs_type(obstype.type()),
+        _obs_band_1(b1),
+        _obs_band_2(b2),
+        _obs_freq_1(freq_1),
+        _obs_freq_2(freq_2),
+        _obs_combine(combtype)
     {
     }
 
-    t_gobscombtype::t_gobscombtype(GOBSTYPE t, GOBSBAND b, OBSCOMBIN obscomb) : _obs_type(t),
-                                                                                _obs_band_1(b),
-                                                                                _obs_combine(obscomb)
+    t_gobscombtype::t_gobscombtype(GOBSTYPE t, GOBSBAND b, OBSCOMBIN obscomb) :
+        _obs_type(t),
+        _obs_band_1(b),
+        _obs_combine(obscomb)
     {
     }
 
@@ -1140,24 +1215,30 @@ namespace gnut
         {
             ans += "C";
             if (_obs_freq_1 != FREQ_X)
+            {
                 ans += gfreqseq2str(_obs_freq_1);
+            }
             if (_obs_freq_2 != FREQ_X)
+            {
                 ans += gfreqseq2str(_obs_freq_2);
+            }
         }
         else
         {
             if (_obs_freq_1 != FREQ_X)
+            {
                 ans += gfreqseq2str(_obs_freq_1);
+            }
         }
         return ans;
     }
 
-    bool t_gobscombtype::operator==(const t_gobscombtype &g) const
+    bool t_gobscombtype::operator==(const t_gobscombtype& g) const
     {
         return this->convert2str() == g.convert2str();
     }
 
-    bool t_gobscombtype::operator<(const t_gobscombtype &g) const
+    bool t_gobscombtype::operator<(const t_gobscombtype& g) const
     {
         return this->convert2str() < g.convert2str();
     }
@@ -1169,19 +1250,25 @@ namespace gnut
 
     IFCB_MODEL t_gsetproc::ifcb_model()
     {
-        //get rkf model node
+        // get rkf model node
         string ifcb = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value(XMLKEY_PROC_IFCB);
 
         if (ifcb.empty())
-            return IFCB_MODEL::COR; 
+        {
+            return IFCB_MODEL::COR;
+        }
 
         str_erase(ifcb);
         transform(ifcb.begin(), ifcb.end(), ifcb.begin(), ::toupper);
 
         if (ifcb == "EST")
+        {
             return IFCB_MODEL::EST;
+        }
         if (ifcb == "COR")
+        {
             return IFCB_MODEL::COR;
+        }
 
         return IFCB_MODEL::DEF;
     }
@@ -1192,7 +1279,7 @@ namespace gnut
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("bds_code_bias_corr");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        bool tmp_bool = (tmp == "TRUE" ? true : false); 
+        bool tmp_bool = (tmp == "TRUE" ? true : false);
         _gmutex.unlock();
         return tmp_bool;
     }
@@ -1202,9 +1289,11 @@ namespace gnut
         _gmutex.lock();
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("frequency");
         str_erase(tmp);
-        int tmp_int = 2; 
+        int tmp_int = 2;
         if (tmp != "")
+        {
             tmp_int = std::stoi(tmp);
+        }
         _gmutex.unlock();
         return tmp_int;
     }
@@ -1223,7 +1312,7 @@ namespace gnut
             return RECEIVERTYPE::DEF;
         }
 
-        if (recType == "AND") 
+        if (recType == "AND")
         {
             _gmutex.unlock();
             return RECEIVERTYPE::And;
@@ -1240,4 +1329,4 @@ namespace gnut
         }
     }
 
-} // namespace
+} // namespace gnut

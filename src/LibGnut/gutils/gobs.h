@@ -37,25 +37,30 @@ namespace gnut
     /** @brief class for t_gattr. */
     class LibGnut_LIBRARY_EXPORT t_gattr
     {
-
     public:
         /** @brief constructor 1. */
-        t_gattr() { _gattr = ATTR; };
+        t_gattr()
+        {
+            _gattr = ATTR;
+        };
 
         /** @brief constructor 2. */
-        explicit t_gattr(const GOBSATTR &a) { _gattr = a; };
+        explicit t_gattr(const GOBSATTR& a)
+        {
+            _gattr = a;
+        };
 
         /** @brief default destructor. */
-        ~t_gattr(){};
+        ~t_gattr() {};
 
         /** @brief set attr. */
-        virtual void attr(const GOBSATTR &a);
+        virtual void attr(const GOBSATTR& a);
 
         /** @brief get attr. */
         virtual GOBSATTR attr() const;
 
         /** @brief override operator ==. */
-        virtual bool operator==(const t_gattr &g) const;
+        virtual bool operator==(const t_gattr& g) const;
 
         /** @brief get valid. */
         virtual bool valid() const;
@@ -67,31 +72,38 @@ namespace gnut
     /** @brief class for t_gband derive from t_gattr. */
     class LibGnut_LIBRARY_EXPORT t_gband : public t_gattr
     {
-
     public:
         /** @brief constructor 1. */
-        t_gband() : t_gattr() { _gband = BAND; };
+        t_gband() :
+            t_gattr()
+        {
+            _gband = BAND;
+        };
 
         /** @brief constructor 2. */
-        t_gband(GOBSBAND b, GOBSATTR a) : t_gattr(a) { _gband = b; };
+        t_gband(GOBSBAND b, GOBSATTR a) :
+            t_gattr(a)
+        {
+            _gband = b;
+        };
 
         /** @brief default destructor. */
-        virtual ~t_gband(){};
+        virtual ~t_gband() {};
 
         /** @brief set band. */
-        virtual void band(const GOBSBAND &g);
+        virtual void band(const GOBSBAND& g);
 
         /** @brief get band. */
         virtual GOBSBAND band() const;
 
         /** @brief set t_gattr. */
-        virtual void gattr(const t_gattr &g);
+        virtual void gattr(const t_gattr& g);
 
         /** @brief get t_gattr. */
         virtual t_gattr gattr() const;
 
         /** @brief override operator ==. */
-        virtual bool operator==(const t_gband &g) const;
+        virtual bool operator==(const t_gband& g) const;
 
         /** @brief get valid. */
         virtual bool valid() const override;
@@ -103,35 +115,45 @@ namespace gnut
     /** @brief class for t_gobs derive from t_gattr. */
     class LibGnut_LIBRARY_EXPORT t_gobs : public t_gband
     {
-
     public:
         /** @brief constructor 1. */
-        t_gobs() : t_gband() { _gtype = TYPE; };
+        t_gobs() :
+            t_gband()
+        {
+            _gtype = TYPE;
+        };
 
         /** @brief constructor 2. */
-        t_gobs(GOBSTYPE t, GOBSBAND b, GOBSATTR a) : t_gband(b, a) { _gtype = t; };
+        t_gobs(GOBSTYPE t, GOBSBAND b, GOBSATTR a) :
+            t_gband(b, a)
+        {
+            _gtype = t;
+        };
 
         /** @brief constructor 3. */
-        explicit t_gobs(const GOBS &g) { gobs(g); };
+        explicit t_gobs(const GOBS& g)
+        {
+            gobs(g);
+        };
 
         /** @brief default destructor. */
-        virtual ~t_gobs(){};
+        virtual ~t_gobs() {};
 
         /** @brief set type (only, inherit band&attr!). */
-        virtual void type(const GOBSTYPE &t);
+        virtual void type(const GOBSTYPE& t);
 
         /** @brief get type. */
         virtual GOBSTYPE type() const;
 
         /** @brief set attr. */
-        virtual void gband(const t_gband &g);
+        virtual void gband(const t_gband& g);
 
         /** @brief get attr. */
         virtual t_gband gband() const;
 
         /** @brief set type (only! inherit). */
-        int gobs(const GOBS &g);
-        int gobs(const string &s);
+        int gobs(const GOBS& g);
+        int gobs(const string& s);
 
         /** @brief get gobs enum. */
         GOBS gobs() const;
@@ -146,7 +168,7 @@ namespace gnut
         void gobs2to3(GSYS gs);
 
         /** @brief override operator ==. */
-        bool operator==(const t_gobs &g) const;
+        bool operator==(const t_gobs& g) const;
 
         /** @brief valid. */
         bool valid() const override;
@@ -158,12 +180,12 @@ namespace gnut
         bool is_phase() const;
 
         /** @brief get is_doppler. */
-        bool is_doppler() const; 
+        bool is_doppler() const;
 
     protected:
         GOBSTYPE _gtype; ///< gtype
     };
 
-} // namespace
+} // namespace gnut
 
 #endif // GOBS_H

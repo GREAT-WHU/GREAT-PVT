@@ -4,9 +4,9 @@
  * @brief        Matrix for NEQ,W,observ_equations
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gproc/gfltmatrix.h"
 #include <Eigen/Dense>
@@ -30,7 +30,13 @@ namespace great
     {
     }
 
-    void t_gfltEquationMatrix::add_equ(const vector<pair<int, double>> &B_value, const double &P_value, const double &l_value, const string &stie_name, const string &sat_name, const t_gobscombtype &obscombtype, const bool &is_newamb)
+    void t_gfltEquationMatrix::add_equ(const vector<pair<int, double>>& B_value,
+                                       const double& P_value,
+                                       const double& l_value,
+                                       const string& stie_name,
+                                       const string& sat_name,
+                                       const t_gobscombtype& obscombtype,
+                                       const bool& is_newamb)
     {
         B.push_back(B_value);
         P.push_back(P_value);
@@ -40,15 +46,21 @@ namespace great
         this->_newamb_list.push_back(is_newamb);
     }
 
-    void t_gfltEquationMatrix::add_equ(const t_gfltEquationMatrix &Other)
+    void t_gfltEquationMatrix::add_equ(const t_gfltEquationMatrix& Other)
     {
         for (int i = 0; i < Other.num_equ(); i++)
         {
-            this->add_equ(Other.B[i], Other.P[i], Other.l[i], Other._site_sat_pairlist[i].first, Other._site_sat_pairlist[i].second, Other._obstypelist[i], false);
+            this->add_equ(Other.B[i],
+                          Other.P[i],
+                          Other.l[i],
+                          Other._site_sat_pairlist[i].first,
+                          Other._site_sat_pairlist[i].second,
+                          Other._obstypelist[i],
+                          false);
         }
     }
 
-    void t_gfltEquationMatrix::chageNewMat(Matrix &B_value, SymmetricMatrix &P_value, ColumnVector &l_value, const int &par_num)
+    void t_gfltEquationMatrix::chageNewMat(Matrix& B_value, SymmetricMatrix& P_value, ColumnVector& l_value, const int& par_num)
     {
         B_value.ReSize(B.size(), par_num);
         B_value = 0.0;
@@ -98,5 +110,4 @@ namespace great
         return _obstypelist[equ_idx];
     }
 
-
-}
+} // namespace great

@@ -31,7 +31,7 @@
 #include "gutils/gtriple.h"
 #include "gmodels/ggpt.h"
 
-#define HSL_UNKNOWN -9999 
+#define HSL_UNKNOWN -9999
 
 using namespace std;
 
@@ -48,17 +48,17 @@ namespace gnut
         ~t_gsetrec();
 
         /** @brief settings check */
-        void check(); 
+        void check();
 
         /** @brief settings help */
-        void help(); 
+        void help();
 
         /** @brief get crd xyz */
         t_gtriple get_crd_xyz(string s);
 
         /** @brief get all objects IDs */
-        set<string> objects();                                  
-        shared_ptr<t_grec> grec(string s, t_spdlog spdlog = 0); 
+        set<string> objects();
+        shared_ptr<t_grec> grec(string s);
 
         /**
          * @brief get the List of recevier names
@@ -75,10 +75,10 @@ namespace gnut
         t_gtriple _get_ecc_neu(string s);
 
         /** @brief get crd blh */
-        t_gtriple _get_crd_blh(string s); 
+        t_gtriple _get_crd_blh(string s);
 
         /** @brief Global Pressure Temperature model */
-        t_gpt _ggpt; 
+        t_gpt _ggpt;
 
         /** @brief get all objects IDs */
         set<string> _objects();
@@ -96,6 +96,6 @@ namespace gnut
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

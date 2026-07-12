@@ -39,154 +39,191 @@ namespace gnut
         virtual ~t_gflt();
 
         /** @brief update parameter. */
-        virtual void update() {}
+        virtual void update()
+        {
+        }
 
         /**
-        * @brief update parametere.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P        P matrix in flt
-        * @param[in]  l           l matrix in flt
-        * @param[in]  dx       dx matrix in flt
-        * @param[in]  Q              Q matrix in flt
-        * @return void
-        */
-        virtual void update(const Matrix &A, const DiagonalMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q){};
+         * @brief update parametere.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P        P matrix in flt
+         * @param[in]  l           l matrix in flt
+         * @param[in]  dx       dx matrix in flt
+         * @param[in]  Q              Q matrix in flt
+         * @return void
+         */
+        virtual void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q) {};
 
         /**
-        * @brief update parametere.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P        P matrix in flt
-        * @param[in]  l           l matrix in flt
-        * @param[in]  dx       dx matrix in flt
-        * @param[in]  Q              Q matrix in flt
-        * @return void
-        */
-        virtual void update(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q){};
+         * @brief update parametere.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P        P matrix in flt
+         * @param[in]  l           l matrix in flt
+         * @param[in]  dx       dx matrix in flt
+         * @param[in]  Q              Q matrix in flt
+         * @return void
+         */
+        virtual void update(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q) {};
 
         /**
-        * @brief add data.
-        *
-        * @param[in]  param        Pars in flt
-        * @param[in]  dx              dx matrix in flt
-        * @param[in]  Qx           Qx matrix in flt
-        * @param[in]  sigma0       sigma0 in flt
-        * @param[in]  Qx0              Qx0 matrix in flt
-        * @return void
-        */
-        virtual void add_data(const t_gallpar &param, const ColumnVector &dx, const SymmetricMatrix &Qx, const double &sigma0, const SymmetricMatrix &Qx0);
+         * @brief add data.
+         *
+         * @param[in]  param        Pars in flt
+         * @param[in]  dx              dx matrix in flt
+         * @param[in]  Qx           Qx matrix in flt
+         * @param[in]  sigma0       sigma0 in flt
+         * @param[in]  Qx0              Qx0 matrix in flt
+         * @return void
+         */
+        virtual void add_data(const t_gallpar& param,
+                              const ColumnVector& dx,
+                              const SymmetricMatrix& Qx,
+                              const double& sigma0,
+                              const SymmetricMatrix& Qx0);
 
         /**
-        * @brief add data.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P           P matrix in flt
-        * @param[in]  l              l matrix in flt
-        * @return void
-        */
-        virtual void add_data(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l);
+         * @brief add data.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P           P matrix in flt
+         * @param[in]  l              l matrix in flt
+         * @return void
+         */
+        virtual void add_data(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l);
 
         /**
-        * @brief add data.
-        *
-        * @param[in]  vtpv                 v*p*v in flt
-        * @param[in]  nobs_total           number of obs in flt
-        * @param[in]  npar_number              number of pars in flt
-        * @return void
-        */
-        virtual void add_data(const double &vtpv, const int &nobs_total, const int &npar_number);
+         * @brief add data.
+         *
+         * @param[in]  vtpv                 v*p*v in flt
+         * @param[in]  nobs_total           number of obs in flt
+         * @param[in]  npar_number              number of pars in flt
+         * @return void
+         */
+        virtual void add_data(const double& vtpv, const int& nobs_total, const int& npar_number);
 
         /**
-        * @brief add virtual obs to flt.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P           P matrix in flt
-        * @param[in]  l              l matrix in flt
-        * @return void
-        */
-        virtual void add_virtual_obs(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l);
+         * @brief add virtual obs to flt.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P           P matrix in flt
+         * @param[in]  l              l matrix in flt
+         * @return void
+         */
+        virtual void add_virtual_obs(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l);
 
         /**
-        * @brief detect outlier.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  Q        Q matrix in flt
-        * @param[in]  dx       dx matrix in flt
-        * @param[in]  l        l matrix in flt
-        * @param[in]  P           P matrix in flt
-        * @return void
-        */
-        virtual bool outlierDetect(const Matrix &A, const SymmetricMatrix &Q, const ColumnVector &dx, const ColumnVector &l, SymmetricMatrix &P);
+         * @brief detect outlier.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  Q        Q matrix in flt
+         * @param[in]  dx       dx matrix in flt
+         * @param[in]  l        l matrix in flt
+         * @param[in]  P           P matrix in flt
+         * @return void
+         */
+        virtual bool outlierDetect(const Matrix& A,
+                                   const SymmetricMatrix& Q,
+                                   const ColumnVector& dx,
+                                   const ColumnVector& l,
+                                   SymmetricMatrix& P);
 
         /** @brief reset Qx. */
         virtual void resetQ();
 
-        /** @brief set Qx Matrix specified location 
-        * @param[in]  row        row of Qx matrix in flt
-        * @param[in]  col        col of Qx matrix in flt
-        * @param[in]  xx         value for (row,col) of Qx matrix in flt
-        * 
-        */
+        /** @brief set Qx Matrix specified location
+         * @param[in]  row        row of Qx matrix in flt
+         * @param[in]  col        col of Qx matrix in flt
+         * @param[in]  xx         value for (row,col) of Qx matrix in flt
+         *
+         */
         void change_Qx(int row, int col, double xx);
 
-        /** @brief set dx  specified location 
-        * @param[in]  n          n of dx matrix in flt
-        * @param[in]  xx         value for (n) of dx matrix in flt
-        * 
-        */
+        /** @brief set dx  specified location
+         * @param[in]  n          n of dx matrix in flt
+         * @param[in]  xx         value for (n) of dx matrix in flt
+         *
+         */
         void change_dx(int n, double xx);
 
-        /** @brief set sigma0 by  specified sigma 
-        * @param[in]  n          n of dx matrix in flt
-        * @param[in]  xx         value for (n) of sigma0 matrix in flt
-        * 
-        */
+        /** @brief set sigma0 by  specified sigma
+         * @param[in]  n          n of dx matrix in flt
+         * @param[in]  xx         value for (n) of sigma0 matrix in flt
+         *
+         */
         void change_sigma0(double sigma);
 
-        /** @brief set vtpv by  specified value 
-        * @param[in]  xx         value for vtpv  in flt
-        * 
-        */
+        /** @brief set vtpv by  specified value
+         * @param[in]  xx         value for vtpv  in flt
+         *
+         */
         void change_vtpv(double xx);
 
         /** @brief get stdx */
         ColumnVector stdx();
 
         /** @brief get dx */
-        ColumnVector dx() { return _dx; }
+        ColumnVector dx()
+        {
+            return _dx;
+        }
 
         /** @brief get Qx */
-        SymmetricMatrix Qx() { return _Qx; }
+        SymmetricMatrix Qx()
+        {
+            return _Qx;
+        }
 
         /** @brief get param */
-        t_gallpar param() { return _param; }
+        t_gallpar param()
+        {
+            return _param;
+        }
 
         /** @brief get sigma0 */
-        double sigma0() { return _sigma0; }
+        double sigma0()
+        {
+            return _sigma0;
+        }
 
         /** @brief get vtpv */
-        double vtpv() { return _vtpv; }
+        double vtpv()
+        {
+            return _vtpv;
+        }
 
         /** @brief get nobs total */
-        int nobs_total() { return _nobs_total; }
+        int nobs_total()
+        {
+            return _nobs_total;
+        }
 
         /** @brief get npar number */
-        int npar_number() { return _npar_number; }
+        int npar_number()
+        {
+            return _npar_number;
+        }
 
-        /** @brief set/get amb 
-        * @param[in]  state         amb state  in flt
-        */
-        void amb(bool state) { _amb = state; }
+        /** @brief set/get amb
+         * @param[in]  state         amb state  in flt
+         */
+        void amb(bool state)
+        {
+            _amb = state;
+        }
 
         /** @brief set/get amb */
-        bool amb() { return _amb; }
+        bool amb()
+        {
+            return _amb;
+        }
 
     protected:
         ColumnVector _dx;    ///< dx
         ColumnVector _stdx;  ///< stdx
         SymmetricMatrix _Qx; ///< Qx
-        //LX added for WL constraint
+        // LX added for WL constraint
         SymmetricMatrix _Qx_tmp;    ///< tmp Qx matrix
         SymmetricMatrix _Qx0;       ///< Qx0 matrix
         Matrix _A;                  ///< A matrix
@@ -206,7 +243,6 @@ namespace gnut
     /** @brief class for Classical formule for Kalman filter. */
     class LibGnut_LIBRARY_EXPORT t_kalman : public t_gflt
     {
-
     public:
         /** @brief default constructor. */
         t_kalman();
@@ -216,8 +252,8 @@ namespace gnut
 
         /** @brief update parameter. */
         virtual void update();
-        void update(const Matrix &A, const DiagonalMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q);
-        void update(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q);
+        void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
+        void update(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
     };
 
     /** @brief class for Square root covariance filter derive from t_gflt. */
@@ -234,28 +270,28 @@ namespace gnut
         virtual void update();
 
         /**
-        * @brief update parametere.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P        P matrix in flt
-        * @param[in]  l           l matrix in flt
-        * @param[in]  dx       dx matrix in flt
-        * @param[in]  Q              Q matrix in flt
-        * @return void
-        */
-        void update(const Matrix &A, const DiagonalMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q);
+         * @brief update parametere.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P        P matrix in flt
+         * @param[in]  l           l matrix in flt
+         * @param[in]  dx       dx matrix in flt
+         * @param[in]  Q              Q matrix in flt
+         * @return void
+         */
+        void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
 
         /**
-        * @brief update parametere.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P        P matrix in flt
-        * @param[in]  l           l matrix in flt
-        * @param[in]  dx       dx matrix in flt
-        * @param[in]  Q              Q matrix in flt
-        * @return void
-        */
-        void update(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q);
+         * @brief update parametere.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P        P matrix in flt
+         * @param[in]  l           l matrix in flt
+         * @param[in]  dx       dx matrix in flt
+         * @param[in]  Q              Q matrix in flt
+         * @return void
+         */
+        void update(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
     };
 
     /** @brief class for Square root information filter derive from t_gflt. */
@@ -269,18 +305,18 @@ namespace gnut
         ~t_SRIF();
 
         /**
-        * @brief update parametere.
-        *
-        * @param[in]  A        A matrix in flt
-        * @param[in]  P        P matrix in flt
-        * @param[in]  l           l matrix in flt
-        * @param[in]  dx       dx matrix in flt
-        * @param[in]  Q              Q matrix in flt
-        * @return void
-        */
-        void update(const Matrix &A, const DiagonalMatrix &P, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Q);
+         * @brief update parametere.
+         *
+         * @param[in]  A        A matrix in flt
+         * @param[in]  P        P matrix in flt
+         * @param[in]  l           l matrix in flt
+         * @param[in]  dx       dx matrix in flt
+         * @param[in]  Q              Q matrix in flt
+         * @return void
+         */
+        void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -4,9 +4,9 @@
  * @brief        decode and enconde upd file
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gcoders/upd.h"
 
@@ -14,10 +14,10 @@ using namespace std;
 namespace great
 {
 
-    t_upd::t_upd(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz), _updtype(UPDTYPE::NONE)
+    t_upd::t_upd(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz),
+        _updtype(UPDTYPE::NONE)
     {
-
         _epoch = FIRST_TIME;
         _updtype = UPDTYPE::NONE;
     }
@@ -26,7 +26,7 @@ namespace great
     {
     }
 
-    int t_upd::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_upd::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -46,7 +46,7 @@ namespace great
                 consume += tmpsize;
                 if (tmp.substr(0, 1) == "%")
                 {
-                    if (tmp.substr(2, 1) != "U")  //for upd in new format
+                    if (tmp.substr(2, 1) != "U") // for upd in new format
                     {
                         t_gcoder::_consume(tmpsize);
                         continue;
@@ -56,8 +56,8 @@ namespace great
                     tmp = cut_crlf(tmp);  // remove "\n" or "\r" at the end of line (WindowsMac/Linux)
                     mode_tmp = trim(tmp); // remove "\t" at the end of line
 
-                    if (mode_tmp == "EWL" || mode_tmp == "ewl" || mode_tmp == "WL" || mode_tmp == "wl" ||
-                        mode_tmp == "NL" || mode_tmp == "nl" || mode_tmp == "EWL_epoch" || mode_tmp == "ewl_epoch" || mode_tmp == "RTPPP_SAVE" ||
+                    if (mode_tmp == "EWL" || mode_tmp == "ewl" || mode_tmp == "WL" || mode_tmp == "wl" || mode_tmp == "NL" ||
+                        mode_tmp == "nl" || mode_tmp == "EWL_epoch" || mode_tmp == "ewl_epoch" || mode_tmp == "RTPPP_SAVE" ||
                         mode_tmp == "EWL24" || mode_tmp == "ewl24" || mode_tmp == "EWL25" || mode_tmp == "ewl25")
                     {
                         if (mode_tmp == "EWL" || mode_tmp == "ewl")
@@ -84,15 +84,13 @@ namespace great
                         {
                             _updtype = UPDTYPE::NL;
                         }
-                        
 
                         t_gcoder::_consume(tmpsize);
                         break;
                     }
                     else
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_ERROR(_spdlog, "ERROR: unknown upd mode");
+                        GREAT_ERROR("ERROR: unknown upd mode");
                         t_gcoder::_consume(tmpsize);
                         _mutex.unlock();
                         return -1;
@@ -107,15 +105,14 @@ namespace great
         }
         catch (...)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR: unknown mistake");
+            GREAT_ERROR("ERROR: unknown mistake");
             return -1;
         }
         _mutex.unlock();
         return consume;
     }
 
-    int t_upd::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_upd::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -149,39 +146,41 @@ namespace great
                 {
                     istr >> prn >> upd.value >> upd.sigma >> upd.npoint;
                     upd.sigma = 10000.0;
-                    //fill data loop
-                    map<string, t_gdata *>::iterator it = _data.begin();
+                    // fill data loop
+                    map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
                         if (it->second->id_type() == t_gdata::UPD)
-                            dynamic_cast<t_gupd *>(it->second)->add_sat_upd(_updtype, _epoch, prn.substr(1), upd);
+                        {
+                            dynamic_cast<t_gupd*>(it->second)->add_sat_upd(_updtype, _epoch, prn.substr(1), upd);
+                        }
                         ++it;
                     }
                 }
                 else if (tmp.substr(0, 1) == " ")
                 {
                     istr >> prn >> upd.value >> upd.sigma >> upd.npoint;
-                    //fill data loop
-                    map<string, t_gdata *>::iterator it = _data.begin();
+                    // fill data loop
+                    map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
                         if (it->second->id_type() == t_gdata::UPD)
-                            dynamic_cast<t_gupd *>(it->second)->add_sat_upd(_updtype, _epoch, prn, upd);
+                        {
+                            dynamic_cast<t_gupd*>(it->second)->add_sat_upd(_updtype, _epoch, prn, upd);
+                        }
                         ++it;
                     }
                 }
                 else if (tmp.substr(0, 3) == "EOF")
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "WARNING: End of file" + tmp);
+                    GREAT_DEBUG("WARNING: End of file" + tmp);
                     t_gcoder::_consume(tmpsize);
                     _mutex.unlock();
                     return -1;
                 }
                 else
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_ERROR(_spdlog, "WARNING: unknown upd-data message" + tmp);
+                    GREAT_ERROR("WARNING: unknown upd-data message" + tmp);
                     t_gcoder::_consume(tmpsize);
                     _mutex.unlock();
                     return -1;
@@ -191,13 +190,11 @@ namespace great
         }
         catch (...)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR: unknown mistake");
+            GREAT_ERROR("ERROR: unknown mistake");
             return -1;
         }
         _mutex.unlock();
         return consume;
     }
 
-
-} //namespace
+} // namespace great

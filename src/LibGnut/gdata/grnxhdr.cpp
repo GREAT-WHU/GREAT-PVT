@@ -52,7 +52,7 @@ namespace gnut
         _comment.clear();
     }
 
-    ostream &operator<<(ostream &os, const t_rnxhdr &x)
+    ostream& operator<<(ostream& os, const t_rnxhdr& x)
     {
         os << "program: " << x.program() << endl;
         os << "runby: " << x.runby() << endl;
@@ -79,4 +79,4 @@ namespace gnut
         return os;
     }
 
-} // namespace
+} // namespace gnut

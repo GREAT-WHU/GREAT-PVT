@@ -27,14 +27,14 @@ using namespace pugi;
 
 namespace gnut
 {
-    t_gsetgnss::t_gsetgnss()
-        : t_gsetbase()
+    t_gsetgnss::t_gsetgnss() :
+        t_gsetbase()
     {
         _set.insert(XMLKEY_GNSS);
         stringstream os;
         _sigma_def[GPS] = t_gpair(2.0, 0.02);
         _sigma_def[GLO] = t_gpair(4.0, 0.04);
-        _sigma_def[GAL] = t_gpair(3.0, 0.03); 
+        _sigma_def[GAL] = t_gpair(3.0, 0.03);
         _sigma_def[BDS] = t_gpair(5.0, 0.03);
         _sigma_def[QZS] = t_gpair(5.0, 0.03);
         _sigma_def[IRN] = t_gpair(5.0, 0.03);
@@ -59,22 +59,18 @@ namespace gnut
         _maxres_def_doppler[IRN] = 0.1;
 
         t_map_gnss gnss_data = GNSS_DATA_PRIORITY();
-        for (auto itGNSS = gnss_data.begin(); itGNSS != gnss_data.end(); ++itGNSS) 
+        for (auto itGNSS = gnss_data.begin(); itGNSS != gnss_data.end(); ++itGNSS)
         {
             GSYS gsys = itGNSS->first;
             string gs = t_gsys::gsys2str(gsys);
 
-            for (auto itBAND = gnss_data[gsys].begin();
-                 itBAND != gnss_data[gsys].end();
-                 ++itBAND)
+            for (auto itBAND = gnss_data[gsys].begin(); itBAND != gnss_data[gsys].end(); ++itBAND)
             {
                 GOBSBAND gobsband = itBAND->first;
                 string band = gobsband2str(gobsband);
                 _band_str[gsys].push_back(band);
 
-                for (auto itTYPE = gnss_data[gsys][gobsband].begin();
-                     itTYPE != gnss_data[gsys][gobsband].end();
-                     ++itTYPE)
+                for (auto itTYPE = gnss_data[gsys][gobsband].begin(); itTYPE != gnss_data[gsys][gobsband].end(); ++itTYPE)
                 {
                     GOBSTYPE gobstype = itTYPE->first;
                     string type = gobstype2str(gobstype);
@@ -86,8 +82,7 @@ namespace gnut
                         _type_str[gsys].push_back(type);
                     }
 
-                    for (auto itATTR = gnss_data[gsys][gobsband][gobstype].begin();
-                         itATTR != gnss_data[gsys][gobsband][gobstype].end();
+                    for (auto itATTR = gnss_data[gsys][gobsband][gobstype].begin(); itATTR != gnss_data[gsys][gobsband][gobstype].end();
                          ++itATTR)
                     {
                         GOBSATTR gobsattr = *itATTR;
@@ -127,31 +122,37 @@ namespace gnut
             transform(gs.begin(), gs.end(), gs.begin(), ::towlower);
             set<string> sats = t_gsetbase::_setval(gs, "sat");
             for (it = sats.begin(); it != sats.end(); ++it)
+            {
                 tmp.insert(*it);
+            }
         }
 
         _gmutex.unlock();
         return tmp;
     }
 
-    set<string> t_gsetgnss::sat(GSYS gsys, bool def) 
+    set<string> t_gsetgnss::sat(GSYS gsys, bool def)
     {
         _gmutex.lock();
 
         set<string> tmp = t_gsetbase::_setval(_gsys(gsys), "sat");
         if (def && tmp.size() == 0)
+        {
             tmp = GNSS_SATS()[gsys];
+        }
 
         _gmutex.unlock();
         return tmp;
     }
 
-    set<string> t_gsetgnss::nav(GSYS gsys, bool def) 
+    set<string> t_gsetgnss::nav(GSYS gsys, bool def)
     {
         _gmutex.lock();
         set<string> tmp = t_gsetbase::_setval(_gsys(gsys), "nav");
         if (def && tmp.size() == 0)
+        {
             tmp = GNSS_GNAV()[gsys];
+        }
 
         _gmutex.unlock();
         return tmp;
@@ -181,25 +182,35 @@ namespace gnut
         int aset = attr.size();
 
         if (bset == 0)
+        {
             band.assign(_band_str[gsys].begin(), _band_str[gsys].end());
+        }
         if (tset == 0)
+        {
             type.assign(_type_str[gsys].begin(), _type_str[gsys].end());
+        }
         if (aset == 0)
+        {
             attr.assign(_attr_str[gsys].begin(), _attr_str[gsys].end());
+        }
 
         for (itB = band.begin(); itB != band.end(); ++itB)
         {
             GOBSBAND gband = char2gobsband((*itB)[0]);
             string b = gobsband2str(gband);
             if (gband == 999)
+            {
                 continue;
+            }
 
             for (itT = type.begin(); itT != type.end(); ++itT)
             {
                 GOBSTYPE gtype = char2gobstype((*itT)[0]);
                 string t = gobstype2str(gtype);
                 if (gtype == 999)
+                {
                     continue;
+                }
 
                 os << gs << "  band: " << b << "  type: " << t << "  attr:";
 
@@ -208,14 +219,18 @@ namespace gnut
                     GOBSATTR gattr = char2gobsattr((*itA)[0]);
                     string a = gobsattr2str(gattr);
                     if (gattr == 999)
+                    {
                         continue;
+                    }
 
                     str = gobstype2str(gtype);
                     str += gobsband2str(gband);
                     str += gobsattr2str(gattr);
 
                     if (def || (bset || tset || aset))
+                    {
                         tmp.insert(str);
+                    }
 
                     os << " " << a;
                 }
@@ -413,7 +428,9 @@ namespace gnut
             transform(str.begin(), str.end(), str.begin(), ::toupper);
             GOBSTYPE gobstype = str2gobstype(str);
             if (gobstype != TYPE)
+            {
                 v_tmp.push_back(gobstype);
+            }
         };
         return v_tmp;
     }
@@ -439,27 +456,27 @@ namespace gnut
 
             switch (gsys)
             {
-            case GPS:
-                v_tmp.push_back(BAND_1);
-                v_tmp.push_back(BAND_2);
-                break;
-            case GLO:
-                v_tmp.push_back(BAND_1);
-                v_tmp.push_back(BAND_2);
-                break;
-            case GAL:
-                v_tmp.push_back(BAND_1);
-                v_tmp.push_back(BAND_5);
-                break;
-            case BDS:
-                v_tmp.push_back(BAND_2);
-                v_tmp.push_back(BAND_6);
-                break;
-            case QZS:
-                v_tmp.push_back(BAND_1);
-                v_tmp.push_back(BAND_2);
-            default:
-                break;
+                case GPS:
+                    v_tmp.push_back(BAND_1);
+                    v_tmp.push_back(BAND_2);
+                    break;
+                case GLO:
+                    v_tmp.push_back(BAND_1);
+                    v_tmp.push_back(BAND_2);
+                    break;
+                case GAL:
+                    v_tmp.push_back(BAND_1);
+                    v_tmp.push_back(BAND_5);
+                    break;
+                case BDS:
+                    v_tmp.push_back(BAND_2);
+                    v_tmp.push_back(BAND_6);
+                    break;
+                case QZS:
+                    v_tmp.push_back(BAND_1);
+                    v_tmp.push_back(BAND_2);
+                default:
+                    break;
             }
         }
 
@@ -484,27 +501,27 @@ namespace gnut
         {
             switch (gsys)
             {
-            case GPS:
-                v_tmp.push_back(FREQ_1);
-                v_tmp.push_back(FREQ_2);
-                break;
-            case GLO:
-                v_tmp.push_back(FREQ_1);
-                v_tmp.push_back(FREQ_2);
-                break;
-            case GAL:
-                v_tmp.push_back(FREQ_1);
-                v_tmp.push_back(FREQ_2);
-                break;
-            case BDS:
-                v_tmp.push_back(FREQ_1);
-                v_tmp.push_back(FREQ_2);
-                break;
-            case QZS:
-                v_tmp.push_back(FREQ_1);
-                v_tmp.push_back(FREQ_2);
-            default:
-                break;
+                case GPS:
+                    v_tmp.push_back(FREQ_1);
+                    v_tmp.push_back(FREQ_2);
+                    break;
+                case GLO:
+                    v_tmp.push_back(FREQ_1);
+                    v_tmp.push_back(FREQ_2);
+                    break;
+                case GAL:
+                    v_tmp.push_back(FREQ_1);
+                    v_tmp.push_back(FREQ_2);
+                    break;
+                case BDS:
+                    v_tmp.push_back(FREQ_1);
+                    v_tmp.push_back(FREQ_2);
+                    break;
+                case QZS:
+                    v_tmp.push_back(FREQ_1);
+                    v_tmp.push_back(FREQ_2);
+                default:
+                    break;
             }
 
             cout << "Warning : do not set the freq, use default settings" << endl;
@@ -547,7 +564,9 @@ namespace gnut
             transform(str.begin(), str.end(), str.begin(), ::toupper);
             GOBSATTR gobsattr = str2gobsattr(str);
             if (gobsattr != ATTR)
+            {
                 v_tmp.push_back(gobsattr);
+            }
         };
         return v_tmp;
     }
@@ -559,7 +578,9 @@ namespace gnut
         sig = t_gsetbase::_dblatt(sys, "sigma_C");
 
         if (double_eq(sig, 0.0))
-            sig = _sigma_def[gsys][0]; 
+        {
+            sig = _sigma_def[gsys][0];
+        }
 
         return sig;
     }
@@ -571,7 +592,9 @@ namespace gnut
         sig = t_gsetbase::_dblatt(_gsys(gsys), "sigma_D");
 
         if (double_eq(sig, 0.0))
+        {
             sig = _sigma_def_doppler[gsys];
+        }
 
         return sig;
     }
@@ -583,7 +606,9 @@ namespace gnut
         sig = t_gsetbase::_dblatt(sys, "sigma_L");
 
         if (double_eq(sig, 0.0))
+        {
             sig = _sigma_def[gsys][1];
+        }
 
         return sig;
     }
@@ -595,7 +620,9 @@ namespace gnut
         res = t_gsetbase::_dblatt(_gsys(gsys), "maxres_C");
 
         if (double_eq(res, 0.0))
-            res = _maxres_def[gsys][0]; 
+        {
+            res = _maxres_def[gsys][0];
+        }
 
         return res;
     }
@@ -606,7 +633,9 @@ namespace gnut
         sig = t_gsetbase::_dblatt(_gsys(gsys), "sigma_D");
 
         if (double_eq(sig, 0.0))
-            sig = _maxres_def_doppler[gsys]; 
+        {
+            sig = _maxres_def_doppler[gsys];
+        }
 
         return sig;
     }
@@ -618,7 +647,9 @@ namespace gnut
         res = t_gsetbase::_dblatt(_gsys(gsys), "maxres_L");
 
         if (double_eq(res, 0.0))
-            res = _maxres_def[gsys][1]; 
+        {
+            res = _maxres_def[gsys][1];
+        }
 
         return res;
     }
@@ -651,4 +682,4 @@ namespace gnut
         return;
     }
 
-} // namespace
+} // namespace gnut

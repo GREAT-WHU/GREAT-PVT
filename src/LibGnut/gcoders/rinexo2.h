@@ -43,16 +43,16 @@ using namespace std;
 namespace gnut
 {
     /**
-    *@brief Class for t_rinexo2 derive from t_gcoder
-    */
+     *@brief Class for t_rinexo2 derive from t_gcoder
+     */
     class LibGnut_LIBRARY_EXPORT t_rinexo2 : public t_gcoder
     {
     public:
         /** @brief constructor set + version + sz. */
-        t_rinexo2(t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        t_rinexo2(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief constructor beg + end + set + version + sz. */
-        t_rinexo2(t_gtime beg, t_gtime end, t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        t_rinexo2(t_gtime beg, t_gtime end, t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief default destructor. */
         virtual ~t_rinexo2();
@@ -61,21 +61,24 @@ namespace gnut
         virtual void clear();
 
         /** @brief decode head. */
-        virtual int decode_head(char *buff, int sz, vector<string> &errmsg) = 0;
+        virtual int decode_head(char* buff, int sz, vector<string>& errmsg) = 0;
 
         /**
          * @brief decode data
-         * 
-         * @param buff 
-         * @param sz 
-         * @param cnt 
-         * @param errmsg 
-         * @return int 
+         *
+         * @param buff
+         * @param sz
+         * @param cnt
+         * @param errmsg
+         * @return int
          */
-        virtual int decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg) = 0;
+        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg) = 0;
 
         /** @brief get epoch. */
-        t_gtime get_epoch() { return _epoch; };
+        t_gtime get_epoch()
+        {
+            return _epoch;
+        };
 
     protected:
         /** @brief decode head. */
@@ -88,18 +91,16 @@ namespace gnut
         virtual int _read_epoch();
 
         /** @brief read sat/sys-specific key to _mapobs (G,E,R,.. M, satellite). */
-        virtual int _read_syskey(string &sat, string &key);
+        virtual int _read_syskey(string& sat, string& key);
 
         /** @brief read satellite list (vector). */
-        virtual int _read_satvec(vector<string> &satellites);
+        virtual int _read_satvec(vector<string>& satellites);
 
         /** @brief read single satellite observation types. */
-        virtual int _read_obstypes(const string &sat, const string &sys);
+        virtual int _read_obstypes(const string& sat, const string& sys);
 
         /** @brief fill single observation element. */
-        virtual int _read_obs(const unsigned int &idx,
-                              const t_rnxhdr::t_vobstypes::const_iterator &it,
-                              t_spt_gobs obs);
+        virtual int _read_obs(const unsigned int& idx, const t_rnxhdr::t_vobstypes::const_iterator& it, t_spt_gobs obs);
 
         /** @brief fill header information. */
         virtual int _fill_head();
@@ -111,10 +112,10 @@ namespace gnut
         virtual int _check_head();
 
         /** @brief check band (extended RINEX 2.11). */
-        virtual int _fix_band(string sys, string &go);
+        virtual int _fix_band(string sys, string& go);
 
         /** @brief write log for null observations (sat, obstype). */
-        virtual int _null_log(const string &sat, const string &obstype);
+        virtual int _null_log(const string& sat, const string& obstype);
 
         /** @brief common stop reading used in local subroutines. */
         virtual int _stop_read();
@@ -147,6 +148,6 @@ namespace gnut
         t_rnxhdr::t_obstypes _mapobs; ///< GNSS/sat (G/R/E/S/...) observation group
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

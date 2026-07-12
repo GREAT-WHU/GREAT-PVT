@@ -15,31 +15,18 @@ using namespace std;
 
 namespace gnut
 {
-    t_gobj::t_gobj()
-        : t_gdata(),
-          _id(""),
-          _name(""),
-          _overwrite(false)
+    t_gobj::t_gobj() :
+        t_gdata(),
+        _id(""),
+        _name(""),
+        _overwrite(false)
     {
-
-        id_type(OBJ);
-        _pcvnull = 0;
-    }
-
-    t_gobj::t_gobj(t_spdlog spdlog)
-        : t_gdata(spdlog),
-          _id(""),
-          _name(""),
-          _overwrite(false)
-    {
-
         id_type(OBJ);
         _pcvnull = 0;
     }
 
     t_gobj::~t_gobj()
     {
-
         _gmutex.lock();
         _mappcv.clear();
         _mapeccxyz.clear();
@@ -58,7 +45,6 @@ namespace gnut
 
     string t_gobj::id() const
     {
-
         _gmutex.lock();
         string tmp = _id;
         _gmutex.unlock();
@@ -67,7 +53,6 @@ namespace gnut
 
     void t_gobj::overwrite(bool overwrite)
     {
-
         _gmutex.lock();
         _overwrite = overwrite;
         _gmutex.unlock();
@@ -83,7 +68,6 @@ namespace gnut
 
     void t_gobj::name(string str)
     {
-
         _gmutex.lock();
 
         _name = str;
@@ -112,7 +96,6 @@ namespace gnut
 
     string t_gobj::domes() const
     {
-
         _gmutex.lock();
         string tmp = _domes;
         _gmutex.unlock();
@@ -121,7 +104,6 @@ namespace gnut
 
     void t_gobj::desc(string str)
     {
-
         _gmutex.lock();
 
         _desc = str;
@@ -132,16 +114,14 @@ namespace gnut
 
     string t_gobj::desc() const
     {
-
         _gmutex.lock();
         string tmp = _desc;
         _gmutex.unlock();
         return tmp;
     }
 
-    void t_gobj::eccxyz(const t_gtriple &ecc, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::eccxyz(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end)
     {
-
         _gmutex.lock();
 
         _eccxyz(ecc, beg, end);
@@ -150,7 +130,7 @@ namespace gnut
         return;
     }
 
-    void t_gobj::_eccxyz(const t_gtriple &ecc, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::_eccxyz(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end)
     {
         t_gtriple zero(0.0, 0.0, 0.0);
         t_mapecc_xyz::iterator it = _mapeccxyz.find(beg);
@@ -167,10 +147,8 @@ namespace gnut
         }
         else
         { // record exists
-            if (it->first == LAST_TIME ||
-                it->second == zero)
+            if (it->first == LAST_TIME || it->second == zero)
             {
-
                 _mapeccxyz[beg] = ecc;
             }
             else
@@ -195,23 +173,25 @@ namespace gnut
                 if (fabs(it->first - end) > 3600)
                 { // significantly smaller!
                     if (it->second == zero)
+                    {
                         _mapeccxyz.erase(it); // remove obsolete empty record
+                    }
                     _mapeccxyz[end] = zero;
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'eccxyz' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                    string lg = "Warning: object " + _id + " 'eccxyz' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                                it->first.str("%Y-%m-%d %H:%M:%S");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                    GREAT_DEBUG(lg);
                 }
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'eccxyz' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                string lg = "Warning: object " + _id + " 'eccxyz' end cut and tied to the existing value " +
+                            end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                GREAT_DEBUG(lg);
             }
         }
 
@@ -233,9 +213,8 @@ namespace gnut
         return;
     }
 
-    t_gtriple t_gobj::eccxyz(const t_gtime &t) const
+    t_gtriple t_gobj::eccxyz(const t_gtime& t) const
     {
-
         _gmutex.lock();
 
         t_gtriple eccxyz(0.0, 0.0, 0.0);
@@ -245,7 +224,7 @@ namespace gnut
         return eccxyz;
     }
 
-    t_gtriple t_gobj::_eccxyz(const t_gtime &t) const
+    t_gtriple t_gobj::_eccxyz(const t_gtime& t) const
     {
         t_gtriple tmp(0.0, 0.0, 0.0);
         t_mapecc_xyz::const_iterator it = _mapeccxyz.upper_bound(t);
@@ -260,7 +239,9 @@ namespace gnut
         if ((it == _mapeccxyz.begin() || tmp.zero()) && _mapeccneu.size() > 0)
         { // not found
             if (_mapeccneu.upper_bound(t) == _mapeccneu.begin())
+            {
                 return tmp;
+            }
 
             t_gtriple eccneu(0.0, 0.0, 0.0);
             eccneu = this->_eccneu(t);
@@ -277,9 +258,8 @@ namespace gnut
         return tmp;
     }
 
-    void t_gobj::eccxyz_validity(const t_gtime &t, t_gtime &beg, t_gtime &end) const
+    void t_gobj::eccxyz_validity(const t_gtime& t, t_gtime& beg, t_gtime& end) const
     {
-
         t_mapecc_xyz::const_iterator it = _mapeccxyz.upper_bound(t);
         if (it != _mapeccxyz.begin() && it != _mapeccxyz.end())
         {
@@ -289,9 +269,8 @@ namespace gnut
         }
     }
 
-    void t_gobj::eccneu(const t_gtriple &ecc, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::eccneu(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end)
     {
-
         _gmutex.lock();
 
         _eccneu(ecc, beg, end);
@@ -300,7 +279,7 @@ namespace gnut
         return;
     }
 
-    void t_gobj::_eccneu(const t_gtriple &ecc, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::_eccneu(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end)
     {
         t_gtriple zero(0.0, 0.0, 0.0);
         t_mapecc_neu::iterator it = _mapeccneu.find(beg);
@@ -317,10 +296,8 @@ namespace gnut
         }
         else
         { // record exists
-            if (it->first == LAST_TIME ||
-                it->second == zero)
+            if (it->first == LAST_TIME || it->second == zero)
             {
-
                 _mapeccneu[beg] = ecc;
             }
             else
@@ -345,23 +322,25 @@ namespace gnut
                 if (fabs(it->first - end) > 3600)
                 { // significantly smaller!
                     if (it->second == zero)
+                    {
                         _mapeccneu.erase(it); // remove obsolete empty record
+                    }
                     _mapeccneu[end] = zero;
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'eccneu' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                    string lg = "Warning: object " + _id + " 'eccneu' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                                it->first.str("%Y-%m-%d %H:%M:%S");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                    GREAT_DEBUG(lg);
                 }
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'eccneu' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                string lg = "Warning: object " + _id + " 'eccneu' end cut and tied to the existing value " +
+                            end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                GREAT_DEBUG(lg);
             }
         }
 
@@ -383,9 +362,8 @@ namespace gnut
         return;
     }
 
-    t_gtriple t_gobj::eccneu(const t_gtime &t) const
+    t_gtriple t_gobj::eccneu(const t_gtime& t) const
     {
-
         _gmutex.lock();
 
         t_gtriple eccneu(0.0, 0.0, 0.0);
@@ -395,7 +373,7 @@ namespace gnut
         return eccneu;
     }
 
-    t_gtriple t_gobj::_eccneu(const t_gtime &t) const
+    t_gtriple t_gobj::_eccneu(const t_gtime& t) const
     {
         t_gtriple tmp(0.0, 0.0, 0.0);
         t_mapecc_neu::const_iterator it = _mapeccneu.upper_bound(t);
@@ -410,7 +388,9 @@ namespace gnut
         if ((it == _mapeccneu.begin() || tmp.zero()) && _mapeccxyz.size() > 0)
         { // not found
             if (_mapeccxyz.upper_bound(t) == _mapeccxyz.begin())
+            {
                 return tmp;
+            }
 
             // transformation from XYZ if not available NEU
             t_gtriple eccxyz = this->_eccxyz(t);
@@ -425,9 +405,8 @@ namespace gnut
         return tmp;
     }
 
-    void t_gobj::eccneu_validity(const t_gtime &t, t_gtime &beg, t_gtime &end) const
+    void t_gobj::eccneu_validity(const t_gtime& t, t_gtime& beg, t_gtime& end) const
     {
-
         t_mapecc_neu::const_iterator it = _mapeccneu.upper_bound(t);
         if (it != _mapeccneu.begin() && it != _mapeccneu.end())
         {
@@ -437,9 +416,8 @@ namespace gnut
         }
     }
 
-    void t_gobj::crd(const t_gtriple &crd, const t_gtriple &std, const t_gtime &beg, const t_gtime &end, bool overwrite)
+    void t_gobj::crd(const t_gtriple& crd, const t_gtriple& std, const t_gtime& beg, const t_gtime& end, bool overwrite)
     {
-
         _gmutex.lock();
 
         _crd(crd, std, beg, end, overwrite);
@@ -448,9 +426,8 @@ namespace gnut
         return;
     }
 
-    void t_gobj::crd(const t_gtriple &crd, const t_gtriple &std)
+    void t_gobj::crd(const t_gtriple& crd, const t_gtriple& std)
     {
-
         _gmutex.lock();
 
         _mapcrd.begin()->second.first = crd;
@@ -460,7 +437,7 @@ namespace gnut
         return;
     }
 
-    void t_gobj::_crd(const t_gtriple &crd, const t_gtriple &std, const t_gtime &beg, const t_gtime &end, bool overwrite)
+    void t_gobj::_crd(const t_gtriple& crd, const t_gtriple& std, const t_gtime& beg, const t_gtime& end, bool overwrite)
     {
         pair<t_gtriple, t_gtriple> val;
         val = make_pair(crd, std);
@@ -473,10 +450,10 @@ namespace gnut
         t_mapcrd::iterator it = _mapcrd.find(beg);
         if (end < beg)
         {
-            string lg = "Warning: " + _id + " not valid end time (end<beg) for coordinates (beg:" + beg.str_ymdhms() + " -> end:" + end.str_ymdhms() + ")";
+            string lg = "Warning: " + _id + " not valid end time (end<beg) for coordinates (beg:" + beg.str_ymdhms() +
+                        " -> end:" + end.str_ymdhms() + ")";
 
-            if (_spdlog)
-                SPDLOG_LOGGER_WARN(_spdlog, lg);
+            GREAT_WARN(lg);
             return;
         }
         // begin record
@@ -486,8 +463,7 @@ namespace gnut
         }
         else
         { // record exists
-            if (it->first == LAST_TIME ||
-                it->second == zero || overwrite)
+            if (it->first == LAST_TIME || it->second == zero || overwrite)
             {
                 _mapcrd[beg] = val;
             }
@@ -511,12 +487,14 @@ namespace gnut
             { // only if end is smaller then existing
                 if (fabs(it->first - end) > 3600)
                 { // significantly smaller!
-                    // change by ZHJ (Here not set the zero according to the before time��
+                    // change by ZHJ: do not set zero according to the previous time
                     auto beg_it = _mapcrd.find(beg);
                     if (beg_it == _mapcrd.begin())
                     {
                         if (it->second == zero)
+                        {
                             _mapcrd.erase(it); // remove obsolete empty record
+                        }
                         _mapcrd[end] = zero;
                     }
                     else
@@ -527,17 +505,16 @@ namespace gnut
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'crd' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                    string lg = "Warning: object " + _id + " 'crd' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                                it->first.str("%Y-%m-%d %H:%M:%S");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                    GREAT_DEBUG(lg);
                 }
             }
             else if (end != it->first)
             {
                 if (overwrite)
                 {
-
                     bool insert_flag = false;
                     // if can't find end insert
                     if (_mapcrd.find(end) == _mapcrd.end())
@@ -560,10 +537,10 @@ namespace gnut
                 }
                 else
                 {
-                    string lg = "Warning: object " + _id + " 'crd' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                    string lg = "Warning: object " + _id + " 'crd' end cut and tied to the existing value " +
+                                end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                    GREAT_DEBUG(lg);
                 }
             }
         }
@@ -587,9 +564,8 @@ namespace gnut
         return;
     }
 
-    t_gtriple t_gobj::crd_arp(const t_gtime &t) const
+    t_gtriple t_gobj::crd_arp(const t_gtime& t) const
     {
-
         _gmutex.lock();
 
         t_gtriple marker(0.0, 0.0, 0.0);
@@ -603,9 +579,8 @@ namespace gnut
         return arp;
     }
 
-    t_gtriple t_gobj::crd(const t_gtime &t) const
+    t_gtriple t_gobj::crd(const t_gtime& t) const
     {
-
         _gmutex.lock();
 
         t_gtriple marker(0.0, 0.0, 0.0);
@@ -615,9 +590,8 @@ namespace gnut
         return marker;
     }
 
-    bool t_gobj::get_recent_crd(const t_gtime &t, const double &ref_std, t_gtriple &crd, t_gtriple &std)
+    bool t_gobj::get_recent_crd(const t_gtime& t, const double& ref_std, t_gtriple& crd, t_gtriple& std)
     {
-
         if (_mapcrd.size() == 0)
         {
             return false;
@@ -654,9 +628,8 @@ namespace gnut
         }
     }
 
-    bool t_gobj::get_adjacent_crd(const t_gtime &t, const double &ref_std, t_gtriple &crd, t_gtriple &std)
+    bool t_gobj::get_adjacent_crd(const t_gtime& t, const double& ref_std, t_gtriple& crd, t_gtriple& std)
     {
-
         if (_mapcrd.size() == 0)
         {
             return false;
@@ -693,9 +666,8 @@ namespace gnut
         }
     }
 
-    t_gtriple t_gobj::std(const t_gtime &t) const
+    t_gtriple t_gobj::std(const t_gtime& t) const
     {
-
         _gmutex.lock();
 
         t_gtriple marker(0.0, 0.0, 0.0);
@@ -705,7 +677,7 @@ namespace gnut
         return marker;
     }
 
-    t_gtriple t_gobj::_crd(const t_gtime &t) const
+    t_gtriple t_gobj::_crd(const t_gtime& t) const
     {
         t_gtriple crd(0.0, 0.0, 0.0);
         t_mapcrd::const_iterator it = _mapcrd.upper_bound(t);
@@ -719,7 +691,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple t_gobj::_std(const t_gtime &t) const
+    t_gtriple t_gobj::_std(const t_gtime& t) const
     {
         t_gtriple std(0.0, 0.0, 0.0);
         t_mapcrd::const_iterator it = _mapcrd.upper_bound(t);
@@ -733,9 +705,8 @@ namespace gnut
         return tmp;
     }
 
-    void t_gobj::crd_validity(const t_gtime &t, t_gtime &beg, t_gtime &end) const
+    void t_gobj::crd_validity(const t_gtime& t, t_gtime& beg, t_gtime& end) const
     {
-
         t_mapcrd::const_iterator it = _mapcrd.upper_bound(t);
         if (it != _mapcrd.begin())
         {
@@ -745,17 +716,15 @@ namespace gnut
         }
     }
 
-    void t_gobj::pcv(shared_ptr<t_gpcv> pcv, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::pcv(shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
     {
-
         _gmutex.lock();
         this->_pcv(pcv, beg, end);
         _gmutex.unlock();
     }
 
-    void t_gobj::_pcv(shared_ptr<t_gpcv> pcv, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::_pcv(shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
     {
-
         t_mappcv::iterator it = _mappcv.find(beg);
 
         if (end < beg)
@@ -795,24 +764,26 @@ namespace gnut
                 if (fabs(it->first - end) > 3600)
                 { // significantly smaller!
                     if (it->second == 0)
+                    {
                         _mappcv.erase(it); // remove obsolete empty record
+                    }
                     _mappcv[end] = _pcvnull;
                 }
                 else
                 {
                     // too close to next record
-                    string lg = "Warning: object " + _id + " 'pcv' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                    string lg = "Warning: object " + _id + " 'pcv' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                                it->first.str("%Y-%m-%d %H:%M:%S");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                    GREAT_DEBUG(lg);
                 }
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'pcv' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                string lg = "Warning: object " + _id + " 'pcv' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                            it->first.str("%Y-%m-%d %H:%M:%S");
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                GREAT_DEBUG(lg);
             }
         }
 
@@ -834,18 +805,16 @@ namespace gnut
         //  }
     }
 
-    shared_ptr<t_gpcv> t_gobj::pcv(const t_gtime &t) const
+    shared_ptr<t_gpcv> t_gobj::pcv(const t_gtime& t) const
     {
-
         _gmutex.lock();
         shared_ptr<t_gpcv> tmp = _pcv(t);
         _gmutex.unlock();
         return tmp;
     }
 
-    shared_ptr<t_gpcv> t_gobj::_pcv(const t_gtime &t) const
+    shared_ptr<t_gpcv> t_gobj::_pcv(const t_gtime& t) const
     {
-
         shared_ptr<t_gpcv> pcv;
         string ant;
 
@@ -854,8 +823,7 @@ namespace gnut
         {
             ant = ""; // antenna not found
 
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: unknown PCO (no antenna found in the object " + _id + " ) " + t.str_ymdhms());
+            GREAT_DEBUG("Warning: unknown PCO (no antenna found in the object " + _id + " ) " + t.str_ymdhms());
             return _pcvnull;
         }
         else
@@ -866,9 +834,7 @@ namespace gnut
         t_mappcv::const_iterator it2 = _mappcv.upper_bound(t);
         if (it2 == _mappcv.begin())
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: unknown PCO ( antenna " + ant + " not found in ATX ) " + t.str_ymdhms());
+            GREAT_DEBUG("Warning: unknown PCO ( antenna " + ant + " not found in ATX ) " + t.str_ymdhms());
             return _pcvnull;
         }
         else
@@ -878,18 +844,14 @@ namespace gnut
 
         if (pcv->pcvkey().compare(ant) != 0)
         {
-            //if (pcv->pcvkey().compare(0, 16, ant, 0, 16) == 0) commented by zhangwei
+            // if (pcv->pcvkey().compare(0, 16, ant, 0, 16) == 0) commented by zhangwei
             if (trim(pcv->pcvkey().substr(0, 16)) == trim(ant.substr(0, 16)))
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: PCO Used without considering randome " + pcv->pcvkey() + " " + ant);
+                GREAT_DEBUG("Warning: PCO Used without considering randome " + pcv->pcvkey() + " " + ant);
             }
             else
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: unknown PCO ( changed antenna " + ant + " not found in ATX ) " + t.str_ymdhms());
+                GREAT_DEBUG("Warning: unknown PCO ( changed antenna " + ant + " not found in ATX ) " + t.str_ymdhms());
                 return _pcvnull;
             }
         }
@@ -897,9 +859,8 @@ namespace gnut
         return pcv;
     }
 
-    void t_gobj::ant(string ant, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::ant(string ant, const t_gtime& beg, const t_gtime& end)
     {
-
         _gmutex.lock();
 
         _ant(ant, beg, end);
@@ -908,7 +869,7 @@ namespace gnut
         return;
     }
 
-    void t_gobj::_ant(string ant, const t_gtime &beg, const t_gtime &end)
+    void t_gobj::_ant(string ant, const t_gtime& beg, const t_gtime& end)
     {
         t_mapant::iterator it = _mapant.find(beg);
 
@@ -924,10 +885,8 @@ namespace gnut
         }
         else
         { // last value
-            if (it->first == LAST_TIME ||
-                it->second.empty())
+            if (it->first == LAST_TIME || it->second.empty())
             {
-
                 _mapant[beg] = ant;
             }
             else
@@ -963,18 +922,18 @@ namespace gnut
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'obj' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                    string lg = "Warning: object " + _id + " 'obj' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                                it->first.str("%Y-%m-%d %H:%M:%S");
 
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                    GREAT_DEBUG(lg);
                 }
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'ant' " + ant + " end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
+                string lg = "Warning: object " + _id + " 'ant' " + ant + " end cut and tied to the existing value " +
+                            end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, lg);
+                GREAT_DEBUG(lg);
             }
         }
 
@@ -996,28 +955,27 @@ namespace gnut
         return;
     }
 
-    string t_gobj::ant(const t_gtime &t) const
+    string t_gobj::ant(const t_gtime& t) const
     {
-
         _gmutex.lock();
         string tmp = this->_ant(t);
         _gmutex.unlock();
         return tmp;
     }
 
-    string t_gobj::_ant(const t_gtime &t) const
+    string t_gobj::_ant(const t_gtime& t) const
     {
-
         t_mapant::const_iterator it = _mapant.upper_bound(t);
         if (it == _mapant.begin())
+        {
             return ""; // not found
+        }
         it--;
         return it->second;
     }
 
-    void t_gobj::ant_validity(const t_gtime &t, t_gtime &beg, t_gtime &end) const
+    void t_gobj::ant_validity(const t_gtime& t, t_gtime& beg, t_gtime& end) const
     {
-
         t_mapant::const_iterator it = _mapant.upper_bound(t);
         if (it != _mapant.begin() && it != _mapant.end())
         {
@@ -1029,7 +987,6 @@ namespace gnut
 
     vector<t_gtime> t_gobj::pcv_id() const
     {
-
         _gmutex.lock();
 
         vector<t_gtime> tmp;
@@ -1045,7 +1002,6 @@ namespace gnut
 
     vector<t_gtime> t_gobj::ant_id() const
     {
-
         _gmutex.lock();
         vector<t_gtime> tmp = this->_ant_id();
         _gmutex.unlock();
@@ -1054,7 +1010,6 @@ namespace gnut
 
     vector<t_gtime> t_gobj::_ant_id() const
     {
-
         vector<t_gtime> tmp;
         t_mapant::const_iterator itMAP = _mapant.begin();
         while (itMAP != _mapant.end())
@@ -1067,7 +1022,6 @@ namespace gnut
 
     vector<t_gtime> t_gobj::crd_id() const
     {
-
         _gmutex.lock();
 
         vector<t_gtime> tmp;
@@ -1081,11 +1035,12 @@ namespace gnut
         return tmp;
     }
 
-    void t_gobj::sync_pcv(t_gallpcv *pcvs)
+    void t_gobj::sync_pcv(t_gallpcv* pcvs)
     {
-
         if (pcvs == 0)
+        {
             return;
+        }
 
         _gmutex.lock();
 
@@ -1093,14 +1048,12 @@ namespace gnut
 
         if (vant.size() == 0)
         { // ant in obj is not set
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "ant in obj is not set");
+            GREAT_DEBUG("ant in obj is not set");
         }
         else
         {
             for (vector<t_gtime>::iterator it = vant.begin(); it != vant.end(); it++)
             {
-
                 // set pcv for all antennas
                 string ant = this->_ant(*it);
                 t_gtime epo = *it;
@@ -1112,8 +1065,7 @@ namespace gnut
                 }
                 else
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: unknown PCO ( antenna " + ant + " not found in ATX ) " + epo.str_ymdhms());
+                    GREAT_DEBUG("Warning: unknown PCO ( antenna " + ant + " not found in ATX ) " + epo.str_ymdhms());
                 }
             }
         }
@@ -1122,9 +1074,8 @@ namespace gnut
         return;
     }
 
-    void t_gobj::compare(shared_ptr<t_gobj> gobj, const t_gtime &tt, string source)
+    void t_gobj::compare(shared_ptr<t_gobj> gobj, const t_gtime& tt, string source)
     {
-
         _gmutex.lock();
 
         string old, alt;
@@ -1141,21 +1092,19 @@ namespace gnut
             {
                 _name = alt;
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " completed by " + source + " (Domes): " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " completed by " + source + " (Domes): " + alt + " (" + tt.str_ymdhms() + ")");
             }
             else if (_overwrite)
             {
                 _name = alt;
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " modified  by " + source + " (Domes): " + old + " -> " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " modified  by " + source + " (Domes): " + old + " -> " + alt + " (" +
+                            tt.str_ymdhms() + ")");
             }
             else
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " does not match " + source + " (Domes): " + old + " -> " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " does not match " + source + " (Domes): " + old + " -> " + alt + " (" +
+                            tt.str_ymdhms() + ")");
             }
         }
 
@@ -1169,21 +1118,19 @@ namespace gnut
             {
                 _domes = alt;
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " completed by " + source + " (Domes): " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " completed by " + source + " (Domes): " + alt + " (" + tt.str_ymdhms() + ")");
             }
             else if (_overwrite)
             {
                 _domes = alt;
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " modified  by " + source + " (Domes): " + old + " -> " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " modified  by " + source + " (Domes): " + old + " -> " + alt + " (" +
+                            tt.str_ymdhms() + ")");
             }
             else
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " does not match " + source + " (Domes): " + old + " -> " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " does not match " + source + " (Domes): " + old + " -> " + alt + " (" +
+                            tt.str_ymdhms() + ")");
             }
         }
 
@@ -1200,21 +1147,20 @@ namespace gnut
                 _ant(alt, beg, end);
                 this->ant_validity(tt, beg, end);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " completed by " + source + " (Antenna): " + alt + " (" + beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " completed by " + source + " (Antenna): " + alt + " (" + beg.str_ymdhms() + "->" +
+                            end.str_ymdhms() + ")");
             }
             else if (_overwrite)
             {
                 _ant(alt, beg, end);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " modified  by " + source + " (Antenna): " + old + " -> " + alt + " (" + beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " modified  by " + source + " (Antenna): " + old + " -> " + alt + " (" +
+                            beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
             }
             else
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " setting does not match " + source + " (Antenna): " + old + " -> " + alt + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " setting does not match " + source + " (Antenna): " + old + " -> " + alt + " (" +
+                            tt.str_ymdhms() + ")");
             }
         }
 
@@ -1234,21 +1180,20 @@ namespace gnut
                 _crd(trip_alt, std_alt, beg, end, true);
                 this->crd_validity(tt, beg, end);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " completed by " + source + " (Coordinates): " + dbl2str(trip_alt[0]) + " " + dbl2str(trip_alt[1]) + " " + dbl2str(trip_alt[2]) + " (" + beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " completed by " + source + " (Coordinates): " + dbl2str(trip_alt[0]) + " " +
+                            dbl2str(trip_alt[1]) + " " + dbl2str(trip_alt[2]) + " (" + beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
             }
             else if (_overwrite)
             {
                 _crd(trip_alt, std_alt, beg, end, true);
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " modified  by " + source + " (Coordinates): " + dbl2str(trip_old[0]) + " " + dbl2str(trip_old[1]) + " " + dbl2str(trip_old[2]) + " -> " + dbl2str(trip_alt[0]) + " " + dbl2str(trip_alt[1]) + " " + dbl2str(trip_alt[2]) + " (" + beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " modified  by " + source + " (Coordinates): " + dbl2str(trip_old[0]) + " " +
+                            dbl2str(trip_old[1]) + " " + dbl2str(trip_old[2]) + " -> " + dbl2str(trip_alt[0]) + " " + dbl2str(trip_alt[1]) +
+                            " " + dbl2str(trip_alt[2]) + " (" + beg.str_ymdhms() + "->" + end.str_ymdhms() + ")");
             }
             else
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning: object " + _id + " does not match " + source + " (Coordinates)" + " (" + tt.str_ymdhms() + ")");
+                GREAT_DEBUG("Warning: object " + _id + " does not match " + source + " (Coordinates)" + " (" + tt.str_ymdhms() + ")");
             }
         }
 
@@ -1298,14 +1243,14 @@ namespace gnut
         return;
     }
 
-    bool t_gobj::operator<(const t_gobj &t) const
+    bool t_gobj::operator<(const t_gobj& t) const
     {
         return _name < t.name();
     }
 
-    bool t_gobj::operator==(const t_gobj &t) const
+    bool t_gobj::operator==(const t_gobj& t) const
     {
         return _name == t.name();
     }
 
-} // namespace
+} // namespace gnut

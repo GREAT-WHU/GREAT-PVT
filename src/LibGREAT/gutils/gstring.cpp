@@ -4,9 +4,9 @@
  * @brief        for string
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gutils/gstring.h"
 
@@ -18,7 +18,7 @@
 
 namespace great
 {
-    std::string format(const char *fmt, ...)
+    std::string format(const char* fmt, ...)
     {
         va_list ap;
         va_start(ap, fmt);
@@ -31,4 +31,4 @@ namespace great
         buf.pop_back();
         return buf;
     }
-}
+} // namespace great

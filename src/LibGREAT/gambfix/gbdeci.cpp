@@ -1,12 +1,12 @@
 /**
  * @file         gbdeci.cpp
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        Judge whether ambiguities meet the requirement of fixing. 
+ * @brief        Judge whether ambiguities meet the requirement of fixing.
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gambfix/gbdeci.h"
 #include "math.h"
@@ -17,23 +17,23 @@ using namespace std;
 
 namespace great
 {
-    //!Input:
-    //!est : estimated(real) bias value
+    //! Input:
+    //! est : estimated(real) bias value
     //    !sigma : estimated uncertainty of bias value, scaled by nrms for
     //    !widelane, unscaled for narrow lane
     //    !ih : control for receiver ambiguity
     //    != 1  unit = one cycle
     //    != 2  unit = half cycle
     //    !cutdev : threshold deviation for taper function(= 0.4 in Dong and Bock;
-    //!default still 0.4 here and in FIXDRV)
+    //! default still 0.4 here and in FIXDRV)
     //    !cutsig : threshold sigma for taper function(= 0.33 in Dong and Bock;
-    //!default still 0.4 here and in FIXDRV)
+    //! default still 0.4 here and in FIXDRV)
 
     t_gbdeci::t_gbdeci()
     {
     }
 
-    t_gbdeci::t_gbdeci(const double &cutdev, const double &cutsig, const double &cutprob, const double &cutdeci)
+    t_gbdeci::t_gbdeci(const double& cutdev, const double& cutsig, const double& cutprob, const double& cutdeci)
     {
         this->_cutdev = cutdev;
         this->_cutsig = cutsig;
@@ -47,9 +47,13 @@ namespace great
         double deci = 0.0;
         bdeci(dEst, dSigma, iIh, _cutdev, _cutsig, prob, deci);
         if (deci > _cutdeci)
+        {
             return true;
+        }
         else
+        {
             return false;
+        }
     }
 
     //    !Output :
@@ -63,9 +67,8 @@ namespace great
     //    !compared with input wlcut or nlcut in NBIASR.
     //    !(But F is no longer used because we search one bias at
     //        !a time.)
-    void t_gbdeci::bdeci(double dEst, double dSigma, int iIh, double dCutdev, double dCutsig, double &dProb, double &dDeci)
+    void t_gbdeci::bdeci(double dEst, double dSigma, int iIh, double dCutdev, double dCutsig, double& dProb, double& dDeci)
     {
-
         double dDev, dTerm1, dTerm2, dC, dD1, dA1, dBint, dTaper, dAdd, dCdev, dCsig, dTrun, dS1;
         double dB1, dB2, dErfcb1, dErfcb2;
         int j;
@@ -161,7 +164,7 @@ namespace great
         }
     }
 
-    void t_gbdeci::_gser(double &dGamser, double dA, double dX, double &dGln)
+    void t_gbdeci::_gser(double& dGamser, double dA, double dX, double& dGln)
     {
         double dAp, dSum, dDel;
         int n;
@@ -232,9 +235,8 @@ namespace great
         }
     }
 
-    void t_gbdeci::_gcf(double &dGammcf, double dA, double dX, double &dGln)
+    void t_gbdeci::_gcf(double& dGammcf, double dA, double dX, double& dGln)
     {
-
         double anf, gold, a0, a1, b0, b1, fac, an, ana, g;
         int n;
         const int itmax = 100;
@@ -356,7 +358,6 @@ namespace great
 
     double t_gbdeci::_erfc(double dX)
     {
-
         double erfc, half;
         half = 0.5;
         if (dX < 0)
@@ -369,4 +370,4 @@ namespace great
         }
         return erfc;
     }
-}
+} // namespace great

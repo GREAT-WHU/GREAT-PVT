@@ -4,9 +4,9 @@
  * @brief        The base class used to decode poleut1 file information.
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include <string>
 #include <algorithm>
@@ -18,11 +18,15 @@
 using namespace std;
 namespace great
 {
-    t_poleut1::t_poleut1(t_gsetbase *s, string version, int sz)
-        : t_gcoder(s, version, sz), _begtime(0), _endtime(0), _interval(0), _parnum(0)
+    t_poleut1::t_poleut1(t_gsetbase* s, string version, int sz) :
+        t_gcoder(s, version, sz),
+        _begtime(0),
+        _endtime(0),
+        _interval(0),
+        _parnum(0)
     {
     }
-    int t_poleut1::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_poleut1::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
         _mutex.lock();
         if (t_gcoder::_add2buffer(buff, sz) == 0)
@@ -41,7 +45,6 @@ namespace great
         {
             while ((tmpsize = t_gcoder::_getline(tmp)) >= 0)
             {
-
                 consume += tmpsize;
 
                 // first information
@@ -55,13 +58,13 @@ namespace great
                     else if (tmp.substr(2, 1) == "S")
                     {
                         istr >> time >> time >> _begtime >> _endtime >> _interval;
-                        map<string, t_gdata *>::iterator it = _data.begin();
+                        map<string, t_gdata*>::iterator it = _data.begin();
                         while (it != _data.end())
                         {
                             if (it->second->id_type() == t_gdata::ALLPOLEUT1)
                             {
                                 istr >> time >> time >> _begtime >> _endtime >> _interval;
-                                dynamic_cast<t_gpoleut1 *>(it->second)->setBegEndTime(_begtime, _endtime);
+                                dynamic_cast<t_gpoleut1*>(it->second)->setBegEndTime(_begtime, _endtime);
                             }
                             it++;
                         }
@@ -81,7 +84,7 @@ namespace great
                 {
                     istringstream istr2(tmp.substr(2));
                 }
-                else if (tmp.substr(0, 2) == "%%") 
+                else if (tmp.substr(0, 2) == "%%")
                 {
                     if (tmp.substr(3, 1) == "M")
                     {
@@ -98,8 +101,7 @@ namespace great
                 }
                 else
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "END OF HEADER");
+                    GREAT_DEBUG("END OF HEADER");
                     _mutex.unlock();
                     return -1;
                 }
@@ -111,13 +113,12 @@ namespace great
         }
         catch (...)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR : t_poleut1::decode_head throw exception");
+            GREAT_ERROR("ERROR : t_poleut1::decode_head throw exception");
             return -1;
         }
     }
 
-    int t_poleut1::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_poleut1::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
         _mutex.lock();
 
@@ -152,13 +153,17 @@ namespace great
                     {
                         data[_parname[i]] = par[i] * _parunit[i];
                     }
-                    map<string, t_gdata *>::iterator it = _data.begin();
+                    map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
                         if (T.mjd() > _endtime)
+                        {
                             break;
+                        }
                         if (it->second->id_type() == t_gdata::ALLPOLEUT1)
-                            dynamic_cast<t_gpoleut1 *>(it->second)->setEopData(T, data, _timetype, _interval);
+                        {
+                            dynamic_cast<t_gpoleut1*>(it->second)->setEopData(T, data, _timetype, _interval);
+                        }
                         it++;
                     }
                 }
@@ -169,11 +174,9 @@ namespace great
         }
         catch (...)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR : t_poleut1::decode_data throw exception");
+            GREAT_ERROR("ERROR : t_poleut1::decode_data throw exception");
             return -1;
         }
     }
 
-
-}
+} // namespace great

@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include <iostream>
@@ -19,7 +19,8 @@ namespace gnut
     {
     }
 
-    t_randomwalk::t_randomwalk() : t_stochastic()
+    t_randomwalk::t_randomwalk() :
+        t_stochastic()
     {
         _dSig = 9999.9;
 
@@ -33,12 +34,12 @@ namespace gnut
         this->_dSig = q;
     }
 
-    void t_randomwalk::setTprev(const t_gtime &Tprev)
+    void t_randomwalk::setTprev(const t_gtime& Tprev)
     {
         this->_Tprev = Tprev;
     }
 
-    void t_randomwalk::setTcurr(const t_gtime &Tcurr)
+    void t_randomwalk::setTcurr(const t_gtime& Tcurr)
     {
         this->_Tcurr = Tcurr;
     }
@@ -59,13 +60,14 @@ namespace gnut
         return (_Tcurr - _Tprev);
     }
 
-    void t_randomwalk::updateTime(const t_gtime &Tnew)
+    void t_randomwalk::updateTime(const t_gtime& Tnew)
     {
         setTprev(_Tcurr);
         setTcurr(Tnew);
     }
 
-    t_whitenoise::t_whitenoise(double var) : t_stochastic()
+    t_whitenoise::t_whitenoise(double var) :
+        t_stochastic()
     {
         this->_var = var;
     }
@@ -82,11 +84,13 @@ namespace gnut
 
     const double t_statemode::_coeff[6] = {1.0, -sqrt(3), 2 * sqrt(3), sqrt(5), -6 * sqrt(5), 12 * sqrt(5)};
 
-    t_statemode::t_statemode() : order(0)
+    t_statemode::t_statemode() :
+        order(0)
     {
     }
 
-    t_statemode::t_statemode(int order, double dt, double noise) : order(order)
+    t_statemode::t_statemode(int order, double dt, double noise) :
+        order(order)
     {
         // set the Matrix M P
         M = Matrix(order, order);
@@ -122,4 +126,4 @@ namespace gnut
     {
     }
 
-} // namespace
+} // namespace gnut

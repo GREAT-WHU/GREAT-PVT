@@ -45,46 +45,64 @@ namespace gnut
         void reset();
 
         /** @brief get polynomial degree. */
-        int degree() const { return _ncoeff - 1; }
+        int degree() const
+        {
+            return _ncoeff - 1;
+        }
 
         /** @brief get # of coefficients. */
-        int ncoeff() const { return _ncoeff; }
+        int ncoeff() const
+        {
+            return _ncoeff;
+        }
 
         /** @brief get accuracy. */
-        double rms() const { return _rms; }
+        double rms() const
+        {
+            return _rms;
+        }
 
         /** @brief get validity. */
-        bool valid() const { return _valid; }
+        bool valid() const
+        {
+            return _valid;
+        }
 
         /** @brief get x-span. */
-        double span() const { return _span; }
+        double span() const
+        {
+            return _span;
+        }
 
         /** @brief get x-reference value. */
-        double xref() const { return _xref; }
+        double xref() const
+        {
+            return _xref;
+        }
 
         /** @brief get polynomials. */
-        vector<double> polynomials() const { return _coef; }
+        vector<double> polynomials() const
+        {
+            return _coef;
+        }
 
-        int interpolate(const vector<double> &X, const vector<double> &Y, const double &x, double &y, double &dy);
-        int polynomials(const vector<double> &X, const vector<double> &Y);
-        void evaluate(double x, int I, double &y);
+        int interpolate(const vector<double>& X, const vector<double>& Y, const double& x, double& y, double& dy);
+        int polynomials(const vector<double>& X, const vector<double>& Y);
+        void evaluate(double x, int I, double& y);
 
         /**
-        * @brief fit polynom
-        * @param[in]  X            xdata time-difference.
-        * @param[in]  Y            ydata.
-        * @param[in]  N            degree of polynom.
-        * @param[in]  tunit        X-time units [sec].
-        * @param[in]  t            reference time.
-        * @return      int
-        */
-        int fitpolynom(const vector<double> &X,
-                       const vector<double> &Y,
-                       int N, double tunit,
-                       const t_gtime &t);
+         * @brief fit polynom
+         * @param[in]  X            xdata time-difference.
+         * @param[in]  Y            ydata.
+         * @param[in]  N            degree of polynom.
+         * @param[in]  tunit        X-time units [sec].
+         * @param[in]  t            reference time.
+         * @return      int
+         */
+        int fitpolynom(const vector<double>& X, const vector<double>& Y, int N, double tunit, const t_gtime& t);
 
     private:
-        bool _valid;          ///< are coefficients valid 
+        bool _valid;          ///< are coefficients valid
         int _ncoeff;          ///< polynomial order (n) for n+1 points
         double _rms;          ///< RMS of fitted coefficients  [meters]
         double _xref;         ///< x reference value is always 0.0 !!!!!!
@@ -92,8 +110,11 @@ namespace gnut
         vector<double> _coef; ///< coefficients
     };
 
-    double LibGnut_LIBRARY_EXPORT lagrange_interpolate(const vector<double> &X, const vector<double> &Y, double x, const bool &lvel = false);
+    double LibGnut_LIBRARY_EXPORT lagrange_interpolate(const vector<double>& X,
+                                                       const vector<double>& Y,
+                                                       double x,
+                                                       const bool& lvel = false);
 
-} // namespace
+} // namespace gnut
 
 #endif

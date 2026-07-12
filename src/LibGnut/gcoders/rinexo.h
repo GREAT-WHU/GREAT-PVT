@@ -46,53 +46,52 @@ using namespace std;
 namespace gnut
 {
     /**
-    *@brief Class for t_rinexo derive from t_rinexo3
-    */
+     *@brief Class for t_rinexo derive from t_rinexo3
+     */
     class LibGnut_LIBRARY_EXPORT t_rinexo : public t_rinexo3
     {
-
     public:
         /** @brief constructor set + version + sz. */
-        explicit t_rinexo(t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        explicit t_rinexo(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief constructor beg + end + set + version + sz. */
-        t_rinexo(t_gtime beg, t_gtime end, t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        t_rinexo(t_gtime beg, t_gtime end, t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
         /** @brief default destructor. */
-        virtual ~t_rinexo(){};
+        virtual ~t_rinexo() {};
 
         /** @brief decode head. */
-        virtual int decode_head(char *buff, int sz, vector<string> &errmsg);
+        virtual int decode_head(char* buff, int sz, vector<string>& errmsg);
 
         /**
-         * @brief 
-         * 
-         * @param buff 
-         * @param sz 
-         * @param cnt 
-         * @param errmsg 
-         * @return int 
+         * @brief
+         *
+         * @param buff
+         * @param sz
+         * @param cnt
+         * @param errmsg
+         * @return int
          */
-        virtual int decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg);
+        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg);
 
     protected:
         /**
          * @brief decode head
-         * 
-         * @return int 
+         *
+         * @return int
          */
         virtual int _decode_head();
 
         /**
          * @brief decode data
-         * 
-         * @return int 
+         *
+         * @return int
          */
         virtual int _decode_data();
 
     private:
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

@@ -32,21 +32,19 @@ namespace gnut
 {
 
     /**
-    *@brief Class for t_gallpcv derive from t_gdata
-    */
+     *@brief Class for t_gallpcv derive from t_gdata
+     */
     class LibGnut_LIBRARY_EXPORT t_gallpcv : public t_gdata
     {
-
     public:
         /** @brief default constructor. */
         t_gallpcv();
 
         /**
          * @brief Construct a new t gallpcv object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gallpcv(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gallpcv();
@@ -56,22 +54,20 @@ namespace gnut
         typedef map<string, t_map_num> t_map_pcv;           ///< map of N-ant/N-sn/N-epochs
 
         /**
-        *@brief add single antenn pattern (PCV)
-        */
+         *@brief add single antenn pattern (PCV)
+         */
         int addpcv(shared_ptr<t_gpcv> pcv);
 
         /**
-        *@brief get single antenn pattern (PCV)
-        */
-        shared_ptr<t_gpcv> gpcv(const string &ant, const string &num,
-                                const t_gtime &t);
+         *@brief get single antenn pattern (PCV)
+         */
+        shared_ptr<t_gpcv> gpcv(const string& ant, const string& num, const t_gtime& t);
 
     protected:
         /**
-        *@brief find appropriate t_gpcv element
-        */
-        virtual shared_ptr<t_gpcv>
-        _find(const string &ant, const string &ser, const t_gtime &t);
+         *@brief find appropriate t_gpcv element
+         */
+        virtual shared_ptr<t_gpcv> _find(const string& ant, const string& ser, const t_gtime& t);
 
     private:
         t_map_pcv _mappcv; ///< complete PCV-map
@@ -80,6 +76,6 @@ namespace gnut
         shared_ptr<t_gpcv> _pcvnull; ///< pcvnull
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

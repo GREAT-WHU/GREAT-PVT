@@ -4,9 +4,9 @@
  * @brief        ambiguity fixing by using LAMBDA.
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gambfix/gambiguity.h"
 #include "gset/gsetgen.h"
@@ -29,52 +29,56 @@ namespace great
         _wl_Upd_time = t_gtime(WL_IDENTIFY);
     }
 
-    t_gambiguity::t_gambiguity(string site, t_gsetbase *gset)
-        : _part_fix(false),
-          _is_first(true),
-          _is_first_wl(true),
-          _is_first_nl(true),
-          _is_first_ewl(true),
-          _is_first_ewl24(true),
-          _is_first_ewl25(true),
-          _amb_fixed(false),
-          _obstype(OBSCOMBIN::IONO_FREE),
-          _upd_mode(UPD_MODE::UPD),
-          _fix_mode(FIX_MODE::SEARCH)
+    t_gambiguity::t_gambiguity(string site, t_gsetbase* gset) :
+        _part_fix(false),
+        _is_first(true),
+        _is_first_wl(true),
+        _is_first_nl(true),
+        _is_first_ewl(true),
+        _is_first_ewl24(true),
+        _is_first_ewl25(true),
+        _amb_fixed(false),
+        _obstype(OBSCOMBIN::IONO_FREE),
+        _upd_mode(UPD_MODE::UPD),
+        _fix_mode(FIX_MODE::SEARCH)
     {
         _site = site;
         _gset = gset;
-        _beg = dynamic_cast<t_gsetgen *>(_gset)->beg();
-        _end = dynamic_cast<t_gsetgen *>(_gset)->end();
-        _sys = dynamic_cast<t_gsetgen *>(_gset)->sys();
-        _sat_rm = dynamic_cast<t_gsetgen *>(_gset)->sat_rm();
-        _interval = dynamic_cast<t_gsetgen *>(_gset)->sampling();
+        _beg = dynamic_cast<t_gsetgen*>(_gset)->beg();
+        _end = dynamic_cast<t_gsetgen*>(_gset)->end();
+        _sys = dynamic_cast<t_gsetgen*>(_gset)->sys();
+        _sat_rm = dynamic_cast<t_gsetgen*>(_gset)->sat_rm();
+        _interval = dynamic_cast<t_gsetgen*>(_gset)->sampling();
 
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss *>(_gset)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss *>(_gset)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss *>(_gset)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss *>(_gset)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss *>(_gset)->band_index(gnut::QZS);
+        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GPS);
+        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GAL);
+        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GLO);
+        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::BDS);
+        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::QZS);
 
-        _fix_mode = dynamic_cast<t_gsetamb *>(_gset)->fix_mode();
-        _upd_mode = dynamic_cast<t_gsetamb *>(_gset)->upd_mode();
+        _fix_mode = dynamic_cast<t_gsetamb*>(_gset)->fix_mode();
+        _upd_mode = dynamic_cast<t_gsetamb*>(_gset)->upd_mode();
 
-        _part_fix = dynamic_cast<t_gsetamb *>(_gset)->part_ambfix();
-        _part_fix_num = dynamic_cast<t_gsetamb *>(_gset)->part_ambfix_num();
-        _min_common_time = dynamic_cast<t_gsetamb *>(_gset)->min_common_time();
-        _map_EWL_decision = dynamic_cast<t_gsetamb *>(_gset)->get_amb_decision("EWL");
-        _map_WL_decision = dynamic_cast<t_gsetamb *>(_gset)->get_amb_decision("WL");
-        _map_NL_decision = dynamic_cast<t_gsetamb *>(_gset)->get_amb_decision("NL");
-        _ratio = dynamic_cast<t_gsetamb *>(_gset)->lambda_ratio();
-        _boot = dynamic_cast<t_gsetamb *>(_gset)->bootstrapping();
-        _frequency = dynamic_cast<t_gsetproc *>(_gset)->frequency();
-        _full_fix_num = dynamic_cast<t_gsetamb *>(_gset)->full_fix_num();
+        _part_fix = dynamic_cast<t_gsetamb*>(_gset)->part_ambfix();
+        _part_fix_num = dynamic_cast<t_gsetamb*>(_gset)->part_ambfix_num();
+        _min_common_time = dynamic_cast<t_gsetamb*>(_gset)->min_common_time();
+        _map_EWL_decision = dynamic_cast<t_gsetamb*>(_gset)->get_amb_decision("EWL");
+        _map_WL_decision = dynamic_cast<t_gsetamb*>(_gset)->get_amb_decision("WL");
+        _map_NL_decision = dynamic_cast<t_gsetamb*>(_gset)->get_amb_decision("NL");
+        _ratio = dynamic_cast<t_gsetamb*>(_gset)->lambda_ratio();
+        _boot = dynamic_cast<t_gsetamb*>(_gset)->bootstrapping();
+        _frequency = dynamic_cast<t_gsetproc*>(_gset)->frequency();
+        _full_fix_num = dynamic_cast<t_gsetamb*>(_gset)->full_fix_num();
 
-        //init ratio and boot file
+        // init ratio and boot file
         if (_fix_mode == FIX_MODE::SEARCH)
-            _initRatiofile(); 
+        {
+            _initRatiofile();
+        }
         if (_boot > 0.0)
+        {
             _initBootfile();
+        }
 
         _ewl_Upd_time = t_gtime(EWL_IDENTIFY);
         _ewl24_Upd_time = t_gtime(EWL24_IDENTIFY);
@@ -87,14 +91,18 @@ namespace great
         if (_ratiofile)
         {
             if (_ratiofile->is_open())
+            {
                 _ratiofile->close();
+            }
             delete _ratiofile;
             _ratiofile = NULL;
         }
         if (_bootfile)
         {
             if (_bootfile->is_open())
+            {
                 _bootfile->close();
+            }
             delete _bootfile;
             _bootfile = nullptr;
         }
@@ -115,10 +123,10 @@ namespace great
         return _amb_fixed;
     }
 
-    int t_gambiguity::processBatch(const t_gtime &t, t_gflt *gflt, string mode)
+    int t_gambiguity::processBatch(const t_gtime& t, t_gflt* gflt, string mode)
     {
         if (_gupd && _gupd->wl_epo_mode())
-        { 
+        {
             _ewl_Upd_time = t;
             _wl_Upd_time = t;
             _ewl24_Upd_time = t;
@@ -126,9 +134,10 @@ namespace great
         }
         for (auto it : _fix_epo_num[mode])
         {
-
             if (abs(t.diff(_last_fix_time[mode][it.first])) > _interval + 0.01)
+            {
                 it.second = 0;
+            }
         }
         _sats_index.clear();
         _lock_epo_num.clear();
@@ -172,7 +181,7 @@ namespace great
         }
 
         // check if a new ambiguity is dependant of the already selected
-        if (_is_first) 
+        if (_is_first)
         {
             int maxamb;
             maxamb = _max_active_amb_one_epo + parnum;
@@ -181,68 +190,98 @@ namespace great
         }
 
         if (mode == "EWL")
+        {
             _is_first_ewl = _is_first;
+        }
         else if (mode == "EWL24")
+        {
             _is_first_ewl24 = _is_first;
+        }
         else if (mode == "EWL25")
+        {
             _is_first_ewl25 = _is_first;
+        }
         else if (mode == "WL")
+        {
             _is_first_wl = _is_first;
+        }
         else if (mode == "NL")
+        {
             _is_first_nl = _is_first;
+        }
 
         // define double difference ambiguities over one baseline (PPP sd amb.)
         int namb = _defineDDAmb(&amb_cmn);
         if (namb < 0)
+        {
             return -1;
+        }
         _total_amb_num = namb;
 
         // calulate widelane upd for iono_free
         if (_obstype == OBSCOMBIN::RAW_ALL || _obstype == OBSCOMBIN::RAW_MIX)
         {
             if (mode != "NL" && !_calDDAmbWLALL(&amb_cmn, mode))
+            {
                 return -1;
+            }
         }
         else if (_obstype == OBSCOMBIN::IONO_FREE)
         {
             if (!_calDDAmbWL())
+            {
                 return -1;
+            }
         }
 
         // find DD that contains reference satellite
         if (!_sat_refs.empty() && !_findRefSD())
+        {
             return -1;
+        }
 
         // apply UPD correction
         // fix widelane and narrowlane ambiguities
         if (mode == "NL")
         {
             if (!_applyUpd(_crt_time))
+            {
                 return -1;
+            }
             if (_obstype == OBSCOMBIN::IONO_FREE)
             {
                 if (!_fixAmbIF())
+                {
                     return -1;
+                }
             }
             else if (_obstype == OBSCOMBIN::RAW_ALL || _obstype == OBSCOMBIN::RAW_MIX)
             {
                 if (!_fixAmbUDUC())
+                {
                     return -1;
+                }
             }
         }
         else
         {
             if (!_applyWLUpd(_crt_time, mode))
+            {
                 return -1;
+            }
             if (!_fixAmbWL(mode))
+            {
                 return -1;
+            }
         }
         _DD_save = _DD;
 
         // select usable amb.
         int ndef = _selectAmb(koder, namb);
         if (ndef < 0)
+        {
             return -1;
+        }
 
         if (mode == "WL" || mode == "EWL")
         {
@@ -258,19 +297,23 @@ namespace great
         }
 
         // lambda search
-        if (_fix_mode != FIX_MODE::NO && mode == "NL") 
+        if (_fix_mode != FIX_MODE::NO && mode == "NL")
         {
             if (!_ambSolve(&amb_cmn, fixed_amb, mode))
+            {
                 return -1;
+            }
         }
 
         if (_last_fix_time[mode].find("sum") != _last_fix_time[mode].end())
         {
             if (t.diff(_last_fix_time[mode]["sum"]) >= _ctrl_last_fixepo_gap * _interval && fixed_amb.size() < _ctrl_min_fixed_num)
+            {
                 return -1;
+            }
         }
 
-        for (auto it_dd = _DD.begin(); it_dd != _DD.end(); it_dd++) 
+        for (auto it_dd = _DD.begin(); it_dd != _DD.end(); it_dd++)
         {
             if (mode == "NL")
             {
@@ -280,13 +323,21 @@ namespace great
                 it_dd->iewl25 = _IEWL25[get<0>(it_dd->ddSats[0])][get<0>(it_dd->ddSats[1])];
             }
             if (mode == "WL")
+            {
                 _IWL[get<0>(it_dd->ddSats[0])][get<0>(it_dd->ddSats[1])][it_dd->site] = it_dd->iwl;
+            }
             if (mode == "EWL")
+            {
                 _IEWL[get<0>(it_dd->ddSats[0])][get<0>(it_dd->ddSats[1])][it_dd->site] = it_dd->iewl;
+            }
             if (mode == "EWL24")
+            {
                 _IEWL24[get<0>(it_dd->ddSats[0])][get<0>(it_dd->ddSats[1])] = it_dd->iewl24;
+            }
             if (mode == "EWL25")
+            {
                 _IEWL25[get<0>(it_dd->ddSats[0])][get<0>(it_dd->ddSats[1])] = it_dd->iewl25;
+            }
         }
 
         t_gflt fltpreAMB(*gflt);
@@ -295,12 +346,16 @@ namespace great
         if (mode == "NL")
         {
             if (!_addFixConstraint(gflt))
+            {
                 return -1;
+            }
         }
         else
         {
             if (!_addFixConstraintWL(gflt, mode))
+            {
                 return -1;
+            }
         }
 
         // amb state should be determined after addFixConstraint.
@@ -324,22 +379,21 @@ namespace great
             _amb_fixed = false;
             _fixed_amb_num = 0;
         }
-        _outRatio = amb_cmn.get_ratio(); 
+        _outRatio = amb_cmn.get_ratio();
         auto tmp_param = gflt->param();
         auto tmp_dx = gflt->dx();
 
-        updateFixParam(tmp_param, tmp_dx); 
+        updateFixParam(tmp_param, tmp_dx);
 
         return 1;
     }
 
-
-    t_gallpar &t_gambiguity::getFinalParams()
+    t_gallpar& t_gambiguity::getFinalParams()
     {
         return _param;
     }
 
-    void t_gambiguity::setSatRef(set<string> &satRef)
+    void t_gambiguity::setSatRef(set<string>& satRef)
     {
         _sat_refs = satRef;
 
@@ -353,7 +407,7 @@ namespace great
         _IWL.clear();
     }
 
-    void t_gambiguity::updateFixParam(t_gallpar &param, ColumnVector &dx, ColumnVector *stdx)
+    void t_gambiguity::updateFixParam(t_gallpar& param, ColumnVector& dx, ColumnVector* stdx)
     {
         _param.delAllParam();
         _param = param;
@@ -362,18 +416,24 @@ namespace great
         {
             _param[i].value(param[i].value() + dx(i + 1));
             if (stdx)
+            {
                 _param[i].apriori((*stdx)(i + 1));
+            }
         }
     }
 
-    double t_gambiguity::lambdaSolve(double &ratio, const Matrix &anor, const ColumnVector &fltpar, ColumnVector &ibias, bool parlamb)
+    double t_gambiguity::lambdaSolve(double& ratio, const Matrix& anor, const ColumnVector& fltpar, ColumnVector& ibias, bool parlamb)
     {
-        double boot_temp = 0.0; //by qzy
+        double boot_temp = 0.0; // by qzy
         _ratio = ratio;
         if (parlamb)
+        {
             _part_fix = true;
+        }
         else
+        {
             _part_fix = false;
+        }
 
         int namb = fltpar.Nrows();
         vector<double> fltpar_;
@@ -396,12 +456,14 @@ namespace great
             }
         }
         else
+        {
             ratio_post = 0.0;
+        }
 
         return ratio_post;
     }
 
-    void t_gambiguity::setWaveLength(map<string, int> &glofrq_num)
+    void t_gambiguity::setWaveLength(map<string, int>& glofrq_num)
     {
         set<string> waveLenSats;
 
@@ -411,41 +473,47 @@ namespace great
             GSYS gsys = t_gsys::str2gsys(strsys);
             switch (gsys)
             {
-            case GPS:
-                waveLenSats.insert("G");
-                break;
-            case GAL:
-                waveLenSats.insert("E");
-                break;
-            case BDS:
-                waveLenSats.insert("C");
-                break;
-            case GLO: // FDMA
-                for (auto it_R : glofrq_num)
-                {
-                    waveLenSats.insert(it_R.first);
-                }
-                break;
-            case QZS:
-                waveLenSats.insert("J");
-                break;
-            default:
-                break;
+                case GPS:
+                    waveLenSats.insert("G");
+                    break;
+                case GAL:
+                    waveLenSats.insert("E");
+                    break;
+                case BDS:
+                    waveLenSats.insert("C");
+                    break;
+                case GLO: // FDMA
+                    for (auto it_R : glofrq_num)
+                    {
+                        waveLenSats.insert(it_R.first);
+                    }
+                    break;
+                case QZS:
+                    waveLenSats.insert("J");
+                    break;
+                default:
+                    break;
             }
         }
 
-        t_gobsgnss *gnss = new t_gobsgnss(_spdlog);
+        t_gobsgnss* gnss = new t_gobsgnss();
         // Loop waveLenSats
         for (auto iter : waveLenSats)
         {
-            if (iter == "2" || iter == "3" || iter == "4" || iter == "5") //xjhan
+            if (iter == "2" || iter == "3" || iter == "4" || iter == "5")
+            { // xjhan
                 gnss->sat("G");
+            }
             else
+            {
                 gnss->sat(iter);
+            }
 
             GSYS gsys = gnss->gsys();
             if (iter.substr(0, 1) == "R")
+            {
                 gnss->channel(glofrq_num.at(iter));
+            }
 
             _sys_wavelen[iter]["L1"] = gnss->wavelength(_band_index[gsys][FREQ_1]);
             _sys_wavelen[iter]["L2"] = gnss->wavelength(_band_index[gsys][FREQ_2]);
@@ -474,9 +542,14 @@ namespace great
         return;
     }
 
-    bool t_gambiguity::_checkAmbDepend(bool isFirst, int iNamb, int *iNdef, int iN_oneway, int *arriIpt2ow, int iMaxamb_ow, int iMaxamb_for_check)
+    bool t_gambiguity::_checkAmbDepend(bool isFirst,
+                                       int iNamb,
+                                       int* iNdef,
+                                       int iN_oneway,
+                                       int* arriIpt2ow,
+                                       int iMaxamb_ow,
+                                       int iMaxamb_for_check)
     {
-
         const string strCprogName = "check_amb_depend";
         const double dEPS = 1e-12;
         static int iNdim_ow = 0;
@@ -561,7 +634,8 @@ namespace great
                     }
                     for (j = 0; j < iNamb; j++)
                     {
-                        _pdE[j * (iNdim_for_check + 1) + *iNdef] = _pdE[j * (iNdim_for_check + 1) + *iNdef] - _pdC[i] * _pdE[j * (iNdim_for_check + 1) + i];
+                        _pdE[j * (iNdim_for_check + 1) + *iNdef] =
+                            _pdE[j * (iNdim_for_check + 1) + *iNdef] - _pdC[i] * _pdE[j * (iNdim_for_check + 1) + i];
                     }
                 }
 
@@ -581,7 +655,8 @@ namespace great
                 dC_dot = sqrt(iN_oneway * 1.0);
                 for (j = 0; j < iN_oneway; j++)
                 {
-                    _pdE[(arriIpt2ow[j] - 1) * (iNdim_for_check + 1) + *iNdef] = _pdE[(arriIpt2ow[j] - 1) * (iNdim_for_check + 1) + *iNdef] / dC_dot;
+                    _pdE[(arriIpt2ow[j] - 1) * (iNdim_for_check + 1) + *iNdef] =
+                        _pdE[(arriIpt2ow[j] - 1) * (iNdim_for_check + 1) + *iNdef] / dC_dot;
                 }
             }
 
@@ -591,13 +666,12 @@ namespace great
         }
         catch (...)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_check_amb_depend] : throw exception");
+            GREAT_ERROR("ERROR[t_gambiguity::_check_amb_depend] : throw exception");
             return false;
         }
     }
 
-    int t_gambiguity::_defineDDAmb(t_gamb_cmn *amb_cmn)
+    int t_gambiguity::_defineDDAmb(t_gamb_cmn* amb_cmn)
     {
         vector<t_gpar> params_ALL = amb_cmn->param().getAllPar();
         vector<t_gpar> params;
@@ -607,11 +681,9 @@ namespace great
         for (auto it_par = params_ALL.begin(); it_par != params_ALL.end(); it_par++)
         {
             it_par->index = distance(params_ALL.begin(), it_par) + 1;
-            it_par->pred = it_par->value() + amb_cmn->dx()(it_par->index); 
-            if (it_par->str_type().find("AMB") == string::npos ||
-                it_par->str_type().find("AMB13") != string::npos ||
-                _sat_rm.find(it_par->prn) != _sat_rm.end() ||
-                double_eq(it_par->value(), 0.0))
+            it_par->pred = it_par->value() + amb_cmn->dx()(it_par->index);
+            if (it_par->str_type().find("AMB") == string::npos || it_par->str_type().find("AMB13") != string::npos ||
+                _sat_rm.find(it_par->prn) != _sat_rm.end() || double_eq(it_par->value(), 0.0))
             {
                 continue;
             }
@@ -619,7 +691,7 @@ namespace great
             {
                 if (it_par->str_type().find("AMB_L1") != string::npos)
                 {
-                    _amb_freqs[it_par->prn][it_par->site].push_back(FREQ_1);                
+                    _amb_freqs[it_par->prn][it_par->site].push_back(FREQ_1);
                 }
                 else if (it_par->str_type().find("AMB_L2") != string::npos)
                 {
@@ -632,15 +704,18 @@ namespace great
 
             _lock_epo_num[it_par->prn] = round((it_par->end - it_par->beg) / _interval) + 1;
             if (_last_fix_time[amb_cmn->get_mode()].find(it_par->prn) == _last_fix_time[amb_cmn->get_mode()].end())
+            {
                 _last_fix_time[amb_cmn->get_mode()][it_par->prn] = FIRST_TIME;
+            }
             if (_fix_epo_num[amb_cmn->get_mode()].find(it_par->prn) == _fix_epo_num[amb_cmn->get_mode()].end())
+            {
                 _fix_epo_num[amb_cmn->get_mode()][it_par->prn] = 0;
+            }
         }
 
         if (params.size() < 2)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR : Ambguity's number is less than 2");
+            GREAT_ERROR("ERROR : Ambguity's number is less than 2");
             return -1;
         }
 
@@ -653,17 +728,22 @@ namespace great
             for (auto itsat2 = itsat1 + 1; itsat2 != InnerLoopEnd; itsat2++)
             {
                 // whether same system
-                if (t_gsys::sat2gsys(itsat1->prn) != t_gsys::sat2gsys(itsat2->prn)
-                    || itsat1->site != itsat2->site)
+                if (t_gsys::sat2gsys(itsat1->prn) != t_gsys::sat2gsys(itsat2->prn) || itsat1->site != itsat2->site)
+                {
                     continue;
+                }
 
                 // whether same satellite
                 if (itsat1->prn == itsat2->prn)
+                {
                     continue;
+                }
 
                 // the same ambiguity type
                 if (itsat1->parType != itsat2->parType)
+                {
                     continue;
+                }
 
                 t_dd_ambiguity dd;
 
@@ -674,7 +754,9 @@ namespace great
 
                 // judge whether this combination is valid
                 if ((dd.end_epo - dd.beg_epo) < _min_common_time)
+                {
                     continue;
+                }
 
                 dd.ambtype = itsat1->str_type().substr(0, 6);
                 dd.isEwlFixed = false;
@@ -694,7 +776,9 @@ namespace great
                 if (itsat1->prn.substr(0, 1) == "R")
                 {
                     if (_sys_wavelen[itsat1->prn]["NL"] == 0)
+                    {
                         continue;
+                    }
                     dd.rlc = itsat1->pred / _sys_wavelen[itsat1->prn]["NL"] - itsat2->pred / _sys_wavelen[itsat2->prn]["NL"]; // Unit:Cycle
                     if (_obstype == OBSCOMBIN::RAW_ALL)
                     {
@@ -705,11 +789,16 @@ namespace great
                 if (_fix_mode != FIX_MODE::NO)
                 {
                     // get dd ambiguity _sigma
-                    sigma = amb_cmn->Qx()(itsat1->index, itsat1->index) - 2 * amb_cmn->Qx()(itsat1->index, itsat2->index) + amb_cmn->Qx()(itsat2->index, itsat2->index);
+                    sigma = amb_cmn->Qx()(itsat1->index, itsat1->index) - 2 * amb_cmn->Qx()(itsat1->index, itsat2->index) +
+                            amb_cmn->Qx()(itsat2->index, itsat2->index);
                     if (double_eq(sigma, 0.0))
+                    {
                         continue;
+                    }
                     if (amb_cmn->sigma0() < 0)
+                    {
                         continue;
+                    }
                     dd.srlc = amb_cmn->sigma0() * sqrt(abs(sigma)) * sigma / abs(sigma);
                 }
                 _DD.push_back(dd);
@@ -718,24 +807,26 @@ namespace great
 
         if (_DD.empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_defineDDAmb] : double-Difference ambiguity is empty");
+            GREAT_ERROR("ERROR[t_gambiguity::_defineDDAmb] : double-Difference ambiguity is empty");
             return -1;
         }
         else
+        {
             return params.size();
+        }
     }
 
     bool t_gambiguity::_calDDAmbWL()
     {
         string sat1, sat2;
         string sat11, sat12, sat21, sat22;
-        //widelane ambiguities from MW-combination
+        // widelane ambiguities from MW-combination
         for (auto itdd = _DD.begin(); itdd != _DD.end();)
         {
             sat1 = get<0>(itdd->ddSats[0]);
             sat2 = get<0>(itdd->ddSats[1]);
-            if (itdd->ddSats.size() != 2 || _MW.find(sat1) == _MW.end() || _MW.find(sat2) == _MW.end() || _MW[sat1][1] <= 2.0 || _MW[sat2][1] <= 2.0)
+            if (itdd->ddSats.size() != 2 || _MW.find(sat1) == _MW.end() || _MW.find(sat2) == _MW.end() || _MW[sat1][1] <= 2.0 ||
+                _MW[sat2][1] <= 2.0)
             {
                 itdd = _DD.erase(itdd);
                 continue;
@@ -760,16 +851,16 @@ namespace great
         }
         if (_DD.empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_calDDAmbWL] : Double-Difference ambiguity is empty");
+            GREAT_ERROR("ERROR[t_gambiguity::_calDDAmbWL] : Double-Difference ambiguity is empty");
             return false;
         }
         else
+        {
             return true;
+        }
     }
-    bool t_gambiguity::_calDDAmbWLALL(t_gamb_cmn *amb_cmn, string mode)
+    bool t_gambiguity::_calDDAmbWLALL(t_gamb_cmn* amb_cmn, string mode)
     {
-
         string sat11, sat12, sat21, sat22, ambtype1, ambtype2;
         double qq, lambda_1 = 0, lambda_2 = 0, lambda_21 = 0, lambda_22 = 0;
 
@@ -817,7 +908,9 @@ namespace great
                 ambtype2 = "AMB_L5";
             }
             if (itdd->ambtype != ambtype1)
+            {
                 continue;
+            }
 
             for (auto itdd1 = _DD.begin(); itdd1 != _DD.end(); itdd1++)
             {
@@ -825,31 +918,43 @@ namespace great
                 sat22 = get<0>(itdd1->ddSats[1]);
 
                 if (itdd1->ambtype != ambtype2)
+                {
                     continue;
-                
+                }
+
                 if (itdd1->site != itdd->site)
+                {
                     continue;
+                }
 
                 if ((sat11 == sat21) && (sat12 == sat22))
                 {
                     if (sat11.substr(0, 1) != "R")
                     {
                         itdd->rwl = itdd->rlc / lambda_1 - itdd1->rlc / lambda_2;
-                        
                     }
                     else
                     {
-                        itdd->rwl = (itdd->rlc + itdd->rwl_R1) * _sys_wavelen[sat11]["NL"] / lambda_1 - itdd->rwl_R1 * _sys_wavelen[sat12]["NL"] / lambda_21; 
-                        itdd->rwl -= (itdd1->rlc + itdd1->rwl_R1) * _sys_wavelen[sat11]["NL"] / lambda_2 - itdd1->rwl_R1 * _sys_wavelen[sat12]["NL"] / lambda_22;
+                        itdd->rwl = (itdd->rlc + itdd->rwl_R1) * _sys_wavelen[sat11]["NL"] / lambda_1 -
+                                    itdd->rwl_R1 * _sys_wavelen[sat12]["NL"] / lambda_21;
+                        itdd->rwl -= (itdd1->rlc + itdd1->rwl_R1) * _sys_wavelen[sat11]["NL"] / lambda_2 -
+                                     itdd1->rwl_R1 * _sys_wavelen[sat12]["NL"] / lambda_22;
                     }
-                    qq = amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_1) - amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[1])) / (lambda_1 * lambda_2) -
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_2) + amb_cmn->Qx()(get<1>(itdd->ddSats[1]), get<1>(itdd1->ddSats[1])) / (lambda_2 * lambda_2);
+                    qq = amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_1) -
+                         amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[1])) / (lambda_1 * lambda_2) -
+                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_2) +
+                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]), get<1>(itdd1->ddSats[1])) / (lambda_2 * lambda_2);
                     if (double_eq(qq, 0.0))
+                    {
                         continue;
+                    }
                     if (amb_cmn->sigma0() < 0)
+                    {
                         continue;
+                    }
 
-                    itdd->srwl = itdd->srlc / (lambda_1 * lambda_1) + itdd1->srlc / (lambda_2 * lambda_2) - 2 * (amb_cmn->sigma0() * sqrt(abs(qq)) * qq / abs(qq));
+                    itdd->srwl = itdd->srlc / (lambda_1 * lambda_1) + itdd1->srlc / (lambda_2 * lambda_2) -
+                                 2 * (amb_cmn->sigma0() * sqrt(abs(qq)) * qq / abs(qq));
                     itdd->ddSats.push_back(make_tuple(sat21, get<1>(itdd1->ddSats[0]), get<2>(itdd1->ddSats[0])));
                     itdd->ddSats.push_back(make_tuple(sat22, get<1>(itdd1->ddSats[1]), get<2>(itdd1->ddSats[1])));
                     break;
@@ -859,51 +964,61 @@ namespace great
 
         if (_DD.empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_calDDAmbWL] : Double-Difference ambiguity is empty");
+            GREAT_ERROR("ERROR[t_gambiguity::_calDDAmbWL] : Double-Difference ambiguity is empty");
             return false;
         }
         else
+        {
             return true;
+        }
     }
 
-    bool t_gambiguity::_getSingleUpd(string mode, t_gtime t, string sat, double &value, double &sigma)
+    bool t_gambiguity::_getSingleUpd(string mode, t_gtime t, string sat, double& value, double& sigma)
     {
         UPDTYPE upd_type = str2updmode(trim(mode));
         one_epoch_upd epoch_upd = _gupd->get_epo_upd(upd_type, t);
         value = 0.0;
         if (epoch_upd.find(sat) == epoch_upd.end())
+        {
             return false;
+        }
         if (mode == "EWL" || mode == "EWL24" || mode == "EWL25")
         {
             if (epoch_upd[sat]->sigma > 0.2 || epoch_upd[sat]->npoint <= 2)
+            {
                 return false;
+            }
             value = epoch_upd[sat]->value;
         }
         else if (mode == "EWL_epoch")
         {
-            //one_epoch_upd_epoch epoch_upd_epoch = _gupd_epoch->get_epo_upd_epoch(t);
+            // one_epoch_upd_epoch epoch_upd_epoch = _gupd_epoch->get_epo_upd_epoch(t);
             if (epoch_upd[sat]->sigma > 0.2 || epoch_upd[sat]->npoint <= 2)
+            {
                 return false;
+            }
             value = epoch_upd[sat]->value;
         }
         else if (mode == "WL")
         {
             if (epoch_upd[sat]->sigma > 0.2 || epoch_upd[sat]->npoint <= 2)
+            {
                 return false;
+            }
             value = epoch_upd[sat]->value;
         }
         else if (mode == "NL")
         {
             if (epoch_upd[sat]->sigma > 0.1 || epoch_upd[sat]->npoint <= 3)
+            {
                 return false;
+            }
             value = epoch_upd[sat]->value;
             sigma += pow(epoch_upd[sat]->sigma, 2);
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applySingleUpd] : Undefined UPD Mode (WL/NL) : " + mode);
+            GREAT_DEBUG("Warning[t_gambiguity::_applySingleUpd] : Undefined UPD Mode (WL/NL) : " + mode);
             return false;
         }
         return true;
@@ -940,12 +1055,12 @@ namespace great
                 // get Extrawidelane UPD
                 if (_frequency >= 3 && _obstype == OBSCOMBIN::RAW_ALL)
                 {
-                    if ((!_getSingleUpd("EWL", _ewl_Upd_time, sat1, upd_ewl1, sig) || !_getSingleUpd("EWL", _ewl_Upd_time, sat2, upd_ewl2, sig)))
+                    if ((!_getSingleUpd("EWL", _ewl_Upd_time, sat1, upd_ewl1, sig) ||
+                         !_getSingleUpd("EWL", _ewl_Upd_time, sat2, upd_ewl2, sig)))
                     {
                         if (itdd->ambtype == "AMB_L3")
                         {
-                            if (_spdlog)
-                                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL, Sat: " + sat1 + " " + sat2);
+                            GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL, Sat: " + sat1 + " " + sat2);
                             itdd = _DD.erase(itdd);
                             continue;
                         }
@@ -958,12 +1073,12 @@ namespace great
                 // get Extrawidelane-24 UPD
                 if (_frequency >= 4 && _obstype == OBSCOMBIN::RAW_ALL)
                 {
-                    if ((!_getSingleUpd("EWL24", _ewl24_Upd_time, sat1, upd_ewl24_1, sig) || !_getSingleUpd("EWL24", _ewl24_Upd_time, sat2, upd_ewl24_2, sig)))
+                    if ((!_getSingleUpd("EWL24", _ewl24_Upd_time, sat1, upd_ewl24_1, sig) ||
+                         !_getSingleUpd("EWL24", _ewl24_Upd_time, sat2, upd_ewl24_2, sig)))
                     {
                         if (itdd->ambtype == "AMB_L4")
                         {
-                            if (_spdlog)
-                                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL24, Sat: " + sat1 + " " + sat2);
+                            GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL24, Sat: " + sat1 + " " + sat2);
                             itdd = _DD.erase(itdd);
                             continue;
                         }
@@ -976,12 +1091,12 @@ namespace great
                 // get Extrawidelane-25 UPD
                 if (_frequency == 5 && _obstype == OBSCOMBIN::RAW_ALL)
                 {
-                    if ((!_getSingleUpd("EWL25", _ewl25_Upd_time, sat1, upd_ewl25_1, sig) || !_getSingleUpd("EWL25", _ewl25_Upd_time, sat2, upd_ewl25_2, sig)))
+                    if ((!_getSingleUpd("EWL25", _ewl25_Upd_time, sat1, upd_ewl25_1, sig) ||
+                         !_getSingleUpd("EWL25", _ewl25_Upd_time, sat2, upd_ewl25_2, sig)))
                     {
                         if (itdd->ambtype == "AMB_L5")
                         {
-                            if (_spdlog)
-                                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL25, Sat: " + sat1 + " " + sat2);
+                            GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL25, Sat: " + sat1 + " " + sat2);
                             itdd = _DD.erase(itdd);
                             continue;
                         }
@@ -996,8 +1111,7 @@ namespace great
                 {
                     if (!_getSingleUpd("WL", _wl_Upd_time, sat1, upd_wl1, sig) || !_getSingleUpd("WL", _wl_Upd_time, sat2, upd_wl2, sig))
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : WL, Sat: " + sat1 + " " + sat2);
+                        GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : WL, Sat: " + sat1 + " " + sat2);
                         itdd = _DD.erase(itdd);
                         continue;
                     }
@@ -1007,8 +1121,7 @@ namespace great
                 {
                     if (!_getSingleUpd("NL", t, sat1, upd_nl1, sig) || !_getSingleUpd("NL", t, sat2, upd_nl2, sig))
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : NL, Sat: " + sat1 + " " + sat2);
+                        GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : NL, Sat: " + sat1 + " " + sat2);
                         itdd = _DD.erase(itdd);
                         continue;
                     }
@@ -1081,7 +1194,7 @@ namespace great
                     }
                 }
                 else
-                { 
+                {
                     double lambda_11, lambda_12, lambda_21, lambda_22;
                     lambda_11 = _sys_wavelen[sat1]["L1"];
                     lambda_12 = _sys_wavelen[sat1]["L2"];
@@ -1118,22 +1231,31 @@ namespace great
                 {
                     // apply Widelane UPD
                     if (_upd_mode == UPD_MODE::UPD)
+                    {
                         itdd->rwl += (-upd_wl1 + upd_wl2);
-                    itdd->rnl = itdd->rlc / _sys_wavelen[sat1.substr(0, 1)]["NL"] - round(itdd->rwl) * _sys_wavelen[sat1.substr(0, 1)]["WL"] / _sys_wavelen[sat1.substr(0, 1)]["L2"];
+                    }
+                    itdd->rnl = itdd->rlc / _sys_wavelen[sat1.substr(0, 1)]["NL"] -
+                                round(itdd->rwl) * _sys_wavelen[sat1.substr(0, 1)]["WL"] / _sys_wavelen[sat1.substr(0, 1)]["L2"];
                     itdd->srnl = itdd->srlc / _sys_wavelen[sat1.substr(0, 1)]["NL"];
                     itdd->factor = _sys_wavelen[sat1.substr(0, 1)]["NL"];
                     if (_upd_mode == UPD_MODE::UPD)
+                    {
                         itdd->rnl += itdd->sd_rnl_cor;
+                    }
                 }
                 else
                 {
                     if (_upd_mode == UPD_MODE::UPD)
+                    {
                         itdd->rwl += (-upd_wl1 + upd_wl2);
+                    }
                     itdd->rnl = itdd->rlc - round(itdd->rwl) * 3.5;
                     itdd->srnl = itdd->srlc / _sys_wavelen[sat1]["NL"];
-                    itdd->factor = _sys_wavelen[sat1]["NL"]; 
+                    itdd->factor = _sys_wavelen[sat1]["NL"];
                     if (_upd_mode == UPD_MODE::UPD)
+                    {
                         itdd->rnl += itdd->sd_rnl_cor;
+                    }
                 }
             }
             itdd++;
@@ -1154,38 +1276,35 @@ namespace great
             sat2 = get<0>(itdd->ddSats[1]);
 
             sig = 0.0;
-            if (_gupd) 
+            if (_gupd)
             {
                 // get Extrawidelane UPD
                 if (_frequency >= 3 && mode == "EWL")
                 {
-                    if ((!_getSingleUpd("EWL", _ewl_Upd_time, sat1, upd_ewl1, sig)) || 
-                       (!_getSingleUpd("EWL", _ewl_Upd_time, sat2, upd_ewl2, sig) && mode == "EWL"))
+                    if ((!_getSingleUpd("EWL", _ewl_Upd_time, sat1, upd_ewl1, sig)) ||
+                        (!_getSingleUpd("EWL", _ewl_Upd_time, sat2, upd_ewl2, sig) && mode == "EWL"))
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL, Sat: " + sat1 + " " + sat2);
+                        GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL, Sat: " + sat1 + " " + sat2);
                         itdd = _DD.erase(itdd);
                         continue;
                     }
                 }
                 else if (_frequency >= 4 && mode == "EWL24")
                 {
-                    if (!_getSingleUpd("EWL24", _ewl24_Upd_time, sat1, upd_ewl1, sig) || 
-                       (!_getSingleUpd("EWL24", _ewl24_Upd_time, sat2, upd_ewl2, sig) && mode == "EWL24"))
+                    if (!_getSingleUpd("EWL24", _ewl24_Upd_time, sat1, upd_ewl1, sig) ||
+                        (!_getSingleUpd("EWL24", _ewl24_Upd_time, sat2, upd_ewl2, sig) && mode == "EWL24"))
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL24, Sat: " + sat1 + " " + sat2);
+                        GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL24, Sat: " + sat1 + " " + sat2);
                         itdd = _DD.erase(itdd);
                         continue;
                     }
                 }
                 else if (_frequency == 5 && mode == "EWL25")
                 {
-                    if (!_getSingleUpd("EWL25", _ewl25_Upd_time, sat1, upd_ewl1, sig) || 
-                    (!_getSingleUpd("EWL25", _ewl25_Upd_time, sat2, upd_ewl2, sig) && mode == "EWL25"))
+                    if (!_getSingleUpd("EWL25", _ewl25_Upd_time, sat1, upd_ewl1, sig) ||
+                        (!_getSingleUpd("EWL25", _ewl25_Upd_time, sat2, upd_ewl2, sig) && mode == "EWL25"))
                     {
-                        if (_spdlog)
-                            SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL25, Sat: " + sat1 + " " + sat2);
+                        GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : EWL25, Sat: " + sat1 + " " + sat2);
                         itdd = _DD.erase(itdd);
                         continue;
                     }
@@ -1193,8 +1312,7 @@ namespace great
                 // get Widelane UPD
                 if (!_getSingleUpd("WL", _wl_Upd_time, sat1, upd_wl1, sig) || !_getSingleUpd("WL", _wl_Upd_time, sat2, upd_wl2, sig))
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : WL, Sat: " + sat1 + " " + sat2);
+                    GREAT_DEBUG("Warning[t_gambiguity::_applyUpd] : _getSingleUpd Wrong : WL, Sat: " + sat1 + " " + sat2);
                     itdd = _DD.erase(itdd);
                     continue;
                 }
@@ -1251,7 +1369,7 @@ namespace great
                 }
             }
             else
-            { 
+            {
                 if (mode == "WL" && itdd->rwl != 0)
                 {
                     itdd->rwl += (-upd_wl1 + upd_wl2);
@@ -1284,10 +1402,11 @@ namespace great
             // Judge Widelane Ambiguity whether can be fixed
             if (sat1.substr(0, 1) != "R") //
             {
-                bdeci.bdeci(itdd->rwl, itdd->srwl, 1, _map_WL_decision["maxdev"],
-                            _map_WL_decision["maxsig"], prob, alpha);
+                bdeci.bdeci(itdd->rwl, itdd->srwl, 1, _map_WL_decision["maxdev"], _map_WL_decision["maxsig"], prob, alpha);
                 if (alpha > _map_WL_decision["alpha"])
+                {
                     itdd->isWlFixed = true;
+                }
                 if (_part_fix && abs(itdd->rwl - round(itdd->rwl)) < 0.2 && itdd->srwl < 0.5)
                 {
                     itdd->isWlFixed = true;
@@ -1295,10 +1414,8 @@ namespace great
             }
             else
             {
-                bdeci.bdeci(itdd->rwl_R1, itdd->srwl_R1, 1, _map_WL_decision["maxdev"],
-                            _map_WL_decision["maxsig"], prob, alpha1);
-                bdeci.bdeci(itdd->rwl_R2, itdd->srwl_R2, 1, _map_WL_decision["maxdev"],
-                            _map_WL_decision["maxsig"], prob, alpha2);
+                bdeci.bdeci(itdd->rwl_R1, itdd->srwl_R1, 1, _map_WL_decision["maxdev"], _map_WL_decision["maxsig"], prob, alpha1);
+                bdeci.bdeci(itdd->rwl_R2, itdd->srwl_R2, 1, _map_WL_decision["maxdev"], _map_WL_decision["maxsig"], prob, alpha2);
                 if (alpha1 > _map_WL_decision["alpha"] && alpha2 > _map_WL_decision["alpha"])
                 {
                     itdd->isWlFixed = true;
@@ -1311,11 +1428,14 @@ namespace great
 
             // Judge Narrowlane Ambiguity whether can be fixed
             if (double_eq(itdd->srnl, 0.0))
+            {
                 itdd->srnl = 0.05;
-            bdeci.bdeci(itdd->rnl, itdd->srnl, 1, _map_NL_decision["maxdev"],
-                        _map_NL_decision["maxsig"], prob, alpha);
+            }
+            bdeci.bdeci(itdd->rnl, itdd->srnl, 1, _map_NL_decision["maxdev"], _map_NL_decision["maxsig"], prob, alpha);
             if (alpha > _map_NL_decision["alpha"])
+            {
                 itdd->isNlFixed = true;
+            }
 
             if (sat1.substr(0, 1) != "R")
             {
@@ -1352,22 +1472,30 @@ namespace great
             itdd->isWlFixed = _WL_flag[sat1][sat2][itdd->site];
 
             if (_amb_freqs[sat1][itdd->site].size() == 1 || _amb_freqs[sat2][itdd->site].size() == 1)
+            {
                 itdd->isSngleFreq = true;
+            }
 
             if (_obstype == gnut::OBSCOMBIN::RAW_MIX && itdd->isSngleFreq == true)
             {
                 if (itdd->ambtype == "AMB_L5" || itdd->ambtype == "AMB_L4" || itdd->ambtype == "AMB_L3")
+                {
                     continue;
+                }
             }
             else
             {
                 if (itdd->ambtype == "AMB_L5" || itdd->ambtype == "AMB_L4" || itdd->ambtype == "AMB_L3" || itdd->ambtype == "AMB_L2")
+                {
                     continue;
+                }
             }
 
             // Judge Narrowlane Ambiguity whether can be fixed
             if (double_eq(itdd->srnl, 0.0))
+            {
                 itdd->srnl = 0.05;
+            }
 
             if (abs(itdd->rnl - round(itdd->rnl)) < _map_NL_decision["maxdev"])
             {
@@ -1385,12 +1513,13 @@ namespace great
 
         if (_DD.empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_fixAmbUDUC] : Double-Difference ambiguity is empty");
+            GREAT_ERROR("ERROR[t_gambiguity::_fixAmbUDUC] : Double-Difference ambiguity is empty");
             return false;
         }
         else
+        {
             return true;
+        }
     }
     bool t_gambiguity::_fixAmbWL()
     {
@@ -1403,8 +1532,7 @@ namespace great
             sat1 = get<0>(itdd->ddSats[0]);
             sat2 = get<0>(itdd->ddSats[1]);
 
-            bdeci.bdeci(itdd->rwl, itdd->srwl, 1, _map_WL_decision["maxdev"],
-                        _map_WL_decision["maxsig"], prob, alpha);
+            bdeci.bdeci(itdd->rwl, itdd->srwl, 1, _map_WL_decision["maxdev"], _map_WL_decision["maxsig"], prob, alpha);
             if (alpha > _map_WL_decision["alpha"])
             {
                 itdd->isWlFixed = true;
@@ -1426,24 +1554,28 @@ namespace great
 
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
-
             sat1 = get<0>(itdd->ddSats[0]);
             sat2 = get<0>(itdd->ddSats[1]);
 
             if (mode == "WL")
             {
                 if (itdd->rwl == 0)
+                {
                     continue;
+                }
                 _WL_flag[sat1][sat2][itdd->site] = false;
                 if (double_eq(itdd->srwl, 0.0))
+                {
                     itdd->srwl = 0.05;
+                }
                 if (abs(itdd->rwl - round(itdd->rwl)) < _map_WL_decision["maxdev"])
                 {
                     itdd->isWlFixed = true;
                     _WL_flag[sat1][sat2][itdd->site] = true;
                     itdd->iwl = round(itdd->rwl);
                 }
-                if (_fix_epo_num[mode][sat1] > 20 && _fix_epo_num[mode][sat2] > 20 && _lock_epo_num[sat1] > 200 && _lock_epo_num[sat2] > 200)
+                if (_fix_epo_num[mode][sat1] > 20 && _fix_epo_num[mode][sat2] > 20 && _lock_epo_num[sat1] > 200 &&
+                    _lock_epo_num[sat2] > 200)
                 {
                     if (abs(itdd->rwl - round(itdd->rwl)) < _map_WL_decision["maxdev"] * 1.1)
                     {
@@ -1456,10 +1588,14 @@ namespace great
             else if (mode == "EWL")
             {
                 if (itdd->rewl == 0)
+                {
                     continue;
+                }
                 _EWL_flag[sat1][sat2][itdd->site] = false;
                 if (double_eq(itdd->srewl, 0.0))
+                {
                     itdd->srewl = 0.05;
+                }
                 if (abs(itdd->rewl - round(itdd->rewl)) < _map_EWL_decision["maxdev"])
                 {
                     itdd->isEwlFixed = true;
@@ -1467,7 +1603,8 @@ namespace great
                     itdd->iewl = round(itdd->rewl);
                 }
 
-                if (_fix_epo_num[mode][sat1] > 20 && _fix_epo_num[mode][sat2] > 20 && _lock_epo_num[sat1] > 200 && _lock_epo_num[sat2] > 200)
+                if (_fix_epo_num[mode][sat1] > 20 && _fix_epo_num[mode][sat2] > 20 && _lock_epo_num[sat1] > 200 &&
+                    _lock_epo_num[sat2] > 200)
                 {
                     if (abs(itdd->rewl - round(itdd->rewl)) < _map_EWL_decision["maxdev"] * 1.1)
                     {
@@ -1480,10 +1617,14 @@ namespace great
             else if (mode == "EWL24")
             {
                 if (itdd->rewl24 == 0)
+                {
                     continue;
+                }
                 _EWL24_flag[sat1][sat2] = false;
                 if (double_eq(itdd->srewl24, 0.0))
+                {
                     itdd->srewl24 = 0.05;
+                }
                 if (abs(itdd->rewl24 - round(itdd->rewl24)) < _map_EWL_decision["maxdev"])
                 {
                     itdd->isEwl24Fixed = true;
@@ -1495,10 +1636,14 @@ namespace great
             else if (mode == "EWL25")
             {
                 if (itdd->rewl25 == 0)
+                {
                     continue;
+                }
                 _EWL25_flag[sat1][sat2] = false;
                 if (double_eq(itdd->srewl25, 0.0))
+                {
                     itdd->srewl25 = 0.05;
+                }
                 if (abs(itdd->rewl25 - round(itdd->rewl25)) < _map_EWL_decision["maxdev"])
                 {
                     itdd->isEwl25Fixed = true;
@@ -1560,20 +1705,20 @@ namespace great
                 auto sat2 = get<0>(itdd->ddSats[1]);
                 switch (korder)
                 {
-                case 2:
-                    _WL_flag[sat1][sat2][itdd->site] = false;
-                    break;
-                case 3:
-                    _EWL_flag[sat1][sat2][itdd->site] = false;
-                    break;
-                case 4:
-                    _EWL24_flag[sat1][sat2] = false;
-                    break;
-                case 5:
-                    _EWL25_flag[sat1][sat2] = false;
-                    break;
-                default:
-                    break;
+                    case 2:
+                        _WL_flag[sat1][sat2][itdd->site] = false;
+                        break;
+                    case 3:
+                        _EWL_flag[sat1][sat2][itdd->site] = false;
+                        break;
+                    case 4:
+                        _EWL24_flag[sat1][sat2] = false;
+                        break;
+                    case 5:
+                        _EWL25_flag[sat1][sat2] = false;
+                        break;
+                    default:
+                        break;
                 }
                 itdd = _DD.erase(itdd);
                 continue;
@@ -1585,16 +1730,17 @@ namespace great
         }
 
         if (ndef > 0 && ndef <= 999999)
+        {
             return ndef;
+        }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_selectAmb] : _selectAmb Wrong");
+            GREAT_ERROR("ERROR[t_gambiguity::_selectAmb] : _selectAmb Wrong");
             return -1;
         }
     }
 
-    bool t_gambiguity::_prepareCovariance(t_gamb_cmn *amb_cmn, SymmetricMatrix &covariance, vector<double> &value)
+    bool t_gambiguity::_prepareCovariance(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, vector<double>& value)
     {
         int row = 0, col = 0;
         // set covariance-matrix
@@ -1608,7 +1754,6 @@ namespace great
 
             for (auto itdd2 = itdd1; itdd2 != _DD.end(); itdd2++)
             {
-
                 // Column of covariance-matrix
                 col = distance(_DD.begin(), itdd2) + 1;
 
@@ -1627,15 +1772,16 @@ namespace great
 
         if (value.size() == 0 || covariance.size() == 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_prepareCovariance] : prepare Double-Difference covariance is Wrong");
+            GREAT_ERROR("ERROR[t_gambiguity::_prepareCovariance] : prepare Double-Difference covariance is Wrong");
             return false;
         }
         else
+        {
             return true;
+        }
     }
 
-    bool t_gambiguity::_prepareCovarianceWL(t_gamb_cmn *amb_cmn, SymmetricMatrix &covariance, vector<double> &value, string mode)
+    bool t_gambiguity::_prepareCovarianceWL(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, vector<double>& value, string mode)
     {
         int row = 0, col = 0;
         double lambda_1 = 0.0, lambda_2 = 0.0;
@@ -1650,7 +1796,9 @@ namespace great
             if (mode == "WL")
             {
                 if (itdd1->rwl == 0)
+                {
                     continue;
+                }
                 if (sat.substr(0, 1) != "R")
                 {
                     lambda_1 = _sys_wavelen[sat.substr(0, 1)]["L1"];
@@ -1667,7 +1815,9 @@ namespace great
             else if (mode == "EWL")
             {
                 if (itdd1->rewl == 0)
+                {
                     continue;
+                }
                 if (sat.substr(0, 1) != "R")
                 {
                     lambda_1 = _sys_wavelen[sat.substr(0, 1)]["L2"];
@@ -1689,17 +1839,31 @@ namespace great
             for (auto itdd2 = itdd1; itdd2 != _DD.end(); itdd2++)
             {
                 if (get<0>(itdd1->ddSats[0]).substr(1) != get<0>(itdd2->ddSats[0]).substr(1))
+                {
                     continue;
+                }
                 // Column of covariance-matrix
                 col = distance(_DD.begin(), itdd2) + 1;
                 op_dd << 1 / (lambda_1 * lambda_1) << -1 / (lambda_1 * lambda_2) << -1 / (lambda_1 * lambda_2) << 1 / (lambda_2 * lambda_2);
                 Matrix Q(2, 2);
 
                 // Covariance of ambiguity between four satellites
-                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[0])) * op_dd(1) + amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[2])) * op_dd(2) + amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[0])) * op_dd(3) + amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[2])) * op_dd(4);
-                Q(1, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[1])) * op_dd(1) + amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[3])) * op_dd(2) + amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[1])) * op_dd(3) + amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[3])) * op_dd(4);
-                Q(2, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[0])) * op_dd(1) + amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[2])) * op_dd(2) + amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[0])) * op_dd(3) + amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[2])) * op_dd(4);
-                Q(2, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[1])) * op_dd(1) + amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[3])) * op_dd(2) + amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[1])) * op_dd(3) + amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[3])) * op_dd(4);
+                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[0])) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[2])) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[0])) * op_dd(3) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[2])) * op_dd(4);
+                Q(1, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[1])) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[3])) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[1])) * op_dd(3) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[3])) * op_dd(4);
+                Q(2, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[0])) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[2])) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[0])) * op_dd(3) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[2])) * op_dd(4);
+                Q(2, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[1])) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[3])) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[1])) * op_dd(3) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[3])) * op_dd(4);
 
                 // Combinatorial transformation
                 covariance(row, col) = (Q(1, 1) - Q(2, 1) - Q(1, 2) + Q(2, 2)); // unit [cycle]
@@ -1710,15 +1874,16 @@ namespace great
 
         if (value.size() == 0 || covariance.size() == 0)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "ERROR[t_gambiguity::_prepareCovariance] : prepare Double-Difference covariance is Wrong");
+            GREAT_ERROR("ERROR[t_gambiguity::_prepareCovariance] : prepare Double-Difference covariance is Wrong");
             return false;
         }
         else
+        {
             return true;
+        }
     }
 
-    double t_gambiguity::_lambdaSearch(const Matrix &anor, const vector<double> &fltpar, vector<int> &ibias, double *boot)
+    double t_gambiguity::_lambdaSearch(const Matrix& anor, const vector<double>& fltpar, vector<int>& ibias, double* boot)
     {
         const int maxcan = 2;
         int namb = fltpar.size();
@@ -1726,25 +1891,27 @@ namespace great
         double ratio = 0.0;
         int i, j;
         double disall[maxcan] = {0};
-        double *fbias = new double[namb]{0};
-        double *Q = new double[namb * namb]{0};
-        double *cands = new double[namb * maxcan]{0};
-        t_glambda *lambda = new t_glambda();
+        double* fbias = new double[namb]{0};
+        double* Q = new double[namb * namb]{0};
+        double* cands = new double[namb * maxcan]{0};
+        t_glambda* lambda = new t_glambda();
 
         try
         {
-            //row
+            // row
             for (i = 0; i < namb; i++)
             {
                 ibias.push_back(round(fltpar[i]));
                 fbias[i] = fltpar[i] - ibias[i];
 
-                //col
+                // col
                 for (j = 0; j < namb; j++)
                 {
                     Q[i * namb + j] = anor(i + 1, j + 1);
                     if (i < j)
+                    {
                         Q[i * namb + j] = 0.0;
+                    }
                 }
             }
 
@@ -1774,7 +1941,9 @@ namespace great
             }
 
             if (ratio < _ratio || *boot < _boot)
+            {
                 ibias.clear();
+            }
             else
             {
                 for (i = 0; i < namb; i++)
@@ -1795,7 +1964,6 @@ namespace great
         }
         catch (...)
         {
-
             if (fbias != NULL)
             {
                 delete[] fbias;
@@ -1822,7 +1990,7 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_ambSolve(t_gamb_cmn *amb_cmn, vector<int> &fixed_amb, string mode)
+    bool t_gambiguity::_ambSolve(t_gamb_cmn* amb_cmn, vector<int>& fixed_amb, string mode)
     {
         SymmetricMatrix covariance;
         vector<double> value;
@@ -1836,17 +2004,24 @@ namespace great
                 string sat1 = get<0>(itdd->ddSats[0]);
                 string sat2 = get<0>(itdd->ddSats[1]);
                 if (mode == "WL" && _WL_flag[sat1][sat2][itdd->site])
+                {
                     _IWL[sat1][sat2][itdd->site] = itdd->iwl;
+                }
                 if (mode == "EWL" && _EWL_flag[sat1][sat2][itdd->site])
+                {
                     _IEWL[sat1][sat2][itdd->site] = itdd->iewl;
+                }
                 if (mode == "EWL24" && _EWL24_flag[sat1][sat2])
+                {
                     _IEWL24[sat1][sat2] = itdd->iewl24;
+                }
                 if (mode == "EWL25" && _EWL25_flag[sat1][sat2])
+                {
                     _IEWL25[sat1][sat2] = itdd->iewl25;
+                }
                 continue;
             }
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_ambSolve] : too few candidate ambiguities for LAMBDA Search");
+            GREAT_DEBUG("Warning[t_gambiguity::_ambSolve] : too few candidate ambiguities for LAMBDA Search");
             return false;
         }
 
@@ -1854,18 +2029,24 @@ namespace great
         if (mode == "NL")
         {
             if (!_prepareCovariance(amb_cmn, covariance, value))
+            {
                 return false;
+            }
         }
         else
         {
             if (!_prepareCovarianceWL(amb_cmn, covariance, value, mode))
+            {
                 return false;
+            }
         }
 
         // resolve integer ambiguities using LAMBDA-method
         ratio = _lambdaSearch(covariance, value, fixed_amb, &boot);
         if (ratio > 99.0)
+        {
             ratio = 99.0;
+        }
         if (mode == "NL")
         {
             _os_ratio << "RATIO" << fixed << setw(10) << setprecision(2) << ratio;
@@ -1884,7 +2065,8 @@ namespace great
                 for (unsigned int i = 1; i <= value.size(); i++)
                 {
                     auto itdd = _DD.begin() + i - 1;
-                    if (_fix_epo_num[mode][get<0>(itdd->ddSats[0])] == 0 || _fix_epo_num[mode][get<0>(itdd->ddSats[1])] == 0 || _lock_epo_num[get<0>(itdd->ddSats[0])] < 5 || _lock_epo_num[get<0>(itdd->ddSats[1])] < 5)
+                    if (_fix_epo_num[mode][get<0>(itdd->ddSats[0])] == 0 || _fix_epo_num[mode][get<0>(itdd->ddSats[1])] == 0 ||
+                        _lock_epo_num[get<0>(itdd->ddSats[0])] < 5 || _lock_epo_num[get<0>(itdd->ddSats[1])] < 5)
                     {
                         if (covariance(i, i) > max_diag)
                         {
@@ -1923,7 +2105,7 @@ namespace great
                     }
                 }
             }
-            
+
             auto itdd_tmp = _DD.begin() + index - 1;
 
             if (mode == "WL")
@@ -1940,12 +2122,16 @@ namespace great
 
             fixed_amb.clear();
             if (value.size() <= _part_fix_num)
+            {
                 return false;
+            }
 
             ratio = _lambdaSearch(covariance, value, fixed_amb, &boot);
 
             if (ratio > 99.0)
+            {
                 ratio = 99.0;
+            }
             if (mode == "NL")
             {
                 _os_ratio << setw(10) << setprecision(2) << ratio;
@@ -1958,7 +2144,9 @@ namespace great
             _os_boot << endl;
             _writeRatio(ratio);
             if (_boot > 0.0)
+            {
                 _writeBoot(boot);
+            }
         }
 
         amb_cmn->set_ratio(ratio);
@@ -1972,7 +2160,9 @@ namespace great
                 for (auto it_dd = _DD.begin(); it_dd != _DD.end(); it_dd++)
                 {
                     if (it_dd->rwl == 0)
+                    {
                         continue;
+                    }
                     int ipos = distance(_DD.begin(), it_dd);
                     it_dd->iwl = fixed_amb[ipos];
                 }
@@ -1981,8 +2171,7 @@ namespace great
 
             else
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_ambSolve] : LAMBDA Search can't get candidate fixed ambiguities");
+                GREAT_DEBUG("Warning[t_gambiguity::_ambSolve] : LAMBDA Search can't get candidate fixed ambiguities");
                 return false;
             }
         }
@@ -1993,7 +2182,9 @@ namespace great
                 for (auto it_dd = _DD.begin(); it_dd != _DD.end(); it_dd++)
                 {
                     if (it_dd->rewl == 0)
+                    {
                         continue;
+                    }
                     int ipos = distance(_DD.begin(), it_dd);
                     it_dd->iewl = fixed_amb[ipos];
                 }
@@ -2001,8 +2192,7 @@ namespace great
             }
             else
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_ambSolve] : LAMBDA Search can't get candidate fixed ambiguities");
+                GREAT_DEBUG("Warning[t_gambiguity::_ambSolve] : LAMBDA Search can't get candidate fixed ambiguities");
                 return false;
             }
         }
@@ -2019,30 +2209,30 @@ namespace great
             }
             else
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Warning[t_gambiguity::_ambSolve] : LAMBDA Search can't get candidate fixed ambiguities");
+                GREAT_DEBUG("Warning[t_gambiguity::_ambSolve] : LAMBDA Search can't get candidate fixed ambiguities");
                 return false;
             }
         }
 
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_ERROR(_spdlog, "Error[t_gambiguity::_ambSolve] : Unknown Combination[NL/WL/EWL] : " + mode);
+            GREAT_ERROR("Error[t_gambiguity::_ambSolve] : Unknown Combination[NL/WL/EWL] : " + mode);
             return false;
         }
     }
 
-    bool t_gambiguity::_addFixConstraint(t_gflt *gflt)
+    bool t_gambiguity::_addFixConstraint(t_gflt* gflt)
     {
         //////========================= Virtual observation equation ===========================================
-        double dl = 0, flt= 0, integer= 0, Ba = 1, Bb = -1;
+        double dl = 0, flt = 0, integer = 0, Ba = 1, Bb = -1;
         double p0 = 1E9;
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
             bool wl_fix = ((_obstype == gnut::OBSCOMBIN::RAW_MIX && itdd->isSngleFreq != true) || _obstype != gnut::OBSCOMBIN::RAW_MIX);
             if ((!itdd->isWlFixed && wl_fix) || !itdd->isNlFixed)
+            {
                 continue;
+            }
             int index_sat1 = get<1>(itdd->ddSats[0]);
             int index_sat2 = get<1>(itdd->ddSats[1]);
 
@@ -2053,14 +2243,15 @@ namespace great
                 string sys = get<0>(itdd->ddSats[0]).substr(0, 1);
                 if (sys != "R")
                 {
-                    integer = (itdd->inl - itdd->sd_rnl_cor + round(itdd->rwl) * _sys_wavelen[sys]["WL"] / _sys_wavelen[sys]["L2"]) * itdd->factor;
+                    integer = (itdd->inl - itdd->sd_rnl_cor + round(itdd->rwl) * _sys_wavelen[sys]["WL"] / _sys_wavelen[sys]["L2"]) *
+                              itdd->factor;
                 }
                 else
                 {
                     string sat1 = get<0>(itdd->ddSats[0]);
                     string sat2 = get<0>(itdd->ddSats[1]);
-                    integer = (itdd->inl - itdd->sd_rnl_cor + 3.5 * round(itdd->rwl)); 
-                    Ba = 1 / _sys_wavelen[sat1]["NL"];                                 
+                    integer = (itdd->inl - itdd->sd_rnl_cor + 3.5 * round(itdd->rwl));
+                    Ba = 1 / _sys_wavelen[sat1]["NL"];
                     Bb = -1 / _sys_wavelen[sat2]["NL"];
                     flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat2 - 1].value() * Bb;
                 }
@@ -2072,15 +2263,25 @@ namespace great
                 if (sys != "R")
                 {
                     if (itdd->ambtype == "AMB_L1")
+                    {
                         Lx_cor = itdd->sd_r1_cor;
+                    }
                     else if (itdd->ambtype == "AMB_L2")
+                    {
                         Lx_cor = itdd->sd_r2_cor;
+                    }
                     else if (itdd->ambtype == "AMB_L3")
+                    {
                         Lx_cor = itdd->sd_r3_cor;
+                    }
                     else if (itdd->ambtype == "AMB_L4")
+                    {
                         Lx_cor = itdd->sd_r4_cor;
+                    }
                     else if (itdd->ambtype == "AMB_L5")
+                    {
                         Lx_cor = itdd->sd_r5_cor;
+                    }
                     integer = (itdd->inl - Lx_cor) * itdd->factor;
                 }
                 else
@@ -2089,13 +2290,13 @@ namespace great
                     string sat2 = get<0>(itdd->ddSats[1]);
                     if (itdd->ambtype == "AMB_L1")
                     {
-                        Ba = 1 / _sys_wavelen[sat1]["L1"]; 
+                        Ba = 1 / _sys_wavelen[sat1]["L1"];
                         Bb = -1 / _sys_wavelen[sat2]["L1"];
                         Lx_cor = itdd->sd_r1_cor;
                     }
                     else if (itdd->ambtype == "AMB_L2")
                     {
-                        Ba = 1 / _sys_wavelen[sat1]["L2"]; 
+                        Ba = 1 / _sys_wavelen[sat1]["L2"];
                         Bb = -1 / _sys_wavelen[sat2]["L2"];
                         Lx_cor = itdd->sd_r2_cor;
                     }
@@ -2128,8 +2329,7 @@ namespace great
         }
         catch (exception e)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, e.what(), "Ambiguity Constrain Failed!");
+            GREAT_DEBUG(std::string(e.what()) + " Ambiguity Constrain Failed!");
             return false;
         }
 
@@ -2137,33 +2337,32 @@ namespace great
         //////========================= Virtual observation equation ===========================================
     }
 
-
-
-    bool t_gambiguity::_addFixConstraintWL(t_gflt *gflt, string mode)
+    bool t_gambiguity::_addFixConstraintWL(t_gflt* gflt, string mode)
     {
         //////========================= Virtual observation equation ===========================================
         double dl = 0.0;
-        double integer= 0.0;
-        double flt= 0.0;
-        double lambda_1= 0.0;
-        double lambda_2= 0.0;
+        double integer = 0.0;
+        double flt = 0.0;
+        double lambda_1 = 0.0;
+        double lambda_2 = 0.0;
         double p0 = 1E6;
-        double lambda_11= 0.0;
-        double lambda_21= 0.0;
-        double lambda_12= 0.0;
-        double lambda_22= 0.0; // the wave_length for glonass
-        double Ba= 0.0;
-        double Bb= 0.0;
-        double Bc= 0.0;
-        double Bd= 0.0;       // the Coefficient of B matrix
+        double lambda_11 = 0.0;
+        double lambda_21 = 0.0;
+        double lambda_12 = 0.0;
+        double lambda_22 = 0.0; // the wave_length for glonass
+        double Ba = 0.0;
+        double Bb = 0.0;
+        double Bc = 0.0;
+        double Bd = 0.0; // the Coefficient of B matrix
         SymmetricMatrix _Qx_tmp;
         t_gflt flttmp(*gflt);
         _Qx_tmp = gflt->Qx();
         if (mode == "EWL" || mode == "EWL24" || mode == "EWL25")
+        {
             p0 = 1E4;
+        }
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
-
             int index_sat1 = get<1>(itdd->ddSats[0]);
             int index_sat2 = get<1>(itdd->ddSats[1]);
             int index_sat3 = get<1>(itdd->ddSats[2]);
@@ -2178,7 +2377,9 @@ namespace great
                 if (mode == "WL")
                 {
                     if (!itdd->isWlFixed || itdd->rwl == 0)
+                    {
                         continue;
+                    }
                     lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L1"];
                     lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
                     integer = (itdd->iwl - itdd->sd_rwl_cor);
@@ -2186,7 +2387,9 @@ namespace great
                 else if (mode == "EWL")
                 {
                     if (!itdd->isEwlFixed || itdd->rewl == 0)
+                    {
                         continue;
+                    }
                     lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
                     lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L3"];
                     integer = (itdd->iewl - itdd->sd_rewl_cor);
@@ -2194,7 +2397,9 @@ namespace great
                 else if (mode == "EWL24")
                 {
                     if (!itdd->isEwl24Fixed || itdd->rewl24 == 0)
+                    {
                         continue;
+                    }
                     lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
                     lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L4"];
                     integer = (itdd->iewl24 - itdd->sd_rewl24_cor);
@@ -2202,7 +2407,9 @@ namespace great
                 else if (mode == "EWL25")
                 {
                     if (!itdd->isEwl25Fixed || itdd->rewl25 == 0)
+                    {
                         continue;
+                    }
                     lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
                     lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L5"];
                     integer = (itdd->iewl25 - itdd->sd_rewl25_cor);
@@ -2217,7 +2424,9 @@ namespace great
                 if (mode == "WL")
                 {
                     if (!itdd->isWlFixed || itdd->rwl == 0)
+                    {
                         continue;
+                    }
                     lambda_11 = _sys_wavelen[sat1]["L1"];
                     lambda_12 = _sys_wavelen[sat3]["L2"];
                     lambda_21 = _sys_wavelen[sat2]["L1"];
@@ -2231,7 +2440,8 @@ namespace great
                 Bd = 1 / lambda_22;
             }
 
-            flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat3 - 1].value() * Bb + gflt->param()[index_sat2 - 1].value() * Bc + gflt->param()[index_sat4 - 1].value() * Bd;
+            flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat3 - 1].value() * Bb +
+                  gflt->param()[index_sat2 - 1].value() * Bc + gflt->param()[index_sat4 - 1].value() * Bd;
             dl = integer - flt;
 
             vector<pair<int, double>> B;
@@ -2245,7 +2455,14 @@ namespace great
             ColumnVector l_mat;
             t_gfltEquationMatrix virtual_equ;
             t_gobscombtype type;
-            virtual_equ.add_equ(B, p0, dl, _site, get<0>(itdd->ddSats[0]) + "_" + get<0>(itdd->ddSats[2]) + "_" + get<0>(itdd->ddSats[1]) + "_" + get<0>(itdd->ddSats[3]), type, false);
+            virtual_equ.add_equ(B,
+                                p0,
+                                dl,
+                                _site,
+                                get<0>(itdd->ddSats[0]) + "_" + get<0>(itdd->ddSats[2]) + "_" + get<0>(itdd->ddSats[1]) + "_" +
+                                    get<0>(itdd->ddSats[3]),
+                                type,
+                                false);
             virtual_equ.chageNewMat(B_mat, P_mat, l_mat, gflt->npar_number());
 
             gflt->resetQ();
@@ -2257,28 +2474,28 @@ namespace great
         }
         catch (exception e)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, e.what(), "Solve Equation Fail!");
+            GREAT_DEBUG(std::string(e.what()) + " Solve Equation Fail!");
             return false;
         }
 
         return true;
     }
 
-
     void t_gambiguity::_initRatiofile()
     {
-        //output ratio   file
-        string ratio_path = dynamic_cast<t_gsetout *>(_gset)->outputs("ratio"); //xjhan
+        // output ratio   file
+        string ratio_path = dynamic_cast<t_gsetout*>(_gset)->outputs("ratio"); // xjhan
         if (ratio_path.empty())
+        {
             ratio_path = "ratio-" + _site;
+        }
 
         substitute(ratio_path, "$(rec)", _site, false);
 
         _ratiofile = new t_giof;
         _ratiofile->tsys(t_gtime::GPS);
         _ratiofile->mask(ratio_path);
-        _ratiofile->append(dynamic_cast<t_gsetout *>(_gset)->append());
+        _ratiofile->append(dynamic_cast<t_gsetout*>(_gset)->append());
         ostringstream os;
         os << " Epoch        Ratio" << endl;
         if (_ratiofile)
@@ -2290,13 +2507,13 @@ namespace great
 
     void t_gambiguity::_initBootfile()
     {
-        //output boot   file
+        // output boot   file
         string bootfile = "boot-" + _site;
 
         _bootfile = new t_giof;
         _bootfile->tsys(t_gtime::GPS);
         _bootfile->mask(bootfile);
-        _bootfile->append(dynamic_cast<t_gsetout *>(_gset)->append());
+        _bootfile->append(dynamic_cast<t_gsetout*>(_gset)->append());
         ostringstream os;
         os << " Epoch        Boot" << endl;
         if (_bootfile)
@@ -2322,8 +2539,7 @@ namespace great
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "have no output file!");
+            GREAT_DEBUG("have no output file!");
         }
 
         return;
@@ -2345,8 +2561,7 @@ namespace great
         }
         else
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "have no output file!");
+            GREAT_DEBUG("have no output file!");
         }
 
         return;
@@ -2365,9 +2580,13 @@ namespace great
             sat1 = get<0>(itdd->ddSats[0]);
             sat2 = get<0>(itdd->ddSats[1]);
             if (site != _site)
+            {
                 continue;
+            }
             if (sat1.substr(0, 1) != "R" || sat2.substr(0, 1) != "R")
+            {
                 continue;
+            }
             if (mapSat.find(sat1) == mapSat.end())
             {
                 mapSat.insert(sat1);
@@ -2399,8 +2618,7 @@ namespace great
     {
         if (_sat_refs.empty())
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "_sat_refs is empty");
+            GREAT_DEBUG("_sat_refs is empty");
             return false;
         }
 
@@ -2410,19 +2628,20 @@ namespace great
             string sat1 = get<0>(it_dd->ddSats[0]);
             string sat2 = get<0>(it_dd->ddSats[1]);
 
-            if (_sat_refs.find(sat1) == _sat_refs.end() &&
-                _sat_refs.find(sat2) == _sat_refs.end())
+            if (_sat_refs.find(sat1) == _sat_refs.end() && _sat_refs.find(sat2) == _sat_refs.end())
             {
                 it_dd = _DD.erase(it_dd);
                 continue;
             }
             else
+            {
                 it_dd++;
+            }
         }
         return true;
     }
 
-    bool _ddCompare(const t_dd_ambiguity &dd1, const t_dd_ambiguity &dd2)
+    bool _ddCompare(const t_dd_ambiguity& dd1, const t_dd_ambiguity& dd2)
     {
         return (dd1.end_epo - dd1.beg_epo) > (dd2.end_epo - dd2.beg_epo);
     }
@@ -2430,9 +2649,8 @@ namespace great
     t_gamb_cmn::t_gamb_cmn()
     {
     }
-    t_gamb_cmn::t_gamb_cmn(const t_gtime &t, t_gflt *flt)
+    t_gamb_cmn::t_gamb_cmn(const t_gtime& t, t_gflt* flt)
     {
-
         _now = t;
         _param = flt->param();
         _sigma0 = flt->sigma0();
@@ -2530,4 +2748,4 @@ namespace great
         return _Qx;
     }
 
-}
+} // namespace great

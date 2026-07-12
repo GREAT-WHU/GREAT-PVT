@@ -17,7 +17,8 @@ namespace gnut
 {
 #define DIFF_DCB (86400 * 31) // 31 days
 
-    t_gbias::t_gbias() : t_gdata()
+    t_gbias::t_gbias() :
+        t_gdata()
     {
         _beg = FIRST_TIME;
         _end = LAST_TIME;
@@ -26,26 +27,23 @@ namespace gnut
         id_group(t_gdata::GRP_MODEL);
     }
 
-    t_gbias::t_gbias(t_spdlog spdlog) : t_gdata(spdlog)
+    t_gbias::~t_gbias()
     {
-        _beg = FIRST_TIME;
-        _end = LAST_TIME;
-
-        id_type(t_gdata::BIAS);
-        id_group(t_gdata::GRP_MODEL);
     }
-
-    t_gbias::~t_gbias() {}
 
     double t_gbias::bias(bool meter)
     {
         if (meter)
+        {
             return _val;
+        }
         else
+        {
             return (_val / CLIGHT) * 1e9;
+        }
     }
 
-    void t_gbias::set(const t_gtime &beg, const t_gtime &end, double val, GOBS obs1, GOBS obs2)
+    void t_gbias::set(const t_gtime& beg, const t_gtime& end, double val, GOBS obs1, GOBS obs2)
     {
         _gmutex.lock();
 
@@ -74,7 +72,7 @@ namespace gnut
         return;
     }
 
-    bool t_gbias::valid(const t_gtime &epo)
+    bool t_gbias::valid(const t_gtime& epo)
     {
         _gmutex.lock();
 
@@ -82,12 +80,16 @@ namespace gnut
         ;
 
         if (epo < _beg || epo > _end)
+        {
             ret = false;
+        }
         else
+        {
             ret = true;
+        }
 
         _gmutex.unlock();
         return ret;
     }
 
-} // namespace
+} // namespace gnut

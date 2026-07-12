@@ -24,35 +24,34 @@ using namespace std;
 
 namespace gnut
 {
-    t_sinex::t_sinex(t_gsetbase *s, string version, int sz, string id)
-        : t_gcoder(s, version, sz, id),
-          _snx_type(SINEX_GNS),
-          _technique('P'),
-          _parindex(1), // should start from 1 (SINEX format)
-          _tmpsize(0),
-          _consume(0),
-          _complete(true),
-          _estimation(false),
-          _code_label("CODE"), // LABEL FOR SITE
-          _list_gnss(""),
-          _line(""),
-          _site(""),
-          _block(""),
-          _pco_mod("igsXX_XXXX"),
-          _ac(""),
-          _pt_prod(0),
-          _file_beg(t_gtime::GPS),
-          _file_end(t_gtime::GPS),
-          _file_run(t_gtime::GPS),
-          _allobj(0),
-          _end_epoch(false),
-          _end_estim(false)
+    t_sinex::t_sinex(t_gsetbase* s, string version, int sz, string id) :
+        t_gcoder(s, version, sz, id),
+        _snx_type(SINEX_GNS),
+        _technique('P'),
+        _parindex(1), // should start from 1 (SINEX format)
+        _tmpsize(0),
+        _consume(0),
+        _complete(true),
+        _estimation(false),
+        _code_label("CODE"), // LABEL FOR SITE
+        _list_gnss(""),
+        _line(""),
+        _site(""),
+        _block(""),
+        _pco_mod("igsXX_XXXX"),
+        _ac(""),
+        _pt_prod(0),
+        _file_beg(t_gtime::GPS),
+        _file_end(t_gtime::GPS),
+        _file_run(t_gtime::GPS),
+        _allobj(0),
+        _end_epoch(false),
+        _end_estim(false)
     {
     }
 
-    int t_sinex::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_sinex::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         t_gcoder::_add2buffer(buff, sz);
@@ -82,18 +81,24 @@ namespace gnut
                     substitute(file_beg, " ", "");
                     _file_beg.from_str("%y:%j:%s", file_beg);
                     if (file_beg.compare("00:000:00000") == 0)
+                    {
                         _file_beg = FIRST_TIME;
+                    }
 
                     string file_end = trim(_line.substr(45, 12));
                     substitute(file_end, " ", "");
                     _file_end.from_str("%y:%j:%s", file_end);
                     if (file_end.compare("00:000:00000") == 0)
+                    {
                         _file_end = LAST_TIME;
+                    }
 
                     string num_est = trim(_line.substr(60, 5));
                     substitute(num_est, " ", "");
                     if (str2int(num_est) > 0)
+                    {
                         _estimation = true;
+                    }
                 }
                 else
                 {
@@ -105,13 +110,17 @@ namespace gnut
                     substitute(file_beg, " ", "");
                     _file_beg.from_str("%Y:%j:%s", file_beg);
                     if (file_beg.compare("00:000:00000") == 0)
+                    {
                         _file_beg = FIRST_TIME;
+                    }
 
                     string file_end = trim(_line.substr(49, 14));
                     substitute(file_end, " ", "");
                     _file_end.from_str("%Y:%j:%s", file_end);
                     if (file_end.compare("00:000:00000") == 0)
+                    {
                         _file_end = LAST_TIME;
+                    }
                 }
 
                 if (_decode_vers() == 0)
@@ -126,9 +135,8 @@ namespace gnut
         return 0;
     }
 
-    int t_sinex::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_sinex::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         t_gcoder::_add2buffer(buff, sz);
@@ -146,68 +154,67 @@ namespace gnut
 
     void t_sinex::technique(char c)
     {
-
         switch (c)
         {
-        case 'c':
-        case 'C':
-            _technique = 'C';
-            break; // COMBINED
-        case 'd':
-        case 'D':
-            _technique = 'D';
-            break; // DORIS
-        case 'p':
-        case 'P':
-            _technique = 'P';
-            break; // GNSS
-        case 'r':
-        case 'R':
-            _technique = 'R';
-            break; // VLBI
-        case 'w':
-        case 'W':
-            _technique = 'W';
-            break; // RADIOMETER
-        case 's':
-        case 'S':
-            _technique = 'S';
-            break; // RADIOSONDE
-        case 'f':
-        case 'F':
-            _technique = 'F';
-            break; // NWM FORECAST
-        case 'm':
-        case 'M':
-            _technique = 'M';
-            break; // NWM RE-ANALYSIS
-        case 'n':
-        case 'N':
-            _technique = 'N';
-            break; // CLIMATE MODEL
-        default:
-            _technique = 'P';
+            case 'c':
+            case 'C':
+                _technique = 'C';
+                break; // COMBINED
+            case 'd':
+            case 'D':
+                _technique = 'D';
+                break; // DORIS
+            case 'p':
+            case 'P':
+                _technique = 'P';
+                break; // GNSS
+            case 'r':
+            case 'R':
+                _technique = 'R';
+                break; // VLBI
+            case 'w':
+            case 'W':
+                _technique = 'W';
+                break; // RADIOMETER
+            case 's':
+            case 'S':
+                _technique = 'S';
+                break; // RADIOSONDE
+            case 'f':
+            case 'F':
+                _technique = 'F';
+                break; // NWM FORECAST
+            case 'm':
+            case 'M':
+                _technique = 'M';
+                break; // NWM RE-ANALYSIS
+            case 'n':
+            case 'N':
+                _technique = 'N';
+                break; // CLIMATE MODEL
+            default:
+                _technique = 'P';
         }
 
         switch (_technique)
         {
-        case 'C':
-        case 'P':
-        case 'D':
-        case 'R':
-            _snx_type = TROSNX_GNS;
-            break;
-        case 'F':
-        case 'M':
-        case 'N':
-            _snx_type = TROSNX_NWM;
-            break;
-        case 'W':
-        case 'S':
-            _snx_type = TROSNX_OTH;
-            break;
-        default:
-            _snx_type = TROSNX_OTH;
+            case 'C':
+            case 'P':
+            case 'D':
+            case 'R':
+                _snx_type = TROSNX_GNS;
+                break;
+            case 'F':
+            case 'M':
+            case 'N':
+                _snx_type = TROSNX_NWM;
+                break;
+            case 'W':
+            case 'S':
+                _snx_type = TROSNX_OTH;
+                break;
+            default:
+                _snx_type = TROSNX_OTH;
         }
     }
 
@@ -218,20 +225,15 @@ namespace gnut
 
     shared_ptr<t_grec> t_sinex::_get_grec(string site)
     {
-
         if (_epo_pos.find(site) == _epo_pos.end())
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "Warning: object not found for site: " + site + " [should not happen]");
+            GREAT_INFO("Warning: object not found for site: " + site + " [should not happen]");
             return 0;
         }
 
         if (_epo_pos[site].size() == 0)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_INFO(_spdlog, "Position not found for site: " + site);
+            GREAT_INFO("Position not found for site: " + site);
             return 0;
         }
 
@@ -240,29 +242,23 @@ namespace gnut
 
     int t_sinex::_decode_vers()
     {
-
-        if (_spdlog)
-            SPDLOG_LOGGER_DEBUG(_spdlog, "Read VERS: " + _version);
+        GREAT_DEBUG("Read VERS: " + _version);
 
         return 0;
     }
 
     int t_sinex::_decode_data()
     {
-
         while (_complete && (_tmpsize = t_gcoder::_getline(_line)) >= 0)
         {
-
             _complete = true;
 
             // -------- "COMMENT" --------
             if (_line.find("*", 0) != string::npos)
             {
-
                 _comment.push_back(_line); // _line.substr(0,60));
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read COMM: " + _line.substr(1, 25)); // DEFAULT: 3
+                GREAT_DEBUG("Read COMM: " + _line.substr(1, 25)); // DEFAULT: 3
 
                 this->_decode_comm();
             }
@@ -271,8 +267,7 @@ namespace gnut
             else if (_line[0] == '+' && _line[1] != ' ')
             { // sometimes in other block
                 _block = cut_crlf(trim(_line.substr(1)));
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "BLOCK beg: " + _block.substr(0, 13)); // DEFAULT: 1
+                GREAT_DEBUG("BLOCK beg: " + _block.substr(0, 13)); // DEFAULT: 1
             }
 
             // -------- "BLOCK END" --------
@@ -286,25 +281,34 @@ namespace gnut
                     return -1;
                 }
 
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "BLOCK end: " + _block.substr(0, 13)); // DEFAULT: 1
+                GREAT_DEBUG("BLOCK end: " + _block.substr(0, 13)); // DEFAULT: 1
 
                 if (_block.compare("SOLUTION/EPOCHS") == 0)
+                {
                     _end_epoch = true;
+                }
                 if (_block.compare("SOLUTION/ESTIMATE") == 0)
+                {
                     _end_estim = true;
+                }
                 _block = "";
             }
 
             // -------- "BLOCK READING" --------
             else
+            {
                 this->_decode_block();
+            }
 
             // -------- CONSUME --------
             if (_complete)
+            {
                 _consume += t_gcoder::_consume(_tmpsize);
+            }
             else
+            {
                 break;
+            }
         }
 
         // Set object coordinates
@@ -318,72 +322,65 @@ namespace gnut
 
     int t_sinex::_decode_comm()
     {
-
         int idx = 0;
         if ((idx = _line.find("SITE")) != string::npos)
+        {
             _mapidx["SIT"] = make_pair(idx, 4);
+        }
         if ((idx = _line.find("STATION__")) != string::npos)
+        {
             _mapidx["SIT"] = make_pair(idx, 9); // NEW TRO-SINEX2
+        }
 
         if ((idx = _line.find("__STA_X_____")) != string::npos)
+        {
             _mapidx["X"] = make_pair(idx, 12);
+        }
         if ((idx = _line.find("__STA_Y_____")) != string::npos)
+        {
             _mapidx["Y"] = make_pair(idx, 12);
+        }
         if ((idx = _line.find("__STA_Z_____")) != string::npos)
+        {
             _mapidx["Z"] = make_pair(idx, 12);
+        }
 
         return 0;
     }
 
     int t_sinex::_decode_block()
     {
-
         // -------- "FILE/REFERENCE" --------
         if (_block.find("FILE/REFERENCE") != string::npos)
         {
-
             if (_line.find(" DESC", 4) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read FILE/DESC: " + _line.substr(20, 60));
+                GREAT_DEBUG("Read FILE/DESC: " + _line.substr(20, 60));
             }
             else if (_line.find(" OUTP", 4) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read FILE/OUTP: " + _line.substr(20, 60));
+                GREAT_DEBUG("Read FILE/OUTP: " + _line.substr(20, 60));
             }
             else if (_line.find(" CONT", 4) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read FILE/CONT: " + _line.substr(20, 60));
+                GREAT_DEBUG("Read FILE/CONT: " + _line.substr(20, 60));
             }
             else if (_line.find(" SOFT", 4) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read FILE/SOFT: " + _line.substr(20, 60));
+                GREAT_DEBUG("Read FILE/SOFT: " + _line.substr(20, 60));
             }
             else if (_line.find(" HARD", 4) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read FILE/HARD: " + _line.substr(20, 60));
+                GREAT_DEBUG("Read FILE/HARD: " + _line.substr(20, 60));
             }
             else if (_line.find(" INPU", 4) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "Read FILE/INPT: " + _line.substr(20, 60));
+                GREAT_DEBUG("Read FILE/INPT: " + _line.substr(20, 60));
             }
         }
         else if (_block.find("SITE/RECEIVER") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Read SITE/RECEIVER");
+            GREAT_DEBUG("Read SITE/RECEIVER");
 
             if (_snx_type == SINEX_GNS)
             {
@@ -396,18 +393,25 @@ namespace gnut
                 t_gtime end(t_gtime::GPS);
 
                 if (begfmt.compare("00:000:00000") == 0)
+                {
                     beg = LAST_TIME;
+                }
                 else
+                {
                     beg.from_str("%y:%j:%s", begfmt);
+                }
 
                 if (endfmt.compare("00:000:00000") == 0)
+                {
                     end = LAST_TIME;
+                }
                 else
+                {
                     end.from_str("%y:%j:%s", endfmt);
+                }
 
-                shared_ptr<t_grec> new_obj = make_shared<t_grec>(_spdlog);
+                shared_ptr<t_grec> new_obj = make_shared<t_grec>();
                 new_obj->id(site);
-                new_obj->spdlog(_spdlog);
                 new_obj->rec(rcv, beg, end);
 
                 _complete_obj(new_obj, beg);
@@ -415,9 +419,7 @@ namespace gnut
         }
         else if (_block.find("SITE/ANTENNA") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Read SITE/ANTENNA");
+            GREAT_DEBUG("Read SITE/ANTENNA");
 
             if (_snx_type == SINEX_GNS)
             {
@@ -430,27 +432,32 @@ namespace gnut
                 t_gtime end(t_gtime::GPS);
 
                 if (begfmt.compare("00:000:00000") == 0)
+                {
                     beg = LAST_TIME;
+                }
                 else
+                {
                     beg.from_str("%y:%j:%s", begfmt);
+                }
 
                 if (endfmt.compare("00:000:00000") == 0)
+                {
                     end = LAST_TIME;
+                }
                 else
+                {
                     end.from_str("%y:%j:%s", endfmt);
+                }
 
-                shared_ptr<t_grec> new_obj = make_shared<t_grec>(_spdlog);
+                shared_ptr<t_grec> new_obj = make_shared<t_grec>();
                 new_obj->id(site);
-                new_obj->spdlog(_spdlog);
                 new_obj->ant(ant, beg, end);
                 _complete_obj(new_obj, beg);
             }
         }
         else if (_block.find("SITE/ECCENTRICITY") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Read SITE/ECCENTRICITY");
+            GREAT_DEBUG("Read SITE/ECCENTRICITY");
 
             if (_snx_type == SINEX_GNS)
             {
@@ -462,14 +469,22 @@ namespace gnut
                 t_gtime end(t_gtime::GPS);
 
                 if (begfmt.compare("00:000:00000") == 0)
+                {
                     beg = LAST_TIME;
+                }
                 else
+                {
                     beg.from_str("%y:%j:%s", begfmt);
+                }
 
                 if (endfmt.compare("00:000:00000") == 0)
+                {
                     end = LAST_TIME;
+                }
                 else
+                {
                     end.from_str("%y:%j:%s", endfmt);
+                }
 
                 string eccsys = trim(_line.substr(42, 3));
                 t_gtriple ecc;
@@ -477,9 +492,8 @@ namespace gnut
                 double b = str2dbl(trim(_line.substr(55, 8)));
                 double c = str2dbl(trim(_line.substr(64, 8)));
 
-                shared_ptr<t_grec> new_obj = make_shared<t_grec>(_spdlog);
+                shared_ptr<t_grec> new_obj = make_shared<t_grec>();
                 new_obj->id(site);
-                new_obj->spdlog(_spdlog);
                 if (eccsys.compare("UNE") == 0)
                 {
                     ecc[0] = b;
@@ -500,9 +514,7 @@ namespace gnut
         }
         else if (_block.find("SITE/ID") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Read SITE/ID");
+            GREAT_DEBUG("Read SITE/ID");
 
             if (_snx_type == SINEX_GNS)
             {
@@ -529,9 +541,8 @@ namespace gnut
 
                 if (!xyz.zero() && !_estimation)
                 {
-                    shared_ptr<t_grec> new_obj = make_shared<t_grec>(_spdlog);
+                    shared_ptr<t_grec> new_obj = make_shared<t_grec>();
                     new_obj->id(site);
-                    new_obj->spdlog(_spdlog);
                     t_gtriple std(10, 10, 10);
                     new_obj->crd(xyz, std, _file_beg, _file_end);
 
@@ -541,9 +552,7 @@ namespace gnut
         }
         else if (_block.find("SOLUTION/EPOCHS") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Read SOLUTION/EPOCHS");
+            GREAT_DEBUG("Read SOLUTION/EPOCHS");
 
             string site = trim(_line.substr(1, 4));
             transform(site.begin(), site.end(), site.begin(), ::toupper);
@@ -554,23 +563,29 @@ namespace gnut
             t_gtime end(t_gtime::GPS);
 
             if (begfmt.compare("00:000:00000") == 0)
+            {
                 beg = LAST_TIME;
+            }
             else
+            {
                 beg.from_str("%y:%j:%s", begfmt);
+            }
 
             if (endfmt.compare("00:000:00000") == 0)
+            {
                 end = LAST_TIME;
+            }
             else
+            {
                 end.from_str("%y:%j:%s", endfmt);
+            }
 
             _sol_epoch[site].insert(beg);
             _sol_epoch[site].insert(end);
         }
         else if (_block.find("SOLUTION/ESTIMATE") != string::npos)
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Read SOLUTION/ESTIMATE");
+            GREAT_DEBUG("Read SOLUTION/ESTIMATE");
 
             string site = trim(_line.substr(14, 4));
             transform(site.begin(), site.end(), site.begin(), ::toupper);
@@ -592,22 +607,22 @@ namespace gnut
         return 0;
     }
 
-    void t_sinex::_add_data(string id, t_gdata *pt_data)
+    void t_sinex::_add_data(string id, t_gdata* pt_data)
     {
-
         if (pt_data == 0)
+        {
             return;
+        }
 
         // ORDER IS IMPORTANT!
-        if (pt_data->id_type() == t_gdata::ALLPROD &&
-            pt_data->id_group() == t_gdata::GRP_PRODUCT)
+        if (pt_data->id_type() == t_gdata::ALLPROD && pt_data->id_group() == t_gdata::GRP_PRODUCT)
         {
             // ALL PRODUCTS (MET) special case (input meteo parameters -> encode only)
             // ----> currently the product needs to be labeled "MET" to be recognized
             // ----> THIS SHOULD BE IN FUTURE CONSOLIDATED using gprodmet instead of gprod
             if (id != "MET")
             {
-                _pt_prod = dynamic_cast<t_gallprod *>(pt_data);
+                _pt_prod = dynamic_cast<t_gallprod*>(pt_data);
             }
         }
 
@@ -616,7 +631,7 @@ namespace gnut
         {
             if (!_allobj)
             {
-                _allobj = dynamic_cast<t_gallobj *>(pt_data);
+                _allobj = dynamic_cast<t_gallobj*>(pt_data);
             }
         }
 
@@ -633,10 +648,12 @@ namespace gnut
         return *_epo_pos[site].rbegin();
     }
 
-    void t_sinex::_complete_obj(shared_ptr<t_grec> gobj, const t_gtime &epo)
+    void t_sinex::_complete_obj(shared_ptr<t_grec> gobj, const t_gtime& epo)
     {
         if (!_allobj)
+        {
             return;
+        }
 
         string id = gobj->id();
         bool found = false;
@@ -657,8 +674,7 @@ namespace gnut
         if (old_obj == nullptr && found)
         {
             _allobj->add(gobj);
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Object created, using SINEX: " + id + epo.str_ymdhms(" "));
+            GREAT_DEBUG("Object created, using SINEX: " + id + epo.str_ymdhms(" "));
         }
         else if (old_obj != nullptr)
         {
@@ -679,7 +695,9 @@ namespace gnut
 
             auto itSITE2 = _sol_epoch.find(site);
             if (itSITE2 == _sol_epoch.end())
+            {
                 continue; // by ZHJ
+            }
 
             for (auto itEPO = itSITE->second.begin(); itEPO != itSITE->second.end(); itEPO++)
             {
@@ -713,13 +731,12 @@ namespace gnut
                     }
                 }
             }
-            shared_ptr<t_grec> new_obj = make_shared<t_grec>(_spdlog);
+            shared_ptr<t_grec> new_obj = make_shared<t_grec>();
             new_obj->id(site);
-            new_obj->spdlog(_spdlog);
             new_obj->crd(xyz, std, beg, end);
 
             _complete_obj(new_obj, epo);
         }
     }
 
-} // namespace
+} // namespace gnut

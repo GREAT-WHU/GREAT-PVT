@@ -4,9 +4,9 @@
  * @brief        declare some classes and some mathematical method.
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef GAMBCOMMON_H
 #define GAMBCOMMON_H
@@ -26,8 +26,8 @@ using namespace gnut;
 namespace great
 {
     /**
-    *@ brief zero-difference ambiguity structure  for arc.
-    */
+     *@ brief zero-difference ambiguity structure  for arc.
+     */
     class LibGREAT_LIBRARY_EXPORT t_oneway_ambiguity
     {
     public:
@@ -35,14 +35,14 @@ namespace great
         explicit t_oneway_ambiguity();
 
         /** @brief default destructor. */
-        virtual ~t_oneway_ambiguity(){};
+        virtual ~t_oneway_ambiguity() {};
 
         string ambtype;     ///< C/1/2/W
         string sat;         ///< satellite name
         int ipt = 0;        ///< index of par
         int beg_epo = 0;    ///< start time
         int end_epo = 0;    ///< t_end time
-        double rwl = 0.0;   ///< real value widelane(cyc) 
+        double rwl = 0.0;   ///< real value widelane(cyc)
         double srwl = 0.0;  ///< its sigma
         double rewl = 0.0;  ///< real value extrawidelane(cyc)
         double srewl = 0.0; ///< its sigma
@@ -54,16 +54,16 @@ namespace great
     };
 
     /**
-    * @brief  single-differece ambiguity  for arc.
-    */
+     * @brief  single-differece ambiguity  for arc.
+     */
     class t_dd_ambiguity
     {
     public:
         /** @brief default constructor. */
-        t_dd_ambiguity(){};
+        t_dd_ambiguity() {};
 
         /** @brief default destructor. */
-        virtual ~t_dd_ambiguity(){};
+        virtual ~t_dd_ambiguity() {};
 
         string ambtype; ///< C/1/2/W
 
@@ -73,7 +73,7 @@ namespace great
         bool isWlFixed = false;    ///< widelane fixed
         bool isNlFixed = false;    ///< narrowlane fixed
         string site = "default";
-        //map<string, int> ipt2ow;
+        // map<string, int> ipt2ow;
         vector<tuple<string, int, int>> ddSats; ///< sat_name, index in all_pars, index in amb_pars
         t_gtime beg_epo;                        ///< begin time
         t_gtime end_epo;                        ///< end time
@@ -112,14 +112,14 @@ namespace great
         double sd_r3_cor = 0.0;                 ///< correction of N3
         double sd_r4_cor = 0.0;                 ///< correction of N4
         double sd_r5_cor = 0.0;                 ///< correction of N5
-        double sigcor = 0.0;                    ///<sigma
+        double sigcor = 0.0;                    ///< sigma
         int fix_epoch = 1;                      /// fixed epochs of dd ambiguity
         bool isSngleFreq = false;               /// exist single frequency satellites or not
     };
 
     /**
-    * @brief ambiguity info for one site one satellite one epoch  used in nl upd.
-    */
+     * @brief ambiguity info for one site one satellite one epoch  used in nl upd.
+     */
     class LibGREAT_LIBRARY_EXPORT epoch_amb
     {
     public:
@@ -168,10 +168,10 @@ namespace great
 
     // PPP AR/ WL+EWL UPD
     /** @brief map for storaging oneway_ambiguity  */
-    typedef vector<shared_ptr<t_oneway_ambiguity>> LibGREAT_LIBRARY_EXPORT t_OW_amb; //satellites OW;
+    typedef vector<shared_ptr<t_oneway_ambiguity>> LibGREAT_LIBRARY_EXPORT t_OW_amb; // satellites OW;
 
     /** @brief map for storaging oneway_ambiguity , one station/all satellite/all epoch. */
-    typedef map<string, t_OW_amb> LibGREAT_LIBRARY_EXPORT t_all_sats_OW; //satellites OW;
+    typedef map<string, t_OW_amb> LibGREAT_LIBRARY_EXPORT t_all_sats_OW; // satellites OW;
 
     //** @brief vector for storaging double-differece ambiguity. */
     typedef vector<t_dd_ambiguity> LibGREAT_LIBRARY_EXPORT t_DD_amb;
@@ -188,40 +188,40 @@ namespace great
     typedef map<t_gtime, map<string, map<int, double>>> LibGREAT_LIBRARY_EXPORT t_map_MW;
 
     /**
-    * @brief Compute mean of the fractional ambiguities.
-    * @param[in]  values    list pairs contain data and it's weight.
-    * @param[in]  mean        data mean.
-    * @param[in]  sigma        data sigma.
-    * @param[in]  sigx        sigma's sigma.
-    * @param[out] mean
-    * @param[out] sigma
-    * @param[out] sigx
-    * @return      void
-    */
-    LibGREAT_LIBRARY_EXPORT void getMeanFract(list<pair<double, double>> &values, double &mean, double &sigma, double &sigx);
+     * @brief Compute mean of the fractional ambiguities.
+     * @param[in]  values    list pairs contain data and it's weight.
+     * @param[in]  mean        data mean.
+     * @param[in]  sigma        data sigma.
+     * @param[in]  sigx        sigma's sigma.
+     * @param[out] mean
+     * @param[out] sigma
+     * @param[out] sigx
+     * @return      void
+     */
+    LibGREAT_LIBRARY_EXPORT void getMeanFract(list<pair<double, double>>& values, double& mean, double& sigma, double& sigx);
 
     /**
-    * @brief Get mean, sigma and sigma of the mean of a set sampled data.
-    * @param[in]  is_edit   whether to eliminate errors.
-    * @param[in]  wx         list pairs contain data and it's weight.
-    * @param[in]  mean        data mean.
-    * @param[in]  sigma        data sigma.
-    * @param[in]  sigx        sigma's sigma.
-    * @param[out] mean
-    * @param[out] sigma
-    * @param[out] sigx
-    * @return      void
-    */
-    LibGREAT_LIBRARY_EXPORT void getMeanWgt(bool is_edit, list<pair<double, double>> &wx, double &mean, double &sigma, double &mean_sig);
+     * @brief Get mean, sigma and sigma of the mean of a set sampled data.
+     * @param[in]  is_edit   whether to eliminate errors.
+     * @param[in]  wx         list pairs contain data and it's weight.
+     * @param[in]  mean        data mean.
+     * @param[in]  sigma        data sigma.
+     * @param[in]  sigx        sigma's sigma.
+     * @param[out] mean
+     * @param[out] sigma
+     * @param[out] sigx
+     * @return      void
+     */
+    LibGREAT_LIBRARY_EXPORT void getMeanWgt(bool is_edit, list<pair<double, double>>& wx, double& mean, double& sigma, double& mean_sig);
 
     /**
-    * @brief Adjust ambiguities between -0.5~0.5 cycle.
-    * @param[in]  x     real value
-    * @param[in]  min   [0,1), [-0,5,0.5), [-1.0,1.0)
-    * @return      fraction of ambiguities
-    */
+     * @brief Adjust ambiguities between -0.5~0.5 cycle.
+     * @param[in]  x     real value
+     * @param[in]  min   [0,1), [-0,5,0.5), [-1.0,1.0)
+     * @return      fraction of ambiguities
+     */
     LibGREAT_LIBRARY_EXPORT double getFraction(double x, double min);
 
-}
+} // namespace great
 
 #endif

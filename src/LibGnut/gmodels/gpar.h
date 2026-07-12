@@ -59,7 +59,7 @@ namespace gnut
         CLK_E,
         CLK_C,
         CLK_R,
-        CLK_J, ///< receiver clocks for different systems 
+        CLK_J, ///< receiver clocks for different systems
         IFCB_F3,
         IFCB_F4,
         IFCB_F5, ///< inter-freq. code biases for FREQ_3, FREQ_4, FREQ_5, inter-freq. clock bias for GPS FREQ_3
@@ -88,13 +88,13 @@ namespace gnut
         IFB_QZS,
         IFB_GAL,
         IFB_GAL_2,
-        IFB_GAL_3, 
+        IFB_GAL_3,
         IFB_BDS_2,
         IFB_BDS_3, ///< inter frequency bias for multi-frquency
-        GLO_IFB, ///< inter frequency bias for glonass
+        GLO_IFB,   ///< inter frequency bias for glonass
         VEL_X,
         VEL_Y,
-        VEL_Z, ///< velocity
+        VEL_Z,   ///< velocity
         CLK_RAT, ///< satellite clock speed
         NO_DEF
     };
@@ -106,21 +106,21 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gtimearc(const t_gtime &beg, const t_gtime &end);
+        t_gtimearc(const t_gtime& beg, const t_gtime& end);
 
         /** @brief default destructor. */
         ~t_gtimearc();
 
         /** @brief override operator. */
-        bool operator!=(const t_gtimearc &Other) const;
-        bool operator==(const t_gtimearc &Other) const;
-        bool operator<(const t_gtimearc &Other) const;
-        bool operator<=(const t_gtimearc &Other) const;
-        bool operator>(const t_gtimearc &Other) const;
-        bool operator>=(const t_gtimearc &Other) const;
+        bool operator!=(const t_gtimearc& Other) const;
+        bool operator==(const t_gtimearc& Other) const;
+        bool operator<(const t_gtimearc& Other) const;
+        bool operator<=(const t_gtimearc& Other) const;
+        bool operator>(const t_gtimearc& Other) const;
+        bool operator>=(const t_gtimearc& Other) const;
 
         /** @brief onside. */
-        bool inside(const t_gtimearc &Other) const;
+        bool inside(const t_gtimearc& Other) const;
 
         t_gtime begin; ///< begin time
         t_gtime end;   ///< end time
@@ -137,7 +137,8 @@ namespace gnut
         static bool is_amb(par_type tp)
         {
             return (tp == par_type::AMB_IF || tp == par_type::AMB13_IF || tp == par_type::AMB14_IF || tp == par_type::AMB15_IF ||
-                    tp == par_type::AMB_L1 || tp == par_type::AMB_L2 || tp == par_type::AMB_L3 || tp == par_type::AMB_L4 || tp == par_type::AMB_L5);
+                    tp == par_type::AMB_L1 || tp == par_type::AMB_L2 || tp == par_type::AMB_L3 || tp == par_type::AMB_L4 ||
+                    tp == par_type::AMB_L5);
         }
 
         /** @brief is crd?. */
@@ -147,7 +148,7 @@ namespace gnut
         }
 
         /** @brief constructor 1. */
-        t_gpar(const string &site, par_type t, unsigned i, const string &p, bool remove = true);
+        t_gpar(const string& site, par_type t, unsigned i, const string& p, bool remove = true);
 
         /** @brief default constructor. */
         t_gpar();
@@ -156,30 +157,40 @@ namespace gnut
         virtual ~t_gpar();
 
         /** @brief override operator. */
-        bool operator==(const t_gpar &) const;
-        bool operator<(const t_gpar &) const;
-        bool operator>(const t_gpar &) const;
-        t_gpar operator-(const t_gpar &) const;
-        t_gpar operator+(const t_gpar &) const;
+        bool operator==(const t_gpar&) const;
+        bool operator<(const t_gpar&) const;
+        bool operator>(const t_gpar&) const;
+        t_gpar operator-(const t_gpar&) const;
+        t_gpar operator+(const t_gpar&) const;
 
         /** @brief set time. */
-        void setTime(const t_gtime &, const t_gtime &);
+        void setTime(const t_gtime&, const t_gtime&);
 
         /** @brief Partial derivatives. */
-        double partial(t_gsatdata &, t_gtime &, t_gtriple, t_gobs &gobs);
+        double partial(t_gsatdata&, t_gtime&, t_gtriple, t_gobs& gobs);
 
         /** @brief Partial doppler. */
-        double partial_doppler(t_gsatdata &satData,
-                               t_gtriple &groundXYZ,
-                               t_gtriple &groundVEL); 
+        double partial_doppler(t_gsatdata& satData, t_gtriple& groundXYZ, t_gtriple& groundVEL);
 
         /** @brief set/get val. */
-        void value(double val) { _value = val; }
-        double value() const { return _value; }
+        void value(double val)
+        {
+            _value = val;
+        }
+        double value() const
+        {
+            return _value;
+        }
 
         /** @brief set/get apriori. */
-        void apriori(double apr) { _apriori = apr; }
-        double apriori() const { return _apriori; }
+        void apriori(double apr)
+        {
+            _apriori = apr;
+        }
+        double apriori() const
+        {
+            return _apriori;
+        }
 
         par_type parType; ///< par type
         int index;        ///< index
@@ -193,7 +204,7 @@ namespace gnut
         double zhd;       ///< for ztd par
         double zwd;       ///< for zwd par
 
-        //for amb
+        // for amb
         bool amb_ini = false; ///< add for amb to be initialized
 
         // for PCV/PCO estimation
@@ -219,13 +230,7 @@ namespace gnut
         ZTDMPFUNC _mf_ztd; ///< mapping function for ZTD
         GRDMPFUNC _mf_grd; ///< mapping function for GRD
         double _apriori;   ///< apriori
-        void _getmf(t_gsatdata &satData,
-                    const t_gtriple &crd,
-                    const t_gtime &epoch,
-                    double &mfw,
-                    double &mfh,
-                    double &dmfw,
-                    double &dmfh);
+        void _getmf(t_gsatdata& satData, const t_gtriple& crd, const t_gtime& epoch, double& mfw, double& mfh, double& dmfw, double& dmfh);
     };
 
     /** @brief class for t_gprhead. */
@@ -236,17 +241,17 @@ namespace gnut
         t_gparhead(par_type type, string site, string sat);
 
         /** @brief constructor 2. */
-        t_gparhead(const t_gparhead &Other);
+        t_gparhead(const t_gparhead& Other);
 
         /** @brief default destructor. */
         ~t_gparhead();
 
         /** @brief override operator. */
-        bool operator==(const t_gparhead &Other) const;
-        bool operator<(const t_gparhead &Other) const;
-        bool operator<=(const t_gparhead &Other) const;
-        bool operator>(const t_gparhead &Other) const;
-        bool operator>=(const t_gparhead &Other) const;
+        bool operator==(const t_gparhead& Other) const;
+        bool operator<(const t_gparhead& Other) const;
+        bool operator<=(const t_gparhead& Other) const;
+        bool operator>(const t_gparhead& Other) const;
+        bool operator>=(const t_gparhead& Other) const;
 
         par_type type; ///< par type
         string site;   ///< site name
@@ -254,14 +259,14 @@ namespace gnut
     };
 
     /** @brief convert par to string. */
-    string LibGnut_LIBRARY_EXPORT gpar2str(const t_gpar &par);
+    string LibGnut_LIBRARY_EXPORT gpar2str(const t_gpar& par);
 
     /** @brief convert partype to string. */
-    string LibGnut_LIBRARY_EXPORT ptype2str(const par_type &par);
+    string LibGnut_LIBRARY_EXPORT ptype2str(const par_type& par);
 
     /** @brief convert string to par. */
-    t_gpar LibGnut_LIBRARY_EXPORT str2gpar(const string &str_par);
+    t_gpar LibGnut_LIBRARY_EXPORT str2gpar(const string& str_par);
 
-} // namespace
+} // namespace gnut
 
 #endif

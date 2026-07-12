@@ -10,16 +10,9 @@ using namespace std;
 
 namespace gnut
 {
-    t_gtrn::t_gtrn()
-        : t_gobj(),
-          _channel(255)
-    {
-        id_type(TRN);
-    }
-
-    t_gtrn::t_gtrn(t_spdlog spdlog)
-        : t_gobj(spdlog),
-          _channel(255)
+    t_gtrn::t_gtrn() :
+        t_gobj(),
+        _channel(255)
     {
         id_type(TRN);
     }
@@ -28,7 +21,7 @@ namespace gnut
     {
     }
 
-    void t_gtrn::header(const t_rxnhdr &hdr, string path)
+    void t_gtrn::header(const t_rxnhdr& hdr, string path)
     {
         _gmutex.lock();
 
@@ -77,4 +70,4 @@ namespace gnut
         return tmp;
     }
 
-} // namespace
+} // namespace gnut

@@ -48,4 +48,4 @@
 
 #include <string>
 using namespace std;
-#endif //EXPORT_LibGnut_H
+#endif // EXPORT_LibGnut_H

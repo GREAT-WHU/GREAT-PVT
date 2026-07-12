@@ -16,17 +16,9 @@ using namespace std;
 namespace gnut
 {
 
-    t_gallpcv::t_gallpcv()
-        : t_gdata(),
-          _overwrite(false)
-    {
-        id_type(t_gdata::ALLPCV);
-    }
-
-    t_gallpcv::t_gallpcv(t_spdlog spdlog)
-        : t_gdata(spdlog),
-
-          _overwrite(false)
+    t_gallpcv::t_gallpcv() :
+        t_gdata(),
+        _overwrite(false)
     {
         id_type(t_gdata::ALLPCV);
     }
@@ -46,44 +38,38 @@ namespace gnut
 
         pcv->gnote(_gnote); // TRANSFER GNOTE
 
-        if (_mappcv.find(key) == _mappcv.end() ||
-            _mappcv[key].find(typ) == _mappcv[key].end() ||
+        if (_mappcv.find(key) == _mappcv.end() || _mappcv[key].find(typ) == _mappcv[key].end() ||
             _mappcv[key][typ].find(beg) == _mappcv[key][typ].end())
         {
-
             // new instance
             _mappcv[key][typ][beg] = pcv;
         }
         else
         {
-
             if (_overwrite)
             {
                 _mappcv[key][typ][beg] = pcv;
             }
             else
             {
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "already exists, not overwritten !\n");
+                GREAT_DEBUG("already exists, not overwritten !\n");
             }
         }
-        if (_spdlog)
-            SPDLOG_LOGGER_DEBUG(_spdlog, "add PCV " + key + " " + typ + beg.str_ymdhms(" ") + end.str_ymdhms(" "));
+        GREAT_DEBUG("add PCV " + key + " " + typ + beg.str_ymdhms(" ") + end.str_ymdhms(" "));
 
         _gmutex.unlock();
         return 1;
     }
 
-    shared_ptr<t_gpcv> t_gallpcv::gpcv(const string &ant, const string &ser, const t_gtime &t)
+    shared_ptr<t_gpcv> t_gallpcv::gpcv(const string& ant, const string& ser, const t_gtime& t)
     {
-
         _gmutex.lock();
         shared_ptr<t_gpcv> gpcv = _find(ant, ser, t);
         _gmutex.unlock();
         return gpcv;
     }
 
-    shared_ptr<t_gpcv> t_gallpcv::_find(const string &ant_name, const string &ser_num, const t_gtime &t)
+    shared_ptr<t_gpcv> t_gallpcv::_find(const string& ant_name, const string& ser_num, const t_gtime& t)
     {
         string ant(ant_name);
         string ser(ser_num);
@@ -93,10 +79,11 @@ namespace gnut
         // antenna not found in the list
         if (_mappcv.find(ant) == _mappcv.end())
         {
-
             // try alternative name for receiver antenna (REPLACE RADOME TO NONE!)
             if (ant.size() >= 19)
+            {
                 ant0 = ant.replace(16, 4, "NONE"); // REPLACE DEFAULT ANT-NAME
+            }
 
             if (_mappcv.find(ant0) == _mappcv.end())
             {
@@ -110,7 +97,6 @@ namespace gnut
         { // SPECIAL SERIAL DEFINED (OR TYPE CALLIBRATION "")
             for (itser = _mappcv[ant0].begin(); itser != _mappcv[ant0].end(); ++itser)
             {
-
                 // antenna (serial number) found in the list!
                 if (_mappcv[ant0].find(ser) != _mappcv[ant0].end())
                 {
@@ -141,8 +127,7 @@ namespace gnut
             }
         }
 
-
         return _pcvnull;
     }
 
-} // namespace
+} // namespace gnut

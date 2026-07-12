@@ -1,10 +1,10 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
   This file is part of the G-Nut C++ library.
- 
+
 -*/
 
 #include <iostream>
@@ -20,11 +20,11 @@ namespace gnut
 #ifdef USE_OPENMP
         omp_init_lock(&_mutex);
         isLock = false;
-#endif 
+#endif
         isLock = false;
     }
 
-    t_gmutex::t_gmutex(const t_gmutex &Other)
+    t_gmutex::t_gmutex(const t_gmutex& Other)
     {
 #ifdef USE_OPENMP
         omp_init_lock(&this->_mutex);
@@ -37,7 +37,7 @@ namespace gnut
     {
     }
 
-    t_gmutex t_gmutex::operator=(const t_gmutex &Other)
+    t_gmutex t_gmutex::operator=(const t_gmutex& Other)
     {
         return t_gmutex();
     }
@@ -56,7 +56,7 @@ namespace gnut
             _mutex.lock();
             isLock = true;
         }
-#endif 
+#endif
     }
 
     void t_gmutex::unlock()
@@ -76,4 +76,4 @@ namespace gnut
 #endif
     }
 
-} // namespace
+} // namespace gnut

@@ -20,15 +20,16 @@ using namespace std;
 namespace gnut
 {
 
-    t_gallprec::t_gallprec() : t_gallnav(),
-                               _degree_sp3(9),
-                               _sec(3600.0 * 6),
-                               _ref(t_gtime::GPS),
-                               _clkref(t_gtime::GPS),
-                               _clkrnx(true),
-                               _clksp3(false),
-                               _clknav(false),
-                               _posnav(false)
+    t_gallprec::t_gallprec() :
+        t_gallnav(),
+        _degree_sp3(9),
+        _sec(3600.0 * 6),
+        _ref(t_gtime::GPS),
+        _clkref(t_gtime::GPS),
+        _clkrnx(true),
+        _clksp3(false),
+        _clknav(false),
+        _posnav(false)
     {
         id_type(t_gdata::ALLPREC);
         id_group(t_gdata::GRP_EPHEM);
@@ -37,42 +38,22 @@ namespace gnut
         _tend_clk = LAST_TIME;
         _tend_sp3 = LAST_TIME;
     }
-    t_gallprec::t_gallprec(t_spdlog spdlog) : t_gallnav(spdlog),
-                                              _degree_sp3(9),
-                                              _sec(3600.0 * 6),
-                                              _ref(t_gtime::GPS),
-                                              _clkref(t_gtime::GPS),
-                                              _clkrnx(true),
-                                              _clksp3(false),
-                                              _clknav(false),
-                                              _posnav(false)
-    {
-
-        id_type(t_gdata::ALLPREC);
-        id_group(t_gdata::GRP_EPHEM);
-
-        _com = 1;
-        _tend = LAST_TIME;
-        _tend_clk = LAST_TIME;
-        _tend_sp3 = LAST_TIME;
-    }
-
     t_gallprec::~t_gallprec()
     {
-
         _mapprec.clear();
     }
 
-    bool t_gallprec::health(const string &sat, const t_gtime &t)
+    bool t_gallprec::health(const string& sat, const t_gtime& t)
     {
-
         if (_mapsat.size() > 0)
+        {
             return t_gallnav::health(sat, t);
+        }
 
         return true; // default healthy if no presence of NAV
     }
 
-    int t_gallprec::pos(const string &sat, const t_gtime &t, double xyz[3], double var[3], double vel[3], const bool &chk_mask)
+    int t_gallprec::pos(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
     {
         _gmutex.lock();
 
@@ -84,9 +65,13 @@ namespace gnut
             {
                 xyz[i] = 0.0;
                 if (var)
+                {
                     var[i] = 0.0;
+                }
                 if (vel)
+                {
                     vel[i] = 0.0;
+                }
             }
             _gmutex.unlock();
             if (_posnav && t_gallnav::pos(sat, t, xyz, var, vel, chk_mask) >= 0)
@@ -101,7 +86,7 @@ namespace gnut
         return irc;
     }
 
-    int t_gallprec::clk(const string &sat, const t_gtime &t, double *clk, double *var, double *dclk, const bool &chk_mask)
+    int t_gallprec::clk(const string& sat, const t_gtime& t, double* clk, double* var, double* dclk, const bool& chk_mask)
     {
         _gmutex.lock();
 
@@ -109,9 +94,13 @@ namespace gnut
         {
             *clk = 0.0;
             if (var)
+            {
                 *var = 0.0;
+            }
             if (dclk)
+            {
                 *dclk = 0.0;
+            }
 
             _gmutex.unlock();
 
@@ -134,7 +123,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gallprec::clk_int(const string &sat, const t_gtime &t, double *clk, double *var, double *dclk)
+    int t_gallprec::clk_int(const string& sat, const t_gtime& t, double* clk, double* var, double* dclk)
     {
         _gmutex.lock();
 
@@ -144,9 +133,13 @@ namespace gnut
         {
             *clk = 0.0;
             if (var)
+            {
                 *var = 0.0;
+            }
             if (dclk)
+            {
                 *dclk = 0.0;
+            }
             _gmutex.unlock();
             return -1;
         }
@@ -156,24 +149,27 @@ namespace gnut
         return irc;
     }
 
-    void t_gallprec::add_interval(const string &sat, int intv)
+    void t_gallprec::add_interval(const string& sat, int intv)
     {
         _intvm[sat] = intv;
     }
 
-    void t_gallprec::add_agency(const string &agency)
+    void t_gallprec::add_agency(const string& agency)
     {
         _agency = agency;
     }
 
-    int t_gallprec::addpos(const string &sat, const t_gtime &ep, const t_gtriple &xyz, const double &t,
-                           const t_gtriple &dxyz, const double &dt)
+    int t_gallprec::addpos(const string& sat,
+                           const t_gtime& ep,
+                           const t_gtriple& xyz,
+                           const double& t,
+                           const t_gtriple& dxyz,
+                           const double& dt)
     {
         _gmutex.lock();
 
         if (_overwrite || _mapsp3[sat].find(ep) == _mapsp3[sat].end())
         {
-
             _mapsp3[sat][ep]["X"] = xyz[0];
             _mapsp3[sat][ep]["Y"] = xyz[1];
             _mapsp3[sat][ep]["Z"] = xyz[2];
@@ -193,14 +189,12 @@ namespace gnut
         return 0;
     }
 
-    int t_gallprec::addvel(const string &sat, const t_gtime &ep, double xyzt[4], double dxyz[4])
+    int t_gallprec::addvel(const string& sat, const t_gtime& ep, double xyzt[4], double dxyz[4])
     {
-
         _gmutex.lock();
 
         if (_overwrite || _mapsp3[sat].find(ep) == _mapsp3[sat].end())
         {
-
             _mapsp3[sat][ep]["VX"] = xyzt[0];
             _mapsp3[sat][ep]["VY"] = xyzt[1];
             _mapsp3[sat][ep]["VZ"] = xyzt[2];
@@ -220,14 +214,12 @@ namespace gnut
         return 0;
     }
 
-    int t_gallprec::addclk(const string &sat, const t_gtime &ep, double clk[3], double dxyz[3])
+    int t_gallprec::addclk(const string& sat, const t_gtime& ep, double clk[3], double dxyz[3])
     {
-
         _gmutex.lock();
 
         if (_overwrite || _mapclk[sat].find(ep) == _mapclk[sat].end())
         {
-
             t_map_dat data = {
                 {"C0", clk[0]},
                 {"C1", clk[1]},
@@ -257,14 +249,12 @@ namespace gnut
         return 0;
     }
 
-    int t_gallprec::addclk_tri(const string &sat, const t_gtime &ep, double clk[3], double dxyz[3])
+    int t_gallprec::addclk_tri(const string& sat, const t_gtime& ep, double clk[3], double dxyz[3])
     {
-
         _gmutex.lock();
 
         if (_overwrite || _mapclk[sat].find(ep) == _mapclk[sat].end())
         {
-
             t_map_dat data = {
                 {"C0", clk[0]},
                 {"C1", clk[1]},
@@ -295,14 +285,15 @@ namespace gnut
         return 0;
     }
 
-    unsigned int t_gallprec::nepochs(const string &prn)
+    unsigned int t_gallprec::nepochs(const string& prn)
     {
-
         _gmutex.lock();
 
         unsigned int tmp = 0;
         if (_mapsp3.find(prn) != _mapsp3.end())
+        {
             tmp = _mapsp3[prn].size();
+        }
 
         _gmutex.unlock();
         return tmp;
@@ -310,7 +301,6 @@ namespace gnut
 
     set<string> t_gallprec::satellites() const
     {
-
         set<string> all_sat = t_gallnav::satellites();
 
         _gmutex.lock();
@@ -326,11 +316,12 @@ namespace gnut
         return all_sat;
     }
 
-    void t_gallprec::clean_outer(const t_gtime &beg, const t_gtime &end)
+    void t_gallprec::clean_outer(const t_gtime& beg, const t_gtime& end)
     {
-
         if (end < beg)
+        {
             return;
+        }
 
         t_gallnav::clean_outer(beg, end);
 
@@ -350,7 +341,6 @@ namespace gnut
             // remove before BEGIN request
             if (itBeg != itFirst)
             {
-
                 // begin is last
                 if (itBeg == itLast)
                 {
@@ -387,7 +377,6 @@ namespace gnut
             // remove before BEGIN request
             if (itBeg != itFirst)
             {
-
                 // begin is last
                 if (itBeg == itLast)
                 {
@@ -415,9 +404,8 @@ namespace gnut
         return;
     }
 
-    int t_gallprec::nav(const string &sat, const t_gtime &t, double xyz[3], double var[3], double vel[3], const bool &chk_mask)
+    int t_gallprec::nav(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
     {
-
         int fitdat = 24; // fitting samples
         int fitdeg = 12; // fitting degree
 
@@ -425,14 +413,20 @@ namespace gnut
         {
             xyz[i] = 0.0;
             if (var)
+            {
                 var[i] = 0.0;
+            }
             if (vel)
+            {
                 vel[i] = 0.0;
+            }
         }
 
         // alternative use of gnav
         if (_mapsp3[sat].size() == 0)
+        {
             return ((_clknav && t_gallnav::nav(sat, t, xyz, var, vel, chk_mask) >= 0) ? 1 : -1);
+        }
 
         _gmutex.lock();
 
@@ -446,9 +440,13 @@ namespace gnut
         }
 
         if (_poly_beg.find(sat) == _poly_beg.end())
+        {
             _poly_beg[sat] = LAST_TIME;
+        }
         if (_poly_end.find(sat) == _poly_end.end())
+        {
             _poly_end[sat] = FIRST_TIME;
+        }
 
         // use existing approximative estimates from cached polynomials
         if (!(t > _poly_end[sat] || t < _poly_beg[sat]))
@@ -539,55 +537,57 @@ namespace gnut
         _poly_z[sat].fitpolynom(_PT, _Z, fitdeg, _sec, _ref);
         _poly_z[sat].evaluate(t.diff(_ref) / _sec, 0, xyz[2]);
 
-
         _gmutex.unlock();
         return 1;
     }
 
-    shared_ptr<t_geph> t_gallprec::_find(const string &sat, const t_gtime &t)
+    shared_ptr<t_geph> t_gallprec::_find(const string& sat, const t_gtime& t)
     {
-
         if (_mapsp3.find(sat) == _mapsp3.end())
-            return _null; 
-        else if (_mapsp3[sat].size() == 0)
+        {
             return _null;
+        }
+        else if (_mapsp3[sat].size() == 0)
+        {
+            return _null;
+        }
         // if not exists satellite not in cache
         t_map_sp3::iterator it = _prec.find(sat);
         if (it == _prec.end())
         {
             if (_get_crddata(sat, t) < 0)
-                return _null; 
+            {
+                return _null;
+            }
         }
 
         // could not find the data at all --- SHOULDN'T OCCURE, SINCE _get_crddata already return !
         it = _prec.find(sat);
         if (it == _prec.end())
         {
-            return _null; 
+            return _null;
         }
 
         double t_minus_ref = t - (it->second)->epoch();
 
         // standard case: cache - satellite found and cache still valid!
-        if (fabs((float)t_minus_ref) < (it->second)->interval() / _degree_sp3 && 
-            (it->second)->valid(t)                                              
-        )
+        if (fabs((float)t_minus_ref) < (it->second)->interval() / _degree_sp3 && (it->second)->valid(t))
         {
             return it->second;
         }
         else
         {
-
             t_gtime beg(_mapsp3[sat].begin()->first);
             t_gtime end(_mapsp3[sat].rbegin()->first);
 
             // update cache only if not close to the prec data boundaries
-            if ((fabs(t.diff(beg)) > (it->second)->interval() / 2 &&
-                 fabs(t.diff(end)) > (it->second)->interval() / 2) ||
+            if ((fabs(t.diff(beg)) > (it->second)->interval() / 2 && fabs(t.diff(end)) > (it->second)->interval() / 2) ||
                 !(it->second)->valid(t))
             {
                 if (_get_crddata(sat, t) < 0)
-                    return _null; 
+                {
+                    return _null;
+                }
                 it = _prec.find(sat);
             }
         }
@@ -595,9 +595,8 @@ namespace gnut
         return it->second;
     }
 
-    int t_gallprec::_get_crddata(const string &sat, const t_gtime &t)
+    int t_gallprec::_get_crddata(const string& sat, const t_gtime& t)
     {
-
         _T.clear();
         _PT.clear();
         _X.clear();
@@ -607,19 +606,25 @@ namespace gnut
         _C.clear();
 
         if (_mapsp3.find(sat) == _mapsp3.end())
+        {
             return -1;
+        }
 
         map<t_gtime, t_map_dat>::iterator itReq = _mapsp3[sat].lower_bound(t); // 1st equal|greater [than t]
 
         if (itReq == _mapsp3[sat].end())
+        {
             return -1;
+        }
 
         map<t_gtime, t_map_dat>::iterator itReq_tmp = --(_mapsp3[sat].lower_bound(t));
 
         if (itReq_tmp != std::end(_mapsp3[sat]))
         {
             if (abs(t.diff(itReq_tmp->first)) < abs(t.diff(itReq->first)))
+            {
                 itReq = itReq_tmp;
+            }
         }
 
         _ref = itReq->first; // get the nearest epoch after t as reference
@@ -632,7 +637,6 @@ namespace gnut
         {
             return -1;
         }
-
 
         // DISTANCE() NEED TO BE A POSITIVE DIFFERENCE !!!
         int limit = static_cast<int>(_degree_sp3 / 2); // round (floor)
@@ -650,12 +654,16 @@ namespace gnut
         {
             it = itEnd;
             for (int i = 0; i <= static_cast<int>(_degree_sp3); i++)
+            {
                 it--;
+            }
         }
         else
         {
             for (int i = 0; i < limit; i++)
+            {
                 it--;
+            }
         }
 
         if (it == itEnd)
@@ -670,11 +678,12 @@ namespace gnut
 
             // check maximum interval allowed between reference and sta/end epochs
             if (fabs(tdiff) > static_cast<double>(_degree_sp3 * MAXDIFF_EPH))
+            {
                 continue;
+            }
 
             if (it->second["X"] != UNDEFVAL_POS)
             {
-
                 _PT.push_back(tdiff);
                 _T.push_back(it->first);
                 _X.push_back(it->second["X"]);
@@ -682,7 +691,6 @@ namespace gnut
                 _Z.push_back(it->second["Z"]);
                 _CT.push_back(tdiff);
                 _C.push_back(it->second["C"]);
-
             }
         }
 
@@ -698,8 +706,7 @@ namespace gnut
         }
         else
         {
-            shared_ptr<t_gephprec> tmp(new t_gephprec(_spdlog));
-            tmp->spdlog(_spdlog);
+            shared_ptr<t_gephprec> tmp(new t_gephprec());
             tmp->degree(_degree_sp3);
             tmp->add(sat, _T, _X, _Y, _Z, _C);
             _prec[sat] = tmp;
@@ -708,23 +715,28 @@ namespace gnut
         return 1;
     }
 
-    int t_gallprec::_get_clkdata(const string &sat, const t_gtime &t)
+    int t_gallprec::_get_clkdata(const string& sat, const t_gtime& t)
     {
-
         _CT.clear();
         _C.clear();
         _IFCB_F3.clear();
 
         if (_mapclk.find(sat) == _mapclk.end())
+        {
             return -1;
+        }
         map<t_gtime, t_map_dat>::iterator itBeg = _mapclk[sat].begin();
         map<t_gtime, t_map_dat>::iterator itEnd = _mapclk[sat].end();
         map<t_gtime, t_map_dat>::iterator itReq = _mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
 
         if (itReq == _mapclk[sat].end())
+        {
             return -1; // too old products
+        }
         if (t < itBeg->first)
+        {
             return -1; // too new products
+        }
 
         _clkref = itReq->first; // get the nearest epoch after t as reference
 
@@ -734,7 +746,6 @@ namespace gnut
         {
             return -1;
         }
-
 
         unsigned int degree_clk = 1; // MOZNA DAT 3 degree polinom kvuli 1Hz datum (ale cekovat ktery 3)
 
@@ -775,12 +786,16 @@ namespace gnut
         {
             it = itEnd;
             for (int i = 0; i <= static_cast<int>(degree_clk); i++)
+            {
                 it--;
+            }
         }
         else
         {
             for (int i = 0; i <= limit; i++)
+            {
                 it--;
+            }
         }
 
         // calculate
@@ -816,7 +831,6 @@ namespace gnut
         }
         else
         {
-
             // vector for polynomial
             for (unsigned int i = 0; i <= degree_clk; it++, i++)
             {
@@ -837,7 +851,6 @@ namespace gnut
 
             if (_C.size() != degree_clk + 1)
             {
-
                 if (itReq != itBeg)
                 {
                     _C.clear();
@@ -864,43 +877,40 @@ namespace gnut
         return 1;
     }
 
-    int t_gallprec::_get_delta_pos_vel(const string &sat, const t_gtime &t, int iod, t_gtime &tRef, t_map_dat &orbcorr)
+    int t_gallprec::_get_delta_pos_vel(const string& sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& orbcorr)
     {
-
         if (_mapsp3.find(sat) == _mapsp3.end() || _mapsp3[sat].size() == 0)
         {
-             return -1;
+            return -1;
         }
 
-        map<t_gtime, t_map_dat>::iterator itLast = _mapsp3[sat].lower_bound(t); 
+        map<t_gtime, t_map_dat>::iterator itLast = _mapsp3[sat].lower_bound(t);
 
-        map<t_gtime, t_map_dat>::iterator itPrev = --(_mapsp3[sat].lower_bound(t)); 
+        map<t_gtime, t_map_dat>::iterator itPrev = --(_mapsp3[sat].lower_bound(t));
 
         if (itLast != _mapsp3[sat].end() && int(itLast->second["IOD"]) == iod)
         {
             tRef = itLast->first;
             orbcorr = itLast->second;
-             return 1;
+            return 1;
         }
         else if (itPrev != _mapsp3[sat].end() && int(itPrev->second["IOD"]) == iod)
         {
             tRef = itPrev->first;
             orbcorr = itPrev->second;
-             return 1;
+            return 1;
         }
         else
         {
-             return -1;
+            return -1;
         }
     }
 
-    int t_gallprec::_get_delta_clk(const string &sat, const t_gtime &t, int iod, t_gtime &tRef, t_map_dat &clkcorr)
+    int t_gallprec::_get_delta_clk(const string& sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& clkcorr)
     {
-
-
         if (_mapclk.find(sat) == _mapclk.end() || _mapclk[sat].size() == 0)
         {
-             return -1;
+            return -1;
         }
         map<t_gtime, t_map_dat>::iterator itLast = _mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
 
@@ -910,18 +920,18 @@ namespace gnut
         {
             tRef = itLast->first;
             clkcorr = itLast->second;
-             return 1;
+            return 1;
         }
         else if (itPrev != _mapclk[sat].end() && int(itPrev->second["IOD"]) == iod)
         {
             tRef = itPrev->first;
             clkcorr = itPrev->second;
-             return 1;
+            return 1;
         }
         else
         {
-             return -1;
+            return -1;
         }
     }
 
-} // namespace
+} // namespace gnut

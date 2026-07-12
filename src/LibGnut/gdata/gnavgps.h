@@ -34,7 +34,7 @@ namespace gnut
 
     // IS-GPS-200D
 #ifndef GM_WGS84
-#define GM_WGS84 3.986005e14     ///< WGS 84 value of earth's graviational constant for GPS user [m^3/s^2]
+#define GM_WGS84 3.986005e14 ///< WGS 84 value of earth's graviational constant for GPS user [m^3/s^2]
 #endif
 #define OMGE_DOT 7.2921151467e-5 ///< WGS 84 value of the earth's rotation rate [rad/sec]
 #define SC2R 3.1415926535898     ///< semi-circle to radian
@@ -42,71 +42,77 @@ namespace gnut
     /** @brief class for t_gnavgps. */
     class LibGnut_LIBRARY_EXPORT t_gnavgps : public t_gnav
     {
-
     public:
         /** @brief default constructor. */
         t_gnavgps();
 
         /**
          * @brief Construct a new t gnavgps object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gnavgps(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gnavgps();
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override; //[m]
+        int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL,
+                bool chk_health = true) override; //[m]
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) override; //[s]
+        int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL,
+                bool chk_health = true) override; //[s]
 
         /**
-         * @brief 
-         * 
-         * @param msg 
-         * @return int 
+         * @brief
+         *
+         * @param msg
+         * @return int
          */
-        int chk(set<string> &msg) override;
+        int chk(set<string>& msg) override;
 
         /** @brief convert data to nav. */
-        int data2nav(string, const t_gtime &ep, const t_gnavdata &data) override;
+        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
-        virtual int nav2data(t_gnavdata &data) override;
+        virtual int nav2data(t_gnavdata& data) override;
 
         /** @brief get iod. */
-        virtual int iod() const override { return _iode; }
+        virtual int iod() const override
+        {
+            return _iode;
+        }
 
         /** @brief get rec. */
-        virtual int rec() const override { return MAX_RINEXN_REC_GPS; }
+        virtual int rec() const override
+        {
+            return MAX_RINEXN_REC_GPS;
+        }
 
         /** @brief check tot. */
-        virtual bool chktot(const t_gtime &t) override;
+        virtual bool chktot(const t_gtime& t) override;
 
         /** @brief get/set parameter. */
-        t_timdbl param(const NAVDATA &n) override;
-        int param(const NAVDATA &n, double val) override;
+        t_timdbl param(const NAVDATA& n) override;
+        int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
         string line() const override;
@@ -115,28 +121,27 @@ namespace gnut
         string linefmt() const override;
 
     private:
-
         /**
          * @brief healthy check
-         * 
-         * @return true 
-         * @return false 
+         *
+         * @return true
+         * @return false
          */
         bool _healthy() const override;
 
         /**
          * @brief eccentric anomaly
-         * 
-         * @param dt 
-         * @param Ek 
-         * @param dEk 
+         *
+         * @param dt
+         * @param Ek
+         * @param dEk
          */
-        void _ecc_anomaly(double dt, double &Ek, double &dEk);
+        void _ecc_anomaly(double dt, double& Ek, double& dEk);
 
         /**
          * @brief corrected mean motion
-         * 
-         * @return double 
+         *
+         * @return double
          */
         double _mean_motion();
 
@@ -172,6 +177,6 @@ namespace gnut
         double _tgd[4]; ///< group delay parameters [sec]
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

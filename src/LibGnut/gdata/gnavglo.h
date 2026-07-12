@@ -45,95 +45,99 @@ namespace gnut
     /** @brief class for t_gnavglo. */
     class LibGnut_LIBRARY_EXPORT t_gnavglo : public t_gnav
     {
-
     public:
         /** @brief default constructor. */
         t_gnavglo();
 
         /**
          * @brief Construct a new t gnavglo object
-         * 
-         * @param spdlog 
+         *
+         * @param spdlog
          */
-        t_gnavglo(t_spdlog spdlog);
 
         /** @brief default destructor. */
         virtual ~t_gnavglo();
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        virtual int nav(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
+        virtual int nav(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        virtual int pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
+        virtual int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         * @brief
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        virtual int clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true) override;
+        virtual int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, bool chk_health = true) override;
 
         /**
-         * @brief 
-         * 
-         * @return int 
+         * @brief
+         *
+         * @return int
          */
         virtual int channel() const;
 
         /**
-         * @brief 
-         * 
-         * @param msg 
-         * @return int 
+         * @brief
+         *
+         * @param msg
+         * @return int
          */
-        virtual int chk(set<string> &msg) override;
+        virtual int chk(set<string>& msg) override;
 
         /** @brief convert data to nav. */
-        virtual int data2nav(string sat, const t_gtime &ep, const t_gnavdata &data) override;
+        virtual int data2nav(string sat, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
-        virtual int nav2data(t_gnavdata &data) override;
+        virtual int nav2data(t_gnavdata& data) override;
 
         /** @brief get iod. */
-        virtual int iod() const override { return _iodc; }
+        virtual int iod() const override
+        {
+            return _iodc;
+        }
 
         /** @brief get rec. */
-        int rec() const override { return MAX_RINEXN_REC_GLO; }
+        int rec() const override
+        {
+            return MAX_RINEXN_REC_GLO;
+        }
 
         /** @brief get/set parameter. */
-        t_timdbl param(const NAVDATA &n) override;
+        t_timdbl param(const NAVDATA& n) override;
 
         /**
-         * @brief 
-         * 
-         * @param n 
-         * @param val 
-         * @return int 
+         * @brief
+         *
+         * @param n
+         * @param val
+         * @return int
          */
-        int param(const NAVDATA &n, double val) override;
+        int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
         string line() const override;
@@ -142,70 +146,73 @@ namespace gnut
         string linefmt() const override;
 
         /** @brief get freq_num. */
-        int freq_num() const override { return _freq_num; }
+        int freq_num() const override
+        {
+            return _freq_num;
+        }
 
     protected:
         /**
          * @brief IOD of GLONASS clocks
-         * 
-         * @return int 
+         *
+         * @return int
          */
         int _iod() const;
 
         /**
          * @brief healthy check
-         * 
-         * @return true 
-         * @return false 
+         *
+         * @return true
+         * @return false
          */
         bool _healthy() const override;
 
     private:
         /**
          * @brief six orbital differential equations
-         * 
-         * @param xx 
-         * @param acc 
-         * @return ColumnVector 
+         *
+         * @param xx
+         * @param acc
+         * @return ColumnVector
          */
-        ColumnVector _deriv(const ColumnVector &xx, const t_gtriple &acc);
+        ColumnVector _deriv(const ColumnVector& xx, const t_gtriple& acc);
 
         /**
          * @brief Runge-Kutta integration
-         * 
-         * @param step 
-         * @param nsteps 
-         * @param yy 
-         * @param acc 
-         * @return ColumnVector 
+         *
+         * @param step
+         * @param nsteps
+         * @param yy
+         * @param acc
+         * @return ColumnVector
          */
-        ColumnVector _RungeKutta(double step, int nsteps, const ColumnVector &yy, const t_gtriple &acc);
+        ColumnVector _RungeKutta(double step, int nsteps, const ColumnVector& yy, const t_gtriple& acc);
 
         double _maxEphAge; ///< max age of ephemerises [s]
 
         /**
          * @brief local function
-         * 
-         * @param t 
-         * @param xyz 
-         * @param var 
-         * @param vel 
-         * @param chk_health 
-         * @return int 
+         *
+         * @param t
+         * @param xyz
+         * @param var
+         * @param vel
+         * @param chk_health
+         * @return int
          */
-        int _pos(const t_gtime &t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true);
+        int _pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true);
 
         /**
          * @brief glo time of transmission
-         * 
-         * @param t 
-         * @param clk 
-         * @param var 
-         * @param dclk 
-         * @param chk_health 
-         * @return int 
+         *
+         * @param t
+         * @param clk
+         * @param var
+         * @param dclk
+         * @param chk_health
+         * @return int
          */
-        int _clk(const t_gtime &t, double *clk, double *var = NULL, double *dclk = NULL, bool chk_health = true);
+        int _clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, bool chk_health = true);
 
     private:
         int _iodc; ///< issue of clocks
@@ -229,6 +236,6 @@ namespace gnut
         int _min_step;  ///< mininal step length for Runge Kutta
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

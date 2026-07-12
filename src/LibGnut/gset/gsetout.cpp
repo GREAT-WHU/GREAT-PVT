@@ -28,43 +28,51 @@ using namespace pugi;
 
 namespace gnut
 {
-    OFMT t_gsetout::str2ofmt(const string &s)
+    OFMT t_gsetout::str2ofmt(const string& s)
     {
         string tmp = s;
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         if (tmp == "OUT")
+        {
             return XXX_OUT;
+        }
         if (tmp == "LOG")
+        {
             return LOG_OUT;
+        }
         if (tmp == "PPP")
+        {
             return PPP_OUT;
+        }
         if (tmp == "FLT")
+        {
             return FLT_OUT;
+        }
         return OFMT(-1);
     }
 
-    string t_gsetout::ofmt2str(const OFMT &f)
+    string t_gsetout::ofmt2str(const OFMT& f)
     {
         switch (f)
         {
-        case XXX_OUT:
-            return "OUT";
-        case LOG_OUT:
-            return "LOG";
-        case PPP_OUT:
-            return "PPP";
-        case FLT_OUT:
-            return "FLT";
-        default:
-            return "UNDEF";
+            case XXX_OUT:
+                return "OUT";
+            case LOG_OUT:
+                return "LOG";
+            case PPP_OUT:
+                return "PPP";
+            case FLT_OUT:
+                return "FLT";
+            default:
+                return "UNDEF";
         }
         return "UNDEF";
     }
 
-    t_gsetout::t_gsetout()
-        : t_gsetbase(),
-          _append(false),
-          _verb(0)
+    t_gsetout::t_gsetout() :
+        t_gsetbase(),
+        _append(false),
+        _verb(0)
     {
         _set.insert(XMLKEY_OUT);
     }
@@ -73,7 +81,7 @@ namespace gnut
     {
     }
 
-    int t_gsetout::output_size(const string &fmt)
+    int t_gsetout::output_size(const string& fmt)
     {
         _gmutex.lock();
 
@@ -103,7 +111,7 @@ namespace gnut
         return tmp;
     }
 
-    string t_gsetout::outputs(const string &fmt)
+    string t_gsetout::outputs(const string& fmt)
     {
         _gmutex.lock();
 
@@ -207,14 +215,13 @@ namespace gnut
         }
     }
 
-    string t_gsetout::version(const string &fmt)
+    string t_gsetout::version(const string& fmt)
     {
         _gmutex.lock();
 
         string ver = DEFAULT_FILE_VER;
         xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child(fmt.c_str());
-        if (!fmt.empty() &&
-            !node.attribute("ver").empty())
+        if (!fmt.empty() && !node.attribute("ver").empty())
         {
             ver = node.attribute("ver").as_string();
         }
@@ -238,7 +245,7 @@ namespace gnut
         return tmp;
     }
 
-    string t_gsetout::_outputs(const string &fmt)
+    string t_gsetout::_outputs(const string& fmt)
     {
         string str;
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).first_child(); node; node = node.next_sibling())
@@ -249,7 +256,9 @@ namespace gnut
                 while (is >> str && !is.fail())
                 {
                     if (str.find("://") == string::npos)
+                    {
                         str = GFILE_PREFIX + str;
+                    }
                     return str;
                 }
             }
@@ -309,4 +318,4 @@ namespace gnut
         return;
     }
 
-} // namespace
+} // namespace gnut

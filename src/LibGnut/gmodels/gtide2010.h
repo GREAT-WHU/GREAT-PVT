@@ -45,21 +45,21 @@ namespace gnut
     /** @brief class for t_gtide2010 derive from t_gtide. */
     class LibGnut_LIBRARY_EXPORT t_gtide2010 : public t_gtide
     {
-
     public:
         /** @brief constructor 1. */
-        t_gtide2010(t_spdlog spdlog);
+        t_gtide2010();
 
         /** @brief default destructor. */
         virtual ~t_gtide2010();
 
         /** @brief ocean tide loading. */
-        virtual t_gtriple load_ocean(const t_gtime &epoch, const string &site, const t_gtriple &xRec); 
+        virtual t_gtriple load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec);
+
     protected:
-        ColumnVector _D;   ///< D
-        ColumnVector _DD;  ///< DD
+        ColumnVector _D;  ///< D
+        ColumnVector _DD; ///< DD
     };
 
-} // namespace
+} // namespace gnut
 
 #endif

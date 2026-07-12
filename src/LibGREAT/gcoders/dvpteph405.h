@@ -1,12 +1,12 @@
 /**
  * @file         dvpteph405.h
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        decode the binary jpleph_de405 file data 
+ * @brief        decode the binary jpleph_de405 file data
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #ifndef DVPTEPH405_H
 #define DVPTEPH405_H
@@ -22,22 +22,22 @@ namespace great
     class LibGREAT_LIBRARY_EXPORT t_dvpteph405 : public t_gcoder
     {
     public:
-        /** 
-         * @brief default constructor. 
-         * 
+        /**
+         * @brief default constructor.
+         *
          * @param[in]  s        setbase control
          * @param[in]  version  version of the gcoder
          * @param[in]  sz       size of the buffer
          */
-        explicit t_dvpteph405(t_gsetbase *s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
+        explicit t_dvpteph405(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE);
 
-        /** 
-         * @brief default destructor. 
+        /**
+         * @brief default destructor.
          */
-        virtual ~t_dvpteph405(){};
+        virtual ~t_dvpteph405() {};
 
-        /** 
-         * @brief decode the header of the jpleph_de405 data file. 
+        /**
+         * @brief decode the header of the jpleph_de405 data file.
          * @param[in]  buff        buffer of the data
          * @param[in]  bufLen      buffer size of the data
          * @param[in]  errmsg      error message of the data decoding
@@ -45,11 +45,11 @@ namespace great
             @retval >=0 consume size of header decoding
             @retval <0  finish reading
          */
-        virtual int decode_head(char *buff, int bufLen, vector<string> &errmsg);
+        virtual int decode_head(char* buff, int bufLen, vector<string>& errmsg);
 
-        /** 
-         * @brief decode the data body of the jpleph_de405 data file. 
-         * 
+        /**
+         * @brief decode the data body of the jpleph_de405 data file.
+         *
          * @param[in]  buff        buffer of the data
          * @param[in]  bufLen      buffer size of the data
          * @param[in]  errmsg      error message of the data decoding
@@ -57,7 +57,7 @@ namespace great
             @retval >=0 consume size of body decoding
              @retval <0  finish reading
          */
-        virtual int decode_data(char *buff, int bufLen, int &cnt, vector<string> &errmsg);
+        virtual int decode_data(char* buff, int bufLen, int& cnt, vector<string>& errmsg);
 
     protected:
     private:
@@ -68,6 +68,6 @@ namespace great
         double _days;    ///< Sampling interval of data(unit: day)
         int _ipt[3][13]; ///< index of planets for calculating position and speed
     };
-}
+} // namespace great
 
 #endif // !DVPTEPH405_H

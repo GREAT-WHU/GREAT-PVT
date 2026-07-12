@@ -19,7 +19,7 @@
 #ifndef GSPP_H
 #define GSPP_H
 
-#include "gio/grtlog.h"
+#include "gio/great_log.h"
 #include "gutils/gtime.h"
 #include "gutils/gmutex.h"
 #include "gprod/gprodcrd.h"
@@ -46,33 +46,31 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gspp(string mark, t_gsetbase *set);
+        t_gspp(string mark, t_gsetbase* set);
 
-        t_gspp(string mark, t_gsetbase *set, t_spdlog spdlog, string mode = "");
+        t_gspp(string mark, t_gsetbase* set, string mode);
         /** @brief default destructor. */
         virtual ~t_gspp();
 
         /** @brief for process. */
-        virtual int processBatch(const t_gtime &beg, const t_gtime &end) = 0;
+        virtual int processBatch(const t_gtime& beg, const t_gtime& end) = 0;
 
         /** @brief set for data, output product, object(like pcv model),bias and so on. */
-        virtual void setDAT(t_gallobs *gobs, t_gallnav *gnav);
+        virtual void setDAT(t_gallobs* gobs, t_gallnav* gnav);
 
         /** @brief set output for products. */
-        void setOUT(t_gallprod *products);
+        void setOUT(t_gallprod* products);
 
         /** @brief set OBJ/DCB/FCB. */
-        virtual void setOBJ(t_gallobj *gobj);
-        virtual void setDCB(t_gallbias *gbias);
-        virtual void setFCB(t_gallbias *gbias);
+        virtual void setOBJ(t_gallobj* gobj);
+        virtual void setDCB(t_gallbias* gbias);
+        virtual void setFCB(t_gallbias* gbias);
 
         /** @brief Set general log file. */
-        virtual void spdlog(t_spdlog spdlog);
-
-        /** 
-        *@brief Setting up types of error correction.
-        * Tropo is used or not
-        */
+        /**
+         *@brief Setting up types of error correction.
+         * Tropo is used or not
+         */
         void tropo(bool tropo);
 
         /** @brief Tropo slants are provided. */
@@ -85,13 +83,16 @@ namespace gnut
         void setgnss(GSYS sys);
 
         /** @brief get site. */
-        string site() { return _site; }
+        string site()
+        {
+            return _site;
+        }
 
     protected:
         shared_ptr<t_gobj> _grec; ///< Transmitter/receiver object.
-        t_gallobj *_gallobj;      ///< Objects transmitter/receiver.
-        t_gallbias *_gallbias;    ///< Differential code biases.
-        t_gallbias *_gallfcb;     ///< Phase fractional cycle bias.
+        t_gallobj* _gallobj;      ///< Objects transmitter/receiver.
+        t_gallbias* _gallbias;    ///< Differential code biases.
+        t_gallbias* _gallfcb;     ///< Phase fractional cycle bias.
 
         CONSTRPAR _crd_est;
         t_gtime _crd_begStat;
@@ -114,19 +115,14 @@ namespace gnut
         virtual void _setLog(string mode = "");
         bool _valid_crd_xml;
         bool _valid_ztd_xml;
-        t_gmodel *_gModel;    ///< models.
+        t_gmodel* _gModel;    ///< models.
         string _site;         ///< Site internal ID.
-        t_gsetbase *_set;     ///< Base setting.
-        t_spdlog _spdlog;     ///< Processing spdlog output.
-        t_spdlog _gspdlog;    ///< Genereal spdlog output.
-        t_spdlog _res;        ///< Genereal spdlog output.
-        t_grtlog _grtlog;     ///< great log
-        t_grtlog _greslog;    ///< Residuals output.
-        t_gallobs *_gobs;     ///< Observation data.
-        t_gallnav *_gnav;     ///< Objects for ephemerides.
-        t_gallprod *_gmet;    ///< Troposphere products input
-        t_gallprod *_gion;    ///< Ionosphere products input
-        t_gallprod *_allprod; ///< Products output.
+        t_gsetbase* _set;     ///< Base setting.
+        t_gallobs* _gobs;     ///< Observation data.
+        t_gallnav* _gnav;     ///< Objects for ephemerides.
+        t_gallprod* _gmet;    ///< Troposphere products input
+        t_gallprod* _gion;    ///< Ionosphere products input
+        t_gallprod* _allprod; ///< Products output.
         bool _phase;          ///< Phase is used.
         bool _doppler;        ///< Doppler is used.
         bool _tropo_est;      ///< Tropo is estimated.
@@ -140,8 +136,8 @@ namespace gnut
         double _sampling;     ///< Sampling interval.
         double _scale;        ///< Sampling scaling factor.
         bool _initialized;    ///< Initialized status.
-        int _nSat;      ///< Number of satellites comming into the processing
-        int _nSat_excl; ///< Number of excluded satellites due to various reason
+        int _nSat;            ///< Number of satellites comming into the processing
+        int _nSat_excl;       ///< Number of excluded satellites due to various reason
 
         // init sigma
         double _sig_init_crd;  ///< Initial coordinates sigma.
@@ -176,13 +172,13 @@ namespace gnut
         bool _pos_kin;    ///< pos kin
         bool _extern_log; ///< extern log
 
-        bool _use_ecl; ///< use ecl
-        bool _success; ///< success
+        bool _use_ecl;    ///< use ecl
+        bool _success;    ///< success
         t_gmutex _gmutex; ///< gmutex
 
         // signals used for processing
         map<string, map<GOBSBAND, GOBSATTR>> _signals; ///< signal
     };
-} // namespace
+} // namespace gnut
 
 #endif

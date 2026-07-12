@@ -24,18 +24,17 @@ using namespace std;
 namespace gnut
 {
 
-    t_rinexo::t_rinexo(t_gsetbase *s, string version, int sz)
-        : t_rinexo3(s, version, sz)
+    t_rinexo::t_rinexo(t_gsetbase* s, string version, int sz) :
+        t_rinexo3(s, version, sz)
     {
     }
-    t_rinexo::t_rinexo(t_gtime beg, t_gtime end, t_gsetbase *s, string version, int sz)
-        : t_rinexo3(beg, end, s, version, sz)
+    t_rinexo::t_rinexo(t_gtime beg, t_gtime end, t_gsetbase* s, string version, int sz) :
+        t_rinexo3(beg, end, s, version, sz)
     {
     }
 
-    int t_rinexo::decode_head(char *buff, int sz, vector<string> &errmsg)
+    int t_rinexo::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-
         _mutex.lock();
 
         int add = t_gcoder::_add2buffer(buff, sz);
@@ -61,22 +60,20 @@ namespace gnut
         return _consume;
     }
 
-    int t_rinexo::decode_data(char *buff, int sz, int &cnt, vector<string> &errmsg)
+    int t_rinexo::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-
         if (_hdr)
+        {
             return -1; // thin execution, header only
+        }
 
         if (_rec.size() == 0)
         {
             _rec.insert(_site);
         }
-        if (_rec.find(_site) == _rec.end() &&
-            _rec.find(_site.substr(0, 4)) == _rec.end())
+        if (_rec.find(_site) == _rec.end() && _rec.find(_site.substr(0, 4)) == _rec.end())
         {
-
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, _site + " marker name not found in configuration [skipped].");
+            GREAT_DEBUG(_site + " marker name not found in configuration [skipped].");
             ++_irc;
             return -1;
         }
@@ -111,12 +108,12 @@ namespace gnut
     }
     int t_rinexo::_decode_head()
     {
-
         while (_complete && ((_tmpsize = t_gcoder::_getline(_line)) >= 0))
         {
-
             if (_tmpsize <= 61)
+            {
                 break;
+            }
 
             _complete = true;
 
@@ -125,9 +122,7 @@ namespace gnut
             { // first line
                 if (_line[20] != 'O')
                 {
-
-                    if (_spdlog)
-                        SPDLOG_LOGGER_ERROR(_spdlog, "not RINEX observation file");
+                    GREAT_ERROR("not RINEX observation file");
                     mesg(GERROR, "not RINEX observation file!");
                     ++_irc;
                     return (_consume = -1);
@@ -140,15 +135,12 @@ namespace gnut
 
                 if (substitute(_version, " ", "") > 0)
                 {
-                    if (_spdlog)
-                        SPDLOG_LOGGER_DEBUG(_spdlog, "reading VER: " + _version + " SYS: " + string(1, _rnxhdr.rnxsys()));
+                    GREAT_DEBUG("reading VER: " + _version + " SYS: " + string(1, _rnxhdr.rnxsys()));
                 }
 
                 if (_rnxhdr.rnxsys() == ' ')
                 {
-
-                    if (_spdlog)
-                        SPDLOG_LOGGER_WARN(_spdlog, "Warning: RINEX SYS not defined, GPS set as default");
+                    GREAT_WARN("Warning: RINEX SYS not defined, GPS set as default");
                     if (_version < "3.00")
                     {
                         mesg(GWARNING, "Warning: RINEX SYS not defined!");
@@ -166,9 +158,7 @@ namespace gnut
             }
             else if (_line.find("END OF HEADER", 60) != string::npos)
             {
-
-                if (_spdlog)
-                    SPDLOG_LOGGER_DEBUG(_spdlog, "END OF HEADER ");
+                GREAT_DEBUG("END OF HEADER ");
                 t_gcoder::_consume(_tmpsize);
                 _rnxhdr.mapobs(_mapobs);
                 _rnxhdr.mapcyc(_mapcyc);
@@ -176,51 +166,62 @@ namespace gnut
                 _rnxhdr.globia(_globia);
                 _fill_head();
                 if (_version < "3.00")
+                {
                     t_rinexo2::_check_head();
+                }
                 else if (_version < "4.00")
+                {
                     t_rinexo3::_check_head();
+                }
                 return (_consume = -1);
             }
 
             else if (_version < "3.00")
+            {
                 t_rinexo2::_decode_head();
+            }
             else if (_version < "4.00")
+            {
                 t_rinexo3::_decode_head();
+            }
 
             // add _comment to _rnxhdr
             _rnxhdr.comment(_comment);
 
             // -------- CONSUME --------
             if (_complete)
+            {
                 _consume += t_gcoder::_consume(_tmpsize);
+            }
             else
+            {
                 break;
+            }
         }
-
 
         return _consume;
     }
 
     int t_rinexo::_decode_data()
     {
-
         while (_complete && ((_tmpsize = t_gcoder::_getline(_line)) >= 0))
         {
-
             _complete = true;
             _vobs.clear();
 
-
             // -------- DECODE DATA -------
             if (_version < "3.00")
+            {
                 t_rinexo2::_decode_data();
+            }
             else if (_version < "4.00")
+            {
                 t_rinexo3::_decode_data();
+            }
 
         } // loop over lines
-
 
         return _consume;
     }
 
-} // namespace
+} // namespace gnut

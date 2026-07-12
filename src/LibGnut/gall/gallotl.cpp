@@ -10,21 +10,17 @@
 #include <math.h>
 namespace gnut
 {
-    t_gallotl::t_gallotl() : t_gdata()
+    t_gallotl::t_gallotl() :
+        t_gdata()
     {
         id_type(t_gdata::ALLOTL);
     }
-    t_gallotl::t_gallotl(t_spdlog spdlog) : t_gdata(spdlog)
-    {
-        id_type(t_gdata::ALLOTL);
-    }
-
     t_gallotl::~t_gallotl()
     {
         _mapotl.clear();
     }
 
-    int t_gallotl::data(Matrix &otldata, const string &site)
+    int t_gallotl::data(Matrix& otldata, const string& site)
     {
         _gmutex.lock();
 
@@ -37,21 +33,27 @@ namespace gnut
                 return -1;
             }
             else
+            {
                 otldata = _mapotl[site_short].data();
+            }
         }
         else
+        {
             otldata = _mapotl[site].data();
+        }
 
         _gmutex.unlock();
         return 1;
     }
 
-    int t_gallotl::data(Matrix &otldata, double lon, double lat)
+    int t_gallotl::data(Matrix& otldata, double lon, double lat)
     {
         const double dlon_eps = 1E4 / 6378235.0 * R2D, dlat_eps = dlon_eps / cos(lat * D2R);
 
         if (lon > 180)
+        {
             lon -= 360.0;
+        }
 
         for (auto otl_iter = _mapotl.begin(); otl_iter != _mapotl.end(); otl_iter++)
         {
@@ -68,7 +70,7 @@ namespace gnut
         return -1;
     }
 
-    void t_gallotl::add(t_gotl &otl)
+    void t_gallotl::add(t_gotl& otl)
     {
         _gmutex.lock();
 
@@ -79,4 +81,4 @@ namespace gnut
         return;
     }
 
-} // namespace
+} // namespace gnut

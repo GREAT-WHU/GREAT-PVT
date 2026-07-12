@@ -1,7 +1,7 @@
 
 /* ----------------------------------------------------------------------
  * G-Nut - GNSS software development library
- * 
+ *
   (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
 
   This file is part of the G-Nut C++ library.
@@ -25,7 +25,11 @@ namespace gnut
     {
     }
 
-    void t_gflt::add_data(const t_gallpar &param, const ColumnVector &dx, const SymmetricMatrix &Qx, const double &sigma0, const SymmetricMatrix &Qx0)
+    void t_gflt::add_data(const t_gallpar& param,
+                          const ColumnVector& dx,
+                          const SymmetricMatrix& Qx,
+                          const double& sigma0,
+                          const SymmetricMatrix& Qx0)
     {
         try
         {
@@ -40,7 +44,7 @@ namespace gnut
         }
     }
 
-    void t_gflt::add_data(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l)
+    void t_gflt::add_data(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l)
     {
         try
         {
@@ -56,14 +60,14 @@ namespace gnut
         }
     }
 
-    void t_gflt::add_data(const double &vtpv, const int &nobs_total, const int &npar_number)
+    void t_gflt::add_data(const double& vtpv, const int& nobs_total, const int& npar_number)
     {
         _vtpv = vtpv;
         _nobs_total = nobs_total;
         _npar_number = npar_number;
     }
 
-    void t_gflt::add_virtual_obs(const Matrix &A, const SymmetricMatrix &P, const ColumnVector &l)
+    void t_gflt::add_virtual_obs(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l)
     {
         int virtual_obs_num = l.size();
         _A.resize_keep(_nobs_total + virtual_obs_num, _npar_number);
@@ -83,7 +87,10 @@ namespace gnut
 
         // Fixed Only
         _A_virtual.SubMatrix(virtual_total_obs_num + 1, virtual_total_obs_num + virtual_obs_num, 1, _npar_number) = A;
-        _P_virtual.SubMatrix(virtual_total_obs_num + 1, virtual_total_obs_num + virtual_obs_num, virtual_total_obs_num + 1, virtual_total_obs_num + virtual_obs_num) = P;
+        _P_virtual.SubMatrix(virtual_total_obs_num + 1,
+                             virtual_total_obs_num + virtual_obs_num,
+                             virtual_total_obs_num + 1,
+                             virtual_total_obs_num + virtual_obs_num) = P;
         _l_virtual.SubMatrix(virtual_total_obs_num + 1, virtual_total_obs_num + virtual_obs_num, 1, 1) = l;
     }
 
@@ -153,7 +160,7 @@ namespace gnut
     {
     }
 
-    bool t_gflt::outlierDetect(const Matrix &A, const SymmetricMatrix &Q, const ColumnVector &dx, const ColumnVector &l, SymmetricMatrix &P)
+    bool t_gflt::outlierDetect(const Matrix& A, const SymmetricMatrix& Q, const ColumnVector& dx, const ColumnVector& l, SymmetricMatrix& P)
     {
         bool res = false;
         double k0 = 3, k1 = 7;
@@ -178,17 +185,21 @@ namespace gnut
         }
 
         if (max_res <= k0)
+        {
             gamma = 1.0;
+        }
         else if (max_res > k0 && max_res <= k1)
         {
             gamma = max_res / k0 * (k1 - k0) / (k1 - max_res);
         }
-        else 
+        else
         {
             gamma = 1e2;
         }
         if (gamma > 1.0)
+        {
             res = true;
+        }
         P(idx, idx) = P(idx, idx) / gamma;
         return res;
     }
@@ -203,7 +214,7 @@ namespace gnut
         t_kalman::update(_A, _P, _l, _dx, _Qx);
     }
 
-    void t_kalman::update(const Matrix &A, const DiagonalMatrix &Pl, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Qx)
+    void t_kalman::update(const Matrix& A, const DiagonalMatrix& Pl, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Qx)
     {
         Matrix K; // Kalman gain
         Matrix NN;
@@ -220,7 +231,7 @@ namespace gnut
         Qx << I_KA * Qx * I_KA.t() + K * Pl.i() * K.t(); // update variance-covariance matrix of state
     }
 
-    void t_kalman::update(const Matrix &A, const SymmetricMatrix &Pl, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Qx)
+    void t_kalman::update(const Matrix& A, const SymmetricMatrix& Pl, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Qx)
     {
         Matrix K; // Kalman gain
         Matrix NN;
@@ -241,7 +252,7 @@ namespace gnut
         t_SRF::update(_A, _P, _l, _dx, _Qx);
     }
 
-    void t_SRF::update(const Matrix &A, const DiagonalMatrix &Pl, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Qx)
+    void t_SRF::update(const Matrix& A, const DiagonalMatrix& Pl, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Qx)
     {
         int nObs = A.Nrows();
         int nPar = A.Ncols();
@@ -285,9 +296,8 @@ namespace gnut
         Qx << (SS.t() * SS);
     }
 
-    void t_SRF::update(const Matrix &A, const SymmetricMatrix &Pl, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Qx)
+    void t_SRF::update(const Matrix& A, const SymmetricMatrix& Pl, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Qx)
     {
-
         int nObs = A.Nrows();
         int nPar = A.Ncols();
 
@@ -330,10 +340,9 @@ namespace gnut
 
         dx = KT.t() * l;
         Qx << (SS.t() * SS);
-
     }
 
-    void t_SRIF::update(const Matrix &A, const DiagonalMatrix &Pl, const ColumnVector &l, ColumnVector &dx, SymmetricMatrix &Qx)
+    void t_SRIF::update(const Matrix& A, const DiagonalMatrix& Pl, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Qx)
     {
         int nObs = A.Nrows();
         int nPar = A.Ncols();
@@ -367,4 +376,4 @@ namespace gnut
         Qx = INF.i();
     }
 
-} // namespace
+} // namespace gnut

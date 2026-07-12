@@ -4,9 +4,9 @@
  * @brief        control set from XML
  * @version      1.0
  * @date         2024-08-29
- * 
+ *
  * @copyright Copyright (c) 2024, Wuhan University. All rights reserved.
- * 
+ *
  */
 #include "gset/gsetamb.h"
 #include <sstream>
@@ -16,8 +16,8 @@ using namespace pugi;
 
 namespace great
 {
-    t_gsetamb::t_gsetamb()
-        : t_gsetbase()
+    t_gsetamb::t_gsetamb() :
+        t_gsetbase()
     {
         _gmutex.lock();
 
@@ -53,7 +53,9 @@ namespace great
     FIX_MODE t_gsetamb::fix_mode()
     {
         if (!_doc)
+        {
             str2fixmode(string());
+        }
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("fix_mode");
         return str2fixmode(trim(tmp));
     }
@@ -61,7 +63,9 @@ namespace great
     UPD_MODE t_gsetamb::upd_mode()
     {
         if (!_doc)
+        {
             str2upd_mode(string());
+        }
         string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("upd_mode");
         return str2upd_mode(trim(tmp));
     }
@@ -105,17 +109,21 @@ namespace great
     map<string, double> t_gsetamb::get_amb_decision(string type)
     {
         _gmutex.lock();
-        map<string, string> type2child = {
-            {"EWL", "extra_widelane_decision"}, {"WL", "widelane_decision"}, {"NL", "narrowlane_decision"}};
+        map<string, string> type2child = {{"EWL", "extra_widelane_decision"}, {"WL", "widelane_decision"}, {"NL", "narrowlane_decision"}};
         map<string, double> amb_decision;
         if (_default_decision.find(type) == _default_decision.end())
+        {
             return amb_decision;
+        }
         amb_decision = _default_decision[type];
         for (auto iter = amb_decision.begin(); iter != amb_decision.end(); ++iter)
         {
-            double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child(type2child[type].c_str()).attribute(iter->first.c_str()).as_double();
+            double tmp =
+                _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child(type2child[type].c_str()).attribute(iter->first.c_str()).as_double();
             if (!double_eq(tmp, 0))
+            {
                 iter->second = tmp;
+            }
         }
         _gmutex.unlock();
         return amb_decision;
@@ -186,10 +194,10 @@ namespace great
     {
         switch (mode)
         {
-        case FIX_MODE::NO:
-            return "NO";
-        case FIX_MODE::SEARCH:
-            return "SEARCH";
+            case FIX_MODE::NO:
+                return "NO";
+            case FIX_MODE::SEARCH:
+                return "SEARCH";
         }
     }
 
@@ -201,7 +209,7 @@ namespace great
         }
         else
         {
-            spdlog::warn("warning: not defined upd mode[" + str + "]");
+            GREAT_WARN("warning: not defined upd mode[" + str + "]");
             return UPD_MODE::UPD;
         }
     }
@@ -224,30 +232,30 @@ namespace great
         string str;
         switch (mode)
         {
-        case UPDTYPE::EWL:
-            str = "EWL";
-            break;
-        case UPDTYPE::EWL24:
-            str = "EWL24";
-            break;
-        case UPDTYPE::EWL25:
-            str = "EWL25";
-            break;
-        case UPDTYPE::NL:
-            str = "NL";
-            break;
-        case UPDTYPE::WL:
-            str = "WL";
-            break;
-        case UPDTYPE::IFCB:
-            str = "IFCB";
-            break;
-        case UPDTYPE::NONE:
-            str = "NONE";
-            break;
-        default:
-            str = "NONE";
-            break;
+            case UPDTYPE::EWL:
+                str = "EWL";
+                break;
+            case UPDTYPE::EWL24:
+                str = "EWL24";
+                break;
+            case UPDTYPE::EWL25:
+                str = "EWL25";
+                break;
+            case UPDTYPE::NL:
+                str = "NL";
+                break;
+            case UPDTYPE::WL:
+                str = "WL";
+                break;
+            case UPDTYPE::IFCB:
+                str = "IFCB";
+                break;
+            case UPDTYPE::NONE:
+                str = "NONE";
+                break;
+            default:
+                str = "NONE";
+                break;
         }
         return str;
     }
@@ -255,19 +263,33 @@ namespace great
     UPDTYPE str2updmode(string mode)
     {
         if (mode == "IFCB")
+        {
             return UPDTYPE::IFCB;
+        }
         else if (mode == "EWL")
+        {
             return UPDTYPE::EWL;
+        }
         else if (mode == "EWL24")
+        {
             return UPDTYPE::EWL24;
+        }
         else if (mode == "EWL25")
+        {
             return UPDTYPE::EWL25;
+        }
         else if (mode == "WL")
+        {
             return UPDTYPE::WL;
+        }
         else if (mode == "NL")
+        {
             return UPDTYPE::NL;
+        }
         else
+        {
             return UPDTYPE::NONE;
+        }
     }
 
-}
+} // namespace great

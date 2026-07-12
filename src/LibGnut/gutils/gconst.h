@@ -39,19 +39,19 @@ namespace gnut
 #define SQRT(x) ((x) <= 0.0 ? 0.0 : sqrt(x))
 
 #define SGN(x) ((x) <= 0.0 ? -1.0 : 1.0)
-#define SWAP_I(x, y) \
-    do               \
-    {                \
-        int _z = x;  \
-        x = y;       \
-        y = _z;      \
+#define SWAP_I(x, y)                                                                                                                       \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        int _z = x;                                                                                                                        \
+        x = y;                                                                                                                             \
+        y = _z;                                                                                                                            \
     } while (0)
-#define SWAP_D(x, y)   \
-    do                 \
-    {                  \
-        double _z = x; \
-        x = y;         \
-        y = _z;        \
+#define SWAP_D(x, y)                                                                                                                       \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        double _z = x;                                                                                                                     \
+        x = y;                                                                                                                             \
+        y = _z;                                                                                                                            \
     } while (0)
 #define ROUND(x) ((int)floor((x) + 0.5))
 #define ROUND_U(x) ((unsigned int)floor((x) + 0.5))
@@ -227,7 +227,7 @@ namespace gnut
 #endif
 
 #ifndef HP
-#define HP sqrt(8 * G_PI / 15) * OMEGA *OMEGA *EARTH_R *EARTH_R *EARTH_R *EARTH_R * 1e12 / EARTH_GM / 1e9
+#define HP sqrt(8 * G_PI / 15) * OMEGA * OMEGA * EARTH_R * EARTH_R * EARTH_R * EARTH_R * 1e12 / EARTH_GM / 1e9
 #endif
 
 #ifndef K_OPL
@@ -250,6 +250,6 @@ namespace gnut
 #define MOON_R 1738.090 ///< radius of Moon(unit: km)
 #endif                  // !MOON_R
 
-} // namespace
+} // namespace gnut
 
 #endif

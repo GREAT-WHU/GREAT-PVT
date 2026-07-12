@@ -19,26 +19,13 @@ using namespace std;
 
 namespace gnut
 {
-    t_gnavglo::t_gnavglo()
-        : t_gnav(),
-          _iodc(0),
-          _toc(t_gtime::UTC)
+    t_gnavglo::t_gnavglo() :
+        t_gnav(),
+        _iodc(0),
+        _toc(t_gtime::UTC)
     {
         id_type(t_gdata::EPHGLO);
         id_group(t_gdata::GRP_EPHEM);
-        _maxEphAge = MAX_GLO_TIMEDIFF; // a bit above 900; //[s]
-        _min_step = 10;
-    }
-
-    t_gnavglo::t_gnavglo(t_spdlog spdlog)
-        : t_gnav(spdlog),
-          _iodc(0),
-          _toc(t_gtime::UTC)
-    {
-
-        id_type(t_gdata::EPHGLO);
-        id_group(t_gdata::GRP_EPHEM);
-
         _maxEphAge = MAX_GLO_TIMEDIFF; // a bit above 900; //[s]
         _min_step = 10;
     }
@@ -47,7 +34,7 @@ namespace gnut
     {
     }
 
-    int t_gnavglo::chk(set<string> &msg)
+    int t_gnavglo::chk(set<string>& msg)
     {
         _gmutex.lock();
 
@@ -60,9 +47,7 @@ namespace gnut
 
         double clkB[1] = {0.0};
         double clkF[1] = {0.0};
-        if (_clk(_toc - _maxEphAge, clkB) < 0 ||
-            _clk(_toc + _maxEphAge, clkF) < 0 ||
-            fabs(*clkF - *clkB) * CLK_GLO_FACTOR > MAX_GLO_CLKDIF)
+        if (_clk(_toc - _maxEphAge, clkB) < 0 || _clk(_toc + _maxEphAge, clkF) < 0 || fabs(*clkF - *clkB) * CLK_GLO_FACTOR > MAX_GLO_CLKDIF)
         {
             msg.insert("Issue: " + _sat + " nav not correct [clk] " + _toc.str_ymdhms() + dbl2str(fabs(*clkF - *clkB) * CLK_GLO_FACTOR));
             _validity = false;
@@ -72,8 +57,7 @@ namespace gnut
 
         double xyzB[3] = {0.0, 0.0, 0.0};
         double xyzF[3] = {0.0, 0.0, 0.0};
-        if (_pos(_toc - _maxEphAge, xyzB) < 0 ||
-            _pos(_toc + _maxEphAge, xyzF) < 0)
+        if (_pos(_toc - _maxEphAge, xyzB) < 0 || _pos(_toc + _maxEphAge, xyzF) < 0)
         {
             msg.insert("Issue: " + _sat + " nav not correct [pos] " + _toc.str_ymdhms() + dbl2str(xyzF[0] - xyzB[0]));
             _validity = false;
@@ -89,8 +73,7 @@ namespace gnut
 
         double radB = sqrt(radB2) * RAD_GLO_FACTOR;
         double radF = sqrt(radF2) * RAD_GLO_FACTOR;
-        if (radB < MIN_GLO_RADIUS || radB > MAX_GLO_RADIUS ||
-            radF < MIN_GLO_RADIUS || radF > MAX_GLO_RADIUS)
+        if (radB < MIN_GLO_RADIUS || radB > MAX_GLO_RADIUS || radF < MIN_GLO_RADIUS || radF > MAX_GLO_RADIUS)
         {
             msg.insert("Issue: " + _sat + " nav not correct [rad] " + _toc.str_ymdhms() + dbl2str(radF) + dbl2str(radB));
             _validity = false;
@@ -103,8 +86,7 @@ namespace gnut
         }
 
         int sod_frac = _toc.sod() % 3600;
-        if (sod_frac == 900 ||
-            sod_frac == 2700)
+        if (sod_frac == 900 || sod_frac == 2700)
         {
         }
         else
@@ -126,7 +108,6 @@ namespace gnut
     /* --- */
     int t_gnavglo::channel() const
     {
-
         if (_freq_num < -7 || _freq_num > 13)
         {
             return 256;
@@ -135,9 +116,8 @@ namespace gnut
         return _freq_num;
     }
 
-    int t_gnavglo::pos(const t_gtime &t, double xyz[], double var[], double vel[], bool chk_health)
+    int t_gnavglo::pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-
         _gmutex.lock();
 
         _min_step = 10;
@@ -148,7 +128,7 @@ namespace gnut
         return i;
     }
 
-    int t_gnavglo::nav(const t_gtime &t, double xyz[], double var[], double vel[], bool chk_health)
+    int t_gnavglo::nav(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
         _gmutex.lock();
 
@@ -160,7 +140,7 @@ namespace gnut
         return i;
     }
 
-    int t_gnavglo::clk(const t_gtime &t, double *clk, double *var, double *dclk, bool chk_health)
+    int t_gnavglo::clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
         _gmutex.lock();
 
@@ -170,30 +150,34 @@ namespace gnut
         return i;
     }
 
-    int t_gnavglo::_pos(const t_gtime &t, double xyz[], double var[], double vel[], bool chk_health)
+    int t_gnavglo::_pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-
         if (sat().empty())
+        {
             return -1; // not valid !!!
+        }
         if (chk_health && _healthy() == false)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "not healthy sat " + sat() + " excluded from pos calculation " + t.str_ymdhms());
+            GREAT_DEBUG("not healthy sat " + sat() + " excluded from pos calculation " + t.str_ymdhms());
             return -1; // HEALTH NOT OK
         }
 
         xyz[0] = xyz[1] = xyz[2] = 0.0;
         if (var)
+        {
             var[0] = var[1] = var[2] = 0.0;
+        }
         if (vel)
+        {
             vel[0] = vel[1] = vel[2] = 0.0;
+        }
 
         double Tk = t.diff(_toc); // T - toc difference
 
         if (fabs(Tk) > _maxEphAge)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "CRD " + _sat + ": The user time and GLONASS ephemerides epoch differ too much. TOC: " + _toc.str_ymdhms() + " T: " + t.str_ymdhms());
+            GREAT_DEBUG("CRD " + _sat + ": The user time and GLONASS ephemerides epoch differ too much. TOC: " + _toc.str_ymdhms() +
+                        " T: " + t.str_ymdhms());
             return -1;
         }
 
@@ -202,8 +186,7 @@ namespace gnut
 
         if (double_eq(_x, 0.0) || double_eq(_y, 0.0) || double_eq(_z, 0.0))
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "Zero ephemerides:" + t.str_ymdhms(sat() + " "));
+            GREAT_DEBUG("Zero ephemerides:" + t.str_ymdhms(sat() + " "));
             return -1;
         }
 
@@ -215,7 +198,9 @@ namespace gnut
         double step = fabs(Tk) / nsteps;                     // step length for RungeKutta, length is cca 10s
                                                              //  cout << Tk << " " << nsteps << " " << step << endl;
         if (Tk < 0)
+        {
             step = -step;
+        }
         ColumnVector yy_integr(6);
         yy_integr = _RungeKutta(step, nsteps, yy, acc);
 
@@ -229,9 +214,7 @@ namespace gnut
         Matrix R(3, 3);
         R = 0;
         double mas = (1 / (36e5)) * D2R;
-        R << 1 << 0.002 * mas << 0.042 * mas
-          << -0.002 * mas << 1 << 0.019 * mas
-          << -0.042 * mas << -0.019 * mas << 1;
+        R << 1 << 0.002 * mas << 0.042 * mas << -0.002 * mas << 1 << 0.019 * mas << -0.042 * mas << -0.019 * mas << 1;
         ColumnVector xyzWGS;
         xyzWGS = T + R * yy_integr.Rows(1, 3);
 
@@ -251,23 +234,23 @@ namespace gnut
         return 0;
     }
 
-    int t_gnavglo::_clk(const t_gtime &t, double *clk, double *var, double *dclk, bool chk_health)
+    int t_gnavglo::_clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
-
         if (sat().empty())
+        {
             return -1; // not valid !!!
+        }
         if (chk_health && _healthy() == false)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "not healthy sat " + sat() + " excluded from clk calculation " + t.str_ymdhms());
+            GREAT_DEBUG("not healthy sat " + sat() + " excluded from clk calculation " + t.str_ymdhms());
             return -1; // HEALTH NOT OK
         }
         double Tk = t.diff(_toc); // T - toc difference
 
         if (fabs(Tk) > _maxEphAge)
         {
-            if (_spdlog)
-                SPDLOG_LOGGER_DEBUG(_spdlog, "CLK " + _sat + ": The user time and GLONASS ephemerides epoch differs too much. TOC: " + _toc.str_ymdhms() + " T: " + t.str_ymdhms());
+            GREAT_DEBUG("CLK " + _sat + ": The user time and GLONASS ephemerides epoch differs too much. TOC: " + _toc.str_ymdhms() +
+                        " T: " + t.str_ymdhms());
             return -1;
         }
 
@@ -281,7 +264,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gnavglo::data2nav(string sat, const t_gtime &ep, const t_gnavdata &data)
+    int t_gnavglo::data2nav(string sat, const t_gtime& ep, const t_gnavdata& data)
     {
         _gmutex.lock();
 
@@ -302,7 +285,9 @@ namespace gnut
         _gamma = data[1];
         _tki = data[2];
         if (_tki < 0)
+        {
             _tki += 86400;
+        }
 
         _x = data[3] * 1.e3;
         _x_d = data[4] * 1.e3;
@@ -326,12 +311,14 @@ namespace gnut
         return 0;
     }
 
-    int t_gnavglo::nav2data(t_gnavdata &data)
+    int t_gnavglo::nav2data(t_gnavdata& data)
     {
         _gmutex.lock();
 
         if (!this->_valid())
+        {
             return -1;
+        }
 
         data[0] = -_tau; // in RINEX is stored -tauN
         data[1] = _gamma;
@@ -359,72 +346,72 @@ namespace gnut
         return 0;
     }
 
-    t_timdbl t_gnavglo::param(const NAVDATA &n)
+    t_timdbl t_gnavglo::param(const NAVDATA& n)
     {
         _gmutex.lock();
 
         t_timdbl tmp;
         switch (n)
         {
-        case NAV_X:
-            tmp = make_pair(_toc, _x * 1e0);
-            break; // meters
-        case NAV_XD:
-            tmp = make_pair(_toc, _x_d * 1e0);
-            break; // meters
-        case NAV_XDD:
-            tmp = make_pair(_toc, _x_dd * 1e0);
-            break; // meters
-        case NAV_Y:
-            tmp = make_pair(_toc, _y * 1e0);
-            break; // meters
-        case NAV_YD:
-            tmp = make_pair(_toc, _y_d * 1e0);
-            break; // meters
-        case NAV_YDD:
-            tmp = make_pair(_toc, _y_dd * 1e0);
-            break; // meters
-        case NAV_Z:
-            tmp = make_pair(_toc, _z * 1e0);
-            break; // meters
-        case NAV_ZD:
-            tmp = make_pair(_toc, _z_d * 1e0);
-            break; // meters
-        case NAV_ZDD:
-            tmp = make_pair(_toc, _z_dd * 1e0);
-            break; // meters
+            case NAV_X:
+                tmp = make_pair(_toc, _x * 1e0);
+                break; // meters
+            case NAV_XD:
+                tmp = make_pair(_toc, _x_d * 1e0);
+                break; // meters
+            case NAV_XDD:
+                tmp = make_pair(_toc, _x_dd * 1e0);
+                break; // meters
+            case NAV_Y:
+                tmp = make_pair(_toc, _y * 1e0);
+                break; // meters
+            case NAV_YD:
+                tmp = make_pair(_toc, _y_d * 1e0);
+                break; // meters
+            case NAV_YDD:
+                tmp = make_pair(_toc, _y_dd * 1e0);
+                break; // meters
+            case NAV_Z:
+                tmp = make_pair(_toc, _z * 1e0);
+                break; // meters
+            case NAV_ZD:
+                tmp = make_pair(_toc, _z_d * 1e0);
+                break; // meters
+            case NAV_ZDD:
+                tmp = make_pair(_toc, _z_dd * 1e0);
+                break; // meters
 
-        case NAV_IOD:
-            tmp = make_pair(_toc, _iodc * 1e0);
-            break; //
-        case NAV_HEALTH:
-            tmp = make_pair(_toc, _health * 1e0);
-            break; //
+            case NAV_IOD:
+                tmp = make_pair(_toc, _iodc * 1e0);
+                break; //
+            case NAV_HEALTH:
+                tmp = make_pair(_toc, _health * 1e0);
+                break; //
 
-        default:
-            break;
+            default:
+                break;
         }
 
         _gmutex.unlock();
         return tmp;
     }
 
-    int t_gnavglo::param(const NAVDATA &n, double val)
+    int t_gnavglo::param(const NAVDATA& n, double val)
     {
         _gmutex.lock();
 
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
 
-        case NAV_IOD:
-            _iodc = val / 1.e0;
-            break;
-        case NAV_HEALTH:
-            _health = val / 1.e0;
-            break;
+            case NAV_IOD:
+                _iodc = val / 1.e0;
+                break;
+            case NAV_HEALTH:
+                _health = val / 1.e0;
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         _gmutex.unlock();
@@ -433,27 +420,12 @@ namespace gnut
 
     string t_gnavglo::line() const
     {
-
         int w = 20;
         ostringstream tmp;
 
-        tmp << " " << setw(3) << sat()
-            << " " << _toc.str("%Y-%m-%d %H:%M:%S")
-            << scientific << setprecision(12)
-            << setw(w) << _tau
-            << setw(w) << _gamma
-            << setw(w) << _tki
-            << setw(w) << _x
-            << setw(w) << _x_d
-            << setw(w) << _x_dd
-            << setw(w) << _health
-            << setw(w) << _y
-            << setw(w) << _y_d
-            << setw(w) << _y_dd
-            << setw(w) << _freq_num
-            << setw(w) << _z
-            << setw(w) << _z_d
-            << setw(w) << _z_dd
+        tmp << " " << setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << scientific << setprecision(12) << setw(w) << _tau
+            << setw(w) << _gamma << setw(w) << _tki << setw(w) << _x << setw(w) << _x_d << setw(w) << _x_dd << setw(w) << _health << setw(w)
+            << _y << setw(w) << _y_d << setw(w) << _y_dd << setw(w) << _freq_num << setw(w) << _z << setw(w) << _z_d << setw(w) << _z_dd
             << setw(w) << _E;
 
         return tmp.str();
@@ -461,35 +433,27 @@ namespace gnut
 
     string t_gnavglo::linefmt() const
     {
-
         ostringstream tmp;
 
-        tmp << " " << setw(3) << sat() << fixed
-            << " " << _toc.str("%Y-%m-%d %H:%M:%S")
+        tmp << " " << setw(3) << sat() << fixed << " "
+            << _toc.str("%Y-%m-%d %H:%M:%S")
             //     << " " << _toe.str("%Y-%m-%d %H:%M:%S")
             //     << " " << _tot.str("%Y-%m-%d %H:%M:%S")
             << fixed << setprecision(0)
 
-            << setw(8) << _E
-            << setw(8) << _freq_num
-            << setw(4) << _iodc
-            << setw(4) << _health
-            << " |"
-            << setw(12) << setprecision(3) << _tau * 1e9  //   [sec]
-            << setw(8) << setprecision(3) << _gamma * 1e9 //   [sec]
-            << setw(8) << setprecision(0) << _tki * 1e0   //
-            << " |"
-            << setw(14) << setprecision(3) << _x * 1e0   // 1 [km]
-            << setw(11) << setprecision(3) << _x_d * 1e0 // 2 [km/s]
-            << setw(9) << setprecision(3) << _x_dd * 1e6 // 3 [km/s^2]
-            << " |"
-            << setw(14) << setprecision(3) << _y * 1e0   // 1 [km]
-            << setw(11) << setprecision(3) << _y_d * 1e0 // 2 [km/s]
-            << setw(9) << setprecision(3) << _y_dd * 1e6 // 3 [km/s^2]
-            << " |"
-            << setw(14) << setprecision(3) << _z * 1e0   // 1 [km]
-            << setw(11) << setprecision(3) << _z_d * 1e0 // 2 [km/s]
-            << setw(9) << setprecision(3) << _z_dd * 1e6 // 3 [km/s^2]
+            << setw(8) << _E << setw(8) << _freq_num << setw(4) << _iodc << setw(4) << _health << " |" << setw(12) << setprecision(3)
+            << _tau * 1e9                                      //   [sec]
+            << setw(8) << setprecision(3) << _gamma * 1e9      //   [sec]
+            << setw(8) << setprecision(0) << _tki * 1e0        //
+            << " |" << setw(14) << setprecision(3) << _x * 1e0 // 1 [km]
+            << setw(11) << setprecision(3) << _x_d * 1e0       // 2 [km/s]
+            << setw(9) << setprecision(3) << _x_dd * 1e6       // 3 [km/s^2]
+            << " |" << setw(14) << setprecision(3) << _y * 1e0 // 1 [km]
+            << setw(11) << setprecision(3) << _y_d * 1e0       // 2 [km/s]
+            << setw(9) << setprecision(3) << _y_dd * 1e6       // 3 [km/s^2]
+            << " |" << setw(14) << setprecision(3) << _z * 1e0 // 1 [km]
+            << setw(11) << setprecision(3) << _z_d * 1e0       // 2 [km/s]
+            << setw(9) << setprecision(3) << _z_dd * 1e6       // 3 [km/s^2]
             ;
 
         return tmp.str();
@@ -498,13 +462,14 @@ namespace gnut
     bool t_gnavglo::_healthy() const
     {
         if (_health == 0)
+        {
             return true;
+        }
         return false;
     }
 
-    ColumnVector t_gnavglo::_deriv(const ColumnVector &xx, const t_gtriple &acc)
+    ColumnVector t_gnavglo::_deriv(const ColumnVector& xx, const t_gtriple& acc)
     {
-
         t_gtriple crd(xx.rows(1, 3));
         t_gtriple vel(xx.rows(4, 6));
 
@@ -518,16 +483,17 @@ namespace gnut
         xxdot(1) = vel[0];
         xxdot(2) = vel[1];
         xxdot(3) = vel[2];
-        xxdot(4) = k1 * crd[0] + k2 * (1.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[0] + OMEGA * OMEGA * crd[0] + 2 * OMEGA * vel[1] + acc[0];
-        xxdot(5) = k1 * crd[1] + k2 * (1.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[1] + OMEGA * OMEGA * crd[1] - 2 * OMEGA * vel[0] + acc[1];
+        xxdot(4) =
+            k1 * crd[0] + k2 * (1.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[0] + OMEGA * OMEGA * crd[0] + 2 * OMEGA * vel[1] + acc[0];
+        xxdot(5) =
+            k1 * crd[1] + k2 * (1.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[1] + OMEGA * OMEGA * crd[1] - 2 * OMEGA * vel[0] + acc[1];
         xxdot(6) = k1 * crd[2] + k2 * (3.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[2] + acc[2];
 
         return xxdot;
     }
 
-    ColumnVector t_gnavglo::_RungeKutta(double step, int nsteps, const ColumnVector &yy, const t_gtriple &acc)
+    ColumnVector t_gnavglo::_RungeKutta(double step, int nsteps, const ColumnVector& yy, const t_gtriple& acc)
     {
-
         ColumnVector yyn = yy;
 
         for (int i = 1; i <= nsteps; i++)
@@ -545,7 +511,6 @@ namespace gnut
 
     int t_gnavglo::_iod() const
     {
-
         t_gtime gloTime = _toc + 3 * 3600.0; // toc in GLO (if toc in UTC +3*3600.0;)
 
         int iod = int(gloTime.sod() / 900);
@@ -557,4 +522,4 @@ namespace gnut
         return iod;
     }
 
-} // namespace
+} // namespace gnut
