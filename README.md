@@ -115,6 +115,11 @@ covered in:
 
 ## Changelog
 
+### Version 1.3
+
+- Fixed `t_gattitude_model::_noon_turn_GLOM`,GLONASS satellite attitude calculation error.
+- More smart spdlog, spdlog version update to spdlog-1.17.0.
+
 ### Version 1.2
 
 - Added English documentation and improved related content.
@@ -124,7 +129,7 @@ covered in:
 ### Version 1.1
 
 - Fixed a Visual Studio Debug-mode crash on Windows.
-- Fixed exceptions caused by missing PCO/PCV correction information in ATX
+- Fixed exceptions caused by missing PCO/PCV correction information in ATX.
   antenna files.
 - Corrected description errors in `GREAT-PVT_1.0.pdf`.
 - Fixed code formatting issues.
