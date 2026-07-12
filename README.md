@@ -117,7 +117,7 @@ covered in:
 
 ### Version 1.3
 
-- Fixed `t_gattitude_model::_noon_turn_GLOM`,GLONASS satellite attitude calculation error.
+- Fixed an error in the GLONASS satellite attitude calculation (function t_gattitude_model::_noon_turn_GLOM). Consequently, when GLONASS satellites are included in the positioning solution, the results from version 1.3 may be inconsistent with those from earlier versions.
 - More smart spdlog, spdlog version update to spdlog-1.17.0.
 
 ### Version 1.2
