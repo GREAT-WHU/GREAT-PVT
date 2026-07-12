@@ -1,0 +1,219 @@
+---
+Language: Cpp
+BasedOnStyle: Microsoft
+
+# ============================================================
+# 基本设置
+# ============================================================
+
+# 按较新的 C++ 标准解析代码
+Standard: Latest
+
+# 最大行宽，超过后自动换行
+ColumnLimit: 120
+
+# ============================================================
+# 缩进设置
+# ============================================================
+
+# 禁止使用真正的 Tab 字符，统一转换为空格
+UseTab: Never
+
+# 每一级代码块缩进 4 个空格
+IndentWidth: 4
+
+# 已存在的 Tab 按 4 列宽度处理
+TabWidth: 4
+
+# 函数参数、长表达式等换行后的缩进宽度
+ContinuationIndentWidth: 4
+
+# 构造函数初始化列表缩进宽度
+ConstructorInitializerIndentWidth: 4
+
+# 预处理指令内部缩进宽度
+PPIndentWidth: 4
+
+# namespace 内部代码进行缩进
+NamespaceIndentation: All
+
+# extern "C" 代码块内部缩进
+IndentExternBlock: Indent
+
+# switch 中的 case 标签缩进
+IndentCaseLabels: true
+
+# 不额外缩进 case 后显式添加的代码块
+IndentCaseBlocks: false
+
+# 访问限定符相对于类成员减少一级缩进
+AccessModifierOffset: -4
+
+# public、protected、private 本身不增加额外缩进
+IndentAccessModifiers: false
+
+# ============================================================
+# 大括号设置
+# ============================================================
+
+# Allman 风格：左大括号单独占一行
+BreakBeforeBraces: Allman
+
+# 禁止将短代码块压缩到一行
+AllowShortBlocksOnASingleLine: Never
+
+# 禁止将短函数压缩到一行
+AllowShortFunctionsOnASingleLine: None
+
+# 禁止将短 if 语句压缩到一行
+AllowShortIfStatementsOnASingleLine: Never
+
+# 禁止将短循环压缩到一行
+AllowShortLoopsOnASingleLine: false
+
+# 禁止将短 case 标签压缩到一行
+AllowShortCaseLabelsOnASingleLine: false
+
+# 禁止将 lambda 代码块压缩到一行
+AllowShortLambdasOnASingleLine: None
+
+# 自动为 if、else、for、while、do 添加大括号
+# 要求 clang-format 15 或更高版本
+InsertBraces: true
+
+# ============================================================
+# 函数参数换行
+# ============================================================
+
+# 函数形参一行能放下时保持一行，放不下时每个形参一行
+BinPackParameters: OnePerLine
+
+# 不允许把全部函数参数集中放到下一行
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# 函数定义一行能放下时不强制在左括号后换行
+# 要求 clang-format 19 或更高版本
+BreakFunctionDefinitionParameters: false
+
+# 函数调用一行能放下时保持一行，放不下时每个实参一行
+BinPackArguments: false
+
+# 不把所有实参集中放到下一行
+AllowAllArgumentsOnNextLine: false
+
+# ============================================================
+# 构造函数初始化列表
+# ============================================================
+
+# 初始化列表超过行宽时，在冒号后换行
+BreakConstructorInitializers: AfterColon
+
+# 初始化成员逐行排列
+PackConstructorInitializers: Never
+
+# ============================================================
+# 类、结构体和继承
+# ============================================================
+
+# 继承列表较长时，在冒号前换行
+BreakInheritanceList: BeforeColon
+
+# 模板声明与对应声明尽量不分离
+AlwaysBreakTemplateDeclarations: MultiLine
+
+# ============================================================
+# 指针和引用
+# ============================================================
+
+# 不根据原代码自动推断指针对齐方式
+DerivePointerAlignment: false
+
+# 指针星号靠近类型
+PointerAlignment: Left
+
+# 引用符号靠近类型
+ReferenceAlignment: Left
+
+# 格式化结果：
+# const std::string& name
+# int* pointer
+
+# ============================================================
+# 控制语句和表达式
+# ============================================================
+
+# if、for、while、switch 后保留空格
+SpaceBeforeParens: ControlStatements
+
+# 赋值运算符两侧保留空格
+SpaceBeforeAssignmentOperators: true
+
+# 二元运算符换行时，运算符放在上一行末尾
+BreakBeforeBinaryOperators: None
+
+# 三元运算符换行时，在 ? 和 : 前换行
+BreakBeforeTernaryOperators: true
+
+# 不拆分字符串字面量
+BreakStringLiterals: false
+
+# ============================================================
+# switch 设置
+# ============================================================
+
+# ============================================================
+# include 设置
+# ============================================================
+
+# 不自动重新排序 include
+SortIncludes: Never
+
+# 不自动整理 using 声明
+SortUsingDeclarations: Never
+
+# ============================================================
+# 注释设置
+# ============================================================
+
+# 自动重新排版普通注释
+ReflowComments: true
+
+# 修复 namespace 结尾注释
+FixNamespaceComments: true
+
+# 保留注释前后的空格
+SpacesBeforeTrailingComments: 1
+
+# ============================================================
+# 空行设置
+# ============================================================
+
+# 最多保留一个连续空行
+MaxEmptyLinesToKeep: 1
+
+# 文件开头不保留空行
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# 访问限定符之前按照逻辑块添加空行
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+# 访问限定符之后不强制添加空行
+EmptyLineAfterAccessModifier: Never
+
+# 文件末尾自动添加换行
+InsertNewlineAtEOF: true
+
+# ============================================================
+# 其他设置
+# ============================================================
+
+# 不格式化宏定义内部的代码
+SkipMacroDefinitionBody: false
+
+# 不自动添加或删除分号
+RemoveSemicolon: false
+
+# 禁止删除用户已有的大括号
+RemoveBracesLLVM: false
+
+...

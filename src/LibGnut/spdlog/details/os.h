@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <ctime>  // std::time_t
 #include <spdlog/common.h>
-#include <ctime> // std::time_t
 
 namespace spdlog {
 namespace details {
@@ -22,26 +22,27 @@ SPDLOG_API std::tm gmtime() SPDLOG_NOEXCEPT;
 
 // eol definition
 #if !defined(SPDLOG_EOL)
-#    ifdef _WIN32
-#        define SPDLOG_EOL "\r\n"
-#    else
-#        define SPDLOG_EOL "\n"
-#    endif
+#ifdef _WIN32
+#define SPDLOG_EOL "\r\n"
+#else
+#define SPDLOG_EOL "\n"
+#endif
 #endif
 
 SPDLOG_CONSTEXPR static const char *default_eol = SPDLOG_EOL;
 
 // folder separator
 #if !defined(SPDLOG_FOLDER_SEPS)
-#    ifdef _WIN32
-#        define SPDLOG_FOLDER_SEPS "\\/"
-#    else
-#        define SPDLOG_FOLDER_SEPS "/"
-#    endif
+#ifdef _WIN32
+#define SPDLOG_FOLDER_SEPS "\\/"
+#else
+#define SPDLOG_FOLDER_SEPS "/"
+#endif
 #endif
 
 SPDLOG_CONSTEXPR static const char folder_seps[] = SPDLOG_FOLDER_SEPS;
-SPDLOG_CONSTEXPR static const filename_t::value_type folder_seps_filename[] = SPDLOG_FILENAME_T(SPDLOG_FOLDER_SEPS);
+SPDLOG_CONSTEXPR static const filename_t::value_type folder_seps_filename[] =
+    SPDLOG_FILENAME_T(SPDLOG_FOLDER_SEPS);
 
 // fopen_s on non windows for writing
 SPDLOG_API bool fopen_s(FILE **fp, const filename_t &filename, const filename_t &mode);
@@ -99,20 +100,28 @@ SPDLOG_API void utf8_to_wstrbuf(string_view_t str, wmemory_buf_t &target);
 // "abc/" => "abc"
 // "abc" => ""
 // "abc///" => "abc//"
-SPDLOG_API filename_t dir_name(filename_t path);
+SPDLOG_API filename_t dir_name(const filename_t &path);
 
 // Create a dir from the given path.
 // Return true if succeeded or if this dir already exists.
-SPDLOG_API bool create_dir(filename_t path);
+SPDLOG_API bool create_dir(const filename_t &path);
 
 // non thread safe, cross platform getenv/getenv_s
 // return empty string if field not found
 SPDLOG_API std::string getenv(const char *field);
 
-} // namespace os
-} // namespace details
-} // namespace spdlog
+// Do fsync by FILE objectpointer.
+// Return true on success.
+SPDLOG_API bool fsync(FILE *fp);
+
+// Do non-locking fwrite if possible by the os or use the regular locking fwrite
+// Return true on success.
+SPDLOG_API bool fwrite_bytes(const void *ptr, const size_t n_bytes, FILE *fp);
+
+}  // namespace os
+}  // namespace details
+}  // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-#    include "os-inl.h"
+#include "os-inl.h"
 #endif
