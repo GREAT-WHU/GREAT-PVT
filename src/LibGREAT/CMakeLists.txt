@@ -128,6 +128,9 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${header_files} ${source_files})
 # ==========================================================================================================================================
 
+target_link_libraries(${PROJECT_NAME} LibSOFA)
+add_dependencies(${PROJECT_NAME} LibSOFA)
+
 # ---- 9. Library search paths (linker) ----
 # ==========================================================================================================================================
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")

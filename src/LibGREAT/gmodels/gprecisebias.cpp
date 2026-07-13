@@ -15,6 +15,8 @@
 #include "gmodels/gtideIERS.h"
 #include "gall/gallprec.h"
 
+#include <cmath>
+
 #ifndef OMGE_DOT
 #define OMGE_DOT 7.2921151467e-5 ///< WGS 84 value of the earth's rotation rate [rad/sec]
 #endif                           // !1
@@ -746,13 +748,12 @@ namespace great
 
         t_gtime tdt = epoch;
         tdt.tsys(t_gtime::TT);
-        t_gtime utc = epoch;
-        utc.tsys(t_gtime::UTC);
         auto find_iter = _trs2crs_list.find(tdt);
         if (find_iter == _trs2crs_list.end())
         {
             _trs2crs_2000 = make_shared<t_gtrs2crs>(false, _gdata_erp);
-            _trs2crs_2000->calcRotMat(tdt, true, true, true, false, false);
+            _trs2crs_2000->calcRotMat(tdt);
+
             _trs2crs_list.insert(make_pair(tdt, _trs2crs_2000));
 
             auto before_iter = _trs2crs_list.lower_bound(tdt - 300.0);
@@ -825,10 +826,7 @@ namespace great
         ColumnVector crs_rec_xyz = trs2crs * trs_rec_xyz.crd_cvect();
         _crs_rec_crd = t_gtriple(crs_rec_xyz);
 
-        // get vel
-        Matrix dtrs2crs = _trs2crs_2000->getMatDu() * OMGE_DOT;
-        ColumnVector trs_rec_vel = dtrs2crs * trs_rec_xyz.crd_cvect();
-        _crs_rec_vel = t_gtriple(trs_rec_vel);
+        _crs_rec_vel = t_gtriple(0.0, 0.0, 0.0);
         return true;
     }
 
@@ -873,8 +871,7 @@ namespace great
             {
                 _update_rot_matrix(rec_epo);
                 _crt_obs.addcrd(_trs_sat_crd);
-                ColumnVector x_earth = (_crs_sat_crd.crd_cvect().t() * _trs2crs_2000->getMatDu() / RAD2TSEC).t();
-                t_gtriple vel = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_vel.crd_cvect() - x_earth);
+                t_gtriple vel = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_vel.crd_cvect());
                 _crt_obs.addvel(vel);
                 shared_ptr<t_gobj> sat_obj = _gallobj->obj(_crt_sat);
                 shared_ptr<t_gobj> rec_obj = _gallobj->obj(_crt_rec);
@@ -932,8 +929,7 @@ namespace great
         }
         _crt_obs.addSCF2CRS(_trs2crs_2000->getRotMat() * rot_matrix_sat, rot_matrix_sat);
         _crt_obs.addcrd(_trs_sat_crd);
-        ColumnVector x_earth = (_crs_sat_crd.crd_cvect().t() * _trs2crs_2000->getMatDu() / RAD2TSEC).t();
-        t_gtriple vel = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_vel.crd_cvect() - x_earth);
+        t_gtriple vel = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_vel.crd_cvect());
         _crt_obs.addvel(vel);
         _crt_obs.addcrdcrs(_crs_sat_crd);
         _crt_obs.addvel_crs(_crs_sat_vel);
@@ -998,7 +994,6 @@ namespace great
         _update_rot_matrix(epoch);
         double xpole = _trs2crs_2000->getXpole();
         double ypole = _trs2crs_2000->getYpole();
-        // double gast = _trs2crs_2000->getGmst();
         Matrix rot_trs2crs = _trs2crs_2000->getRotMat();
 
         t_gtriple tide(0.0, 0.0, 0.0);

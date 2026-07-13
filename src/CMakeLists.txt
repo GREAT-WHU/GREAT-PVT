@@ -352,13 +352,16 @@ set(LibGREAT         LibGREAT)
 # Full source paths for each library
 set(LibGnutSrc          ${PROJECT_SOURCE_DIR}/${LibGnut})
 set(LibGREATSrc         ${PROJECT_SOURCE_DIR}/${LibGREAT})
+set(Third_SOFA_ROOT     ${PROJECT_SOURCE_DIR}/third-party/SOFA)
 
 # Add subdirectories; the second argument specifies the binary output directory
 # for each subproject (under BUILD_DIR)
+add_subdirectory(${Third_SOFA_ROOT}    ${BUILD_DIR}/SOFA)
 add_subdirectory(${LibGnutSrc}       ${BUILD_DIR}/${LibGnut})
 add_subdirectory(${LibGREATSrc}      ${BUILD_DIR}/${LibGREAT})
 
 # Assign both library targets to the "LIB" folder in the IDE project view
+SET_PROPERTY(TARGET LibSOFA        PROPERTY FOLDER "LIB")
 SET_PROPERTY(TARGET ${LibGnut}       PROPERTY FOLDER "LIB")
 SET_PROPERTY(TARGET ${LibGREAT}      PROPERTY FOLDER "LIB")
 

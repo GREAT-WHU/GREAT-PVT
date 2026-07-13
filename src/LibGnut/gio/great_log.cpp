@@ -7,12 +7,11 @@
 #include "spdlog/sinks/daily_file_sink.h"    // IWYU pragma: keep
 #include "spdlog/sinks/stdout_color_sinks.h" // IWYU pragma: keep
 
-#define DEF_FORMAT_LOG
+//#define DEF_FORMAT_LOG "[%Y-%m-%d %H:%M:%S] [%L] [%-4#] <%-40!> : %v"
 #ifndef DEF_FORMAT_LOG
-#define DEF_FORMAT_LOG "[%Y-%m-%d %H:%M:%S] [%L] [%-4#] <%-40!> : %v"
-#else
 #define DEF_FORMAT_LOG "[%Y-%m-%d %H:%M:%S] [%L] : %v"
 #endif
+
 
 #include <chrono>
 #include <iostream>
@@ -58,10 +57,6 @@ namespace gnut
             _gspdlog.reset();
             sinks.clear();
 
-            // creat log
-            auto sink_stdo = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            sinks.push_back(sink_stdo);
-
             if (!path.empty())
             {
                 auto sink_file = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
@@ -70,6 +65,11 @@ namespace gnut
                     1000,
                     true); // multi part log files, with every part 500M, max 1000 files
                 sinks.push_back(sink_file);
+            }
+            else
+            {
+                auto sink_stdo = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+                sinks.push_back(sink_stdo);
             }
 
             //_gspdlog = std::make_unique<spdlog::logger>("app", sinks.begin(), sinks.end());

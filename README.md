@@ -115,6 +115,11 @@ covered in:
 
 ## Changelog
 
+### Version 1.4 beta
+
+- The SOFA software is employed for the rotation from the inertial frame to the Earth-fixed frame, with current tests indicating comparable accuracy. By eliminating substantial redundant computations during the rotation process, the PPP positioning efficiency for a single station (intv=30s) has been improved by 10% or more, as confirmed by the test results.
+- A bug is fixed for great_log.cpp
+
 ### Version 1.3
 
 - Fixed an error in the GLONASS satellite attitude calculation (function t_gattitude_model::_noon_turn_GLOM). Consequently, when GLONASS satellites are included in the positioning solution, the results from version 1.3 may be inconsistent with those from earlier versions.
@@ -147,6 +152,7 @@ Third-party components include:
 - [spdlog](https://github.com/gabime/spdlog)
 - [Eigen](https://eigen.tuxfamily.org)
 - [FAST](https://github.com/ChangChuntao/FAST)
+- [SOFA]([Standards of Fundamental Astronomy - SOFA Library Issue 2023-10-11 for ANSI C — SOFA](https://www.iausofa.org/2023-10-11c))
 
 ## License
 
