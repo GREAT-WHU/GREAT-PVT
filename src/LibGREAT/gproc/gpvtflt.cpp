@@ -974,6 +974,12 @@ int great::t_gpvtflt::_preprocess(const string& ssite, vector<t_gsatdata>& sdata
         if (!_isBase)
         {
             shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(satname);
+            if (!sat_obj)
+            {
+                GREAT_WARN(ssite + _epoch.str_ymdhms(" epoch ") + " satellite object not found: " + satname);
+                iter = sdata.erase(iter);
+                continue;
+            }
             shared_ptr<t_gpcv> sat_pcv = sat_obj->pcv(_epoch);
             if (!sat_pcv)
             {
