@@ -452,8 +452,6 @@ namespace gnut
 
         if (v_tmp.empty())
         {
-            throw logic_error("You need set your band for " + t_gsys::gsys2str(gsys) + " in xml file");
-
             switch (gsys)
             {
                 case GPS:
@@ -475,6 +473,7 @@ namespace gnut
                 case QZS:
                     v_tmp.push_back(BAND_1);
                     v_tmp.push_back(BAND_2);
+                    break;
                 default:
                     break;
             }
@@ -520,6 +519,7 @@ namespace gnut
                 case QZS:
                     v_tmp.push_back(FREQ_1);
                     v_tmp.push_back(FREQ_2);
+                    break;
                 default:
                     break;
             }
