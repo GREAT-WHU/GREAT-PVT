@@ -51,8 +51,7 @@ namespace gnut
          * @author jdhuang (jiande@whu.edu.cn)
          * @date 2024-08-01
          */
-        void init_logger(const std::string& path, const std::string& level);
-        void init_logger(const std::string& path, const spdlog::level::level_enum& level);
+        void init_logger(const std::string app_name, const std::string& path, const spdlog::level::level_enum& level);
 
         /**
          * @brief release logger

@@ -162,16 +162,13 @@ namespace gnut
         }
         else
         {
-            if (_gnote)
+            if (_mappco.find(f1) != _mappco.end())
             {
-                if (_mappco.find(f1) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
-                }
-                if (_mappco.find(f2) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], using hardwired values");
-                }
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
+            }
+            if (_mappco.find(f2) != _mappco.end())
+            {
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], using hardwired values");
             }
 
             t_map_offs offs = GNSS_PCO_OFFSETS();
@@ -226,51 +223,36 @@ namespace gnut
 
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
         if (_mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
             f2 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
         if (_mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
         // ==================================================
 
         if (_mappco.find(f1) == _mappco.end() || _mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
+            if (_mappco.find(f1) == _mappco.end())
             {
-                if (_mappco.find(f1) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-                }
-                if (_mappco.find(f2) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
-                }
+                GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
+            }
+            if (_mappco.find(f2) == _mappco.end())
+            {
+                GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
             }
             _gmutex.unlock();
             return -1;
@@ -305,28 +287,19 @@ namespace gnut
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GSYS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GSYS L1");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f2) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GSYS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GSYS L1");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
         if (_mapzen.find(f1) == _mapzen.end() || _mapzen.find(f2) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no SAT PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-            }
+            GREAT_DEBUG("no SAT PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
             _gmutex.unlock();
             return -1;
         }
@@ -376,37 +349,25 @@ namespace gnut
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f2) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
             f2 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f2) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
 
@@ -506,10 +467,7 @@ namespace gnut
         else
         { // AZI-dependant calibration NOT available (only NOAZI)
 
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC AZI PCV [" + _anten + "/freq:" + t_gfreq::gfreq2str(f1) + "], just used NOAZI");
-            }
+            GREAT_DEBUG("no REC AZI PCV [" + _anten + "/freq:" + t_gfreq::gfreq2str(f1) + "], just used NOAZI");
 
             map<double, double> mapDataf1;
             map<double, double> mapDataf2;
@@ -565,12 +523,9 @@ namespace gnut
         }
         else
         {
-            if (_gnote)
+            if (_mappco.find(f1) != _mappco.end())
             {
-                if (_mappco.find(f1) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
-                }
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
             }
 
             t_map_offs offs = GNSS_PCO_OFFSETS();
@@ -614,32 +569,20 @@ namespace gnut
         // fix for muti-GNSS
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L2");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L2");
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         // ==================================================
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                if (_mappco.find(f1) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-                }
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
             return -1;
         }
 
@@ -667,10 +610,7 @@ namespace gnut
         }
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GSYS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GSYS L1");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
@@ -781,19 +721,13 @@ namespace gnut
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(gsys, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f1) <= 2) ? t_gsys::gfrq2freq(gsys, f1) : FREQ_2);
         }
 
@@ -875,10 +809,7 @@ namespace gnut
         else
         { // AZI-dependant calibration NOT available (only NOAZI)
 
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC AZI PCV [" + _anten + "/freq:" + t_gfreq::gfreq2str(f1) + "], just used NOAZI");
-            }
+            GREAT_DEBUG("no REC AZI PCV [" + _anten + "/freq:" + t_gfreq::gfreq2str(f1) + "], just used NOAZI");
 
             map<double, double> mapDataf1;
             if (_mapzen.find(f1) != _mapzen.end())
@@ -952,28 +883,25 @@ namespace gnut
         }
         else
         {
-            if (_gnote)
+            if (_mappco.find(f1) != _mappco.end())
             {
-                if (_mappco.find(f1) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
-                }
-                if (_mappco.find(f2) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], using hardwired values");
-                }
-                if (_mappco.find(f3) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f3) + "], using hardwired values");
-                }
-                if (_mappco.find(f4) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f4) + "], using hardwired values");
-                }
-                if (_mappco.find(f5) != _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f5) + "], using hardwired values");
-                }
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], using hardwired values");
+            }
+            if (_mappco.find(f2) != _mappco.end())
+            {
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], using hardwired values");
+            }
+            if (_mappco.find(f3) != _mappco.end())
+            {
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f3) + "], using hardwired values");
+            }
+            if (_mappco.find(f4) != _mappco.end())
+            {
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f4) + "], using hardwired values");
+            }
+            if (_mappco.find(f5) != _mappco.end())
+            {
+                GREAT_DEBUG("no SAT PCO [" + _anten + "/" + t_gfreq::gfreq2str(f5) + "], using hardwired values");
             }
 
             t_map_offs offs = GNSS_PCO_OFFSETS();
@@ -1085,37 +1013,27 @@ namespace gnut
         // JD: New flexible way of defining L3 frequency for multi-GNSS
         GFRQ f1 = t_gsys::freq_priority(gsys, FREQ_1);
         GFRQ f2 = t_gsys::freq_priority(gsys, FREQ_2);
-        _gnote = nullptr;
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(GPS, (FREQ_1));
         }
         if (_mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
         // ==================================================
 
         if (_mappco.find(f1) == _mappco.end() || _mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
+            if (_mappco.find(f1) == _mappco.end())
             {
-                if (_mappco.find(f1) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-                }
-                if (_mappco.find(f2) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
-                }
+                GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
+            }
+            if (_mappco.find(f2) == _mappco.end())
+            {
+                GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
             }
             _gmutex.unlock();
             return -1;
@@ -1169,32 +1087,23 @@ namespace gnut
         GOBSBAND b1, b2;
         if (_mappco.find(f1) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
             f1 = t_gsys::freq_priority(GPS, (FREQ_1));
         }
         if (_mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-            }
+            GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
             f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
         }
         if (_mappco.find(f1) == _mappco.end() || _mappco.find(f2) == _mappco.end())
         {
-            if (_gnote)
+            if (_mappco.find(f1) == _mappco.end())
             {
-                if (_mappco.find(f1) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-                }
-                if (_mappco.find(f2) == _mappco.end())
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
-                }
+                GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
+            }
+            if (_mappco.find(f2) == _mappco.end())
+            {
+                GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
             }
             _gmutex.unlock();
             return -1;
@@ -1267,10 +1176,7 @@ namespace gnut
         {
             if (_mapzen.find(f1) == _mapzen.end() || _mapzen.find(f2) == _mapzen.end())
             {
-                if (_gnote)
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no SAT PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-                }
+                GREAT_DEBUG("no SAT PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
                 _gmutex.unlock();
                 return -1;
             }
@@ -1487,18 +1393,12 @@ namespace gnut
         {
             if (_mapzen.find(f1) == _mapzen.end())
             {
-                if (_gnote)
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-                }
+                GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
                 f1 = t_gsys::freq_priority(GPS, (FREQ_1));
             }
             if (_mapzen.find(f2) == _mapzen.end())
             {
-                if (_gnote)
-                {
-                    _gnote->mesg(GWARNING, "gpcv", "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                }
+                GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
                 f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
             }
 
@@ -1520,12 +1420,7 @@ namespace gnut
                 case GOBS_LC::LC_L1:
                     if (_mapzen.find(f1) == _mapzen.end())
                     {
-                        if (_gnote)
-                        {
-                            _gnote->mesg(GWARNING,
-                                         "gpcv",
-                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
-                        }
+                        GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "], substituted with GPS L1");
                         f1 = t_gsys::freq_priority(GPS, (FREQ_1));
                     }
                     if (_mapzen.find(f1) == _mapzen.end())
@@ -1537,12 +1432,7 @@ namespace gnut
                 case GOBS_LC::LC_L2:
                     if (_mapzen.find(f2) == _mapzen.end())
                     {
-                        if (_gnote)
-                        {
-                            _gnote->mesg(GWARNING,
-                                         "gpcv",
-                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                        }
+                        GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
                         f2 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
                     }
                     if (_mapzen.find(f2) == _mapzen.end())
@@ -1554,12 +1444,7 @@ namespace gnut
                 case GOBS_LC::LC_L3:
                     if (_mapzen.find(f3) == _mapzen.end())
                     {
-                        if (_gnote)
-                        {
-                            _gnote->mesg(GWARNING,
-                                         "gpcv",
-                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                        }
+                        GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
                         f3 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
                     }
                     if (_mapzen.find(f3) == _mapzen.end())
@@ -1571,12 +1456,7 @@ namespace gnut
                 case GOBS_LC::LC_L4:
                     if (_mapzen.find(f4) == _mapzen.end())
                     {
-                        if (_gnote)
-                        {
-                            _gnote->mesg(GWARNING,
-                                         "gpcv",
-                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                        }
+                        GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
                         f4 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
                     }
                     if (_mapzen.find(f4) == _mapzen.end())
@@ -1588,12 +1468,7 @@ namespace gnut
                 case GOBS_LC::LC_L5:
                     if (_mapzen.find(f5) == _mapzen.end())
                     {
-                        if (_gnote)
-                        {
-                            _gnote->mesg(GWARNING,
-                                         "gpcv",
-                                         "no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
-                        }
+                        GREAT_DEBUG("no REC PCV [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "], substituted with GPS L2");
                         f5 = t_gsys::freq_priority(GPS, (t_gsys::gfrq2freq(gsys, f2) <= 2) ? t_gsys::gfrq2freq(gsys, f2) : FREQ_2);
                     }
                     if (_mapzen.find(f5) == _mapzen.end())
@@ -1824,10 +1699,7 @@ namespace gnut
         else
         { // AZI-dependant calibration NOT available (only NOAZI)
 
-            if (_gnote)
-            {
-                _gnote->mesg(GWARNING, "gpcv", "no REC AZI PCV [" + _anten + "/freq:" + t_gfreq::gfreq2str(f1) + "], just used NOAZI");
-            }
+            GREAT_DEBUG("no REC AZI PCV [" + _anten + "/freq:" + t_gfreq::gfreq2str(f1) + "], just used NOAZI");
 
             map<double, double> mapDataf1;
             map<double, double> mapDataf2;

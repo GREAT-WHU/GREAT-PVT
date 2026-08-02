@@ -27,7 +27,7 @@
 # ============================================================================
 
 # ---- 1. Minimum CMake version and project ----
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 # Project name is taken from the variable ${LibGREAT} (must be defined earlier
 # in the parent project). We also set a version number.
@@ -76,10 +76,10 @@ message(STATUS " include path for ${LibGREAT} is : ${LibGREATSrc}")
 # source directory. Note: GLOB_RECURSE can miss newly added files; explicit
 # listing is more reliable for production.
 file(GLOB_RECURSE header_files ${PROJECT_SOURCE_DIR} *.h *.hpp)
-file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.cpp)
+file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.c *.cpp)
 # These two lines are repeated (probably a copy‑paste error); kept as in the original.
 file(GLOB_RECURSE header_files ${PROJECT_SOURCE_DIR} *.h *.hpp)
-file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.cpp)
+file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.c *.cpp)
 
 # ---- 6. Source grouping for Visual Studio (Windows only) ----
 # On Windows, we organise the files into virtual folders in the IDE.
@@ -96,6 +96,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
             ${PROJECT_SOURCE_DIR}/${fold}/*.h 
             ${PROJECT_SOURCE_DIR}/${fold}/*.hpp)
         file(GLOB_RECURSE tmp_source_files 
+            ${PROJECT_SOURCE_DIR}/${fold}/*.c
             ${PROJECT_SOURCE_DIR}/${fold}/*.cpp)
         source_group("Header Files\\${fold}"        FILES ${tmp_header_files})
         source_group("Source Files\\${fold}"        FILES ${tmp_source_files})
@@ -127,9 +128,6 @@ endif()
 # ==========================================================================================================================================
 add_library(${PROJECT_NAME} SHARED ${header_files} ${source_files})
 # ==========================================================================================================================================
-
-target_link_libraries(${PROJECT_NAME} LibSOFA)
-add_dependencies(${PROJECT_NAME} LibSOFA)
 
 # ---- 9. Library search paths (linker) ----
 # ==========================================================================================================================================

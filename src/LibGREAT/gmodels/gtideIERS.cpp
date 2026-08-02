@@ -9,6 +9,8 @@
  *
  */
 #include "gmodels/gtideIERS.h"
+#include "sofa/sofa.h"
+#include "sofa/sofam.h"
 #include "gutils/gconst.h"
 #include "gutils/gsysconv.h"
 
@@ -27,7 +29,11 @@ namespace great
         _mean_pole_model = modeofmeanpole::cubic;
     }
 
-    t_gtriple t_gtideIERS::tide_solid(const t_gtime& epo, t_gtriple& xyz, Matrix& rot_trs2crs, t_gnavde* nav_planet)
+    t_gtriple t_gtideIERS::tide_solid(const t_gtime& epo,
+                                      t_gtriple& xyz,
+                                      double xpole,
+                                      double ypole,
+                                      double ut1_tai)
     {
         // See the computation scheme in IERS Conventions 2010 page 103
         const double h20 = 0.6078e0;
@@ -36,21 +42,28 @@ namespace great
         const double dl2 = 0.0002e0;
         const double h3 = 0.292e0;
         const double l3 = 0.015e0;
-        ColumnVector sun_pos(0.0, 3), moon_pos(0.0, 3);
 
-        // get sun pos in J2000
         t_gtime epo_tt = epo;
         epo_tt.tsys(t_gtime::TT);
-        double mjd = epo_tt.dmjd();
-        nav_planet->get_pos(mjd, "SUN", sun_pos);
-        nav_planet->get_pos(mjd, "MOON", moon_pos);
+        const double tt_mjd = epo_tt.dmjd();
+        const double ut1_mjd = tt_mjd + (ut1_tai - 32.184) / 86400.0;
 
-        // change to TRS, unit: km
-        sun_pos = rot_trs2crs.t() * sun_pos;
-        // t_gtriple sun_pos_trs(sun_pos);
+        double earth_helio[2][3], earth_bary[2][3], moon_gcrs[2][3], c2t[3][3];
+        iauEpv00(DJM0, tt_mjd, earth_helio, earth_bary);
+        iauMoon98(DJM0, tt_mjd, moon_gcrs);
+        iauC2t06a(DJM0, tt_mjd, DJM0, ut1_mjd, xpole / RAD2SEC, ypole / RAD2SEC, c2t);
 
-        moon_pos = rot_trs2crs.t() * moon_pos;
-        // t_gtriple moon_pos_trs(moon_pos);
+        ColumnVector sun_pos(3), moon_pos(3);
+        for (int i = 0; i < 3; ++i)
+        {
+            sun_pos(i + 1) = 0.0;
+            moon_pos(i + 1) = 0.0;
+            for (int j = 0; j < 3; ++j)
+            {
+                sun_pos(i + 1) -= c2t[i][j] * earth_helio[0][j] * DAU / 1000.0;
+                moon_pos(i + 1) += c2t[i][j] * moon_gcrs[0][j] * DAU / 1000.0;
+            }
+        }
 
         double rSun = sqrt(DotProduct(sun_pos, sun_pos));
         double rMoon = sqrt(DotProduct(moon_pos, moon_pos));
@@ -115,108 +128,6 @@ namespace great
         dx = dx + XCORSTA_SEMI;
 
         // CORRECTIONS FOR THE LATITUDE DEPENDENCE OF LOVE NUMBERS (PART L^(1) )
-        ColumnVector XCORSTA_LATI = _st1l1(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
-        dx = dx + XCORSTA_LATI;
-
-        t_gtriple dx_diurnal = tide_solid_frequency_diurnal(epo_tt, xyz);
-        t_gtriple dx_longperiod = tide_solid_frequency_longperiod(epo_tt, xyz);
-        dx = dx + dx_diurnal.crd_cvect() + dx_longperiod.crd_cvect();
-
-        return t_gtriple(dx);
-    }
-
-    t_gtriple t_gtideIERS::tide_solid(const t_gtime& epo,
-                                      t_gtriple& xyz,
-                                      Matrix& rot_trs2crs,
-                                      ColumnVector& sun_pos,
-                                      ColumnVector& moon_pos)
-    {
-        // See the computation scheme in IERS Conventions 2010 page 103
-        const double h20 = 0.6078e0;
-        const double dh2 = -0.0006e0;
-        const double l20 = 0.0847e0;
-        const double dl2 = 0.0002e0;
-        const double h3 = 0.292e0;
-        const double l3 = 0.015e0;
-
-        // get sun pos in J2000
-        t_gtime epo_tt = epo;
-        epo_tt.tsys(t_gtime::TT);
-
-        // change to TRS, unit: km
-        sun_pos = rot_trs2crs.t() * sun_pos;
-        // t_gtriple sun_pos_trs(sun_pos);
-
-        moon_pos = rot_trs2crs.t() * moon_pos;
-        // t_gtriple moon_pos_trs(moon_pos);
-
-        double rSun = sqrt(DotProduct(sun_pos, sun_pos));
-        double rMoon = sqrt(DotProduct(moon_pos, moon_pos));
-
-        // unit vector for site
-        ColumnVector unit_site_pos = xyz.unitary();
-        // get BLH
-        t_gtriple blh;
-        xyz2ell(xyz, blh, false);
-
-        double lsta = xyz.crd_cvect().NormFrobenius();
-        double cosphi = sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]) / lsta;
-
-        // calculate
-        ColumnVector dx(0.0, 3);
-        for (int i = 0; i < 2; i++)
-        {
-            ColumnVector unit_pos(0.0, 3);
-            double mass_ratio = 0.0, R_body, dotl = 0.0, scale = 0.0;
-            switch (i)
-            {
-                case 0:
-                    unit_pos = sun_pos / rSun;
-                    dotl = DotProduct(unit_pos, unit_site_pos);
-                    // GM_body = SUN_GM;
-                    mass_ratio = _MASS_RATIO_SUN;
-                    R_body = rSun;
-                    break;
-                case 1:
-                    unit_pos = moon_pos / rMoon;
-                    dotl = DotProduct(unit_pos, unit_site_pos);
-                    // GM_body = MOON_GM;
-                    mass_ratio = _MASS_RATIO_MOON;
-                    R_body = rMoon;
-                    break;
-            }
-
-            scale = mass_ratio * _EARTH_R * pow((_EARTH_R / R_body), 3);
-
-            double h2 = h20 + dh2 * (2.0 - 3.0 * cosphi * cosphi) / 2.0;
-            double l2 = l20 + dl2 * (2.0 - 3.0 * cosphi * cosphi) / 2.0;
-            double usite_part = (h2 * (1.5 * dotl * dotl - 0.50) - 3.0 * l2 * dotl * dotl) * scale;
-            double ubody_part = 3.e0 * l2 * dotl * scale;
-
-            dx = dx + usite_part * unit_site_pos + ubody_part * unit_pos;
-
-            scale = scale * (EARTH_R / R_body);
-            ubody_part = (7.5 * dotl * dotl - 1.5) * l3;
-            usite_part = (h3 * (2.5 * dotl * dotl - 1.5) * dotl - ubody_part * dotl) * scale;
-            ubody_part = ubody_part * scale;
-            dx = dx + usite_part * unit_site_pos + ubody_part * unit_pos;
-        }
-
-        double FAC2SUN = _MASS_RATIO_SUN * _EARTH_R * pow((_EARTH_R / rSun), 3) * 1000;
-        double FAC2MON = _MASS_RATIO_MOON * _EARTH_R * pow((_EARTH_R / rMoon), 3) * 1000;
-        // FIRST, FOR THE DIURNAL BAND
-        // added by yqyuan 2021/11/25
-        // Reference: IERS Conventions 2010 v1.0, Eq (7.10)
-        ColumnVector XCORSTA_DIURNAL = _st1idiu(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
-        dx = dx + XCORSTA_DIURNAL;
-
-        // SECOND, FOR THE SEMI-DIURNAL BAND
-        // Reference: IERS Conventions 2010 v1.0, Eq (7.11)
-        ColumnVector XCORSTA_SEMI = _st1isem(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
-        dx = dx + XCORSTA_SEMI;
-
-        // CORRECTIONS FOR THE LATITUDE DEPENDENCE OF LOVE NUMBERS (PART L^(1) )
-        // Reference: IERS Conventions 2010 v1.0, Eq (7.7-7.9)
         ColumnVector XCORSTA_LATI = _st1l1(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
         dx = dx + XCORSTA_LATI;
 

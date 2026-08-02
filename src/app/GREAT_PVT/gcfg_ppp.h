@@ -48,12 +48,10 @@
 #include "gcoders/poleut1.h"
 #include "gcoders/ifcb.h"
 #include "gcoders/gcoder.h"
-#include "gcoders/dvpteph405.h"
 #include "gcoders/blq.h"
 #include "gcoders/biasinex.h"
 #include "gcoders/biabernese.h"
 #include "gcoders/atx.h"
-#include "gdata/gnavde.h"
 
 using namespace std;
 using namespace pugi;

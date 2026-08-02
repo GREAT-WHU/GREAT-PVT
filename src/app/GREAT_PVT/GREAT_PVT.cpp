@@ -28,9 +28,9 @@ int main(int argc, char** argv)
     gset.arg(argc, argv, true, false);
 
     // Creat and set the log file : ppp.log
-    auto log_level = dynamic_cast<t_gsetout*>(&gset)->log_level();
     auto log_name = dynamic_cast<t_gsetout*>(&gset)->log_name();
-    t_great_log::get_instance().init_logger(log_name, log_level);
+    auto log_level = dynamic_cast<t_gsetout*>(&gset)->log_level();
+    t_great_log::get_instance().init_logger("GREAT-PVT", log_name, log_level);
 
     // Check the base station
     bool isBase = dynamic_cast<t_gsetgen*>(&gset)->list_base().size();
@@ -50,7 +50,6 @@ int main(int argc, char** argv)
 
     //--- INITIALIZATIONS ---
     t_gdata* gdata = nullptr;
-    t_gnavde* gde = new t_gnavde;
     t_gpoleut1* gerp = new t_gpoleut1;
     t_gallobs* gobs = new t_gallobs();
     gobs->gset(&gset);
@@ -189,11 +188,6 @@ int main(int argc, char** argv)
             gdata = gbia;
             tgcoder = new t_biabernese(&gset, "", 20480);
         }
-        else if (ifmt == IFMT::DE_INP)
-        {
-            gdata = gde;
-            tgcoder = new t_dvpteph405(&gset, "", 4096);
-        }
         else if (ifmt == IFMT::EOP_INP)
         {
             gdata = gerp;
@@ -274,10 +268,6 @@ int main(int argc, char** argv)
     if (gotl)
     {
         data->Add_Data(t_gdata::type2str(gotl->id_type()), gotl);
-    }
-    if (gde)
-    {
-        data->Add_Data(t_gdata::type2str(gde->id_type()), gde);
     }
     if (gerp)
     {
@@ -410,10 +400,6 @@ int main(int argc, char** argv)
     if (gbia)
     {
         delete gbia;
-    }
-    if (gde)
-    {
-        delete gde;
     }
     if (gerp)
     {

@@ -58,6 +58,9 @@ namespace great
          */
         void setEopData(t_gtime mjdtime, map<string, double> data, string mode, double intv);
 
+        /** @brief get interpolated pole and UT1 data for a given time. */
+        void getEopData(t_gtime mjdtime, map<string, double>& data);
+
         /**
         * @brief whether the poleut1 data is empty
         * @return

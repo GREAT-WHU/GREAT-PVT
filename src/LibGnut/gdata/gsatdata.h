@@ -60,7 +60,7 @@ namespace gnut
         /** @brief add satellite pco. */
         void addpco(const t_gtriple& pco);
 
-        /** @brief add satellite velocity. */
+        /** @brief Add the satellite TRS/ECEF position derivative. */
         void addvel(const t_gtriple& vel);
 
         /** @brief add by glfeng. */
@@ -139,7 +139,7 @@ namespace gnut
         const t_gtriple& satcrd() const;
 
         /**
-         * @brief sat vel
+         * @brief Get the satellite TRS/ECEF position derivative.
          *
          * @return const t_gtriple&
          */
@@ -412,7 +412,7 @@ namespace gnut
         t_gtriple _satcrd;                     ///< satellite position (X,Y,Z)
         t_gtriple _satcrdcrs;                  ///< satellite position in crs(X,Y,Z)
         t_gtriple _satpco;                     ///< satellite pco
-        t_gtriple _satvel;                     ///< satellite velocity
+        t_gtriple _satvel;                     ///< satellite TRS/ECEF position derivative
         t_gtriple _satvel_crs;                 ///< satellite velocity_crs
         Matrix _orbfunct;                      ///< satellite funct
         int _satindex;                         ///< satellite index

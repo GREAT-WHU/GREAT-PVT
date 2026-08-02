@@ -16,11 +16,10 @@
 # Notes:
 #   - The library defines the preprocessor macro GREAT_LibGnut_LIBRARY.
 #   - On Windows, source files are grouped into folders in Visual Studio.
-#   - On Linux/macOS, the library is linked against -lz (zlib).
 # ============================================================================
 
 # ---- 1. Minimum CMake version and project ----
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 # Project name is taken from the variable ${LibGnut} (must be defined earlier
 # in the parent project). We also set a version number.
@@ -64,14 +63,11 @@ message(STATUS " include path for ${LibGnut} is : ${LibGnutSrc}")
 #message(STATUS "                                                                     ")
 
 # ---- 5. Collect source and header files ----
-# Use GLOB_RECURSE to recursively find all .h, .hpp, .cpp files in the project
+# Use GLOB_RECURSE to recursively find all .h, .hpp, .c, .cpp files in the project
 # source directory. Note: GLOB_RECURSE can miss newly added files; explicit
 # listing is more reliable for production.
 file(GLOB_RECURSE header_files ${PROJECT_SOURCE_DIR} *.h *.hpp)
-file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.cpp)
-# These two lines are repeated (probably a copy‑paste error); kept as in the original.
-file(GLOB_RECURSE header_files ${PROJECT_SOURCE_DIR} *.h *.hpp)
-file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.cpp)
+file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.c *.cpp)
 
 # ---- 6. Source grouping for Visual Studio (Windows only) ----
 # On Windows, we organise the files into virtual folders in the IDE.
@@ -88,6 +84,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
             ${PROJECT_SOURCE_DIR}/${fold}/*.h 
             ${PROJECT_SOURCE_DIR}/${fold}/*.hpp)
         file(GLOB_RECURSE tmp_source_files 
+            ${PROJECT_SOURCE_DIR}/${fold}/*.c
             ${PROJECT_SOURCE_DIR}/${fold}/*.cpp)
         source_group("Header Files\\${fold}"        FILES ${tmp_header_files})
         source_group("Source Files\\${fold}"        FILES ${tmp_source_files})
@@ -118,6 +115,7 @@ endif()
 # Build a shared library from the collected source and header files.
 # ==========================================================================================================================================
 add_library(${PROJECT_NAME} SHARED ${header_files} ${source_files})
+
 # ==========================================================================================================================================
 
 # ---- 9. Library linking (platform‑specific) ----
@@ -130,9 +128,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     link_directories(${BUILD_DIR}/Lib/RelWithDebInfo)
     link_directories(${BUILD_DIR}/Lib/MinSizeRel)
 else()
-    # On Linux/macOS: the library search path is simply ${BUILD_DIR}/Lib,
-    # and we additionally link against zlib (compression library).
+    # On Linux/macOS: the library search path is simply ${BUILD_DIR}/Lib.
     link_directories(${BUILD_DIR}/Lib)
-    target_link_libraries(${PROJECT_NAME} z)
 endif()
 # ==========================================================================================================================================

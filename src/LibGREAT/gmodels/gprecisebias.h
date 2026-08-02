@@ -16,11 +16,10 @@
 #include "gset/gsetgen.h"
 #include "gmodels/gbiasmodel.h"
 #include "gall/gallproc.h"
-#include "gutils/gtrs2crs.h"
 #include "gall/gallobj.h"
 #include "gmodels/gtide.h"
 #include "gmodels/gattitudemodel.h"
-#include "gdata/gnavde.h"
+#include "gdata/gpoleut1.h"
 #include "gdata/gifcb.h"
 #include "gall/gallopl.h"
 
@@ -85,14 +84,12 @@ namespace great
         /** @brief apply rec tides */
         bool _apply_rec_tides(const t_gtime& epoch, t_gtriple& rec);
 
-        /** @brief update rot matrix */
-        void _update_rot_matrix(const t_gtime& epoch);
-
-        /** @brief get crs sat crd */
-        bool _get_crs_sat_crd(const t_gtime& sat_epoch, const string& sat, t_gallnav* nav, t_gtriple& crs_sat_crd);
-
-        /** @brief get crs sat vel */
-        bool _get_crs_sat_vel(const t_gtime& sat_epoch, const string& sat, t_gallnav* nav, t_gtriple& crs_sat_vel);
+        /** @brief get satellite position and velocity in TRS */
+        bool _get_trs_sat_crdvel(const t_gtime& sat_epoch,
+                                 const string& sat,
+                                 t_gallnav* nav,
+                                 t_gtriple& trs_sat_crd,
+                                 t_gtriple& trs_sat_vel);
 
     protected:
         /**
@@ -114,18 +111,13 @@ namespace great
                    t_gobs& gobs);
 
         /**
-         * @brief get rotmatrix from ant to TRS or CRS
+         * @brief get rotmatrix from antenna frame to TRS
          * @param[in] obsdata observ data info
-         * @param[in] epoch specified epoch
+         * @param[in] epoch antenna calibration epoch
          * @param[in] obj pcv info for site
-         * @param[in] isCRS ture to CRS false to TRS
          * @return Rotmatrix
          */
-        Matrix _RotMatrix_Ant(t_gsatdata& obsdata,
-                              const t_gtime& receive_epoch,
-                              const t_gtime& transmit_epoch,
-                              shared_ptr<t_gobj> obj,
-                              bool isCRS);
+        Matrix _RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, shared_ptr<t_gobj> obj);
 
     protected:
         t_gtime _crt_epo;            ///< epoch
@@ -148,18 +140,12 @@ namespace great
         shared_ptr<t_gtide> _tide;  ///< tide correction model
 
         t_gpoleut1* _gdata_erp = nullptr; ///< all poleut1 data
-        t_gnavde* _gdata_navde = nullptr; ///< all panetnav info
         t_gallnav* _gall_nav = nullptr;   ///< all nav data include rinexn,sp3,clk
         t_gallobj* _gallobj = nullptr;    ///< all obj
         t_gallopl* _opl = nullptr;        ///< opl
         modeofmeanpole _mean_pole_model = modeofmeanpole::cubic;
 
-        map<t_gtime, shared_ptr<t_gtrs2crs>> _trs2crs_list; ///< trs2crs list
-        shared_ptr<t_gtrs2crs> _trs2crs_2000;               ///< trs2crs matrix
-        double _minElev;                                    ///< min ele for prepare
-
-        Matrix _rot_scf2crs; ///< record scf2crs matrix
-        Matrix _rot_scf2trs; ///< record scf2trs matrix
+        double _minElev; ///< min ele for prepare
 
         map<string, map<string, map<t_gtime, double>>> _phase_windup; ///< recording for calculating windup
 

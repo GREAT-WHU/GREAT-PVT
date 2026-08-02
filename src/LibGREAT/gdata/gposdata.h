@@ -15,6 +15,7 @@
 #include <Eigen/Eigen>
 #include "gexport/ExportLibGREAT.h"
 #include <newmat/newmat.h>
+#include <set>
 using namespace gnut;
 
 namespace gsins

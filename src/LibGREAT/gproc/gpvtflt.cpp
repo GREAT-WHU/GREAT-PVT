@@ -3101,17 +3101,17 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
         bl = tmpneu.norm();
     }
 
-    os << fixed << setprecision(4) << " "
+    os << fixed << setprecision(5) << " "
        << " " << epoch.sow() + epoch.dsec();
     if (_crd_est != CONSTRPAR::FIX)
     {
-        os << fixed << setprecision(4) << " " << setw(15) << xyz_ecc[0] // [m]
+        os << fixed << setprecision(5) << " " << setw(15) << xyz_ecc[0] // [m]
            << " " << setw(15) << xyz_ecc[1]                             // [m]
            << " " << setw(15) << xyz_ecc[2]                             // [m]
            << " " << setw(10) << vRec[0]                                // [m/s]
            << " " << setw(10) << vRec[1]                                // [m/s]
            << " " << setw(10) << vRec[2]                                // [m/s]
-           << fixed << setprecision(4) << " " << setw(9) << Xrms        // [m]
+           << fixed << setprecision(5) << " " << setw(9) << Xrms        // [m]
            << " " << setw(9) << Yrms                                    // [m]
            << " " << setw(9) << Zrms                                    // [m]
            << " " << setw(9) << Vxrms                                   // [m/s]

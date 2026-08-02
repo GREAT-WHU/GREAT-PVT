@@ -115,6 +115,11 @@ covered in:
 
 ## Changelog
 
+### Version 1.4 beta.2
+
+- The code related to the inertial frame has been removed. The code structure is now more streamlined, and the overall system can perform PPP and RTK entirely based on the Earth‑fixed frame.
+- The `gallnote` and `gnote` classes have been removed.
+
 ### Version 1.4 beta
 
 - The SOFA software is employed for the rotation from the inertial frame to the Earth-fixed frame, with current tests indicating comparable accuracy. By eliminating substantial redundant computations during the rotation process, the PPP positioning efficiency for a single station (intv=30s) has been improved by 10% or more, as confirmed by the test results.

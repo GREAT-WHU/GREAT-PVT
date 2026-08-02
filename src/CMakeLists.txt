@@ -1,5 +1,5 @@
 ﻿#Minimum requirement of CMake version : 3.5
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 #Project name and version number
 project(GREAT-PVT VERSION 0.1.0)
@@ -66,10 +66,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_compile_options(-O3)
     # 64‑bit architecture flag
     add_compile_options(-m64)
-    # Link against zlib compression library (though -lz is a linker flag,
-    # add_compile_options works for linker flags in some generators, but
-    # using target_link_libraries is generally preferred; kept as is)
-    add_compile_options(-lz)
     # Link against the C++ standard library (GNU libstdc++)
     add_compile_options(-lstdc++)
     # Enable most common warnings
@@ -282,7 +278,7 @@ message(STATUS "The program main directory is : ${ROOT}")
 
 # List of library (sub‑project) names to be built
 set(file_fold 
-    spdlog gexport gio gutils gcoders gmodels gall gdata gset pugixml gproc gprod gambfix newmat)
+    spdlog sofa gexport gio gutils gcoders gmodels gall gdata gset pugixml gproc gprod gambfix newmat)
 
 # Print the library list (useful for debugging); output appears during configuration
 message(${file_fold})
@@ -352,16 +348,13 @@ set(LibGREAT         LibGREAT)
 # Full source paths for each library
 set(LibGnutSrc          ${PROJECT_SOURCE_DIR}/${LibGnut})
 set(LibGREATSrc         ${PROJECT_SOURCE_DIR}/${LibGREAT})
-set(Third_SOFA_ROOT     ${PROJECT_SOURCE_DIR}/third-party/SOFA)
 
 # Add subdirectories; the second argument specifies the binary output directory
 # for each subproject (under BUILD_DIR)
-add_subdirectory(${Third_SOFA_ROOT}    ${BUILD_DIR}/SOFA)
 add_subdirectory(${LibGnutSrc}       ${BUILD_DIR}/${LibGnut})
 add_subdirectory(${LibGREATSrc}      ${BUILD_DIR}/${LibGREAT})
 
 # Assign both library targets to the "LIB" folder in the IDE project view
-SET_PROPERTY(TARGET LibSOFA        PROPERTY FOLDER "LIB")
 SET_PROPERTY(TARGET ${LibGnut}       PROPERTY FOLDER "LIB")
 SET_PROPERTY(TARGET ${LibGREAT}      PROPERTY FOLDER "LIB")
 

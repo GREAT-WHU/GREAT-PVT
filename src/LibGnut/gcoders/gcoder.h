@@ -30,7 +30,6 @@
 #endif
 
 #include "gio/gio.h"
-#include "gio/gnote.h"
 #include "gdata/gdata.h"
 #include "gutils/gsys.h"
 #include "gutils/gmutex.h"
@@ -178,23 +177,6 @@ namespace gnut
             return _data[data_id];
         }
 
-        /** @brief set/get notes (messages/warning/errors). */
-        void mesg(const t_note& m,
-                  const string& s); //
-
-        /**
-         * @brief brief set/get notes (messages/warning/errors)
-         *
-         * @return const vector<t_gnote>&
-         */
-        const vector<t_gnote>& mesg() const;
-
-        /** @brief set close with warning. */
-        void close_with_warning(const bool& b)
-        {
-            _close_with_warning = b;
-        }
-
     protected:
         /** @brief get endpos/size/buffer. */
         const int& endpos() const
@@ -284,7 +266,6 @@ namespace gnut
         int _consume(const int& bytes_to_eat);
 
         weak_ptr<t_gio> _gio_ptr;    ///< gio pointer
-        vector<t_gnote> _notes;      ///< cummative notes message/warning/error
         string _fname;               ///< decoded file
         string _class;               ///< string for reporting
         bool _initialized;           ///< if initialized
@@ -301,8 +282,6 @@ namespace gnut
         int _endpos;                 ///< after last position
         int _begpos;                 ///< begin position of useful data
         int _irc;                    ///< IRC code
-        bool _close_with_warning;    ///< close with warnings (desctructor)
-
         gcoder_char_buffer _decode_buffer;
 
         //    settings

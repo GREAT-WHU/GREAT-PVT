@@ -42,7 +42,7 @@ namespace gnut
 
             if (sys == " ")
             {
-                mesg(GERROR, "SYS / # / OBS TYPES not recognized SYS!");
+                GREAT_DEBUG("SYS / # / OBS TYPES not recognized SYS!");
                 _irc++;
             }
             else
@@ -103,7 +103,7 @@ namespace gnut
 
             if (sys == " ")
             {
-                mesg(GERROR, "SYS / SCALE FACTOR not recognized SYS!");
+                GREAT_DEBUG("SYS / SCALE FACTOR not recognized SYS!");
                 _irc++;
             }
             else
@@ -185,17 +185,17 @@ namespace gnut
 
             if (sys == " ")
             {
-                mesg(GERROR, "SYS / PHASE SHIFT not recognized SYS!");
+                GREAT_DEBUG("SYS / PHASE SHIFT not recognized SYS!");
                 _irc++;
             }
             else if (obs.empty())
             {
-                mesg(GERROR, "SYS / PHASE SHIFT not recognized OBS:" + obs);
+                GREAT_DEBUG("SYS / PHASE SHIFT not recognized OBS:" + obs);
                 _irc++;
             }
             else if ((gobs = str2gobs(obs)) == X)
             {
-                mesg(GERROR, "SYS / PHASE SHIFT not recognized OBS:" + obs);
+                GREAT_DEBUG("SYS / PHASE SHIFT not recognized OBS:" + obs);
                 _irc++;
             }
             else
@@ -281,7 +281,7 @@ namespace gnut
 
             if (nsat == 0)
             {
-                mesg(GERROR, "GLONASS SLOT / FRQ zero obs codes!");
+                GREAT_DEBUG("GLONASS SLOT / FRQ zero obs codes!");
                 _irc++;
             }
             else
@@ -374,7 +374,7 @@ namespace gnut
                 double bias = str2dbl(val);
                 if (gobs == X)
                 {
-                    mesg(GERROR, "GLONASS COD/PHS/BIS not recognized OBS:" + obs);
+                    GREAT_DEBUG("GLONASS COD/PHS/BIS not recognized OBS:" + obs);
                     _irc++;
                 }
                 else
@@ -524,23 +524,23 @@ namespace gnut
 
         if (_rnxhdr.rnxsys() == ' ')
         {
-            mesg(GERROR, "RINEX SYS not available!");
+            GREAT_DEBUG("RINEX SYS not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.mapcyc().size() == 0)
         {
-            mesg(GERROR, "SYS PHASE SHIFT not available!");
+            GREAT_DEBUG("SYS PHASE SHIFT not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.glofrq().size() == 0)
         {
-            mesg(GERROR, "GLO SLOT/FREQ not available!");
+            GREAT_DEBUG("GLO SLOT/FREQ not available!");
             _irc++;
         } // mandatory
 
         if (_version >= "3.02" && _rnxhdr.globia().size() == 0)
         {
-            mesg(GERROR, "GLO BIASES not available!");
+            GREAT_DEBUG("GLO BIASES not available!");
             _irc++;
         } // mandatory
 

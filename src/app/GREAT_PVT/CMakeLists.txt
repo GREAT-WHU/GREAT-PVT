@@ -20,25 +20,25 @@
 # ============================================================================
 
 # ---- 1. Minimum CMake version and project ----
-# Require at least CMake 3.5 (needed for modern features)
-cmake_minimum_required(VERSION 3.5)
+# Require at least CMake 3.10 (needed for modern features)
+cmake_minimum_required(VERSION 3.10)
 
 # Project name is taken from the variable ${pvt} (must be defined earlier)
 project(${pvt})
 
 # ---- 2. Collect source and header files ----
-# Use GLOB to automatically pick up all .h, .hpp, .cpp files in the current
+# Use GLOB to automatically pick up all .h, .hpp, .c, .cpp files in the current
 # directory. Note: GLOB is not recommended for production builds because it
 # may miss newly added files; explicitly listing sources is more robust.
 file(GLOB header_files     *.h *.hpp)
-file(GLOB source_files     *.cpp)
+file(GLOB source_files     *.c *.cpp)
 
 # ---- 3. Organise files in IDE ----
 # Group CMakeLists.txt, headers, and sources into separate folders in Visual
 # Studio / Xcode for better project navigation.
 source_group("CMake Files" FILES CMakeLists.txt)
-source_group("Header Files" FILES header_files)
-source_group("Soruce Files" FILES source_files)   # Typo: "Soruce" → "Source" (kept as is)
+source_group("Header Files" FILES ${header_files})
+source_group("Source Files" FILES ${source_files})
 
 # ---- 4. Include directories ----
 # List of directories to search for header files during compilation.

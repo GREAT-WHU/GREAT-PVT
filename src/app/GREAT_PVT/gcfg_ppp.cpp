@@ -27,7 +27,6 @@ namespace gnut
         _IFMT_supported.insert(IFMT::SP3_INP);
         _IFMT_supported.insert(IFMT::BIAS_INP);
         _IFMT_supported.insert(IFMT::BIASINEX_INP);
-        _IFMT_supported.insert(IFMT::DE_INP);
         _IFMT_supported.insert(IFMT::EOP_INP);
         _IFMT_supported.insert(IFMT::LEAPSECOND_INP);
         _IFMT_supported.insert(IFMT::UPD_INP);

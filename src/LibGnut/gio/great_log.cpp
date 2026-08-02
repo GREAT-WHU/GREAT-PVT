@@ -25,31 +25,9 @@ namespace gnut
         return myLog;
     }
 
-    void t_great_log::init_logger(const std::string& path, const std::string& level)
-    {
-        if (level == "trace")
-        {
-            init_logger(path, spdlog::level::trace);
-        }
-        else if (level == "debug")
-        {
-            init_logger(path, spdlog::level::debug);
-        }
-        else if (level == "warn")
-        {
-            init_logger(path, spdlog::level::warn);
-        }
-        else if (level == "error")
-        {
-            init_logger(path, spdlog::level::err);
-        }
-        else
-        {
-            init_logger(path, spdlog::level::info);
-        }
-    }
-
-    void t_great_log::init_logger(const std::string& path, const spdlog::level::level_enum& level)
+    void t_great_log::init_logger(const std::string app_name,
+                                  const std::string& path,
+                                  const spdlog::level::level_enum& level)
     {
         try
         {
@@ -72,7 +50,6 @@ namespace gnut
                 sinks.push_back(sink_stdo);
             }
 
-            //_gspdlog = std::make_unique<spdlog::logger>("app", sinks.begin(), sinks.end());
             _gspdlog = std::make_shared<spdlog::logger>("app", sinks.begin(), sinks.end());
 
             // custom format
@@ -105,7 +82,7 @@ namespace gnut
     {
         if (!_gspdlog)
         {
-            init_logger("", spdlog::level::info);
+            init_logger("app", "def", spdlog::level::info);
         }
         return _gspdlog;
     }

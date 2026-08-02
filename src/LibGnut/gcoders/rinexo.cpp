@@ -123,7 +123,7 @@ namespace gnut
                 if (_line[20] != 'O')
                 {
                     GREAT_ERROR("not RINEX observation file");
-                    mesg(GERROR, "not RINEX observation file!");
+                    GREAT_DEBUG("not RINEX observation file!");
                     ++_irc;
                     return (_consume = -1);
                 }
@@ -143,11 +143,11 @@ namespace gnut
                     GREAT_WARN("Warning: RINEX SYS not defined, GPS set as default");
                     if (_version < "3.00")
                     {
-                        mesg(GWARNING, "Warning: RINEX SYS not defined!");
+                        GREAT_DEBUG("Warning: RINEX SYS not defined!");
                     }
                     else
                     {
-                        mesg(GERROR, "RINEX SYS not defined!");
+                        GREAT_DEBUG("RINEX SYS not defined!");
                         ++_irc;
                     }
                     _rnxhdr.rnxsys('G');

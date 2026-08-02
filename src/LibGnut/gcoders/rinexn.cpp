@@ -539,7 +539,7 @@ namespace gnut
             if (fabs(epoch - _check_dt) > 7 * 86400 && _check_dt != FIRST_TIME)
             {
                 string lg(prn + " strange epoch [" + epoch.str_ymdhms() + "] or corrupted file [" + base_name(_fname) + "]");
-                mesg(GWARNING, lg);
+                GREAT_DEBUG(lg);
                 t_gcoder::_consume(tmpsize);
                 recsize = consume = 0;
                 continue;

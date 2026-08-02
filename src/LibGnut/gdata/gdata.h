@@ -23,7 +23,6 @@
 #include <iostream>
 
 #include "gutils/gmutex.h"
-#include "gio/gnote.h"
 #include "gutils/gcommon.h"
 #include "gio/great_log.h"
 using namespace std;
@@ -107,20 +106,6 @@ namespace gnut
             GRP_LAST     ///<   last
         };
 
-        /** @brief set glog pointer */
-        /** @brief get glog pointer */
-        /** @brief set gnote pointer */
-        void gnote(t_gallnote* n)
-        {
-            _gnote = n;
-        }
-
-        /** @brief get gnote pointer */
-        t_gallnote* gnote() const
-        {
-            return _gnote;
-        }
-
         /** @brief get data type */
         const ID_TYPE& id_type() const
         {
@@ -167,7 +152,6 @@ namespace gnut
         int id_group(const ID_GROUP& g);
 
         mutable t_gmutex _gmutex; ///< mutex
-        t_gallnote* _gnote;       ///< gnote
         ID_TYPE _type;            ///< type_ID
         ID_GROUP _group;          ///< group_ID
     private:

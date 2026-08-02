@@ -13,11 +13,12 @@
 
 #include "gexport/ExportLibGREAT.h"
 #include "gmodels/gtide.h"
-#include "gdata/gnavde.h"
 #include "gall/gallopl.h"
 
 namespace great
 {
+    using namespace gnut;
+
     /** @brief The class for gtide of IERS model.*/
     class LibGREAT_LIBRARY_EXPORT t_gtideIERS : public t_gtide
     {
@@ -49,9 +50,8 @@ namespace great
         /** @brief destructor.*/
         virtual ~t_gtideIERS() {};
 
-        /** @brief solid earth tides(Mark sure the pos in J2000).*/
-        t_gtriple tide_solid(const t_gtime& epo, t_gtriple& xyz, Matrix& rot_trs2crs, t_gnavde* nav_planet);
-        t_gtriple tide_solid(const t_gtime& epo, t_gtriple& xyz, Matrix& rot_trs2crs, ColumnVector& sun_pos, ColumnVector& moon_pos);
+        /** @brief solid earth tides using SOFA Sun/Moon positions in TRS. */
+        t_gtriple tide_solid(const t_gtime& epo, t_gtriple& xyz, double xpole, double ypole, double ut1_tai);
 
         /** @brief solid earth tide corrections to be computed in the frequency domain from the diurnal band*/
         /** Reference: IERS Conventions 2010 v1.0, Eq (7.12); STEP2DIU.F from IERS 2010 Conventions software collection

@@ -9,7 +9,7 @@
  *
  */
 #include "gutils/gtrs2crs.h"
-#include "sofa.h"
+#include "sofa/sofa.h"
 
 #include <vector>
 

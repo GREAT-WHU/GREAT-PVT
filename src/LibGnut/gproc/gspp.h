@@ -112,7 +112,6 @@ namespace gnut
         virtual void _setOut();
 
         /** @brief Set processing log file (<ppp>). */
-        virtual void _setLog(string mode = "");
         bool _valid_crd_xml;
         bool _valid_ztd_xml;
         t_gmodel* _gModel;    ///< models.

@@ -19,12 +19,10 @@ namespace gnut
         _type(NONE),
         _group(GRP_NONE)
     {
-        _gnote = nullptr;
     }
 
     t_gdata::t_gdata(const t_gdata& data)
     {
-        _gnote = data.gnote();
         _type = data.id_type();
         _group = data.id_group();
     }
@@ -35,7 +33,6 @@ namespace gnut
 
     t_gdata& t_gdata::operator=(const t_gdata& data)
     {
-        _gnote = data.gnote();
         _type = data.id_type();
         _group = data.id_group();
         return *this;

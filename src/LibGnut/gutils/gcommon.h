@@ -8,7 +8,7 @@
 * Copyright (c) 2018 G-Nut Software s.r.o. (software@gnutsoftware.com)
 *
 * @file        gcommon.h
-* @brief       gzstream, C++ iostream classes wrapping the zlib compression library.
+* @brief       Common utility helpers.
 * @author      JD
 * @version     1.0.0
 * @date        2011-02-14

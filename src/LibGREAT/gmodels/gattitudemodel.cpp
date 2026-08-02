@@ -1587,12 +1587,13 @@ namespace great
         int ieclips = 0;
         double rotation_direction = 0.0;
 
-        // sat_pos and sat_vel for murate
-        t_gtriple satvel_t = satdata.satvel();
-        Eigen::Vector3d satvel = satvel_t.crd_cvect_Eigen();
-        double satvel_norm = satvel.norm();
+        // satvel is an ECEF derivative; use inertial velocity for the orbit rate.
         t_gtriple satcrd_t = satdata.satcrd();
         Eigen::Vector3d satcrd = satcrd_t.crd_cvect_Eigen();
+        Eigen::Vector3d satvel = satdata.satvel().crd_cvect_Eigen();
+        satvel(0) -= OMEGA * satcrd(1);
+        satvel(1) += OMEGA * satcrd(0);
+        double satvel_norm = satvel.norm();
         double satcrd_norm = satcrd.norm();
         double murate = (satvel_norm / satcrd_norm); // in radius
         // beta and u angle

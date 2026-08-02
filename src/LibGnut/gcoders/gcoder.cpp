@@ -41,8 +41,7 @@ namespace gnut
         _class(id),
         _initialized(false),
         _gnss(true),
-        _initver(version),
-        _close_with_warning(true)
+        _initver(version)
     {
         _init();
 
@@ -69,7 +68,6 @@ namespace gnut
         _initialized(false),
         _gnss(true),
         _initver(version),
-        _close_with_warning(true),
         beg_epoch(beg),
         end_epoch(end)
     {
@@ -95,8 +93,7 @@ namespace gnut
 
     t_gcoder::t_gcoder(t_gsetbase* s, int sz) :
         _initialized(false),
-        _gnss(false),
-        _close_with_warning(true)
+        _gnss(false)
     {
         _init();
 
@@ -126,15 +123,6 @@ namespace gnut
         {
             free(_buffer);
             _buffer = NULL;
-        }
-
-        if (_close_with_warning)
-        {
-            std::sort(_notes.begin(), _notes.end());
-            for (auto it = _notes.begin(); it != _notes.end(); ++it)
-            {
-                GREAT_WARN(it->str() + " .. " + base_name(_fname));
-            }
         }
     }
 
@@ -187,31 +175,6 @@ namespace gnut
         string tmp(s);
         substitute(tmp, GFILE_PREFIX, "");
         _fname = tmp;
-    }
-
-    void t_gcoder::mesg(const t_note& n, const string& s)
-    {
-        t_gnote m(n, "gcoder", s);
-
-        bool exist = false;
-        vector<t_gnote>::const_iterator it;
-        for (it = _notes.begin(); it != _notes.end(); ++it)
-        {
-            if (*it == m)
-            {
-                exist = true;
-            }
-        }
-
-        if (!exist)
-        {
-            _notes.push_back(m);
-        }
-    }
-
-    const vector<t_gnote>& t_gcoder::mesg() const
-    {
-        return _notes;
     }
 
     void t_gcoder::_init()

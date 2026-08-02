@@ -14,12 +14,9 @@
 #include "gmodels/ggmf.h"
 #include "gmodels/gtideIERS.h"
 #include "gall/gallprec.h"
+#include "gutils/gmatrixconv.h"
 
 #include <cmath>
-
-#ifndef OMGE_DOT
-#define OMGE_DOT 7.2921151467e-5 ///< WGS 84 value of the earth's rotation rate [rad/sec]
-#endif                           // !1
 
 namespace great
 {
@@ -29,7 +26,6 @@ namespace great
         _gall_nav = dynamic_cast<t_gallnav*>((*data)[t_gdata::GRP_EPHEM]);
         _gallobj = dynamic_cast<t_gallobj*>((*data)[t_gdata::ALLOBJ]);
         _gdata_erp = dynamic_cast<t_gpoleut1*>((*data)[t_gdata::ALLPOLEUT1]);
-        _gdata_navde = dynamic_cast<t_gnavde*>((*data)[t_gdata::ALLDE]);
         _tide = shared_ptr<t_gtide>(new t_gtideIERS(dynamic_cast<t_gallotl*>((*data)[t_gdata::ALLOTL])));
         _minElev = dynamic_cast<t_gsetproc*>(setting)->minimum_elev();
         _crd_est = dynamic_cast<t_gsetproc*>(setting)->crd_est();
@@ -649,7 +645,7 @@ namespace great
             t_gtriple pco(0.0, 0.0, 0.0);
             if (rec_pcv->pcoR_raw(satdata, pco, band) > 0)
             {
-                Matrix _rot_matrix = _RotMatrix_Ant(satdata, _crt_rec_epo, crt_sat_epo, rec_obj, false);
+                Matrix _rot_matrix = _RotMatrix_Ant(satdata, _crt_rec_epo, rec_obj);
                 t_gtriple dx(_rot_matrix * (pco.crd_cvect()));
                 rec_pcv->pco_proj(pco_R, satdata, trs_rec_crd, dx);
             }
@@ -673,22 +669,16 @@ namespace great
         return pcv_R + pcv_S + pco_R + pco_S;
     }
 
-    Matrix t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata,
-                                          const t_gtime& receive_epoch,
-                                          const t_gtime& transmit_epoch,
-                                          shared_ptr<t_gobj> obj,
-                                          bool isCRS)
+    Matrix t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, shared_ptr<t_gobj> obj)
     {
         t_gdata::ID_TYPE type = obj->id_type();
         Matrix rotmatrix(3, 3);
         t_gtriple ell(0.0, 0.0, 0.0);
         double sinPhi, cosPhi, sinLam, cosLam;
 
-        t_gtime t;
-
         if (type == t_gdata::TRN)
         {
-            shared_ptr<t_gpcv> sat_pcv = obj->pcv(receive_epoch);
+            shared_ptr<t_gpcv> sat_pcv = obj->pcv(epoch);
             string antenna = (sat_pcv)->anten();
             t_gtriple dx(0, 0, 0);
             Eigen::Vector3d i, j, k;
@@ -707,7 +697,6 @@ namespace great
             rotmatrix.Column(1) << i.data();
             rotmatrix.Column(2) << j.data();
             rotmatrix.Column(3) << k.data();
-            t = transmit_epoch;
         }
         else if (type == t_gdata::REC)
         {
@@ -718,55 +707,13 @@ namespace great
             cosLam = cos(ell[1]);
             rotmatrix << -sinPhi * cosLam << -sinLam << +cosPhi * cosLam << -sinPhi * sinLam << +cosLam << +cosPhi * sinLam << +cosPhi
                       << 0.0 << +sinPhi;
-            t = receive_epoch;
         }
         else
         {
             throw exception();
-        }
-
-        if (isCRS)
-        {
-            _update_rot_matrix(t);
-            rotmatrix = _trs2crs_2000->getRotMat() * rotmatrix;
         }
 
         return rotmatrix;
-    }
-
-    void t_gprecisebias::_update_rot_matrix(const t_gtime& epoch)
-    {
-        if (_gdata_erp->isEmpty())
-        {
-            return;
-        }
-        if (!_gdata_erp)
-        {
-            GREAT_ERROR("have no poleut1 data,cant' compute trs2crs!!");
-            throw exception();
-        }
-
-        t_gtime tdt = epoch;
-        tdt.tsys(t_gtime::TT);
-        auto find_iter = _trs2crs_list.find(tdt);
-        if (find_iter == _trs2crs_list.end())
-        {
-            _trs2crs_2000 = make_shared<t_gtrs2crs>(false, _gdata_erp);
-            _trs2crs_2000->calcRotMat(tdt);
-
-            _trs2crs_list.insert(make_pair(tdt, _trs2crs_2000));
-
-            auto before_iter = _trs2crs_list.lower_bound(tdt - 300.0);
-            if (before_iter != _trs2crs_list.begin())
-            {
-                _trs2crs_list.erase(_trs2crs_list.begin(), --before_iter);
-            }
-        }
-        else
-        {
-            _trs2crs_2000 = find_iter->second;
-        }
-        return;
     }
 
     bool t_gprecisebias::_apply_rec(const t_gtime& crt_epo, const t_gtime& rec_epo, t_gallpar& pars)
@@ -819,60 +766,36 @@ namespace great
             trs_rec_xyz = trs_rec_xyz + _crt_obj->eccxyz(rec_epo);
         }
         _trs_rec_crd = trs_rec_xyz;
-
-        // TRS2CRS
-        _update_rot_matrix(rec_epo);
-        Matrix trs2crs = _trs2crs_2000->getRotMat();
-        ColumnVector crs_rec_xyz = trs2crs * trs_rec_xyz.crd_cvect();
-        _crs_rec_crd = t_gtriple(crs_rec_xyz);
-
-        _crs_rec_vel = t_gtriple(0.0, 0.0, 0.0);
+        _trs_rec_vel = t_gtriple(0.0, 0.0, 0.0);
         return true;
     }
 
     bool t_gprecisebias::_apply_sat(const t_gtime& rec_epo, t_gtime& sat_epo, t_gallnav* nav)
     {
-        // ITERATION
-        // compute sat coord(CRS)  clk(estimated) (rewrite in orb model)
         double delay = 0.0;
         Matrix rot_matrix_sat, rot_matrix_rec;
-
-        int pv_iod = 0;
-        int clk_iod = 0;
 
         while (true)
         {
             sat_epo = rec_epo - delay;
-            // Get CRS
-            bool sat_pos_valid = _get_crs_sat_crd(sat_epo, _crt_sat, nav, _crs_sat_crd);
-            if (!sat_pos_valid)
+            t_gtriple sat_crd, sat_vel;
+            if (!_get_trs_sat_crdvel(sat_epo, _crt_sat, nav, sat_crd, sat_vel) ||
+                double_eq(sat_crd[0] * sat_crd[1] * sat_crd[2], 0.0) || abs(sat_crd[0]) >= 1E18)
             {
-                GREAT_DEBUG("can not get sat pos for " + _crt_sat);
+                GREAT_DEBUG("can not get sat pos or vel for " + _crt_sat);
                 return false;
             }
-            if (double_eq(_crs_sat_crd[0] * _crs_sat_crd[1] * _crs_sat_crd[2], 0.0) || abs(_crs_sat_crd[0]) >= 1E18)
-            {
-                GREAT_DEBUG("can not get sat pos for " + _crt_sat);
-                return false;
-            }
-            // SET TRS in epoch TR [include earth rotation]
-            _update_rot_matrix(rec_epo);
-            _trs_sat_crd = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_crd.crd_cvect());
 
-            bool sat_vel_valid = _get_crs_sat_vel(sat_epo, _crt_sat, nav, _crs_sat_vel);
-            if (!sat_vel_valid)
-            {
-                GREAT_DEBUG("can not get sat vel for " + _crt_sat);
-                return false;
-            }
+            Matrix earth_rotation = rotZ(OMEGA * delay);
+            _trs_sat_crd = t_gtriple(earth_rotation * sat_crd.crd_cvect());
+            _trs_sat_vel = t_gtriple(earth_rotation * sat_vel.crd_cvect());
+
             // PCO corr sat
             double pco_R = 0.0, pco_S = 0.0;
             if (_gallobj != 0)
             {
-                _update_rot_matrix(rec_epo);
                 _crt_obs.addcrd(_trs_sat_crd);
-                t_gtriple vel = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_vel.crd_cvect());
-                _crt_obs.addvel(vel);
+                _crt_obs.addvel(_trs_sat_vel);
                 shared_ptr<t_gobj> sat_obj = _gallobj->obj(_crt_sat);
                 shared_ptr<t_gobj> rec_obj = _gallobj->obj(_crt_rec);
 
@@ -896,7 +819,7 @@ namespace great
 
                     if (sat_pcv->pcoS(_crt_obs, pco, lc, _band_index[_crt_sys][FREQ_1], _band_index[_crt_sys][FREQ_2]) > 0)
                     {
-                        rot_matrix_sat = _RotMatrix_Ant(_crt_obs, _crt_epo, _crt_sat_epo, sat_obj, false);
+                        rot_matrix_sat = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
                         t_gtriple dx(rot_matrix_sat * (pco.crd_cvect()));
                         sat_pcv->pco_proj(pco_S, _crt_obs, _trs_rec_crd, dx);
                     }
@@ -908,8 +831,7 @@ namespace great
                     t_gtriple pco(0.0, 0.0, 0.0);
                     if (rec_pcv->pcoR(_crt_obs, pco, lc, _band_index[_crt_sys][FREQ_1], _band_index[_crt_sys][FREQ_2]) > 0)
                     {
-                        rot_matrix_rec = _RotMatrix_Ant(_crt_obs, _crt_epo, _crt_sat_epo, rec_obj, false);
-                        rot_matrix_rec*(pco.crd_cvect());
+                        rot_matrix_rec = _RotMatrix_Ant(_crt_obs, _crt_epo, rec_obj);
                         t_gtriple dx(rot_matrix_rec * (pco.crd_cvect()));
                         rec_pcv->pco_proj(pco_R, _crt_obs, _trs_rec_crd, dx);
                     }
@@ -918,7 +840,7 @@ namespace great
             }
 
             double delay_temp;
-            delay_temp = (_crs_sat_crd - _crs_rec_crd).norm();
+            delay_temp = (_trs_sat_crd - _trs_rec_crd).norm();
             delay_temp += pco_R + pco_S;
 
             if (abs(delay_temp / CLIGHT - delay) < 1E-9)
@@ -927,60 +849,36 @@ namespace great
             }
             delay = delay_temp / CLIGHT;
         }
-        _crt_obs.addSCF2CRS(_trs2crs_2000->getRotMat() * rot_matrix_sat, rot_matrix_sat);
         _crt_obs.addcrd(_trs_sat_crd);
-        t_gtriple vel = t_gtriple(_trs2crs_2000->getRotMat().t() * _crs_sat_vel.crd_cvect());
-        _crt_obs.addvel(vel);
-        _crt_obs.addcrdcrs(_crs_sat_crd);
-        _crt_obs.addvel_crs(_crs_sat_vel);
+        _crt_obs.addvel(_trs_sat_vel);
 
         return true;
     }
 
-    bool t_gprecisebias::_get_crs_sat_vel(const t_gtime& sat_epoch, const string& sat, t_gallnav* nav, t_gtriple& crs_sat_vel)
+    bool t_gprecisebias::_get_trs_sat_crdvel(const t_gtime& sat_epoch,
+                                             const string& sat,
+                                             t_gallnav* nav,
+                                             t_gtriple& trs_sat_crd,
+                                             t_gtriple& trs_sat_vel)
     {
         if (!nav)
         {
-            GREAT_DEBUG("cannot get vel " + sat);
+            GREAT_DEBUG("cannot get position or velocity " + sat);
             return false;
         }
 
-        // get vel in CRS
-        t_gtriple satcrd_next(0.0, 0.0, 0.0);
-        t_gtriple satcrd_before(0.0, 0.0, 0.0);
-
-        bool crd_valid = _get_crs_sat_crd(sat_epoch + 0.0001, sat, nav, satcrd_next);
-        if (!crd_valid)
+        double xyz[3] = {0.0, 0.0, 0.0};
+        double var[3] = {0.0, 0.0, 0.0};
+        double vel[3] = {0.0, 0.0, 0.0};
+        if (nav->pos(sat, sat_epoch, xyz, var, vel) < 0)
         {
+            GREAT_DEBUG(sat_epoch.str_ymdhms("can not get sat crd or vel in epoch", false));
             return false;
         }
-        crs_sat_vel = (satcrd_next - _crs_sat_crd) * 10000;
+
+        trs_sat_crd = t_gtriple(xyz);
+        trs_sat_vel = t_gtriple(vel);
         return true;
-    }
-
-    bool t_gprecisebias::_get_crs_sat_crd(const t_gtime& sat_epoch, const string& sat, t_gallnav* nav, t_gtriple& crs_sat_crd)
-    {
-        bool pos_valid = false;
-        if (nav)
-        {
-            double xyz_sat[3];
-            pos_valid = (nav->pos(sat, sat_epoch, xyz_sat) >= 0) ? true : false;
-
-            // TRS2CRS
-            _update_rot_matrix(sat_epoch);
-            crs_sat_crd = t_gtriple(xyz_sat);
-            crs_sat_crd = t_gtriple(_trs2crs_2000->getRotMat() * crs_sat_crd.crd_cvect());
-        }
-
-        if (pos_valid)
-        {
-            return pos_valid;
-        }
-        else
-        {
-            GREAT_DEBUG(sat_epoch.str_ymdhms("can not get sat crd in epoch", false));
-        }
-        return false;
     }
 
     bool t_gprecisebias::_apply_rec_tides(const t_gtime& epoch, t_gtriple& rec)
@@ -991,14 +889,22 @@ namespace great
             return false;
         }
 
-        _update_rot_matrix(epoch);
-        double xpole = _trs2crs_2000->getXpole();
-        double ypole = _trs2crs_2000->getYpole();
-        Matrix rot_trs2crs = _trs2crs_2000->getRotMat();
-
         t_gtriple tide(0.0, 0.0, 0.0);
         try
         {
+            if (!_gdata_erp || _gdata_erp->isEmpty())
+            {
+                GREAT_ERROR("have no poleut1 data, cannot compute tides");
+                return false;
+            }
+            t_gtime epoch_tt = epoch;
+            epoch_tt.tsys(t_gtime::TT);
+            map<string, double> eop;
+            _gdata_erp->getEopData(epoch_tt, eop);
+            const double xpole = eop.at("XPOLE");
+            const double ypole = eop.at("YPOLE");
+            const double ut1_tai = eop.at("UT1-TAI");
+
             // solid tide
             t_gtideIERS* solid_ptr = dynamic_cast<t_gtideIERS*>(_tide.get());
             if (!solid_ptr)
@@ -1006,7 +912,7 @@ namespace great
                 GREAT_ERROR("can not get the solid tide ptr.");
                 return false;
             }
-            t_gtriple solid_earth = solid_ptr->tide_solid(epoch, rec, rot_trs2crs, _gdata_navde);
+            t_gtriple solid_earth = solid_ptr->tide_solid(epoch, rec, xpole, ypole, ut1_tai);
 
             // ocean load
             t_gtriple load_ocean = _tide->load_ocean(epoch, _crt_rec, rec);

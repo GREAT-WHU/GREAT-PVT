@@ -200,7 +200,7 @@ namespace gnut
                     GREAT_DEBUG(src + ": " + typ + " site name: " + guess + " " + sit);
                     if (guess.substr(0, 4) != marker.substr(0, 4))
                     {
-                        mesg(GWARNING, "Warning: 4-CHAR: MARKER_NAME [" + marker + "] not equal to site from filename [" + guess + "]");
+                        GREAT_DEBUG("Warning: 4-CHAR: MARKER_NAME [" + marker + "] not equal to site from filename [" + guess + "]");
                     }
                 }
             }
@@ -680,7 +680,7 @@ namespace gnut
         if (_mapobs.find(key) == _mapobs.end())
         {
             cerr << "rinexo2: Warning: mapobs syskey not found [" + key + "]\n";
-            mesg(GWARNING, "Warning: mapobs syskey not found [" + key + "]");
+            GREAT_DEBUG("Warning: mapobs syskey not found [" + key + "]");
             return _stop_read();
         }
 
@@ -715,7 +715,6 @@ namespace gnut
                 case '2':
 
                     GREAT_DEBUG("Warning: start moving antenna identified, but not yet implemented!");
-                    mesg(GWARNING, "Warning: start moving antenna identified, but not yet implemented!");
                     // else              cerr <<  "rinexo2 - Warning: start moving antenna identified, but not yet
                     // implemented!\n";
                     return 1;
@@ -723,19 +722,16 @@ namespace gnut
                 case '3':
 
                     GREAT_DEBUG("Warning: new site occupation identified, but not yet implemented!");
-                    mesg(GWARNING, "Warning: new site occupation identified, but not yet implemented!");
                     return 1;
 
                 case '4':
 
                     GREAT_DEBUG("Warning: new header information identified, but not fully implemented!");
-                    mesg(GWARNING, "Warning: new header information identified, but not fully implemented!");
                     return 1;
 
                 case '5':
 
                     GREAT_DEBUG("Warning: external event identified, but not yet implemented!");
-                    mesg(GWARNING, "Warning: external event identified, but not yet implemented!");
                     return 1;
             }
         }
@@ -856,7 +852,7 @@ namespace gnut
         if (_mapobs.find(key) == _mapobs.end())
         {
             cerr << "rinexo2: Warning: _mapobs syskey not found [" << key << "]\n";
-            mesg(GWARNING, "Warning: _mapobs syskey not found [" + key + "]");
+            GREAT_DEBUG("Warning: _mapobs syskey not found [" + key + "]");
             return _stop_read();
         }
 
@@ -1124,77 +1120,77 @@ namespace gnut
 
         if (_rnxhdr.rnxsys() == ' ')
         {
-            mesg(GERROR, "RINEX SYS not available!");
+            GREAT_DEBUG("RINEX SYS not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.rnxver().empty())
         {
-            mesg(GERROR, "RINEX VERS not available!");
+            GREAT_DEBUG("RINEX VERS not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.program().empty() && _rnxhdr.program().empty())
         {
-            mesg(GERROR, "PGM/RUNBY not available!");
+            GREAT_DEBUG("PGM/RUNBY not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.observer().empty() && _rnxhdr.agency().empty())
         {
-            mesg(GERROR, "OBSERVER/AGENCY not available!");
+            GREAT_DEBUG("OBSERVER/AGENCY not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.markname().empty())
         {
-            mesg(GERROR, "MARKER NAME not available!");
+            GREAT_DEBUG("MARKER NAME not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.recnumb().empty())
         {
-            mesg(GERROR, "REC NUMB not available!");
+            GREAT_DEBUG("REC NUMB not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.rectype().empty())
         {
-            mesg(GERROR, "REC TYPE not available!");
+            GREAT_DEBUG("REC TYPE not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.recvers().empty())
         {
-            mesg(GERROR, "REC VERS not available!");
+            GREAT_DEBUG("REC VERS not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.antnumb().empty())
         {
-            mesg(GERROR, "ANT NUMB not available!");
+            GREAT_DEBUG("ANT NUMB not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.anttype().empty())
         {
-            mesg(GERROR, "ANT TYPE not available!");
+            GREAT_DEBUG("ANT TYPE not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.mapobs().size() == 0)
         {
-            mesg(GERROR, "OBS TYPE not available!");
+            GREAT_DEBUG("OBS TYPE not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.aprxyz() == zero)
         {
-            mesg(GERROR, "APR XYZ not available!");
+            GREAT_DEBUG("APR XYZ not available!");
             _irc++;
         } // mandatory
         if (_rnxhdr.first() == FIRST_TIME)
         {
-            mesg(GERROR, "FIRST TIME not available!");
+            GREAT_DEBUG("FIRST TIME not available!");
             _irc++;
         } // mandatory
 
         if (_rnxhdr.interval() <= 0)
         {
-            mesg(GWARNING, "Warning: INTERVAL not available!");
+            GREAT_DEBUG("Warning: INTERVAL not available!");
         } // optional --> warning
         if (_rnxhdr.marknumb().empty())
         {
-            mesg(GWARNING, "Warning: MARKER NUMB empty field!");
+            GREAT_DEBUG("Warning: MARKER NUMB empty field!");
         } // optional --> warning
 
         return _irc;

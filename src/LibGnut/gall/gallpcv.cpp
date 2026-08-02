@@ -36,8 +36,6 @@ namespace gnut
         t_gtime beg = pcv->beg();
         t_gtime end = pcv->end();
 
-        pcv->gnote(_gnote); // TRANSFER GNOTE
-
         if (_mappcv.find(key) == _mappcv.end() || _mappcv[key].find(typ) == _mappcv[key].end() ||
             _mappcv[key][typ].find(beg) == _mappcv[key][typ].end())
         {

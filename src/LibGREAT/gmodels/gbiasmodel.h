@@ -63,17 +63,11 @@ namespace great
         virtual bool get_omc_obs_ALL(const t_gtime& crt_epo, t_gsatdata& obsdata, t_gallpar& pars, t_gobs& gobs, double& omc);
 
         t_gtriple _trs_rec_crd; ///< coordinates of reciever in terrestrial reference system
-        t_gtriple _crs_rec_crd; ///< coordinates of reciever in coordinate reference system
         t_gtriple _trs_sat_crd; ///< coordinates of satellite in terrestrial reference system
-        t_gtriple _crs_sat_crd; ///< coordinates of satellite in coordinate reference system
         t_gtriple _trs_rec_pco; ///< PCO of reciever in terrestrial reference system
-        t_gtriple _crs_rec_pco; ///< PCO of reciever in coordinate reference system
         t_gtriple _trs_sat_pco; ///< PCO of satellite in terrestrial reference system
-        t_gtriple _crs_sat_pco; ///< PCO of satellite in coordinate reference system
         t_gtriple _trs_rec_vel; ///< velocity of reciever in terrestrial reference system
-        t_gtriple _crs_rec_vel; ///< velocity of reciever in coordinate reference system
         t_gtriple _trs_sat_vel; ///< velocity of satellite in terrestrial reference system
-        t_gtriple _crs_sat_vel; ///< velocity of satellite in coordinate reference system
 
         string _crt_sat; ///< current satellite
         string _crt_rec; ///< current reciever

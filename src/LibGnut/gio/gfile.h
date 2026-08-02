@@ -49,10 +49,10 @@ namespace gnut
         /** @brief init write/read. */
         virtual int init_read();
 
-        /** @brief integrate gzip/ascii. */
+        /** @brief return end-of-file status. */
         virtual bool eof();
 
-        /** @brief integrate gzip/ascii. */
+        /** @brief return the file mask. */
         virtual string mask();
 
         /**
@@ -86,12 +86,6 @@ namespace gnut
         virtual int _stop_common();
 
         /**
-         * @brief compressed or not ?
-         * @param[in]    name    file name
-         */
-        virtual void _set_gzip(string name);
-
-        /**
         * @brief read.
         * @param[in]    b    buffer of the data
         * @param[in]    s    buffer size of the data
@@ -101,7 +95,6 @@ namespace gnut
         virtual int _read(char* b, int s);
 
         int _irc;      ///< irc
-        bool _gzip;    ///< compressed
         t_giof* _file; ///< ascii file
 
     private:

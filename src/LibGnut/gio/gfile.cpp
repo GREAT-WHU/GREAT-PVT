@@ -17,8 +17,7 @@ namespace gnut
 {
     t_gfile::t_gfile() :
         t_gio(),
-        _irc(0),
-        _gzip(false)
+        _irc(0)
     {
         _file = 0;
         _size = FILEBUF_SIZE;
@@ -53,7 +52,6 @@ namespace gnut
         if (idx2 != string::npos && idx2 > idx1)
         {
             string name = str.substr(idx1, idx2 - idx1);
-            _set_gzip(name);
 
             if (_file == 0)
             {
@@ -144,7 +142,7 @@ namespace gnut
             ++_irc;
             if (_coder)
             {
-                _coder->mesg(GERROR, "Incomplete header identified.");
+                GREAT_DEBUG("Incomplete header identified.");
             }
         }
         delete[] loc_buff;
@@ -178,18 +176,6 @@ namespace gnut
     int t_gfile::_stop_common()
     {
         return t_gio::_stop_common();
-    }
-
-    void t_gfile::_set_gzip(string name)
-    {
-        if (name.compare(name.length() - 3, name.length(), ".gz") == 0)
-        {
-            _gzip = true;
-        }
-        else
-        {
-            _gzip = false;
-        }
     }
 
     int t_gfile::_read(char* b, int s)

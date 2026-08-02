@@ -17,7 +17,6 @@
 #include "gmodels/gbiasmodel.h"
 #include "gmodels/gprecisebias.h"
 #include "gall/gallproc.h"
-#include "gutils/gtrs2crs.h"
 #include "gall/gallobj.h"
 #include "gmodels/gattitudemodel.h"
 

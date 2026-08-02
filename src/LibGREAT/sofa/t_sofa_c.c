@@ -1,4 +1,4 @@
-#include <sofa.h>
+#include "sofa.h"
 #include "sofam.h"
 #include <stdio.h>
 

@@ -78,7 +78,6 @@ namespace gnut
         _use_ecl(false)
     {
         // set the setting pointer
-        _setLog(mode); // set log  (before using it later on!)
         if (nullptr == set)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
@@ -88,6 +87,7 @@ namespace gnut
         {
             _set = set;
         }
+
         _crd_begStat = _crd_endStat = FIRST_TIME;
         _ztd_begStat = _ztd_endStat = FIRST_TIME;
         _valid_ztd_xml = false;
@@ -216,33 +216,4 @@ namespace gnut
             substitute(tmp, "$(rec)", _site, false);
         }
     }
-
-    void t_gspp::_setLog(string mode)
-    {
-        string tmp(dynamic_cast<t_gsetout*>(_set)->outputs("ppp"));
-        if (!tmp.empty())
-        {
-            tmp = tmp.substr(7, tmp.size() - 7);
-            substitute(tmp, "$(rec)", _site, false);
-
-            t_gtime beg = dynamic_cast<t_gsetgen*>(_set)->beg();
-            if (beg == FIRST_TIME)
-            {
-                beg = t_gtime::current_time(t_gtime::GPS);
-            } // real-time model
-
-            substitute(tmp, "$(rec)", _site, false);
-            substitute(tmp, "$(doy)", int2str(beg.doy()), false);
-            substitute(tmp, "$(date)", int2str(beg.year()) + int2str(beg.doy()), false); // add for date
-            if (mode != "")
-            {
-                tmp = tmp + "-" + mode;
-            }
-
-            auto log_level = dynamic_cast<t_gsetout*>(_set)->log_level();
-            auto log_name = dynamic_cast<t_gsetout*>(_set)->log_name();
-            t_great_log::get_instance().init_logger(log_name, log_level);
-        }
-    }
-
 } // namespace gnut
