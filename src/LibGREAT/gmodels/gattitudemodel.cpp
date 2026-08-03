@@ -1591,8 +1591,8 @@ namespace great
         t_gtriple satcrd_t = satdata.satcrd();
         Eigen::Vector3d satcrd = satcrd_t.crd_cvect_Eigen();
         Eigen::Vector3d satvel = satdata.satvel().crd_cvect_Eigen();
-        satvel(0) -= OMEGA * satcrd(1);
-        satvel(1) += OMEGA * satcrd(0);
+        //satvel(0) -= OMEGA * satcrd(1);
+        //satvel(1) += OMEGA * satcrd(0);
         double satvel_norm = satvel.norm();
         double satcrd_norm = satcrd.norm();
         double murate = (satvel_norm / satcrd_norm); // in radius
@@ -1854,8 +1854,8 @@ namespace great
         }
 
         // ITRF -> ICRF velocity
-        satvel(0) -= OMEGA * satcrd(1);
-        satvel(1) += OMEGA * satcrd(0);
+        //satvel(0) -= OMEGA * satcrd(1);
+        //satvel(1) += OMEGA * satcrd(0);
 
         Eigen::Vector3d n = satcrd.cross(satvel);
 
@@ -1895,8 +1895,8 @@ namespace great
         }
 
         // ITRF -> ICRF velocity
-        satvel(1) -= OMEGA * satcrd(2);
-        satvel(2) += OMEGA * satcrd(1);
+        //satvel(1) -= OMEGA * satcrd(2);
+        //satvel(2) += OMEGA * satcrd(1);
 
         ColumnVector n = crossproduct(satcrd, satvel);
 
