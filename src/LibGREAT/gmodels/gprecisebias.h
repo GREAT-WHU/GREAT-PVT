@@ -110,6 +110,12 @@ namespace great
                    t_gsatdata& satdata,
                    t_gobs& gobs);
 
+        void _satellite_attitude(t_gsatdata& satdata,
+                                 const string& antenna,
+                                 Eigen::Vector3d& i,
+                                 Eigen::Vector3d& j,
+                                 Eigen::Vector3d& k);
+
         /**
          * @brief get rotmatrix from antenna frame to TRS
          * @param[in] obsdata observ data info

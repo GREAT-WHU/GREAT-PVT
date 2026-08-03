@@ -501,18 +501,7 @@ namespace great
                     }
                 }
 
-                if (_attitudes == ATTITUDES::YAW_NOMI)
-                {
-                    _gattitude_model.attitude(satdata, "", i, j, k); // nominal modeling
-                }
-                else if (_attitudes == ATTITUDES::YAW_RTCM)
-                {
-                    _gattitude_model.attitude(satdata, satdata.yaw(), i, j, k); // value from RTCM used
-                }
-                else
-                {
-                    _gattitude_model.attitude(satdata, antype, i, j, k); // default
-                }
+                _satellite_attitude(satdata, antype, i, j, k);
 
                 if (antype.find("BLOCK IIR") != string::npos)
                 {
@@ -619,18 +608,7 @@ namespace great
                 string antenna = sat_pcv->anten();
                 t_gtriple dx(0, 0, 0);
                 Eigen::Vector3d i, j, k;
-                if (_attitudes == ATTITUDES::YAW_NOMI)
-                {
-                    _gattitude_model.attitude(satdata, "", i, j, k); // nominal modeling
-                }
-                else if (_attitudes == ATTITUDES::YAW_RTCM)
-                {
-                    _gattitude_model.attitude(satdata, satdata.yaw(), i, j, k); // value from RTCM used
-                }
-                else
-                {
-                    _gattitude_model.attitude(satdata, antenna, i, j, k); // default
-                }
+                _satellite_attitude(satdata, antenna, i, j, k);
                 dx[0] = pco[0] * i(0) + pco[1] * j(0) + pco[2] * k(0);
                 dx[1] = pco[0] * i(1) + pco[1] * j(1) + pco[2] * k(1);
                 dx[2] = pco[0] * i(2) + pco[1] * j(2) + pco[2] * k(2);
@@ -669,6 +647,47 @@ namespace great
         return pcv_R + pcv_S + pco_R + pco_S;
     }
 
+    void t_gprecisebias::_satellite_attitude(t_gsatdata& satdata,
+                                             const string& antenna,
+                                             Eigen::Vector3d& i,
+                                             Eigen::Vector3d& j,
+                                             Eigen::Vector3d& k)
+    {
+        // Keep orbital angles based on the ECEF derivative, as in v1.3.0.
+        satdata.beta();
+        satdata.orb_angle();
+
+        const t_gtriple trs_velocity = satdata.satvel();
+        const t_gtriple position = satdata.satcrd();
+        t_gtriple inertial_velocity = trs_velocity;
+        inertial_velocity[0] -= OMEGA * position[1];
+        inertial_velocity[1] += OMEGA * position[0];
+        satdata.addvel(inertial_velocity);
+
+        try
+        {
+            if (_attitudes == ATTITUDES::YAW_NOMI)
+            {
+                _gattitude_model.attitude(satdata, "", i, j, k);
+            }
+            else if (_attitudes == ATTITUDES::YAW_RTCM)
+            {
+                _gattitude_model.attitude(satdata, satdata.yaw(), i, j, k);
+            }
+            else
+            {
+                _gattitude_model.attitude(satdata, antenna, i, j, k);
+            }
+        }
+        catch (...)
+        {
+            satdata.addvel(trs_velocity);
+            throw;
+        }
+
+        satdata.addvel(trs_velocity);
+    }
+
     Matrix t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, shared_ptr<t_gobj> obj)
     {
         t_gdata::ID_TYPE type = obj->id_type();
@@ -682,18 +701,7 @@ namespace great
             string antenna = (sat_pcv)->anten();
             t_gtriple dx(0, 0, 0);
             Eigen::Vector3d i, j, k;
-            if (_attitudes == ATTITUDES::YAW_NOMI)
-            {
-                _gattitude_model.attitude(obsdata, "", i, j, k);
-            }
-            else if (_attitudes == ATTITUDES::YAW_RTCM)
-            {
-                _gattitude_model.attitude(obsdata, obsdata.yaw(), i, j, k);
-            }
-            else
-            {
-                _gattitude_model.attitude(obsdata, antenna, i, j, k);
-            }
+            _satellite_attitude(obsdata, antenna, i, j, k);
             rotmatrix.Column(1) << i.data();
             rotmatrix.Column(2) << j.data();
             rotmatrix.Column(3) << k.data();
