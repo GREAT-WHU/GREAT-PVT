@@ -29,7 +29,6 @@
 #include "gdata/gdata.h"
 #include "gutils/gconst.h"
 #include "gutils/gtime.h"
-#include "gutils/gmutex.h"
 #include "gutils/gtriple.h"
 #include "gmodels/gephplan.h"
 #include "gall/gallotl.h"
@@ -68,7 +67,6 @@ namespace gnut
     protected:
         t_gephplan _planEph; ///< plan eph
         t_gallotl* _gotl;    ///< all otl
-        t_gmutex _mutex;     ///< mutex
     };
 
 } // namespace gnut

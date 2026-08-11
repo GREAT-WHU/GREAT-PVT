@@ -30,7 +30,6 @@ namespace gnut
 
     t_gtriple t_gtide96::tide_searth(const t_gtime& epoch, t_gtriple& crd)
     {
-        _mutex.lock();
 
         t_gtriple dxyz(0.0, 0.0, 0.0);
 
@@ -83,23 +82,19 @@ namespace gnut
         {
             dxyz[i] = dX(i + 1);
         }
-        _mutex.unlock();
         return dxyz;
     }
 
     t_gtriple t_gtide96::tide_pole()
     {
-        _mutex.lock();
 
         t_gtriple dxyz(0.0, 0.0, 0.0);
 
-        _mutex.unlock();
         return dxyz;
     }
 
     t_gtriple t_gtide96::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
-        _mutex.lock();
 
         Matrix otl;
 
@@ -107,7 +102,6 @@ namespace gnut
         if (!_gotl || _gotl->data(otl, site) < 0)
         {
             GREAT_DEBUG("WARNING: Site " + site + " not found in ocean tide BLQ file!");
-            _mutex.unlock();
             return dxyz;
         }
 
@@ -165,17 +159,14 @@ namespace gnut
         xyz2ell(xRec, ell, false);
         neu2xyz(ell, dneu, dxyz);
 
-        _mutex.unlock();
         return dxyz;
     }
 
     t_gtriple t_gtide96::load_atmosph()
     {
-        _mutex.lock();
 
         t_gtriple dxyz(0.0, 0.0, 0.0);
 
-        _mutex.unlock();
         return dxyz;
     }
 

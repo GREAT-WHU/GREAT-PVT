@@ -30,7 +30,6 @@
 #include <time.h>
 #include <string>
 #include <vector>
-#include "gutils/gmutex.h"
 
 
 namespace gnut

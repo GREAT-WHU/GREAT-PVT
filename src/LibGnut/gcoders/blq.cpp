@@ -30,11 +30,9 @@ namespace gnut
 
     int t_blq::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -48,24 +46,20 @@ namespace gnut
             if (line.find("END HEADER") != string::npos)
             {
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
 
             t_gcoder::_consume(tmpsize);
         } // end while
 
-        _mutex.unlock();
         return consume;
     }
 
     int t_blq::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -160,7 +154,6 @@ namespace gnut
             }
         }
 
-        _mutex.unlock();
         return consume;
     }
 

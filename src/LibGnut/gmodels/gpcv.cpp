@@ -43,7 +43,6 @@ namespace gnut
 
     double t_gpcv::pco(const double& zen, const double& azi, const GFRQ& f)
     {
-        _gmutex.lock();
 
         double corr = 0.0;
         if (zen > G_PI)
@@ -51,7 +50,6 @@ namespace gnut
             std::ostringstream lg;
             lg << "not valid zenith angle:" << zen * R2D << std::endl;
             GREAT_ERROR(lg.str());
-            _gmutex.unlock();
             return corr;
         }
 
@@ -61,7 +59,6 @@ namespace gnut
             corr = _mappco[f][2] * cos(zen); // for satellite zen should to be zen-alfa
         }
 
-        _gmutex.unlock();
         return corr;
     }
 
@@ -209,7 +206,6 @@ namespace gnut
 
     int t_gpcv::pcoR_cmb(t_gsatdata& satdata, t_gtriple& pco, GOBSBAND& b1, GOBSBAND& b2)
     {
-        _gmutex.lock();
         t_gtriple apcf1;
         t_gtriple apcf2;
 
@@ -251,7 +247,6 @@ namespace gnut
             {
                 GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
             }
-            _gmutex.unlock();
             return -1;
         }
 
@@ -269,13 +264,11 @@ namespace gnut
         satdata.coef_ionofree(b1, koef1, b2, koef2);
         pco = apcf1 * koef1 + apcf2 * koef2;
 
-        _gmutex.unlock();
         return 1;
     }
 
     int t_gpcv::pcvS_cmb(double& corr, t_gsatdata& satdata, GOBSBAND& b1, GOBSBAND& b2, t_gtriple& site)
     {
-        _gmutex.lock();
         corr = 0.0;
         GSYS gsys = satdata.gsys();
 
@@ -297,7 +290,6 @@ namespace gnut
         if (_mapzen.find(f1) == _mapzen.end() || _mapzen.find(f2) == _mapzen.end())
         {
             GREAT_DEBUG("no SAT PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-            _gmutex.unlock();
             return -1;
         }
 
@@ -320,7 +312,6 @@ namespace gnut
 
         if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
         {
-            _gmutex.unlock();
             return -1;
         }
         // [mm] -> [m]
@@ -332,13 +323,11 @@ namespace gnut
         satdata.coef_ionofree(b1, koef1, b2, koef2);
         corr = corrf1 * koef1 + corrf2 * koef2;
 
-        _gmutex.unlock();
         return 1;
     }
 
     int t_gpcv::pcvR_cmb(double& corr, t_gsatdata& satdata, GOBSBAND& b1, GOBSBAND& b2)
     {
-        _gmutex.lock();
         GSYS gsys = satdata.gsys();
 
         GFRQ f1 = t_gsys::band2gfrq(gsys, b1);
@@ -370,12 +359,10 @@ namespace gnut
 
         if (_mapzen.find(f1) == _mapzen.end())
         {
-            _gmutex.unlock();
             return -1;
         }
         if (_mapzen.find(f2) == _mapzen.end())
         {
-            _gmutex.unlock();
             return -1;
         }
         double zen = G_PI / 2.0 - satdata.ele();
@@ -405,7 +392,6 @@ namespace gnut
                 std::map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
                 if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
                 std::map<double, t_map_Z>::iterator itA2 = itA1;
@@ -414,7 +400,6 @@ namespace gnut
                 std::map<double, double>::iterator itZ1 = itA1->second.lower_bound(zen);
                 if (itZ1 == itA1->second.end() || itZ1 == itA1->second.begin())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
                 std::map<double, double>::iterator itZ2 = itZ1;
@@ -423,7 +408,6 @@ namespace gnut
                 std::map<double, double>::iterator itZ3 = itA2->second.lower_bound(zen);
                 if (itZ3 == itA2->second.end() || itZ3 == itA2->second.begin())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
                 std::map<double, double>::iterator itZ4 = itZ3;
@@ -457,7 +441,6 @@ namespace gnut
             t_ginterp interp;
             if (interp.bilinear(mapDataf1, p_az, corrf1) < 0 || interp.bilinear(mapDataf2, p_az, corrf2) < 0)
             {
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -471,7 +454,6 @@ namespace gnut
 
             if (_mapzen.find(f1) == _mapzen.end() || _mapzen.find(f2) == _mapzen.end())
             {
-                _gmutex.unlock();
                 return -1;
             }
 
@@ -480,7 +462,6 @@ namespace gnut
             t_ginterp interp;
             if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
             {
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -493,7 +474,6 @@ namespace gnut
         double koef2 = 0.0;
         satdata.coef_ionofree(b1, koef1, b2, koef2);
         corr = corrf1 * koef1 + corrf2 * koef2;
-        _gmutex.unlock();
         return 1;
     }
 
@@ -996,7 +976,6 @@ namespace gnut
     // -----------------------------------------------
     int t_gpcv::pcoR(t_gsatdata& satdata, t_gtriple& pco, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
-        _gmutex.lock();
 
         t_gtriple apcf1, apcf2, apcLC;
 
@@ -1029,7 +1008,6 @@ namespace gnut
             {
                 GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
             }
-            _gmutex.unlock();
             return -1;
         }
 
@@ -1065,13 +1043,11 @@ namespace gnut
         }
 
         pco = apcLC;
-        _gmutex.unlock();
         return 1;
     }
 
     int t_gpcv::pcoR(t_gsatdata& satdata, t_gtriple& dx, t_gtriple& site, GOBS_LC lc)
     {
-        _gmutex.lock();
 
         t_gtriple apcf1, apcf2, apcLC;
 
@@ -1099,7 +1075,6 @@ namespace gnut
             {
                 GREAT_DEBUG("no REC PCO [" + _anten + "/" + t_gfreq::gfreq2str(f2) + "]");
             }
-            _gmutex.unlock();
             return -1;
         }
 
@@ -1138,7 +1113,6 @@ namespace gnut
         xyz2ell(site, ell, false);
         neu2xyz(ell, apcLC, dx);
 
-        _gmutex.unlock();
         return 1;
     }
 
@@ -1156,7 +1130,6 @@ namespace gnut
 
     int t_gpcv::pcvS(double& corrLC, t_gsatdata& satdata, t_gtriple& site, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
-        _gmutex.lock();
 
         GSYS gsys = satdata.gsys();
 
@@ -1171,7 +1144,6 @@ namespace gnut
             if (_mapzen.find(f1) == _mapzen.end() || _mapzen.find(f2) == _mapzen.end())
             {
                 GREAT_DEBUG("no SAT PCV [" + _anten + "/" + t_gfreq::gfreq2str(f1) + "]");
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -1183,14 +1155,12 @@ namespace gnut
                 case GOBS_LC::LC_L1:
                     if (_mapzen.find(f1) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
                 case GOBS_LC::LC_L2:
                     if (_mapzen.find(f2) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1201,7 +1171,6 @@ namespace gnut
                     }
                     if (_mapzen.find(f3) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1212,7 +1181,6 @@ namespace gnut
                     }
                     if (_mapzen.find(f4) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1223,13 +1191,11 @@ namespace gnut
                     }
                     if (_mapzen.find(f5) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
                 default:
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
             }
@@ -1264,7 +1230,6 @@ namespace gnut
         {
             if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
             {
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -1275,14 +1240,12 @@ namespace gnut
                 case GOBS_LC::LC_L1:
                     if (interp.linear(mapDataf1, zen, corrf1) < 0)
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
                 case GOBS_LC::LC_L2:
                     if (interp.linear(mapDataf2, zen, corrf2) < 0)
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1293,7 +1256,6 @@ namespace gnut
                     }
                     if (interp.linear(mapDataf3, zen, corrf3) < 0)
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1304,7 +1266,6 @@ namespace gnut
                     }
                     if (interp.linear(mapDataf4, zen, corrf4) < 0)
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1315,13 +1276,11 @@ namespace gnut
                     }
                     if (interp.linear(mapDataf5, zen, corrf5) < 0)
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
                 default:
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
             }
@@ -1367,13 +1326,11 @@ namespace gnut
             corrLC = corrf2;
         }
 
-        _gmutex.unlock();
         return 1;
     }
 
     int t_gpcv::pcvR(double& corrLC, t_gsatdata& satdata, GOBS_LC lc, GOBSBAND k1, GOBSBAND k2)
     {
-        _gmutex.lock();
 
         GSYS gsys = satdata.gsys();
 
@@ -1398,12 +1355,10 @@ namespace gnut
 
             if (_mapzen.find(f1) == _mapzen.end())
             {
-                _gmutex.unlock();
                 return -1;
             }
             if (_mapzen.find(f2) == _mapzen.end())
             {
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -1419,7 +1374,6 @@ namespace gnut
                     }
                     if (_mapzen.find(f1) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1431,7 +1385,6 @@ namespace gnut
                     }
                     if (_mapzen.find(f2) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1443,7 +1396,6 @@ namespace gnut
                     }
                     if (_mapzen.find(f3) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1455,7 +1407,6 @@ namespace gnut
                     }
                     if (_mapzen.find(f4) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
@@ -1467,12 +1418,10 @@ namespace gnut
                     }
                     if (_mapzen.find(f5) == _mapzen.end())
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                     break;
                 default:
-                    _gmutex.unlock();
                     return -1;
             }
         }
@@ -1564,7 +1513,6 @@ namespace gnut
                 std::map<double, t_map_Z>::iterator itA1 = itGFRQ->second.lower_bound(azi);
                 if (itA1 == itGFRQ->second.end() || itA1 == itGFRQ->second.begin())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
                 std::map<double, t_map_Z>::iterator itA2 = itA1;
@@ -1573,7 +1521,6 @@ namespace gnut
                 std::map<double, double>::iterator itZ1 = itA1->second.lower_bound(zen);
                 if (itZ1 == itA1->second.end() || itZ1 == itA1->second.begin())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
                 std::map<double, double>::iterator itZ2 = itZ1;
@@ -1582,7 +1529,6 @@ namespace gnut
                 std::map<double, double>::iterator itZ3 = itA2->second.lower_bound(zen);
                 if (itZ3 == itA2->second.end() || itZ3 == itA2->second.begin())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
                 std::map<double, double>::iterator itZ4 = itZ3;
@@ -1639,7 +1585,6 @@ namespace gnut
             {
                 if (interp.bilinear(mapDataf1, p_az, corrf1) < 0 || interp.bilinear(mapDataf2, p_az, corrf2) < 0)
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
             }
@@ -1650,41 +1595,35 @@ namespace gnut
                     case GOBS_LC::LC_L1:
                         if (interp.bilinear(mapDataf1, p_az, corrf1) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L2:
                         if (interp.bilinear(mapDataf2, p_az, corrf2) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L3:
                         if (interp.bilinear(mapDataf3, p_az, corrf3) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L4:
                         if (interp.bilinear(mapDataf4, p_az, corrf4) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L5:
                         if (interp.bilinear(mapDataf5, p_az, corrf5) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     default:
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                 }
@@ -1705,7 +1644,6 @@ namespace gnut
             {
                 if (_mapzen.find(f1) == _mapzen.end() || _mapzen.find(f2) == _mapzen.end())
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
 
@@ -1714,7 +1652,6 @@ namespace gnut
                 t_ginterp interp;
                 if (interp.linear(mapDataf1, zen, corrf1) < 0 || interp.linear(mapDataf2, zen, corrf2) < 0)
                 {
-                    _gmutex.unlock();
                     return -1;
                 }
             }
@@ -1748,41 +1685,35 @@ namespace gnut
                     case GOBS_LC::LC_L1:
                         if (interp.linear(mapDataf1, zen, corrf1) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L2:
                         if (interp.linear(mapDataf2, zen, corrf2) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L3:
                         if (interp.linear(mapDataf3, zen, corrf3) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L4:
                         if (interp.linear(mapDataf4, zen, corrf4) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     case GOBS_LC::LC_L5:
                         if (interp.linear(mapDataf5, zen, corrf5) < 0)
                         {
-                            _gmutex.unlock();
                             return -1;
                         }
                         break;
                     default:
                     {
-                        _gmutex.unlock();
                         return -1;
                     }
                 }
@@ -1829,7 +1760,6 @@ namespace gnut
             corrLC = corrf2;
         }
 
-        _gmutex.unlock();
         return 1;
     }
 

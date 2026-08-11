@@ -18,24 +18,19 @@ namespace great
     t_gsetamb::t_gsetamb() :
         t_gsetbase()
     {
-        _gmutex.lock();
 
         _set.insert(XMLKEY_AMBIGUITY);
 
-        _gmutex.unlock();
     }
     t_gsetamb::~t_gsetamb()
     {
     }
     void t_gsetamb::check()
     {
-        _gmutex.lock();
-        _gmutex.unlock();
         return;
     }
     void t_gsetamb::help()
     {
-        _gmutex.lock();
         std::cerr << "<ambiguity>\n"
              << "<upd_mode> upd </upd_mode>\n"
              << "<fix_mode> SEARCH/NO </fix_mode>\n"
@@ -45,7 +40,6 @@ namespace great
              << "<widelane_decision     maxdev = \"0.15\" maxsig = \"0.10\" alpha = \"1000\"/>\n"
              << "<narrowlane_decision   maxdev = \"0.15\" maxsig = \"0.10\" alpha = \"1000\"/>\n";
 
-        _gmutex.unlock();
         return;
     }
 
@@ -71,43 +65,35 @@ namespace great
 
     double t_gsetamb::lambda_ratio()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("ratio");
 
-        _gmutex.unlock();
         return str2dbl(tmp);
     }
 
     double t_gsetamb::bootstrapping()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("boot");
 
         if (tmp.empty())
         {
-            _gmutex.unlock();
             return -0.001;
         }
 
-        _gmutex.unlock();
         return str2dbl(tmp);
     }
 
     double t_gsetamb::min_common_time()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("min_common_time");
 
-        _gmutex.unlock();
         return str2dbl(tmp);
     }
 
     std::map<std::string, double> t_gsetamb::get_amb_decision(std::string type)
     {
-        _gmutex.lock();
         std::map<std::string, std::string> type2child = {{"EWL", "extra_widelane_decision"}, {"WL", "widelane_decision"}, {"NL", "narrowlane_decision"}};
         std::map<std::string, double> amb_decision;
         if (_default_decision.find(type) == _default_decision.end())
@@ -124,50 +110,41 @@ namespace great
                 iter->second = tmp;
             }
         }
-        _gmutex.unlock();
         return amb_decision;
     }
 
     bool t_gsetamb::part_ambfix()
     {
-        _gmutex.lock();
 
         std::istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("part_fix"));
         std::string tmp;
         is >> tmp;
         bool is_part_fix = (tmp == "YES" || tmp == "yes");
 
-        _gmutex.unlock();
         return is_part_fix;
     }
 
     int t_gsetamb::part_ambfix_num()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("part_fix_num");
 
         if (tmp.empty())
         {
-            _gmutex.unlock();
             return 2;
         }
-        _gmutex.unlock();
         return str2dbl(tmp);
     }
 
     int t_gsetamb::full_fix_num()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("full_fix_num");
 
         if (tmp.empty())
         {
-            _gmutex.unlock();
             return 3;
         }
-        _gmutex.unlock();
         return str2int(tmp);
     }
 
@@ -215,14 +192,12 @@ namespace great
 
     bool t_gsetamb::isSetRefSat()
     {
-        _gmutex.lock();
 
         std::istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("set_refsat"));
         std::string tmp;
         is >> tmp;
         bool isSetRefsat = (tmp == "YES" || tmp == "yes");
 
-        _gmutex.unlock();
         return isSetRefsat;
     }
 

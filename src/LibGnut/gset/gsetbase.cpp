@@ -50,18 +50,15 @@ namespace gnut
 
     int t_gsetbase::read(const std::string& file)
     {
-        _gmutex.lock();
 
         _name = file;
 
         if (!(_irc = _doc.load_file(_name.c_str())))
         {
             std::cerr << "xconfig: not file read " + _name + " " + std::string(_irc.description()) << std::endl;
-            _gmutex.unlock();
             return -1;
         }
 
-        _gmutex.unlock();
 
         this->check();
 
@@ -70,16 +67,13 @@ namespace gnut
 
     int t_gsetbase::read_istream(std::istream& is)
     {
-        _gmutex.lock();
 
         if (!(_irc = _doc.load(is)))
         {
             std::cerr << "xconfig read: not istream! [" + std::string(_irc.description()) + "]" << std::endl;
-            _gmutex.unlock();
             return 1;
         }
 
-        _gmutex.unlock();
 
         this->check();
 
@@ -88,7 +82,6 @@ namespace gnut
 
     int t_gsetbase::write(const std::string& file)
     {
-        _gmutex.lock();
 
         std::ofstream of;
         std::string name(file);
@@ -99,7 +92,6 @@ namespace gnut
         catch (std::fstream::failure e)
         {
             std::cerr << "Warning: Exception opening file " << name << ": " << e.what() << std::endl;
-            _gmutex.unlock();
             return -1;
         }
 
@@ -109,17 +101,14 @@ namespace gnut
 
         std::cout << "XML-config saved: " + name << std::endl;
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gsetbase::write_ostream(std::ostream& os)
     {
-        _gmutex.lock();
 
         _doc.save(os, _delimiter.c_str(), pugi::format_indent);
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -283,7 +272,6 @@ namespace gnut
 
     void t_gsetbase::app(const std::string& pgm, const std::string& ver, const std::string& rev, const std::string& own, const std::string& dat, const std::string& tim)
     {
-        _gmutex.lock();
 
         _pgm = pgm;
         _ver = ver;
@@ -292,37 +280,30 @@ namespace gnut
         _dat = dat;
         _tim = tim;
 
-        _gmutex.unlock();
         return;
     }
 
     std::string t_gsetbase::app()
     {
-        _gmutex.lock();
 
         std::string tmp = _pgm + " [" + _ver + "] compiled: " + _dat + " " + _tim + " (" + _rev + ")";
 
-        _gmutex.unlock();
         return tmp;
     };
 
     std::string t_gsetbase::pgm()
     {
-        _gmutex.lock();
 
         std::string tmp = _pgm;
 
-        _gmutex.unlock();
         return tmp;
     };
 
     bool t_gsetbase::thin()
     {
-        _gmutex.lock();
 
         bool tmp = _doc.child(XMLKEY_ROOT).attribute("thin").as_bool();
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -465,21 +446,6 @@ namespace gnut
         if (strlen(node.attribute(n).value()) == 0 || reset)
         {
             node.attribute(n).set_value(v);
-        }
-    }
-
-    void t_gsetbase::_add_log(std::string element, std::string msg)
-    {
-        std::map<std::string, std::set<std::string>>::iterator itELEM = _chache_log.find(element);
-        if (itELEM != _chache_log.end())
-        {
-            itELEM->second.insert(msg);
-        }
-        else
-        {
-            std::set<std::string> msgs;
-            msgs.insert(msg);
-            _chache_log[element] = msgs;
         }
     }
 

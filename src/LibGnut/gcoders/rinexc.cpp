@@ -33,11 +33,9 @@ namespace gnut
 
     int t_rinexc::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -62,7 +60,6 @@ namespace gnut
                 {
                     string ltmp("warning - not rinex clock data file");
                     GREAT_WARN(tmp);
-                    _mutex.unlock();
                     return -1;
                 }
 
@@ -140,14 +137,12 @@ namespace gnut
             {
                 GREAT_DEBUG(" END OF HEADER ");
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
 
             t_gcoder::_consume(tmpsize);
         }
 
-        _mutex.unlock();
         return consume;
     }
 
@@ -164,12 +159,10 @@ namespace gnut
             data[i] = UNDEFVAL_CLK; // initialize
         }
 
-        _mutex.lock();
 
         // complete main buffer
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -258,7 +251,6 @@ namespace gnut
             consume += t_gcoder::_consume(tmpsize);
         }
 
-        _mutex.unlock();
         return consume;
     }
 

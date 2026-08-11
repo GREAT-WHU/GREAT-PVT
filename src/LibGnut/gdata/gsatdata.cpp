@@ -89,17 +89,13 @@ namespace gnut
 
     void t_gsatdata::addpco(const t_gtriple& pco)
     {
-        _gmutex.lock();
         _satpco = pco;
-        _gmutex.unlock();
         return;
     }
 
     void t_gsatdata::addcrd(const t_gtriple& crd)
     {
-        _gmutex.lock();
         _satcrd = crd;
-        _gmutex.unlock();
         return;
     }
 
@@ -111,17 +107,13 @@ namespace gnut
 
     void t_gsatdata::addvel(const t_gtriple& vel)
     {
-        _gmutex.lock();
         _satvel = vel;
-        _gmutex.unlock();
         return;
     }
 
     void t_gsatdata::addvel_crs(const t_gtriple& vel)
     {
-        _gmutex.lock();
         _satvel_crs = vel;
-        _gmutex.unlock();
         return;
     }
 
@@ -136,28 +128,22 @@ namespace gnut
 
     int t_gsatdata::addprd_nav(t_gallnav* gnav, const bool& corrTOT, const bool& msk_health)
     {
-        _gmutex.lock();
 
         _low_prec = true;
 
         int irc = this->_addprd(gnav, corrTOT, msk_health);
 
-        _gmutex.unlock();
         return irc;
     }
 
     void t_gsatdata::addclk(const double& clk)
     {
-        _gmutex.lock();
         _clk = clk;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addreldelay(const double& rel)
     {
-        _gmutex.lock();
         _reldelay = rel;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addSCF2CRS(const Matrix& scf2crs, const Matrix& scf2trs)
@@ -182,79 +168,57 @@ namespace gnut
 
     void t_gsatdata::addele(const double& ele)
     {
-        _gmutex.lock();
         _ele = ele;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addele_leo(const double& ele)
     {
-        _gmutex.lock();
         _ele_leo = ele;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addazi_rec(const double& azi)
     {
-        _gmutex.lock();
         _azi_rec = azi;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addzen_rec(const double& zen)
     {
-        _gmutex.lock();
         _zen_rec = zen;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addazi_sat(const double& azi_sat)
     {
-        _gmutex.lock();
         _azi_sat = azi_sat;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addzen_sat(const double& zen_sat)
     {
-        _gmutex.lock();
         _zen_sat = zen_sat;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addnadir(const double& nadir)
     {
-        _gmutex.lock();
         _nadir = nadir;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addrho(const double& rho)
     {
-        _gmutex.lock();
         _rho = rho;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addmfH(const double& mfH)
     {
-        _gmutex.lock();
         _mfH = mfH;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addmfW(const double& mfW)
     {
-        _gmutex.lock();
         _mfW = mfW;
-        _gmutex.unlock();
     }
 
     void t_gsatdata::addmfG(const double& mfG)
     {
-        _gmutex.lock();
         _mfG = mfG;
-        _gmutex.unlock();
     }
 
     const t_gtriple& t_gsatdata::satcrd() const
@@ -338,17 +302,13 @@ namespace gnut
 
     double t_gsatdata::ele_deg() const
     {
-        _gmutex.lock();
         double tmp = _ele * 180.0 / G_PI;
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsatdata::ele_leo_deg() const
     {
-        _gmutex.lock();
         double tmp = _ele_leo * 180.0 / G_PI;
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -369,9 +329,7 @@ namespace gnut
 
     bool t_gsatdata::valid()
     {
-        _gmutex.lock();
         bool tmp = this->_valid();
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -389,9 +347,7 @@ namespace gnut
 
     void t_gsatdata::addslip(const bool& flag)
     {
-        _gmutex.lock();
         _slipf = flag;
-        _gmutex.unlock();
     }
 
     const bool& t_gsatdata::islip() const
@@ -401,25 +357,19 @@ namespace gnut
 
     double t_gsatdata::beta()
     {
-        _gmutex.lock();
         double tmp = _b();
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsatdata::orb_angle()
     {
-        _gmutex.lock();
         double tmp = _orb_angle();
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gsatdata::clear()
     {
-        _gmutex.lock();
         this->_clear();
-        _gmutex.unlock();
         return;
     }
 
@@ -626,7 +576,6 @@ namespace gnut
 
     void t_gsatdata::addres(const RESIDTYPE& restype, const GOBSTYPE& type, const double& res)
     {
-        _gmutex.lock();
 
         if (restype == RESIDTYPE::RES_ORIG)
         {
@@ -652,12 +601,10 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
     }
 
     std::vector<double> t_gsatdata::residuals(const RESIDTYPE& restype, const GOBSTYPE& type)
     {
-        _gmutex.lock();
 
         std::vector<double> res;
 
@@ -685,7 +632,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return res;
     }
 
@@ -706,11 +652,9 @@ namespace gnut
 
     void t_gsatdata::addwind(const double& wind)
     {
-        _gmutex.lock();
 
         _wind = wind;
 
-        _gmutex.unlock();
     }
 
     const double& t_gsatdata::wind() const

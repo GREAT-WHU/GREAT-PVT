@@ -39,11 +39,9 @@ namespace gnut
 
     void t_gallbias::add(const std::string& ac, const t_gtime& epo, GSAT sat, t_spt_bias pt_cb)
     {
-        _gmutex.lock();
 
         if (pt_cb == nullptr)
         {
-            _gmutex.unlock();
             return;
         }
 
@@ -95,13 +93,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return;
     }
 
     double t_gallbias::get(const std::string& prd, const t_gtime& epo, GSAT sat, const GOBS& gobs, const bool& meter)
     {
-        _gmutex.lock();
 
         double bias = 999.0;
         auto itAC = _mapBias.find(prd);
@@ -128,7 +124,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return bias;
     }
 
@@ -180,7 +175,6 @@ namespace gnut
 
     double t_gallbias::get(const t_gtime& epo, GSAT sat, const GOBS& gobs1, const GOBS& gobs2, const std::string& tmp)
     {
-        _gmutex.lock();
 
         double dcb = 0.0;
         std::string ac(tmp);
@@ -237,7 +231,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return dcb;
     }
 

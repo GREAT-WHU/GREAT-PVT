@@ -47,7 +47,6 @@ namespace gnut
 
     int t_gallopl::data(const t_gtriple& xyz, t_gtriple& rne_r, t_gtriple& rne_i)
     {
-        _gmutex.lock();
         t_gtriple ell;
         t_gpair lu, ld, ru, rd;
         t_gtriple lu_r, ld_r, ru_r, rd_r;
@@ -155,13 +154,11 @@ namespace gnut
         if (_rne_r.find(lu) == _rne_r.end() || _rne_r.find(ld) == _rne_r.end() || _rne_r.find(ru) == _rne_r.end() ||
             _rne_r.find(rd) == _rne_r.end())
         {
-            _gmutex.unlock();
             return -1;
         }
         if (_rne_i.find(lu) == _rne_i.end() || _rne_i.find(ld) == _rne_i.end() || _rne_i.find(ru) == _rne_i.end() ||
             _rne_i.find(rd) == _rne_i.end())
         {
-            _gmutex.unlock();
             return -1;
         }
         lu_r = _rne_r[lu];
@@ -184,7 +181,6 @@ namespace gnut
             tmp2 = rd_i[i] + (ru_i[i] - rd_i[i]) * ud;
             rne_i[i] = tmp1 + (tmp2 - tmp1) * lr;
         }
-        _gmutex.unlock();
         return 1;
     }
 } // namespace gnut

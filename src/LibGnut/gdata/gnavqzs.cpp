@@ -107,7 +107,6 @@ namespace gnut
 
     int t_gnavqzs::chk(std::set<std::string>& msg)
     {
-        _gmutex.lock();
 
         if (!_healthy())
         {
@@ -162,7 +161,6 @@ namespace gnut
             _validity = false;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -188,7 +186,6 @@ namespace gnut
             vel[0] = vel[1] = vel[2] = 0.0;
         }
 
-        _gmutex.lock();
 
         double Tk = t.diff(_toe); // T - toe difference
         while (Tk > 302400.0)
@@ -263,7 +260,6 @@ namespace gnut
             vel[2] = sinI * doty + y * cosI * doti;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -280,7 +276,6 @@ namespace gnut
             return -1; // HEALTH NOT OK
         }
 
-        _gmutex.lock();
 
         double Tk = t.diff(_toc); // difference from clk(!) epoch ref. time
         while (Tk > 302400.0)
@@ -303,7 +298,6 @@ namespace gnut
         if (clk && *clk > 1.0)
         {
             std::cerr << "* warning: too large clock - skipped: " << std::fixed << std::setprecision(0) << *clk << std::endl;
-            _gmutex.unlock();
             return -1;
         }
 
@@ -319,13 +313,11 @@ namespace gnut
             *dclk = 0.0;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gnavqzs::data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
     {
-        _gmutex.lock();
 
         char tmp[12];
 
@@ -341,7 +333,6 @@ namespace gnut
         if (data_21 < 0)
         {
             _toe = FIRST_TIME; // cerr << " incorrect GPS week number !\n";
-            _gmutex.unlock();
             return -1;
         }
 
@@ -397,13 +388,11 @@ namespace gnut
         _code = data[20];
         _flag = data[22];
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gnavqzs::nav2data(t_gnavdata& data)
     {
-        _gmutex.lock();
 
         if (!this->_valid())
         {
@@ -449,7 +438,6 @@ namespace gnut
             data[27] -= 604800;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -467,7 +455,6 @@ namespace gnut
 
     t_timdbl t_gnavqzs::param(const NAVDATA& n)
     {
-        _gmutex.lock();
 
         t_timdbl tmp;
         switch (n)
@@ -549,13 +536,11 @@ namespace gnut
                 break;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gnavqzs::param(const NAVDATA& n, double val)
     {
-        _gmutex.lock();
 
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
@@ -583,7 +568,6 @@ namespace gnut
                 break;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 

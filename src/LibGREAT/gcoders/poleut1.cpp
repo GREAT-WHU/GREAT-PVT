@@ -28,10 +28,8 @@ namespace great
     }
     int t_poleut1::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -102,13 +100,11 @@ namespace great
                 else
                 {
                     GREAT_DEBUG("END OF HEADER");
-                    _mutex.unlock();
                     return -1;
                 }
 
                 t_gcoder::_consume(tmpsize);
             }
-            _mutex.unlock();
             return consume;
         }
         catch (...)
@@ -120,11 +116,9 @@ namespace great
 
     int t_poleut1::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
         string tmp;
@@ -169,7 +163,6 @@ namespace great
                 }
                 t_gcoder::_consume(tmpsize);
             }
-            _mutex.unlock();
             return tmpsize;
         }
         catch (...)

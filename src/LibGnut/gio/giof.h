@@ -30,7 +30,6 @@
 #endif
 
 #include "gutils/gtime.h"
-#include "gutils/gmutex.h"
 #include "gexport/ExportLibGnut.h"
 
 
@@ -109,7 +108,6 @@ namespace gnut
         int _toff;             ///< if replace, time offset [min] for the file name
         bool _loop;            ///< loop read
         t_gtime::t_tsys _tsys; ///< time system for replacement
-        t_gmutex _gmutex;
 
     private:
     };

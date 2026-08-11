@@ -31,20 +31,17 @@ namespace gnut
 
     int t_gxml::read(const std::string& file)
     {
-        _gmutexxml.lock();
 
         _name = file;
 
         if (!(_irc = _doc.load_file(_name.c_str())))
         {
             GREAT_ERROR("XML-config not read file " + _name + " " + std::string(_irc.description()));
-            _gmutexxml.unlock();
             return -1;
         }
 
         GREAT_INFO("XML-config read from file " + _name);
 
-        _gmutexxml.unlock();
         this->check();
 
         return 0;
@@ -52,25 +49,21 @@ namespace gnut
 
     int t_gxml::read_istream(std::istream& is)
     {
-        _gmutexxml.lock();
 
         if (!(_irc = _doc.load(is)))
         {
             GREAT_ERROR("XML-config not read istream: " + std::string(_irc.description()));
-            _gmutexxml.unlock();
             return -1;
         }
 
         GREAT_INFO("XML-config read from istream");
 
-        _gmutexxml.unlock();
         this->check();
         return 0;
     }
 
     int t_gxml::write(const std::string& file)
     {
-        _gmutexxml.lock();
 
         std::ofstream of;
         std::string name(file);
@@ -83,7 +76,6 @@ namespace gnut
         catch (std::fstream::failure e)
         {
             std::cerr << "Warning: Exception opening file " << name << ": " << e.what() << std::endl;
-            _gmutexxml.unlock();
             return -1;
         }
 
@@ -92,17 +84,14 @@ namespace gnut
 
         GREAT_INFO("XML-file saved: " + name);
 
-        _gmutexxml.unlock();
         return 0;
     }
 
     int t_gxml::write_ostream(std::ostream& os)
     {
-        _gmutexxml.lock();
 
         _doc.save(os, _delimiter.c_str(), pugi::format_indent);
 
-        _gmutexxml.unlock();
         return 0;
     }
 

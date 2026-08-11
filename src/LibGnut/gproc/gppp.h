@@ -81,7 +81,6 @@ namespace gnut
         bool _running;    ///< Running status.
         double _sigAmbig; ///< Ambiguity sigma (constraints).
 
-        t_gmutex _gmutex; ///< gmutex
 
     private:
     };

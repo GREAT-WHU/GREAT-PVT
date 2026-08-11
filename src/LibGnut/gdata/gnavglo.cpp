@@ -35,7 +35,6 @@ namespace gnut
 
     int t_gnavglo::chk(std::set<std::string>& msg)
     {
-        _gmutex.lock();
 
         _min_step = 225; // to speed up
 
@@ -100,7 +99,6 @@ namespace gnut
             msg.insert("Warn: " + _sat + " corrected [channel] " + int2str(_freq_num + 256) + " -> " + int2str(_freq_num));
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -117,35 +115,29 @@ namespace gnut
 
     int t_gnavglo::pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-        _gmutex.lock();
 
         _min_step = 10;
 
         int i = _pos(t, xyz, var, vel, chk_health);
 
-        _gmutex.unlock();
         return i;
     }
 
     int t_gnavglo::nav(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-        _gmutex.lock();
 
         _min_step = 225;
 
         int i = _pos(t, xyz, var, vel, chk_health);
 
-        _gmutex.unlock();
         return i;
     }
 
     int t_gnavglo::clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
-        _gmutex.lock();
 
         int i = _clk(t, clk, var, dclk, chk_health);
 
-        _gmutex.unlock();
         return i;
     }
 
@@ -265,7 +257,6 @@ namespace gnut
 
     int t_gnavglo::data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
     {
-        _gmutex.lock();
 
         _sat = str2gsat(sat, GSYS::GLO);
         _epoch = ep;
@@ -297,13 +288,11 @@ namespace gnut
 
         _E = data[14];
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gnavglo::nav2data(t_gnavdata& data)
     {
-        _gmutex.lock();
 
         if (!this->_valid())
         {
@@ -332,13 +321,11 @@ namespace gnut
 
         data[14] = _E;
 
-        _gmutex.unlock();
         return 0;
     }
 
     t_timdbl t_gnavglo::param(const NAVDATA& n)
     {
-        _gmutex.lock();
 
         t_timdbl tmp;
         switch (n)
@@ -382,13 +369,11 @@ namespace gnut
                 break;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gnavglo::param(const NAVDATA& n, double val)
     {
-        _gmutex.lock();
 
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
@@ -404,7 +389,6 @@ namespace gnut
                 break;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 

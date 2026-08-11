@@ -29,41 +29,31 @@ namespace gnut
 
     t_gtriple t_gtide::tide_searth(const t_gtime& epoch, t_gtriple& crd)
     {
-        _mutex.lock();
         t_gtriple dxyz(0.0, 0.0, 0.0);
-        _mutex.unlock();
         return dxyz;
     }
 
     t_gtriple t_gtide::tide_pole()
     {
-        _mutex.lock();
         t_gtriple dxyz(0.0, 0.0, 0.0);
-        _mutex.unlock();
         return dxyz;
     }
 
     t_gtriple t_gtide::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
-        _mutex.lock();
         t_gtriple dxyz(0.0, 0.0, 0.0);
-        _mutex.unlock();
         return dxyz;
     }
 
     t_gtriple t_gtide::load_atmosph()
     {
-        _mutex.lock();
         t_gtriple dxyz(0.0, 0.0, 0.0);
-        _mutex.unlock();
         return dxyz;
     }
 
     void t_gtide::setOTL(t_gallotl* gallotl)
     {
-        _mutex.lock();
         _gotl = gallotl;
-        _mutex.unlock();
         return;
     }
 

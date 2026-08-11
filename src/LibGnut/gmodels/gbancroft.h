@@ -25,7 +25,6 @@
 #include "gall/gallobs.h"
 #include "gall/gallnav.h"
 #include "gutils/gtriple.h"
-#include "gutils/gmutex.h"
 #include "gset/gsetbase.h"
 
 namespace gnut

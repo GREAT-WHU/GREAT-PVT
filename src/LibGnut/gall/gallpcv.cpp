@@ -28,7 +28,6 @@ namespace gnut
 
     int t_gallpcv::addpcv(std::shared_ptr<t_gpcv> pcv)
     {
-        _gmutex.lock();
 
         std::string key = pcv->pcvkey();
         std::string typ = pcv->pcvtyp();
@@ -40,7 +39,6 @@ namespace gnut
             GSAT sat = pcv->sat();
             if (sat == GSAT::NONE)
             {
-                _gmutex.unlock();
                 return -1;
             }
             if (_overwrite || _mapsatpcv[sat].find(beg) == _mapsatpcv[sat].end()) _mapsatpcv[sat][beg] = pcv;
@@ -64,24 +62,19 @@ namespace gnut
         }
         GREAT_DEBUG("add PCV " + key + " " + typ + beg.str_ymdhms(" ") + end.str_ymdhms(" "));
 
-        _gmutex.unlock();
         return 1;
     }
 
     std::shared_ptr<t_gpcv> t_gallpcv::gpcv(const std::string& ant, const std::string& ser, const t_gtime& t)
     {
-        _gmutex.lock();
         GSAT sat = str2gsat(ant);
         std::shared_ptr<t_gpcv> gpcv = sat == GSAT::NONE ? _find(ant, ser, t) : _find(sat, t);
-        _gmutex.unlock();
         return gpcv;
     }
 
     std::shared_ptr<t_gpcv> t_gallpcv::gpcv(GSAT sat, const t_gtime& t)
     {
-        _gmutex.lock();
         std::shared_ptr<t_gpcv> gpcv = _find(sat, t);
-        _gmutex.unlock();
         return gpcv;
     }
 

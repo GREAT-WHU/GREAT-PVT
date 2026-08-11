@@ -255,12 +255,10 @@ namespace gnut
                                            std::make_pair("", sat),
                                            std::make_pair("", GSAT::NONE)};
 
-        _allpar_mtx.lock();
         for (int i = 0; i < 4; i++)
         {
             ans.insert(ans.end(), _index_for_parital[type_list[i]].begin(), _index_for_parital[type_list[i]].end());
         }
-        _allpar_mtx.unlock();
 
         return ans;
     }
@@ -461,7 +459,6 @@ namespace gnut
 
     void t_gallpar::_update_partial_index()
     {
-        _allpar_mtx.lock();
         auto point_now = std::make_pair(_point_par[_point_par.size() - 1], int(_point_par.size() - 1));
 
         if (point_now != _last_point)
@@ -473,7 +470,6 @@ namespace gnut
                 _index_for_parital[std::make_pair(_vParam[i].site, _vParam[i].prn)].push_back(i);
             }
         }
-        _allpar_mtx.unlock();
         return;
     }
 

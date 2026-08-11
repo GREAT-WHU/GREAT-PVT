@@ -24,7 +24,6 @@
 #include <string>
 
 #include "gio/great_log.h"
-#include "gutils/gmutex.h"
 #include "gcoders/gcoder.h"
 #include "gio/giof.h"
 
@@ -233,7 +232,6 @@ namespace gnut
         int _opened;      ///< 1: opened/connected
         int _running;     ///< running
         t_gcoder* _coder; ///< decoder/encoder
-        t_gmutex _gmutex; ///< mutual exlusion
     private:
     };
 

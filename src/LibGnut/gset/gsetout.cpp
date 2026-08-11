@@ -82,51 +82,41 @@ namespace gnut
 
     int t_gsetout::output_size(const std::string& fmt)
     {
-        _gmutex.lock();
 
         int tmp = _outputs(fmt).size();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gsetout::verb()
     {
-        _gmutex.lock();
 
         int tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).attribute("verb").as_int();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     bool t_gsetout::append()
     {
-        _gmutex.lock();
 
         bool tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).attribute("append").as_bool();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::string t_gsetout::outputs(const std::string& fmt)
     {
-        _gmutex.lock();
 
         std::string tmp = _outputs(fmt);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::string t_gsetout::log_type()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("type").as_string();
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         if (tmp.empty())
         {
             return "CONSOLE";
@@ -139,10 +129,8 @@ namespace gnut
 
     std::string t_gsetout::log_name()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("name").as_string();
         str_erase(tmp);
-        _gmutex.unlock();
         if (tmp.empty())
         {
             return "my_logger";
@@ -155,11 +143,9 @@ namespace gnut
 
     std::string t_gsetout::log_pattern()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("pattern").as_string();
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         if (tmp.empty())
         {
             return std::string("[%Y-%m-%d %H:%M:%S] <thread %t> [%l] [%@] %v");
@@ -172,11 +158,9 @@ namespace gnut
 
     level::level_enum t_gsetout::log_level()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("level").as_string();
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         if (tmp.empty())
         {
             return level::level_enum::info;
@@ -216,7 +200,6 @@ namespace gnut
 
     std::string t_gsetout::version(const std::string& fmt)
     {
-        _gmutex.lock();
 
         std::string ver = DEFAULT_FILE_VER;
         xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child(fmt.c_str());
@@ -225,7 +208,6 @@ namespace gnut
             ver = node.attribute("ver").as_string();
         }
 
-        _gmutex.unlock();
         return ver;
     }
 
@@ -267,7 +249,6 @@ namespace gnut
 
     void t_gsetout::check()
     {
-        _gmutex.lock();
 
         // check existence of nodes/attributes
         xml_node parent = _doc.child(XMLKEY_ROOT);
@@ -301,19 +282,16 @@ namespace gnut
             itFMT++;
         }
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gsetout::help()
     {
-        _gmutex.lock();
 
         std::cerr << " <outputs append=\"" << _append << "\" verb=\"" << _verb << "\" >\n"
              << "   <flt> file://dir/name </flt>    \t\t <!-- filter output encoder -->\n"
              << " </outputs>\n";
 
-        _gmutex.unlock();
         return;
     }
 

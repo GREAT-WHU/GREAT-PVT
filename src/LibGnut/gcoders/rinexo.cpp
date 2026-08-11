@@ -35,17 +35,14 @@ namespace gnut
 
     int t_rinexo::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         int add = t_gcoder::_add2buffer(buff, sz);
         if (add < 0)
         {
-            _mutex.unlock();
             return -1;
         };
         if (add == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -56,7 +53,6 @@ namespace gnut
 
         this->_decode_head();
 
-        _mutex.unlock();
         return _consume;
     }
 
@@ -85,25 +81,21 @@ namespace gnut
         _consume = 0;     // total byte counter
         _complete = true; // flag for completed block
 
-        _mutex.lock();
 
         // complete main buffer
         int add = t_gcoder::_add2buffer(buff, sz);
         if (add < 0)
         {
-            _mutex.unlock();
             return -1;
         };
         if (add == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
         this->_decode_data();
 
         cnt = _count;
-        _mutex.unlock();
         return _consume;
     }
     int t_rinexo::_decode_head()

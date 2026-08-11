@@ -23,18 +23,14 @@ namespace gnut
 
     t_grec::~t_grec()
     {
-        _gmutex.lock();
         _maprec.clear();
-        _gmutex.unlock();
     }
 
     void t_grec::rec(std::string rec, const t_gtime& beg, const t_gtime& end)
     {
-        _gmutex.lock();
 
         _rec(rec, beg, end);
 
-        _gmutex.unlock();
         return;
     }
 
@@ -121,12 +117,10 @@ namespace gnut
 
     std::string t_grec::rec(const t_gtime& t) const
     {
-        _gmutex.lock();
 
         std::string tmp = "";
         tmp = _rec(t);
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -167,7 +161,6 @@ namespace gnut
 
     std::vector<t_gtime> t_grec::rec_id() const
     {
-        _gmutex.lock();
 
         std::vector<t_gtime> tmp;
         t_maprec::const_iterator itMAP = _maprec.begin();
@@ -176,13 +169,11 @@ namespace gnut
             tmp.push_back(itMAP->first);
             itMAP++;
         }
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_grec::addhdr(const t_rnxhdr& hdr, const t_gtime& epo, std::string path)
     {
-        _gmutex.lock();
 
         if (_maphdr.find(epo) == _maphdr.end())
         {
@@ -190,7 +181,6 @@ namespace gnut
             _maphdr[epo].path(path);
         }
 
-        _gmutex.unlock();
     }
 
     void t_grec::changehdr(const t_rnxhdr& hdr, const t_gtime& epo, std::string path)
@@ -207,21 +197,16 @@ namespace gnut
 
     t_rnxhdr t_grec::gethdr(const t_gtime& epo)
     {
-        _gmutex.lock();
 
         t_rnxhdr rnxhdr = _gethdr(epo);
 
-        _gmutex.unlock();
         return rnxhdr;
     }
 
     void t_grec::compare(std::shared_ptr<t_grec> grec, const t_gtime& tt, std::string source)
     {
-        _gmutex.lock();
 
-        _gmutex.unlock();
         t_gobj::compare(grec, tt, source);
-        _gmutex.lock();
 
         std::string old, alt;
         old = trim(_rec(tt));
@@ -256,17 +241,14 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return;
     }
 
     void t_grec::fill_rnxhdr(const t_rnxhdr& rnxhdr)
     {
-        _gmutex.lock();
 
         _fill_rnxhdr(rnxhdr);
 
-        _gmutex.unlock();
         return;
     }
 

@@ -335,7 +335,6 @@ namespace gnut
             return -1;
         }
 
-        _gmutex.lock();
 
         _dop.set_data(_gnav, _gobs, _site);
 
@@ -484,7 +483,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
 
         return 1;
     }

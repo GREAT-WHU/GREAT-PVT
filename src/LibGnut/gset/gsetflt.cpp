@@ -50,191 +50,154 @@ namespace gnut
 
     std::string t_gsetflt::method_flt()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("method_flt").value();
         if (tmp.empty())
         {
             tmp = "kalman";
         }
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::noise_clk()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("noise_clk").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::noise_crd()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("noise_crd").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::noise_dclk()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("noise_dclk").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::noise_vel()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("noise_vel").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_gps()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_gps").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_glo()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_glo").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_gal()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_gal").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_bds()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_bds").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_amb()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_amb").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_qzs()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_qzs").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_ztd()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_ztd").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::noise_vion()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("noise_vion").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_vion()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_vion").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetflt::rndwk_grd()
     {
-        _gmutex.lock();
 
         double tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("rndwk_grd").as_double();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gsetflt::reset_amb()
     {
-        _gmutex.lock();
 
         int tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("reset_amb").as_int();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gsetflt::reset_par()
     {
-        _gmutex.lock();
 
         int tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("reset_par").as_int();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gsetflt::reset_par(double d)
     {
-        _gmutex.lock();
         xml_node flt = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT);
         flt.remove_attribute("reset_par");
         xml_attribute attri = flt.append_attribute("reset_par");
         attri.set_value(std::to_string(d).c_str());
-        _gmutex.unlock();
         return 0;
     }
 
     void t_gsetflt::check()
     {
-        _gmutex.lock();
 
         xml_node parent = _doc.child(XMLKEY_ROOT);
         xml_node node = _default_node(parent, XMLKEY_FLT);
@@ -256,13 +219,11 @@ namespace gnut
         _default_attr(node, "reset_amb", _reset_amb);
         _default_attr(node, "reset_par", _reset_par);
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gsetflt::help()
     {
-        _gmutex.lock();
 
         std::cerr << " <filter \n"
              << "   method_flt=\"" << _method_flt << "\" \n"
@@ -281,7 +242,6 @@ namespace gnut
              << "\t noise_vion    .. white noise process for VION [mm/sqrt(hour)] \n"
              << "\t -->\n\n";
 
-        _gmutex.unlock();
         return;
     }
 

@@ -30,7 +30,6 @@
 #include "gutils/gnss.h"
 #include "gutils/gobs.h"
 #include "gutils/gconst.h"
-#include "gutils/gmutex.h"
 #include "gexport/ExportLibGnut.h"
 
 
@@ -393,7 +392,6 @@ namespace gnut
     protected:
     private:
         GSYS _gsys;       ///< system
-        t_gmutex _gmutex; ///< mutex
     };
 
     ///<** @brief class for t_gfreq. */

@@ -532,7 +532,6 @@ namespace gnut
 
     t_gtriple t_gtide2010::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
-        _mutex.lock();
 
         Matrix otl, Acjcos, AcjSin;
         Matrix DD, ff, A(2, 3), P(2, 3); // ff stands for fundamental frequencies
@@ -624,7 +623,6 @@ namespace gnut
         if (!_gotl || _gotl->data(otl, site) < 0)
         {
             GREAT_DEBUG("WARNING: Site " + site + " not found in ocean tide BLQ file!");
-            _mutex.unlock();
             return dxyz;
         }
 
@@ -779,7 +777,6 @@ namespace gnut
         xyz2ell_vlbi(xRec, ell);
         neu2xyz(ell, dneu, dxyz);
 
-        _mutex.unlock();
         return dxyz;
     }
 

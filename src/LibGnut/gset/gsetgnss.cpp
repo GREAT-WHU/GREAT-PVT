@@ -107,7 +107,6 @@ namespace gnut
 
     std::set<GSAT> t_gsetgnss::sat()
     {
-        _gmutex.lock();
 
         std::set<GSAT> tmp;
 
@@ -129,13 +128,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::set<GSAT> t_gsetgnss::sat(GSYS gsys, bool def)
     {
-        _gmutex.lock();
 
         std::set<GSAT> tmp;
         for (const std::string& sat : t_gsetbase::_setval(_gsys(gsys), "sat"))
@@ -151,26 +148,22 @@ namespace gnut
             tmp = GNSS_SATS()[gsys];
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::set<std::string> t_gsetgnss::nav(GSYS gsys, bool def)
     {
-        _gmutex.lock();
         std::set<std::string> tmp = t_gsetbase::_setval(_gsys(gsys), "nav");
         if (def && tmp.size() == 0)
         {
             tmp = GNSS_GNAV()[gsys];
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::set<std::string> t_gsetgnss::obs(GSYS gsys, bool def)
     {
-        _gmutex.lock();
 
         std::string str;
         std::set<std::string> tmp;
@@ -248,13 +241,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::set<std::string> t_gsetgnss::gobs(GSYS gsys)
     {
-        _gmutex.lock();
 
         std::string str;
         std::set<std::string> tmp;
@@ -265,33 +256,27 @@ namespace gnut
         {
             tmp.insert(*it);
         }
-        _gmutex.unlock();
         return tmp;
     }
 
     std::vector<GOBSTYPE> t_gsetgnss::type(GSYS gsys)
     {
-        _gmutex.lock();
 
         std::vector<GOBSTYPE> v_tmp = _type(gsys);
 
-        _gmutex.unlock();
         return v_tmp;
     }
 
     std::vector<GOBSBAND> t_gsetgnss::band(GSYS gsys)
     {
-        _gmutex.lock();
 
         std::vector<GOBSBAND> v_tmp = _band(gsys);
 
-        _gmutex.unlock();
         return v_tmp;
     }
 
     std::vector<FREQ_SEQ> t_gsetgnss::freqs(GSYS gsys)
     {
-        _gmutex.lock();
 
         std::vector<FREQ_SEQ> v_tmp = _freqs(gsys);
 
@@ -301,7 +286,6 @@ namespace gnut
             v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
         }
 
-        _gmutex.unlock();
         return v_tmp;
     }
 
@@ -345,79 +329,63 @@ namespace gnut
 
     std::vector<GOBSATTR> t_gsetgnss::attr(GSYS gsys)
     {
-        _gmutex.lock();
 
         std::vector<GOBSATTR> v_tmp = _attr(gsys);
 
-        _gmutex.unlock();
         return v_tmp;
     }
 
     double t_gsetgnss::sigma_C(GSYS gsys)
     {
-        _gmutex.lock();
 
         double tmp = _sigma_C(gsys);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetgnss::sigma_D(GSYS gsys)
     {
-        _gmutex.lock();
 
         double tmp = _sigma_D(gsys);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetgnss::sigma_L(GSYS gsys)
     {
-        _gmutex.lock();
 
         double tmp = _sigma_L(gsys);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetgnss::maxres_C(GSYS gsys)
     {
-        _gmutex.lock();
 
         double tmp = _maxres_C(gsys);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetgnss::maxres_D(GSYS gsys)
     {
-        _gmutex.lock();
 
         double tmp = _maxres_D(gsys);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gsetgnss::maxres_L(GSYS gsys)
     {
-        _gmutex.lock();
 
         double tmp = _maxres_L(gsys);
 
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gsetgnss::check()
     {
-        _gmutex.lock();
 
-        _gmutex.unlock();
         return;
     }
 
@@ -666,7 +634,6 @@ namespace gnut
 
     void t_gsetgnss::help()
     {
-        _gmutex.lock();
 
         std::cerr << " <gps>            \t\t  <!-- any GNSS constellation: GPS GLO GAL BDS SBS QZS -->\n"
              << "   <sat>  </sat>  \t\t  <!-- list of GPS satellites: G01 G02 .. or empty(ALL) -->\n"
@@ -688,7 +655,6 @@ namespace gnut
              << "\t desc   .. description\n"
              << "\t -->\n\n";
 
-        _gmutex.unlock();
         return;
     }
 

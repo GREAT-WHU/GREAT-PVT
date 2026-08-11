@@ -58,7 +58,6 @@ namespace gnut
 
     std::set<std::string> t_gallobs::stations()
     {
-        _gmutex.lock();
 
         std::set<std::string> all_sites;
         t_map_oobj::const_iterator itSITE = _mapobj.begin();
@@ -68,16 +67,13 @@ namespace gnut
             all_sites.insert(itSITE->first);
             ++itSITE;
         }
-        _gmutex.unlock();
         return all_sites;
     }
 
     std::set<GSAT> t_gallobs::sats(const std::string& site, const t_gtime& t, GSYS gnss)
     {
-        _gmutex.lock();
 
         std::set<GSAT> all_sats = _sats(site, t, gnss);
-        _gmutex.unlock();
         return all_sats;
     }
 
@@ -129,11 +125,9 @@ namespace gnut
 
     std::vector<t_gsatdata> t_gallobs::obs(const std::string& site, const t_gtime& t)
     {
-        _gmutex.lock();
 
         std::vector<t_gsatdata> all_obs = _gobs(site, t);
 
-        _gmutex.unlock();
         return all_obs;
     }
 
@@ -160,14 +154,12 @@ namespace gnut
 
     std::vector<t_spt_gobs> t_gallobs::obs_pt(const std::string& site, const t_gtime& t)
     {
-        _gmutex.lock();
 
         std::vector<t_spt_gobs> all_obs;
         t_gtime tt(t_gtime::t_tsys::GPS);
 
         if (_find_epo(site, t, tt) < 0)
         {
-            _gmutex.unlock();
             return all_obs;
         }
 
@@ -182,19 +174,16 @@ namespace gnut
             itSAT++;
         }
 
-        _gmutex.unlock();
         return all_obs;
     }
 
     std::vector<t_gtime> t_gallobs::epochs(const std::string& site)
     {
-        _gmutex.lock();
 
         std::vector<t_gtime> all_epochs;
 
         if (_mapobj.find(site) == _mapobj.end())
         {
-            _gmutex.unlock();
             return all_epochs;
         }
 
@@ -206,13 +195,11 @@ namespace gnut
             ++it;
         }
 
-        _gmutex.unlock();
         return all_epochs;
     }
 
     t_gtime t_gallobs::beg_obs(const std::string& site, double smpl)
     {
-        _gmutex.lock();
 
         t_gtime tmp = LAST_TIME;
 
@@ -237,13 +224,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     t_gtime t_gallobs::end_obs(const std::string& site)
     {
-        _gmutex.lock();
 
         t_gtime tmp = FIRST_TIME;
         if (_mapobj.find(site) != _mapobj.end() && _mapobj[site].begin() != _mapobj[site].end())
@@ -251,13 +236,11 @@ namespace gnut
             tmp = _mapobj[site].rbegin()->first;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gallobs::addobs(t_spt_gobs obs)
     {
-        _gmutex.lock();
 
         // repair small out-sync ( < 10 ms )
         double outsync = fmod(obs->epoch().dsec(), _smp) - round(fmod(obs->epoch().dsec(), _smp));
@@ -327,45 +310,37 @@ namespace gnut
             else
             {
                 GREAT_WARN("warning: t_gobsgnss record not identified!");
-                _gmutex.unlock();
                 return 1;
             }
         }
         else
         {
-            _gmutex.unlock();
             return 0;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
     t_gallobs::t_map_osat t_gallobs::find(const std::string& site, const t_gtime& t)
     {
-        _gmutex.lock();
 
         t_gtime tt(t_gtime::t_tsys::GPS);
         t_map_osat tmp;
         if (_find_epo(site, t, tt) < 0)
         {
-            _gmutex.unlock();
             return tmp;
         }
 
-        _gmutex.unlock();
         return _mapobj[site][tt];
     }
 
     t_gallobs::t_map_frq t_gallobs::frqobs(const std::string& site)
     {
-        _gmutex.lock();
 
         t_map_frq mfrq;
 
         if (_mapobj.find(site) == _mapobj.end())
         {
-            _gmutex.unlock();
             return mfrq;
         }
 
@@ -394,40 +369,33 @@ namespace gnut
             itEpo++;
         }
 
-        _gmutex.unlock();
         return mfrq;
     }
 
     void t_gallobs::xdata(const std::string& site, const std::string& file, const t_xfilter& xflt)
     {
-        _gmutex.lock();
 
         _filter[site][file].xdat = xflt.xdat;
         _filter[site][file].beg = xflt.beg;
         _filter[site][file].end = xflt.end;
 
-        _gmutex.unlock();
     }
 
     unsigned int t_gallobs::nepochs(const std::string& site)
     {
-        _gmutex.lock();
 
         if (_mapobj.find(site) == _mapobj.end())
         {
-            _gmutex.unlock();
             return 0;
         }
 
         unsigned int tmp = _mapobj[site].size();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     bool t_gallobs::isSite(const std::string& site)
     {
-        _gmutex.lock();
 
         bool tmp = false;
         if (_mapobj.find(site) != _mapobj.end())
@@ -435,7 +403,6 @@ namespace gnut
             tmp = true;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 

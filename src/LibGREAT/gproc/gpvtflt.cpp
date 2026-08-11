@@ -1928,7 +1928,6 @@ std::string great::t_gpvtflt::_quality_grade(const t_gposdata::data_pos& pos)
 
 int great::t_gpvtflt::processBatch(const t_gtime& beg_r, const t_gtime& end_r, bool prtOut)
 {
-    _gmutex.lock();
 
     if (_grec == nullptr)
     {
@@ -1936,7 +1935,6 @@ int great::t_gpvtflt::processBatch(const t_gtime& beg_r, const t_gtime& end_r, b
         os << "ERROR: No object found (" << _site << "). Processing terminated!!! " << beg_r.str_ymdhms() << " -> " << end_r.str_ymdhms()
            << std::endl;
         GREAT_ERROR(os.str());
-        _gmutex.unlock();
         return -1;
     }
 
@@ -2040,7 +2038,6 @@ int great::t_gpvtflt::processBatch(const t_gtime& beg_r, const t_gtime& end_r, b
                    int2str(_n_NPD_flt) + ", " + int2str(_n_ALL_flt) + ")");
     }
 
-    _gmutex.unlock();
 
     return 1;
 }

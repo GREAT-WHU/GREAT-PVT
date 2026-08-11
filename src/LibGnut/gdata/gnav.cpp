@@ -52,11 +52,9 @@ namespace gnut
 
     bool t_gnav::healthy() const
     {
-        _gmutex.lock();
 
         bool tmp = this->_healthy();
 
-        _gmutex.unlock();
         return tmp;
     }
 

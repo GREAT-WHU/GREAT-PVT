@@ -217,7 +217,6 @@ namespace gnut
         /** @brief update partial index. */
         void _update_partial_index();
 
-        t_gmutex _allpar_mtx;
     };
 
 } // namespace gnut

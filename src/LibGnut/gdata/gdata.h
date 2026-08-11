@@ -22,7 +22,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "gutils/gmutex.h"
 #include "gutils/gcommon.h"
 #include "gio/great_log.h"
 
@@ -126,13 +125,11 @@ namespace gnut
         /** @brief lock mutex */
         void lock() const
         {
-            this->_gmutex.lock();
         }
 
         /** @brief unlock mutex */
         void unlock() const
         {
-            this->_gmutex.unlock();
         }
 
     protected:
@@ -150,7 +147,6 @@ namespace gnut
          */
         int id_group(const ID_GROUP& g);
 
-        mutable t_gmutex _gmutex; ///< mutex
         ID_TYPE _type;            ///< type_ID
         ID_GROUP _group;          ///< group_ID
     private:

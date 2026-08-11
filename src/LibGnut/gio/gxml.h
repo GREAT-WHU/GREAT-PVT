@@ -27,7 +27,6 @@
 #include <boost/std::thread/std::mutex.hpp>
 #endif
 
-#include "gutils/gmutex.h"
 #include "gutils/gtypeconv.h"
 #include "pugixml/src/pugixml.hpp"
 
@@ -82,7 +81,6 @@ namespace gnut
         std::string _root;      ///< root directory
         std::string _delimiter; ///< delimiter for writting nodes/elements
         bool _ucase;       ///< upper/lower case for keywords
-        t_gmutex _gmutexxml;
 
     private:
     };

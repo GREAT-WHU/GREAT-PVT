@@ -54,7 +54,6 @@ namespace gnut
 
     int t_gallprec::pos(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp;
         tmp = t_gallprec::_find(sat, t);
@@ -72,7 +71,6 @@ namespace gnut
                     vel[i] = 0.0;
                 }
             }
-            _gmutex.unlock();
             if (_posnav && t_gallnav::pos(sat, t, xyz, var, vel, chk_mask) >= 0)
             {
                 return 1;
@@ -81,13 +79,11 @@ namespace gnut
         }
 
         int irc = tmp->pos(t, xyz, var, vel, _chkHealth && chk_mask);
-        _gmutex.unlock();
         return irc;
     }
 
     int t_gallprec::clk(GSAT sat, const t_gtime& t, double* clk, double* var, double* dclk, const bool& chk_mask)
     {
-        _gmutex.lock();
 
         if (!_clkrnx || _get_clkdata(sat, t) < 0)
         {
@@ -101,7 +97,6 @@ namespace gnut
                 *dclk = 0.0;
             }
 
-            _gmutex.unlock();
 
             if (_clksp3 && this->clk_int(sat, t, clk, var, dclk) >= 0)
             {
@@ -118,7 +113,6 @@ namespace gnut
         poly.interpolate(_CT, _C, t.diff(_clkref), *clk, *dclk);
         *dclk = *dclk / (_CT.back() - _CT.front());
 
-        _gmutex.unlock();
         return 1;
     }
 
@@ -130,27 +124,23 @@ namespace gnut
             return this->clk(sat, t, clk, var, dclk, chk_mask);
         }
 
-        _gmutex.lock();
         auto it = _mapclk_rec.find(id);
         if (!_clkrnx || it == _mapclk_rec.end() || _get_clkdata(it->second, t) < 0)
         {
             if (clk) *clk = 0.0;
             if (var) *var = 0.0;
             if (dclk) *dclk = 0.0;
-            _gmutex.unlock();
             return -1;
         }
 
         t_gpoly poly;
         poly.interpolate(_CT, _C, t.diff(_clkref), *clk, *dclk);
         *dclk = *dclk / (_CT.back() - _CT.front());
-        _gmutex.unlock();
         return 1;
     }
 
     int t_gallprec::clk_int(GSAT sat, const t_gtime& t, double* clk, double* var, double* dclk)
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallprec::_find(sat, t);
 
@@ -165,12 +155,10 @@ namespace gnut
             {
                 *dclk = 0.0;
             }
-            _gmutex.unlock();
             return -1;
         }
         int irc = std::dynamic_pointer_cast<t_gephprec>(tmp)->clk_int(t, clk, var, dclk);
 
-        _gmutex.unlock();
         return irc;
     }
 
@@ -191,7 +179,6 @@ namespace gnut
                            const t_gtriple& dxyz,
                            const double& dt)
     {
-        _gmutex.lock();
 
         if (_overwrite || _mapsp3[sat].find(ep) == _mapsp3[sat].end())
         {
@@ -207,16 +194,13 @@ namespace gnut
         }
         else
         {
-            _gmutex.unlock();
             return -1;
         }
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gallprec::addvel(GSAT sat, const t_gtime& ep, double xyzt[4], double dxyz[4])
     {
-        _gmutex.lock();
 
         if (_overwrite || _mapsp3[sat].find(ep) == _mapsp3[sat].end())
         {
@@ -232,16 +216,13 @@ namespace gnut
         }
         else
         {
-            _gmutex.unlock();
             return -1;
         }
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gallprec::addclk(const std::string& id, const t_gtime& ep, double clk[3], double dxyz[3])
     {
-        _gmutex.lock();
 
         GSAT sat = str2gsat(id);
         t_map_epo& clocks = sat == GSAT::NONE ? _mapclk_rec[id] : _mapclk[sat];
@@ -260,17 +241,14 @@ namespace gnut
         }
         else
         {
-            _gmutex.unlock();
             return 1;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gallprec::addclk_tri(const std::string& id, const t_gtime& ep, double clk[3], double dxyz[3])
     {
-        _gmutex.lock();
 
         GSAT sat = str2gsat(id);
         t_map_epo& clocks = sat == GSAT::NONE ? _mapclk_rec[id] : _mapclk[sat];
@@ -290,17 +268,14 @@ namespace gnut
         }
         else
         {
-            _gmutex.unlock();
             return 1;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
     unsigned int t_gallprec::nepochs(GSAT prn)
     {
-        _gmutex.lock();
 
         unsigned int tmp = 0;
         if (_mapsp3.find(prn) != _mapsp3.end())
@@ -308,7 +283,6 @@ namespace gnut
             tmp = _mapsp3[prn].size();
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -316,7 +290,6 @@ namespace gnut
     {
         std::set<GSAT> all_sat = t_gallnav::satellites();
 
-        _gmutex.lock();
 
         t_map_prn::const_iterator itSP3 = _mapsp3.begin();
         while (itSP3 != _mapsp3.end())
@@ -325,7 +298,6 @@ namespace gnut
             ++itSP3;
         }
 
-        _gmutex.unlock();
         return all_sat;
     }
 
@@ -338,7 +310,6 @@ namespace gnut
 
         t_gallnav::clean_outer(beg, end);
 
-        _gmutex.lock();
 
         auto clean = [&](t_map_epo& data)
         {
@@ -348,7 +319,6 @@ namespace gnut
         for (auto& item : _mapsp3) clean(item.second);
         for (auto& item : _mapclk) clean(item.second);
         for (auto& item : _mapclk_rec) clean(item.second);
-        _gmutex.unlock();
         return;
     }
 
@@ -376,14 +346,12 @@ namespace gnut
             return ((_clknav && t_gallnav::nav(sat, t, xyz, var, vel, chk_mask) >= 0) ? 1 : -1);
         }
 
-        _gmutex.lock();
 
         t_gtime beg(_mapsp3[sat].begin()->first);
         t_gtime end(_mapsp3[sat].rbegin()->first);
 
         if (t < beg - 900 || t > end + 900)
         {
-            _gmutex.unlock();
             return ((_clknav && t_gallnav::nav(sat, t, xyz, var, vel) >= 0) ? 1 : -1);
         }
 
@@ -405,7 +373,6 @@ namespace gnut
             _poly_x[sat].evaluate(t.diff(_ref) / _sec, 0, xyz[0]);
             _poly_y[sat].evaluate(t.diff(_ref) / _sec, 0, xyz[1]);
             _poly_z[sat].evaluate(t.diff(_ref) / _sec, 0, xyz[2]);
-            _gmutex.unlock();
             return 1;
         }
 
@@ -422,7 +389,6 @@ namespace gnut
         int dst = distance(itBeg, itEnd); // tab values [#]
         if (dst < fitdeg)
         {
-            _gmutex.unlock();
             return ((_clknav && t_gallnav::nav(sat, t, xyz, var, vel, chk_mask) >= 0) ? 1 : -1);
         }
         if (dst < fitdat)
@@ -485,7 +451,6 @@ namespace gnut
         _poly_z[sat].fitpolynom(_PT, _Z, fitdeg, _sec, _ref);
         _poly_z[sat].evaluate(t.diff(_ref) / _sec, 0, xyz[2]);
 
-        _gmutex.unlock();
         return 1;
     }
 

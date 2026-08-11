@@ -20,7 +20,6 @@ Ondrejov 244, 251 65, Czech Republic
 #include "gset/gsetinp.h"
 #include "gio/great_log.h"
 #include "gutils/gfileconv.h"
-#include "gutils/gmutex.h"
 using namespace pugi;
 
 namespace gnut
@@ -138,27 +137,21 @@ namespace gnut
 
     int t_gsetinp::input_size(const std::string& fmt)
     {
-        _gmutex.lock();
 
         int tmp = _inputs(fmt).size();
 
-        _gmutex.unlock();
         return tmp;
     }
 
     bool t_gsetinp::check_input(const std::string& fmt)
     {
-        _gmutex.lock();
         int tmp = _inputs(fmt).size();
-        _gmutex.unlock();
         return (tmp > 0);
     }
 
     void t_gsetinp::check_input(const std::string& fmt, const std::string& message)
     {
-        _gmutex.lock();
         int tmp = _inputs(fmt).size();
-        _gmutex.unlock();
         if (tmp < 0)
         {
             GREAT_CRITICAL(message);
@@ -168,7 +161,6 @@ namespace gnut
 
     std::multimap<IFMT, std::string> t_gsetinp::inputs_all()
     {
-        _gmutex.lock();
 
         std::multimap<IFMT, std::string> map;
 
@@ -194,7 +186,6 @@ namespace gnut
             }
             itFMT++;
         }
-        _gmutex.unlock();
         return map;
     }
 
@@ -291,7 +282,6 @@ namespace gnut
 
     void t_gsetinp::check()
     {
-        _gmutex.lock();
 
         // check existence of nodes/attributes
         xml_node parent = _doc.child(XMLKEY_ROOT);
@@ -329,13 +319,11 @@ namespace gnut
         xml_node nodeBNCRTCM = _doc.child(XMLKEY_ROOT).child(XMLKEY_INP).child("bncrtcm");
         _default_attr(nodeBNCRTCM, "_corrStream", _corrStream);
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gsetinp::help()
     {
-        _gmutex.lock();
 
         std::cerr << " <inputs>\n"
              << "   <rinexo> file://dir/name </rinexo> \t\t <!-- obs RINEX decoder -->\n"
@@ -348,7 +336,6 @@ namespace gnut
              << "\t where path(i) contains [file,tcp,ntrip]:// depending on the application\n"
              << "\t -->\n\n";
 
-        _gmutex.unlock();
         return;
     }
 

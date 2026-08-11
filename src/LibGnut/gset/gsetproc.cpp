@@ -18,7 +18,6 @@
 #include <algorithm>
 
 #include "gset/gsetproc.h"
-#include "gutils/gmutex.h"
 
 using namespace pugi;
 
@@ -72,12 +71,10 @@ namespace gnut
 
     modeofmeanpole t_gsetproc::mean_pole_model()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("mean_pole_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         modeofmeanpole TM = str2meanpolemodel(tmp);
-        _gmutex.unlock();
         return TM;
     }
 
@@ -101,89 +98,73 @@ namespace gnut
 
     bool t_gsetproc::tropo()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "FALSE" ? false : true);
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     bool t_gsetproc::iono()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("iono");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = tmp == "FALSE" ? false : true;
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     bool t_gsetproc::tropo_slant()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_slant");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = tmp == "TRUE" ? true : false;
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     bool t_gsetproc::tropo_grad()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("gradient");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     bool t_gsetproc::phase()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("phase");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     bool t_gsetproc::doppler()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("doppler");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     bool t_gsetproc::pos_kin()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("pos_kin");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     BASEPOS t_gsetproc::basepos()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("basepos");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         BASEPOS type = str2basepos(tmp);
-        _gmutex.unlock();
         return type;
     }
 
@@ -201,7 +182,6 @@ namespace gnut
 
     double t_gsetproc::sig_init_ztd()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_ztd");
         str_erase(tmp);
         double tmp_double;
@@ -213,13 +193,11 @@ namespace gnut
         {
             tmp_double = _sig_init_ztd;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_vion()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_vion");
         str_erase(tmp);
@@ -233,13 +211,11 @@ namespace gnut
             tmp_double = _sig_init_vion;
         }
 
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_grd()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_grd");
         str_erase(tmp);
@@ -253,13 +229,11 @@ namespace gnut
             tmp_double = _sig_init_grd;
         }
 
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_crd()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_crd");
         str_erase(tmp);
         double tmp_double;
@@ -271,13 +245,11 @@ namespace gnut
         {
             tmp_double = _sig_init_crd;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_vel()
     {
-        _gmutex.lock();
 
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_vel");
         str_erase(tmp);
@@ -291,13 +263,11 @@ namespace gnut
             tmp_double = _sig_init_vel;
         }
 
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_amb()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_amb");
         str_erase(tmp);
         double tmp_double;
@@ -309,13 +279,11 @@ namespace gnut
         {
             tmp_double = _sig_init_amb;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_glo()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_glo");
         str_erase(tmp);
         double tmp_double;
@@ -327,13 +295,11 @@ namespace gnut
         {
             tmp_double = _sig_init_glo;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_gal()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_gal");
         str_erase(tmp);
         double tmp_double;
@@ -345,13 +311,11 @@ namespace gnut
         {
             tmp_double = _sig_init_gal;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_bds()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_bds");
         str_erase(tmp);
         double tmp_double;
@@ -363,13 +327,11 @@ namespace gnut
         {
             tmp_double = _sig_init_bds;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::sig_init_qzs()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_qzs");
         str_erase(tmp);
         double tmp_double;
@@ -381,13 +343,11 @@ namespace gnut
         {
             tmp_double = _sig_init_qzs;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::minimum_elev()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("minimum_elev");
         str_erase(tmp);
         double tmp_double;
@@ -399,13 +359,11 @@ namespace gnut
         {
             tmp_double = _minimum_elev;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     double t_gsetproc::max_res_norm()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("max_res_norm");
         str_erase(tmp);
         double tmp_double;
@@ -417,13 +375,11 @@ namespace gnut
         {
             tmp_double = _max_res_norm;
         }
-        _gmutex.unlock();
         return tmp_double;
     }
 
     int t_gsetproc::minsat()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("min_sat");
         str_erase(tmp);
         int tmp_int;
@@ -435,27 +391,22 @@ namespace gnut
         {
             tmp_int = _minsat;
         }
-        _gmutex.unlock();
         return tmp_int;
     }
 
     std::string t_gsetproc::ref_clk()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("ref_clk");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         return tmp;
     }
 
     SLIPMODEL t_gsetproc::slip_model()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("slip_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         if (tmp == "default")
         {
             return SLIPMODEL::DEF_DETECT_MODEL;
@@ -468,11 +419,9 @@ namespace gnut
 
     IONMODEL t_gsetproc::ion_model()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("ion_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         if (tmp == "SION")
         {
             return IONMODEL::SION;
@@ -489,7 +438,6 @@ namespace gnut
 
     TROPMODEL t_gsetproc::tropo_model()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
@@ -502,33 +450,27 @@ namespace gnut
             _default_node(node, "tropo_model", tmp.c_str());
             TM = _tropo_model;
         }
-        _gmutex.unlock();
         return TM;
     }
 
     ATTITUDES t_gsetproc::attitudes()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("attitudes");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         return str2attitudes(tmp);
     }
 
     CBIASCHAR t_gsetproc::cbiaschar()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("cbiaschar");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-        _gmutex.unlock();
         return str2cbiaschar(tmp);
     }
 
     GRDMPFUNC t_gsetproc::grad_mf()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("grad_mf");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
@@ -544,13 +486,11 @@ namespace gnut
             MF = _grad_mf;
         }
 
-        _gmutex.unlock();
         return MF;
     }
 
     OBSWEIGHT t_gsetproc::weighting()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("obs_weight");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
@@ -565,13 +505,11 @@ namespace gnut
             WG = _obs_weight;
         }
 
-        _gmutex.unlock();
         return WG;
     }
 
     RESIDTYPE t_gsetproc::residuals()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("residuals");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
@@ -586,13 +524,11 @@ namespace gnut
             RS = _res_type;
         }
 
-        _gmutex.unlock();
         return RS;
     }
 
     OBSCOMBIN t_gsetproc::obs_combin()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("obs_combination");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
@@ -607,16 +543,13 @@ namespace gnut
             OC = _obs_combin;
         }
 
-        _gmutex.unlock();
         return OC;
     }
 
     ZTDMPFUNC t_gsetproc::tropo_mf()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_mf");
         str_erase(tmp);
-        _gmutex.unlock();
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 
         ZTDMPFUNC MF = str2ztdmpfunc(tmp);
@@ -634,10 +567,8 @@ namespace gnut
 
     CONSTRPAR t_gsetproc::crd_est()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("crd_constr");
         str_erase(tmp);
-        _gmutex.unlock();
 
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         if (tmp.empty())
@@ -661,7 +592,6 @@ namespace gnut
 
     void t_gsetproc::check()
     {
-        _gmutex.lock();
 
         xml_node parent = _doc.child(XMLKEY_ROOT);
         xml_node node = _default_node(parent, XMLKEY_PROC);
@@ -689,12 +619,10 @@ namespace gnut
         _default_node(node, "min_sat", (std::to_string(_minsat)).c_str());
         _default_node(node, "basepos", basepos2str(_basepos).c_str());
 
-        _gmutex.unlock();
     }
 
     void t_gsetproc::help()
     {
-        _gmutex.lock();
 
         std::cerr << " <process \n"
              << "   phase=\"" << _phase << "\" \n"
@@ -736,7 +664,6 @@ namespace gnut
              << "\t basepos  .. base site coordinate\n"
              << "\t -->\n\n";
 
-        _gmutex.unlock();
     }
 
     ATTITUDES t_gsetproc::str2attitudes(const std::string& ati)
@@ -751,9 +678,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported attitude model (" << attitude2str(_attitudes) << ")! Used default value ( YAW_MODEL )";
-            _add_log("gsetproc", ostr.str());
             return ATTITUDES::DEF_YAWMODEL;
         }
     }
@@ -774,10 +698,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported GRD mapping function (" << grdmpfunc2str(_grad_mf) << ")! Used default value (" << grdmpfunc2str(_grad_mf)
-                 << ")";
-            _add_log("gsetproc", ostr.str());
             return GRDMPFUNC::DEF_GRDMPFUNC;
         }
     }
@@ -798,9 +718,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported forcing code bias signals! Used default value (" << cbiaschar2str(_cbiaschar) << ")";
-            _add_log("gsetproc", ostr.str());
             return CBIASCHAR::DEF_CBIASCHAR;
         }
     }
@@ -821,9 +738,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported ZTD mapping function (" << mf << ")! Used default value (" << ztdmpfunc2str(_tropo_mf) << ")";
-            _add_log("gsetproc", ostr.str());
             return ZTDMPFUNC::DEF_ZTDMPFUNC;
         }
     }
@@ -844,9 +758,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported ION mapping function (" << mf << ")! Used default value (" << ionmpfunc2str(_iono_mf) << ")";
-            _add_log("gsetproc", ostr.str());
             return IONMPFUNC::DEF_IONMPFUNC;
         }
     }
@@ -879,9 +790,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported observation weighting model (" << wg << ")! Used default value (" << obsweight2str(_obs_weight) << ")";
-            _add_log("gsetproc", ostr.str());
             return OBSWEIGHT::DEF_OBSWEIGHT;
         }
     }
@@ -906,9 +814,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported tropospheric model (" << tm << ")! Used default value (" << tropmodel2str(_tropo_model) << ")";
-            _add_log("gsetproc", ostr.str());
             return TROPMODEL::DEF_TROPMODEL;
         }
     }
@@ -929,9 +834,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported type of residuals (" << rs << ")! Used default value (" << residtype2str(_res_type) << ")";
-            _add_log("gsetproc", ostr.str());
             return RESIDTYPE::DEF_RESIDTYPE;
         }
     }
@@ -952,9 +854,6 @@ namespace gnut
         }
         else
         {
-            std::stringstream ostr;
-            ostr << "Unsupported observations combination (" << oc << ")! Used default value (" << obscombin2str(_obs_combin) << ")";
-            _add_log("gsetproc", ostr.str());
             return OBSCOMBIN::DEF_OBSCOMBIN;
         }
     }
@@ -1276,18 +1175,15 @@ namespace gnut
 
     bool t_gsetproc::bds_code_bias_correction()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("bds_code_bias_corr");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
-        _gmutex.unlock();
         return tmp_bool;
     }
 
     int t_gsetproc::frequency()
     {
-        _gmutex.lock();
         std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("frequency");
         str_erase(tmp);
         int tmp_int = 2;
@@ -1295,13 +1191,11 @@ namespace gnut
         {
             tmp_int = std::stoi(tmp);
         }
-        _gmutex.unlock();
         return tmp_int;
     }
 
     RECEIVERTYPE t_gsetproc::get_receiverType()
     {
-        _gmutex.lock();
 
         std::string recType = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("receiverType");
         str_erase(recType);
@@ -1309,23 +1203,19 @@ namespace gnut
 
         if (recType.empty() || recType == "DEF")
         {
-            _gmutex.unlock();
             return RECEIVERTYPE::DEF;
         }
 
         if (recType == "AND")
         {
-            _gmutex.unlock();
             return RECEIVERTYPE::And;
         }
         else if (recType == "F9P")
         {
-            _gmutex.unlock();
             return RECEIVERTYPE::F9P;
         }
         else
         {
-            _gmutex.unlock();
             return RECEIVERTYPE::DEF;
         }
     }

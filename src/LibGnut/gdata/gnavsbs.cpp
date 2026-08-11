@@ -33,7 +33,6 @@ namespace gnut
 
     int t_gnavsbs::chk(std::set<std::string>& msg)
     {
-        _gmutex.lock();
 
         if (!_healthy())
         {
@@ -47,7 +46,6 @@ namespace gnut
             _validity = false;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -73,7 +71,6 @@ namespace gnut
             vel[0] = vel[1] = vel[2] = 0.0;
         }
 
-        _gmutex.lock();
 
         double Tk = t.diff(_toc); // T - toe difference
 
@@ -81,13 +78,11 @@ namespace gnut
         {
             GREAT_DEBUG("CRD " + _sat + ": The user time and Glonass ephemerides epoch differ too much. TOE: " + _toc.str_ymdhms() +
                         " T: " + t.str_ymdhms());
-            _gmutex.unlock();
             return -1;
         }
 
         if (double_eq(_x, 0.0) || double_eq(_y, 0.0) || double_eq(_z, 0.0))
         {
-            _gmutex.unlock();
             return -1;
         }
 
@@ -103,7 +98,6 @@ namespace gnut
             vel[2] = _z_dd;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
@@ -117,11 +111,9 @@ namespace gnut
         if (chk_health && _healthy() == false)
         {
             GREAT_DEBUG("not healthy sat " + sat() + " excluded from clk calculation " + t.str_ymdhms());
-            _gmutex.unlock();
             return -1; // HEALTH NOT OK
         }
 
-        _gmutex.lock();
 
         double Tk = t.diff(_toc); // T - toe difference
 
@@ -129,7 +121,6 @@ namespace gnut
         {
             GREAT_DEBUG("CLK " + _sat + ": The user time and SBAS ephemerides epoch differs too much. TOE: " + _toc.str_ymdhms() +
                         " T: " + t.str_ymdhms());
-            _gmutex.unlock();
             return -1;
         }
 
@@ -140,13 +131,11 @@ namespace gnut
 
         *clk = _f0 + _f1 * Tk;
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gnavsbs::data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
     {
-        _gmutex.lock();
 
         _sat = str2gsat(sat, GSYS::SBS);
 
@@ -178,13 +167,11 @@ namespace gnut
 
         _iod = data[14];
 
-        _gmutex.unlock();
         return 0;
     }
 
     int t_gnavsbs::nav2data(t_gnavdata& data)
     {
-        _gmutex.lock();
 
         data[0] = _f0;
         data[1] = _f1;
@@ -208,13 +195,11 @@ namespace gnut
 
         data[14] = _iod;
 
-        _gmutex.unlock();
         return 0;
     }
 
     t_timdbl t_gnavsbs::param(const NAVDATA& n)
     {
-        _gmutex.lock();
 
         t_timdbl tmp;
         switch (n)
@@ -258,13 +243,11 @@ namespace gnut
                 break;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     int t_gnavsbs::param(const NAVDATA& n, double val)
     {
-        _gmutex.lock();
 
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
@@ -280,7 +263,6 @@ namespace gnut
                 break;
         }
 
-        _gmutex.unlock();
         return 0;
     }
 

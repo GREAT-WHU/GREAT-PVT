@@ -52,7 +52,6 @@ namespace gnut
 
     std::shared_ptr<t_grec> t_gsetrec::grec(std::string s)
     {
-        _gmutex.lock();
 
         std::string str;
         std::shared_ptr<t_grec> tmp = std::make_shared<t_grec>();
@@ -60,7 +59,6 @@ namespace gnut
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
         if (!site)
         {
-            _gmutex.unlock();
             return 0;
         }
 
@@ -151,7 +149,6 @@ namespace gnut
             tmp->eccneu(xyz, beg, end);
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -262,7 +259,6 @@ namespace gnut
 
     void t_gsetrec::check()
     {
-        _gmutex.lock();
 
         xml_node parent = _doc.child(XMLKEY_ROOT);
         xml_node node = _default_node(parent, XMLKEY_REC);
@@ -331,13 +327,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gsetrec::help()
     {
-        _gmutex.lock();
 
         std::cerr << " <rec"
              << " id=\"GOPE\""
@@ -346,7 +340,6 @@ namespace gnut
              << " Z=\"4857067.0\""
              << " </rec>\n";
 
-        _gmutex.unlock();
         return;
     }
 

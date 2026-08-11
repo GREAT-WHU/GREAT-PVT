@@ -605,7 +605,6 @@ namespace great
         if (!_opl || _opl->data(xRec, Rren, Iren) < 0)
         {
             GREAT_WARN("WARNING: Site not found in atmosphere non tidal loading file!");
-            _mutex.unlock();
             return dxyz;
         }
         double xpole, ypole;

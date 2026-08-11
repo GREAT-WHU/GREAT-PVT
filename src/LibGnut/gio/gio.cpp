@@ -62,7 +62,6 @@ namespace gnut
 
     void t_gio::run_read()
     {
-        _gmutex.lock();
 
         // be sure always clean decoder
         if (_coder)
@@ -109,7 +108,6 @@ namespace gnut
 
         _stop_common();
         delete[] loc_buff;
-        _gmutex.unlock();
         return;
     }
 

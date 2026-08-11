@@ -52,11 +52,9 @@ namespace gnut
 
     int t_rinexn::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -83,7 +81,6 @@ namespace gnut
                         string lg("warning: not rinex navigation data file");
 
                         GREAT_INFO(lg);
-                        _mutex.unlock();
                         return -1;
                     }
                 }
@@ -346,29 +343,24 @@ namespace gnut
 
                 GREAT_DEBUG("reading END OF HEADER ");
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
             else
             {
                 // t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
             t_gcoder::_consume(tmpsize);
         }
 
-        _mutex.unlock();
         return consume;
     }
 
     int t_rinexn::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -666,7 +658,6 @@ namespace gnut
                 break; // break the initialization loop if read not finished correctly
             }
         }
-        _mutex.unlock();
         return consume;
     }
 

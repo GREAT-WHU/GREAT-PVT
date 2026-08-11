@@ -36,22 +36,18 @@ namespace gnut
 
     t_gallobj::~t_gallobj()
     {
-        _gmutex.lock();
         _mapobj.clear();
-        _gmutex.unlock();
         return;
     }
 
     int t_gallobj::add(std::shared_ptr<t_gobj> obj)
     {
-        _gmutex.lock();
 
         std::string s = obj->id();
 
         // object empty
         if (obj->id().empty())
         {
-            _gmutex.unlock();
             return -1;
         }
 
@@ -63,26 +59,22 @@ namespace gnut
         else
         {
             GREAT_DEBUG("warning - cannot overwrite object: " + s);
-            _gmutex.unlock();
             return -1;
         }
 
         _mapobj[s]->sync_pcv(_gpcv);
 
-        _gmutex.unlock();
         return 0;
     }
 
     std::shared_ptr<t_gobj> t_gallobj::obj(const std::string& s)
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_gobj> p_obj;
 
         t_map_obj::iterator it = _mapobj.find(s);
         if (it == _mapobj.end())
         {
-            _gmutex.unlock();
             return p_obj;
         }
         else
@@ -90,13 +82,11 @@ namespace gnut
             p_obj = it->second;
         }
 
-        _gmutex.unlock();
         return p_obj;
     }
 
     std::map<std::string, std::shared_ptr<t_gobj>> t_gallobj::objects(const t_gdata::ID_TYPE& id)
     {
-        _gmutex.lock();
 
         std::map<std::string, std::shared_ptr<t_gobj>> all_obj;
         t_map_obj::const_iterator itOBJ = _mapobj.begin();
@@ -113,13 +103,11 @@ namespace gnut
             ++itOBJ;
         }
 
-        _gmutex.unlock();
         return all_obj;
     }
 
     void t_gallobj::sync_pcvs()
     {
-        _gmutex.lock();
 
         t_map_obj::const_iterator itOBJ = _mapobj.begin();
 
@@ -128,7 +116,6 @@ namespace gnut
             itOBJ->second->sync_pcv(_gpcv);
             ++itOBJ;
         }
-        _gmutex.unlock();
         return;
     }
 

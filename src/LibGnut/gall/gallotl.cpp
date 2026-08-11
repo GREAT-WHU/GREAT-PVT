@@ -22,14 +22,12 @@ namespace gnut
 
     int t_gallotl::data(Matrix& otldata, const std::string& site)
     {
-        _gmutex.lock();
 
         if (_mapotl.find(site) == _mapotl.end() || _mapotl.size() == 0)
         {
             std::string site_short = site.substr(0, 4);
             if (_mapotl.find(site_short) == _mapotl.end() || _mapotl.size() == 0)
             {
-                _gmutex.unlock();
                 return -1;
             }
             else
@@ -42,7 +40,6 @@ namespace gnut
             otldata = _mapotl[site].data();
         }
 
-        _gmutex.unlock();
         return 1;
     }
 
@@ -72,12 +69,10 @@ namespace gnut
 
     void t_gallotl::add(t_gotl& otl)
     {
-        _gmutex.lock();
 
         std::string site = otl.site();
         _mapotl[site] = otl;
 
-        _gmutex.unlock();
         return;
     }
 

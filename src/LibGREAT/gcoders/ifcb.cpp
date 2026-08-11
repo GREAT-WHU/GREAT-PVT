@@ -25,25 +25,20 @@ namespace great
 
     int t_ifcb::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
-        _mutex.unlock();
         return -1;
     }
 
     int t_ifcb::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
         string tmp;
@@ -89,14 +84,12 @@ namespace great
                 {
                     GREAT_WARN(std::string("t_ifcb::decode_data End of file ") + tmp);
                     t_gcoder::_consume(tmpsize);
-                    _mutex.unlock();
                     return -1;
                 }
                 else
                 {
                     GREAT_WARN(std::string("t_ifcb::decode_data unknown ifcb-data message ") + tmp);
                     t_gcoder::_consume(tmpsize);
-                    _mutex.unlock();
                     return -1;
                 }
                 t_gcoder::_consume(tmpsize);
@@ -107,7 +100,6 @@ namespace great
             GREAT_ERROR("t_ifcb::decode_data throw exception");
             return -1;
         }
-        _mutex.unlock();
         return consume;
     }
 

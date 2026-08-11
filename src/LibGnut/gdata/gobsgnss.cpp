@@ -79,9 +79,7 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         _gobs[obs] = d;
-        _gmutex.unlock();
         return;
     }
 
@@ -90,12 +88,10 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         if (i != 0)
         {
             _glli[obs] = i;
         }
-        _gmutex.unlock();
         return;
     }
 
@@ -104,9 +100,7 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         _gslip[obs] = i;
-        _gmutex.unlock();
         return;
     }
 
@@ -115,12 +109,10 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         if (i != 0)
         {
             _goutlier[obs] = i;
         }
-        _gmutex.unlock();
         return;
     }
 
@@ -129,7 +121,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         if (name == "bds_code_bias")
         {
             _bds_code_bias_mark = b;
@@ -138,13 +129,11 @@ namespace gnut
         {
             _range_smooth_mark = b;
         }
-        _gmutex.unlock();
         return;
     }
 
     bool t_gobsgnss::getrangestate(const std::string& name)
     {
-        _gmutex.lock();
         bool tmp = false;
         if (name == "bds_code_bias")
         {
@@ -154,7 +143,6 @@ namespace gnut
         {
             tmp = _range_smooth_mark;
         }
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -163,9 +151,7 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         _gLevel[gobs] = flag;
-        _gmutex.unlock();
         return;
     }
 
@@ -174,7 +160,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         std::vector<GOBS> tmp;
         std::map<GOBS, double>::const_iterator it = _gobs.begin();
@@ -184,13 +169,11 @@ namespace gnut
             it++;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     std::set<GOBS> t_gobsgnss::obs_phase(const GOBSBAND& band) const
     {
-        _gmutex.lock();
 
         std::set<GOBS> tmp;
         std::map<GOBS, double>::const_iterator it = _gobs.begin();
@@ -205,13 +188,11 @@ namespace gnut
             it++;
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     double t_gobsgnss::getobs(const GOBS& obs) const
     {
-        _gmutex.lock();
 
         double tmp = NULL_GOBS;
         if (_gobs.find(obs) != _gobs.end())
@@ -219,20 +200,17 @@ namespace gnut
             tmp = _gobs.at(obs);
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gobsgnss::resetobs(const GOBS& obs, const double& v)
     {
-        _gmutex.lock();
 
         if (_gobs.find(obs) != _gobs.end())
         {
             _gobs[obs] = v;
         }
 
-        _gmutex.unlock();
     }
 
     void t_gobsgnss::eraseobs(const GOBS& obs)
@@ -240,7 +218,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gobs.find(obs) != _gobs.end())
         {
@@ -263,7 +240,6 @@ namespace gnut
             _gLevel.erase(obs);
         }
 
-        _gmutex.unlock();
     }
 
     void t_gobsgnss::eraseband(const GOBSBAND& b)
@@ -271,7 +247,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        //_gmutex.lock();
 
         std::vector<GOBS> obs_vec = this->obs();
         for (auto it : obs_vec) // delete
@@ -282,7 +257,6 @@ namespace gnut
             }
         }
 
-        //_gmutex.unlock();
     }
 
     bool t_gobsgnss::apply_bias(t_gallbias* allbias)
@@ -559,7 +533,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         double tmp = NULL_GOBS;
         if (_gobs.find(str2gobs(obs)) != _gobs.end())
@@ -567,7 +540,6 @@ namespace gnut
             tmp = _gobs.at(str2gobs(obs));
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -576,7 +548,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         int tmp = 0;
         if (_glli.find(obs) != _glli.end())
@@ -584,7 +555,6 @@ namespace gnut
             tmp = _glli.at(obs);
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -593,7 +563,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         int tmp = 0;
         if (_gslip.find(obs) != _gslip.end())
@@ -601,7 +570,6 @@ namespace gnut
             tmp = _gslip.at(obs);
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -610,7 +578,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         int tmp = 0;
         if (_goutlier.find(obs) != _goutlier.end())
@@ -618,7 +585,6 @@ namespace gnut
             tmp = _goutlier.at(obs);
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -627,7 +593,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         int tmp = -1;
         if (_gLevel.find(obs) != _gLevel.end())
@@ -635,7 +600,6 @@ namespace gnut
             tmp = _gLevel[obs];
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -644,7 +608,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         bool tmp = true;
         for (auto it : _gLevel)
@@ -655,7 +618,6 @@ namespace gnut
                 break;
             }
         }
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -664,7 +626,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         int tmp = 0;
         if (_glli.find(str2gobs(obs)) != _glli.end())
@@ -672,7 +633,6 @@ namespace gnut
             tmp = _glli.at(str2gobs(obs));
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -681,9 +641,7 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         _apr_ele = d;
-        _gmutex.unlock();
         return;
     }
 
@@ -697,9 +655,7 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
         _channel = ch;
-        _gmutex.unlock();
         return;
     }
 
@@ -713,11 +669,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         std::size_t tmp = _gobs.size();
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -1489,7 +1443,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         double coef1, coef2;
 
@@ -1500,7 +1453,6 @@ namespace gnut
 
         double lc = _lc_range(&g1, coef1, &g2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1510,7 +1462,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         double coef1, coef2;
 
@@ -1518,7 +1469,6 @@ namespace gnut
 
         double lc = _lc_range(&g1, coef1, &g2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1527,7 +1477,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         t_gobs tmp1(g1);
         t_gobs tmp2(g2);
@@ -1537,7 +1486,6 @@ namespace gnut
         _coef_ionofree(tmp1.band(), coef1, tmp2.band(), coef2);
 
         double lc = _lc_range(&tmp1, coef1, &tmp2, coef2); // still dual-frequency only
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1547,7 +1495,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         double coef1, coef2;
 
@@ -1557,7 +1504,6 @@ namespace gnut
         _coef_geomfree(g1.band(), coef1, g2.band(), coef2);
 
         double lc = _lc_range(&g1, coef1, &g2, coef2); // still dual-frequency only
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1567,14 +1513,12 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         double coef1, coef2;
 
         _coef_geomfree(g1.band(), coef1, g2.band(), coef2);
 
         double lc = _lc_range(&g1, coef1, &g2, coef2); // still dual-frequency only
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1584,11 +1528,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1601,7 +1543,6 @@ namespace gnut
 
         double lc = _lc_phase(&g1, coef1, &g2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1611,11 +1552,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1625,7 +1564,6 @@ namespace gnut
 
         double lc = _lc_phase(&g1, coef1, &g2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1634,11 +1572,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1651,7 +1587,6 @@ namespace gnut
 
         double lc = _lc_phase(&tmp1, coef1, &tmp2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1661,11 +1596,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1680,19 +1613,16 @@ namespace gnut
         L1 = obs_L(g1) / wlength1;
         if (double_eq(L1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L2 = obs_L(g2) / wlength2;
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double lc = L1 / (1.0 - fact2) - L2 / (1.0 / fact - fact);
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1702,11 +1632,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1719,7 +1647,6 @@ namespace gnut
 
         double lc = _lc_phase(&g1, coef1, &g2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1729,11 +1656,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1743,7 +1668,6 @@ namespace gnut
 
         double lc = _lc_phase(&g1, coef1, &g2, coef2); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -1753,11 +1677,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1771,18 +1693,15 @@ namespace gnut
         L1 = obs_L(g1) / wlength1;
         if (double_eq(L1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L2 = obs_L(g2) / wlength2;
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double lg = (fact * L1 - L2) / (1 - fact);
-        _gmutex.unlock();
         return lg;
     }
 
@@ -1791,11 +1710,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1819,28 +1736,23 @@ namespace gnut
 
         if (double_eq(narrP, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         if (double_eq(wideL, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double lc = narrP - wideL;
 
-        _gmutex.unlock();
         return lc;
     }
 
     double t_gobsgnss::MW_cycle(const t_gobs& gL1, const t_gobs& gL2, const t_gobs& gC1, const t_gobs& gC2) const
     {
-        _gmutex.lock();
 
         if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1856,31 +1768,26 @@ namespace gnut
         C1 = obs_C(gC1);
         if (double_eq(C1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         C2 = obs_C(gC2);
         if (double_eq(C2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L1 = obs_L(gL1) / wlength1;
         if (double_eq(L1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L2 = obs_L(gL2) / wlength2;
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double mw = L1 - L2 - (C1 / wlength1 + C2 / wlength2) * (1.0 - fact) / (1.0 + fact);
 
-        _gmutex.unlock();
         return mw;
     }
     double t_gobsgnss::EWL_cycle(const t_gobs& gL1, const t_gobs& gL2, const t_gobs& gL3, const t_gobs& gC1, const t_gobs& gC2) const
@@ -1888,11 +1795,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1901,17 +1806,14 @@ namespace gnut
         double wlength3 = wavelength(gL3.band());
         if (double_eq(wlength1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         if (double_eq(wlength2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         if (double_eq(wlength3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         double alpha = (wlength2 * wlength3 - wlength1 * wlength1) / (wlength2 * wlength2 - wlength1 * wlength1);
@@ -1924,31 +1826,26 @@ namespace gnut
         C1 = obs_C(gC1);
         if (double_eq(C1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         C2 = obs_C(gC2);
         if (double_eq(C2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L2 = obs_L(gL2) / wlength2;
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L3 = obs_L(gL3) / wlength3;
         if (double_eq(L3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double ewl = L2 - L3 - (C1 * (1 - alpha) + C2 * alpha) * (wlength3 - wlength2) / (wlength2 * wlength3);
 
-        _gmutex.unlock();
         return ewl;
     }
     double t_gobsgnss::LW_meter(const t_gobs& gL1, const t_gobs& gL2) const
@@ -1956,11 +1853,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -1973,19 +1868,16 @@ namespace gnut
         L1 = obs_L(gL1) / wlength1;
         if (double_eq(L1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L2 = obs_L(gL2) / wlength2;
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double lw = (L1 - L2) / (1.0 / wlength1 - 1.0 / wlength2);
 
-        _gmutex.unlock();
         return lw;
     }
     double t_gobsgnss::LE_meter(const t_gobs& gL2, const t_gobs& gL3) const
@@ -1993,11 +1885,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -2005,12 +1895,10 @@ namespace gnut
         double wlength3 = wavelength(gL3.band());
         if (double_eq(wlength2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         if (double_eq(wlength3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
@@ -2020,19 +1908,16 @@ namespace gnut
         L2 = obs_L(gL2) / wlength2;
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L3 = obs_L(gL3) / wlength3;
         if (double_eq(L3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double le = (L2 - L3) / (1.0 / wlength2 - 1.0 / wlength3);
 
-        _gmutex.unlock();
         return le;
     }
     double t_gobsgnss::LWL_factor13(const t_gobs& gL1, const t_gobs& gL3) const
@@ -2040,11 +1925,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
@@ -2052,13 +1935,11 @@ namespace gnut
         double wlength3 = wavelength(gL3.band());
         if (double_eq(wlength1, NULL_GOBS) || double_eq(wlength3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double lwl_factor13 = wlength1 / wlength3;
 
-        _gmutex.unlock();
         return lwl_factor13;
     }
 
@@ -2067,17 +1948,14 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
         double lc = _lcf_phase(&g1, 2, &g2, -1); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -2086,17 +1964,14 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
         double lc = _lcf_range(&g1, 1, &g2, 1); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -2105,17 +1980,14 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
-            _gmutex.unlock();
             return 0.0;
         }
 
         double lc = _lcf_phase(&g1, 1, &g2, -1); // still dual-frequency only
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -2124,7 +1996,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         if (!code.is_code())
         {
@@ -2144,7 +2015,6 @@ namespace gnut
 
         if (double_eq(C, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
@@ -2153,13 +2023,11 @@ namespace gnut
         double L = _lc_phase(&L1, coef1, &L2, coef2);
         if (double_eq(L, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double lc = coefC * C + L;
 
-        _gmutex.unlock();
         return lc;
     }
 
@@ -2168,24 +2036,20 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         double frequency1 = frequency(gL1.band());
         double frequency2 = frequency(gL2.band());
         double frequency3 = frequency(gL3.band());
         if (double_eq(frequency1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         if (double_eq(frequency2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         if (double_eq(frequency3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
@@ -2201,25 +2065,21 @@ namespace gnut
         L1 = obs_L(gL1);
         if (double_eq(L1, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L2 = obs_L(gL2);
         if (double_eq(L2, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
         L3 = obs_L(gL3);
         if (double_eq(L3, NULL_GOBS))
         {
-            _gmutex.unlock();
             return NULL_GOBS;
         }
 
         double GFIF_obs = (coef_1 * L1 + coef_2 * L2) - (coef_3 * L1 + coef_4 * L3);
 
-        _gmutex.unlock();
         return GFIF_obs;
     }
 
@@ -2228,11 +2088,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         bool tmp = this->_valid();
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -2246,11 +2104,9 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
-        _gmutex.lock();
 
         this->_clear();
 
-        _gmutex.unlock();
         return;
     }
 
@@ -2287,7 +2143,6 @@ namespace gnut
 
     std::set<GOBSBAND> t_gobsgnss::band_avail(bool phase) const
     {
-        _gmutex.lock();
 
         std::set<GOBSBAND> s_f;
 
@@ -2300,22 +2155,18 @@ namespace gnut
             s_f = _band_avail_code();
         }
 
-        _gmutex.unlock();
         return s_f;
     }
 
     std::set<GFRQ> t_gobsgnss::freq_avail() const
     {
-        _gmutex.lock();
         std::set<GFRQ> s_f = _freq_avail();
 
-        _gmutex.unlock();
         return s_f;
     }
 
     bool t_gobsgnss::contain_freq(const FREQ_SEQ& freq) const
     {
-        _gmutex.lock();
 
         bool res = false;
 
@@ -2329,7 +2180,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return res;
     }
 

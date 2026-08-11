@@ -32,11 +32,9 @@ namespace gnut
 
     int t_atx::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         }
 
@@ -70,23 +68,19 @@ namespace gnut
             {
                 GREAT_DEBUG("reading END OF HEADER ");
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
             t_gcoder::_consume(tmpsize);
         }
 
-        _mutex.unlock();
         return consume;
     }
 
     int t_atx::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -110,7 +104,6 @@ namespace gnut
             {
                 if ((tmpsize = t_gcoder::_getline(line, recsize)) <= 0)
                 {
-                    _mutex.unlock();
                     return consume;
                 }
 
@@ -195,7 +188,6 @@ namespace gnut
                         istr >> yr >> mn >> dd >> hr >> mi >> sc;
                         if (istr.fail())
                         {
-                            _mutex.unlock();
                             return consume;
                         }
 
@@ -214,7 +206,6 @@ namespace gnut
                         istr >> yr >> mn >> dd >> hr >> mi >> sc;
                         if (istr.fail())
                         {
-                            _mutex.unlock();
                             return consume;
                         }
 
@@ -247,7 +238,6 @@ namespace gnut
                         istr >> neu[0] >> neu[1] >> neu[2];
                         if (istr.fail())
                         {
-                            _mutex.unlock();
                             return consume;
                         }
 
@@ -278,7 +268,6 @@ namespace gnut
                             cout << "WARNING: INCOMPLETE FREQUENCY END " << t_gfreq::gfreq2str(freq1) << " x "
                                  << t_gfreq::gfreq2str(freq2) << " skipped" << endl;
                             consume += t_gcoder::_consume(recsize);
-                            _mutex.unlock();
                             return consume;
                         }
 
@@ -318,7 +307,6 @@ namespace gnut
 
                         if (istr.fail())
                         {
-                            _mutex.unlock();
                             return consume;
                         }
 
@@ -339,7 +327,6 @@ namespace gnut
 
                         if (istr.fail())
                         {
-                            _mutex.unlock();
                             return consume;
                         }
                     }
@@ -351,7 +338,6 @@ namespace gnut
             } // END OF ANTENNA START
         } // LOOP OVER ALL ANTENNAS
 
-        _mutex.unlock();
         return consume;
     }
 

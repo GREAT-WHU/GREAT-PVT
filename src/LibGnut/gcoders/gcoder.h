@@ -32,7 +32,6 @@
 #include "gio/gio.h"
 #include "gdata/gdata.h"
 #include "gutils/gsys.h"
-#include "gutils/gmutex.h"
 #include "gutils/gcommon.h"
 #include "gset/gsetbase.h"
 #include "gset/gsetgnss.h"
@@ -308,7 +307,6 @@ namespace gnut
 #ifdef BMUTEX
         boost::mutex _mutex; ///< buffer mutex
 #else
-        t_gmutex _mutex; ///< buffer mutex
 #endif
     private:
     };

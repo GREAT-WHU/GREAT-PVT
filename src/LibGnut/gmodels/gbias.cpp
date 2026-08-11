@@ -46,7 +46,6 @@ namespace gnut
 
     void t_gbias::set(const t_gtime& beg, const t_gtime& end, double val, GOBS obs1, GOBS obs2)
     {
-        _gmutex.lock();
 
         _beg = beg;
         _end = end;
@@ -56,26 +55,22 @@ namespace gnut
 
         _val = val;
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gbias::set(double val, GOBS obs1, GOBS obs2)
     {
-        _gmutex.lock();
 
         _gobs = obs1;
         _ref = obs2;
 
         _val = val;
 
-        _gmutex.unlock();
         return;
     }
 
     bool t_gbias::valid(const t_gtime& epo)
     {
-        _gmutex.lock();
 
         bool ret = true;
         ;
@@ -89,7 +84,6 @@ namespace gnut
             ret = true;
         }
 
-        _gmutex.unlock();
         return ret;
     }
 

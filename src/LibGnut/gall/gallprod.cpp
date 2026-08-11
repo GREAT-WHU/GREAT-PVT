@@ -23,9 +23,7 @@ namespace gnut
 
     void t_gallprod::clear()
     {
-        _gmutex.lock();
         _map_prod.clear();
-        _gmutex.unlock();
     }
 
     int t_gallprod::add(std::shared_ptr<t_gprod> prod, std::string site)
@@ -43,33 +41,27 @@ namespace gnut
             std::cerr << "warning [gallprod] - adding product with both [and different] non-zero string and object id!\n";
         }
 
-        _gmutex.lock();
         _map_prod[id][type][prod->epoch()] = prod; // allocate in heap
 
-        _gmutex.unlock();
         return 0;
     }
 
     std::shared_ptr<t_gprod> t_gallprod::get(const std::string& site, ID_TYPE type, const t_gtime& t)
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_gprod> obj_pt = _find(site, type, t);
 
-        _gmutex.unlock();
         return obj_pt;
     }
 
     std::set<std::string> t_gallprod::prod_sites()
     {
         std::set<std::string> site_list;
-        _gmutex.lock();
         t_map_prd::const_iterator it;
         for (it = _map_prod.begin(); it != _map_prod.end(); ++it)
         {
             site_list.insert(it->first);
         }
-        _gmutex.unlock();
         return site_list;
     }
 
@@ -77,7 +69,6 @@ namespace gnut
     {
         std::set<t_gtime> epo_list;
 
-        _gmutex.lock();
 
         t_map_epo::const_iterator itEPO;
         t_map_id::const_iterator itTYPE;
@@ -85,7 +76,6 @@ namespace gnut
 
         if (it == _map_prod.end())
         {
-            _gmutex.unlock();
             return epo_list;
         }
         else
@@ -93,7 +83,6 @@ namespace gnut
             itTYPE = it->second.find(type);
             if (itTYPE == it->second.end())
             {
-                _gmutex.unlock();
                 return epo_list;
             }
             else
@@ -105,7 +94,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return epo_list;
     }
 
@@ -116,7 +104,6 @@ namespace gnut
             return;
         }
 
-        _gmutex.lock();
 
         // loop over all sites
         t_map_prd::iterator itKEY = _map_prod.begin();
@@ -196,13 +183,11 @@ namespace gnut
             }
             itKEY++;
         }
-        _gmutex.unlock();
         return;
     }
 
     void t_gallprod::rem(const std::string& site, ID_TYPE type, const t_gtime& t)
     {
-        _gmutex.lock();
 
         t_map_epo::iterator itEP;
         t_map_id::iterator itID;
@@ -220,7 +205,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return;
     }
 

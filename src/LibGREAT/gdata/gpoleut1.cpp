@@ -33,7 +33,6 @@ namespace great
 
     void t_gpoleut1::getEopData(t_gtime mjdtime, std::map<std::string, double>& data)
     {
-        std::lock_guard<t_gmutex> lock(_gmutex);
         auto right = _poleut1_data.upper_bound(mjdtime);
         if (right == _poleut1_data.begin())
         {
@@ -68,15 +67,12 @@ namespace great
 
     bool t_gpoleut1::isEmpty()
     {
-        _gmutex.lock();
         if (_poleut1_data.size() == 0)
         {
-            _gmutex.unlock();
             return true;
         }
         else
         {
-            _gmutex.unlock();
             return false;
         }
     }

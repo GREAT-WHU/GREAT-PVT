@@ -37,7 +37,6 @@ namespace gnut
 
     t_giof::~t_giof()
     {
-        _gmutex.lock();
 
         if (this->is_open())
         {
@@ -50,12 +49,10 @@ namespace gnut
                 std::cerr << "Exception closing file " << _name << ": " << e.what() << std::endl;
             }
         }
-        _gmutex.unlock();
     }
 
     int t_giof::mask(std::string mask)
     {
-        _gmutex.lock();
 
         _irc = 0;
         substitute(mask, GFILE_PREFIX, "");
@@ -75,7 +72,6 @@ namespace gnut
             {
                 std::cerr << "Exception closing file " << _name << ": " << e.what() << std::endl;
                 _irc++;
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -85,7 +81,6 @@ namespace gnut
         }
         _mask = mask;
         _name = _replace();
-        _gmutex.unlock();
         return 1;
     }
 
@@ -96,7 +91,6 @@ namespace gnut
             return -1;
         }
 
-        _gmutex.lock();
 
         std::string name = _replace();
 
@@ -113,7 +107,6 @@ namespace gnut
                 {
                     std::cerr << "Exception closing file " << _name << ": " << e.what() << std::endl;
                     _irc++;
-                    _gmutex.unlock();
                     return -1;
                 }
             }
@@ -128,7 +121,6 @@ namespace gnut
             {
                 std::cerr << "Exception opening file " << _name << ": " << e.what() << std::endl;
                 _irc++;
-                _gmutex.unlock();
                 return -1;
             }
         }
@@ -142,11 +134,9 @@ namespace gnut
         {
             std::cerr << "Exception writting to file " << _name << ": " << e.what() << std::endl;
             _irc++;
-            _gmutex.unlock();
             return -1;
         }
 
-        _gmutex.unlock();
         return size;
     }
 
@@ -157,7 +147,6 @@ namespace gnut
             return -1;
         }
 
-        _gmutex.lock();
         _name = _replace();
 
         int nbytes;
@@ -175,7 +164,6 @@ namespace gnut
                 {
                     std::cerr << "Exception opening file " << _name << ": " << e.what() << std::endl;
                     _irc++;
-                    _gmutex.unlock();
                     return -1;
                 }
             }
@@ -206,13 +194,11 @@ namespace gnut
                 {
                     std::cerr << "Exception reading from file " << _name << ": " << e.what() << std::endl;
                     _irc++;
-                    _gmutex.unlock();
                     return -1;
                 }
             }
             break; // nbytes is more than 0, we can break
         }
-        _gmutex.unlock();
         return nbytes;
     }
 
@@ -230,17 +216,13 @@ namespace gnut
 
     void t_giof::tsys(t_gtime::t_tsys ts)
     {
-        _gmutex.lock();
         _tsys = ts;
-        _gmutex.unlock();
         return;
     }
 
     t_gtime::t_tsys t_giof::tsys()
     {
-        _gmutex.lock();
         t_gtime::t_tsys tsys = _tsys;
-        _gmutex.unlock();
         return tsys;
     }
 

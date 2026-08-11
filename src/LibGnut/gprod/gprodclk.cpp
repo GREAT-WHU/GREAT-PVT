@@ -30,12 +30,10 @@ namespace gnut
 
     void t_gprodclk::clk(const double& val, const double& rms)
     {
-        _gmutex.lock();
 
         _clk = val;
         _clk_rms = rms;
 
-        _gmutex.unlock();
         return;
     }
 

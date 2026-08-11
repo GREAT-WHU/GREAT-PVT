@@ -22,12 +22,10 @@ namespace gnut
 
     void t_gtrn::header(const t_rxnhdr& hdr, std::string path)
     {
-        _gmutex.lock();
 
         t_header_pair pair = std::make_pair(path, hdr);
         _headers.push_back(pair);
 
-        _gmutex.unlock();
     }
 
     t_gtrn::t_header t_gtrn::headers() const
@@ -37,7 +35,6 @@ namespace gnut
 
     t_rxnhdr t_gtrn::header(std::string path) const
     {
-        _gmutex.lock();
 
         t_rxnhdr rxnhdr;
         for (auto it = _headers.begin(); it != _headers.end(); ++it)
@@ -53,18 +50,14 @@ namespace gnut
 
     void t_gtrn::channel(int chk)
     {
-        _gmutex.lock();
         _channel = chk;
-        _gmutex.unlock();
 
         return;
     }
 
     int t_gtrn::channel() const
     {
-        _gmutex.lock();
         int tmp = _channel;
-        _gmutex.unlock();
 
         return tmp;
     }

@@ -37,11 +37,9 @@ namespace gnut
 
     int t_sp3::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -158,7 +156,6 @@ namespace gnut
             else if (tmp.substr(0, 2) == "* ")
             { // END OF HEADER !!!
                 GREAT_DEBUG("END OF HEADER");
-                _mutex.unlock();
                 return -1;
             }
             else
@@ -169,17 +166,14 @@ namespace gnut
             t_gcoder::_consume(tmpsize);
         }
 
-        _mutex.unlock();
         return consume;
     }
 
     int t_sp3::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -194,7 +188,6 @@ namespace gnut
                 {
                     GREAT_DEBUG("EOF found");
                     t_gcoder::_consume(tmpsize);
-                    _mutex.unlock();
                     return tmpsize;
                 }
 
@@ -214,7 +207,6 @@ namespace gnut
                 {
                     GREAT_CRITICAL(std::string("incorrect SP3 epoch record : ") + ss.str() + "!");
                     t_gcoder::_consume(tmpsize);
-                    _mutex.unlock();
                     return -1;
                 }
 
@@ -287,7 +279,6 @@ namespace gnut
                 {
                     GREAT_ERROR(std::string("incorrect SP3 data record: ") + ss.str());
                     t_gcoder::_consume(tmpsize);
-                    _mutex.unlock();
                     return -1;
                 }
                 cnt++;
@@ -334,7 +325,6 @@ namespace gnut
                 {
                     GREAT_ERROR(std::string("incorrect SP3 data record: ") + ss.str());
                     t_gcoder::_consume(tmpsize);
-                    _mutex.unlock();
                     return -1;
                 }
             }
@@ -348,7 +338,6 @@ namespace gnut
 
             t_gcoder::_consume(tmpsize);
         }
-        _mutex.unlock();
         return tmpsize;
     }
 

@@ -32,24 +32,20 @@ namespace gnut
     GSYS t_geph::gsys() const
     {
         GSYS tmp = GSYS::GNS;
-        _gmutex.lock();
         if (_valid())
         {
             tmp = gsat2gsys(_sat);
         }
-        _gmutex.unlock();
         return tmp;
     }
 
     std::string t_geph::gsat() const
     {
         std::string tmp = "";
-        _gmutex.lock();
         if (_valid())
         {
             tmp = gsat2str(_sat);
         }
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -75,17 +71,13 @@ namespace gnut
 
     bool t_geph::valid()
     {
-        _gmutex.lock();
         bool tmp = this->_valid();
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_geph::clear()
     {
-        _gmutex.lock();
         this->_clear();
-        _gmutex.unlock();
         return;
     }
 

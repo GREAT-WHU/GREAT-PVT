@@ -19,12 +19,10 @@
 #define GSETBASE_H
 
 #include <set>
-#include <map>
 #include <string>
 #include <iostream>
 
 #include "gutils/gtypeconv.h"
-#include "gutils/gmutex.h"
 #include "pugixml/src/pugixml.hpp"
 #include "spdlog/spdlog.h"
 
@@ -97,7 +95,12 @@ namespace gnut
          * @param[out] rev program revision number
          * @param[out] own program owner name
          */
-        virtual void app(const std::string& pgm, const std::string& ver, const std::string& dat, const std::string& tim, const std::string& rev, const std::string& own);
+        virtual void app(const std::string& pgm,
+                         const std::string& ver,
+                         const std::string& dat,
+                         const std::string& tim,
+                         const std::string& rev,
+                         const std::string& own);
 
         /** @brief application usage. */
         virtual void usage();
@@ -200,9 +203,6 @@ namespace gnut
          */
         void _default_attr(xml_node& node, const char* n, const double& value, bool reset = false);
 
-        /** @brief report element issues. */
-        void _add_log(std::string element, std::string msg);
-
         /** @brief XML settings header. */
         virtual void help_header();
 
@@ -223,10 +223,8 @@ namespace gnut
         std::string _dat; ///< program data
         std::string _tim; ///< program time
 
-        std::set<std::string> _set;                     ///< program settings
-        std::map<std::string, std::set<std::string>> _chache_log; ///< The chache of log pointer
+        std::set<std::string> _set; ///< program settings
 
-        mutable t_gmutex _gmutex; ///< For the thread
 
     private:
     };

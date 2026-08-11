@@ -52,14 +52,12 @@ namespace gnut
 
     int t_sinex::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         t_gcoder::_add2buffer(buff, sz);
         while ((_tmpsize = t_gcoder::_getline(_line)) >= 0)
         {
             if (_tmpsize < 65)
             {
-                _mutex.unlock();
                 return 0;
             }
 
@@ -126,18 +124,15 @@ namespace gnut
                 if (_decode_vers() == 0)
                 {
                     t_gcoder::_consume(_tmpsize);
-                    _mutex.unlock();
                     return -1;
                 }
             }
         }
-        _mutex.unlock();
         return 0;
     }
 
     int t_sinex::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         t_gcoder::_add2buffer(buff, sz);
 
@@ -148,7 +143,6 @@ namespace gnut
 
         _decode_data();
 
-        _mutex.unlock();
         return _consume;
     }
 

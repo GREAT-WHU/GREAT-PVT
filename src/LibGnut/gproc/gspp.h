@@ -21,7 +21,6 @@
 
 #include "gio/great_log.h"
 #include "gutils/gtime.h"
-#include "gutils/gmutex.h"
 #include "gprod/gprodcrd.h"
 #include "gset/gsetbase.h"
 #include "gset/gsetout.h"
@@ -173,7 +172,6 @@ namespace gnut
 
         bool _use_ecl;    ///< use ecl
         bool _success;    ///< success
-        t_gmutex _gmutex; ///< gmutex
 
         // signals used for processing
         std::map<GSAT, std::map<GOBSBAND, GOBSATTR>> _signals; ///< signal

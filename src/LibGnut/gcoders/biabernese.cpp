@@ -31,11 +31,9 @@ namespace gnut
 
     int t_biabernese::decode_head(char* buff, int sz, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -79,7 +77,6 @@ namespace gnut
             else if (line.find("+BIAS/SOLUTION") != string::npos)
             {
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
             else if (line.find("CODE'S MONTHLY") != string::npos)
@@ -103,7 +100,6 @@ namespace gnut
                     mon = line.substr(idx + 14, 2);
                 }
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
             else if (line.find("CODE'S 30-DAY") != string::npos)
@@ -117,12 +113,10 @@ namespace gnut
                 }
                 string time_str = year + ":" + end_doy;
                 t_gcoder::_consume(tmpsize);
-                _mutex.unlock();
                 return -1;
             }
             t_gcoder::_consume(tmpsize);
         }
-        _mutex.unlock();
         return consume;
     }
 
@@ -151,11 +145,9 @@ namespace gnut
 
     int t_biabernese::_decode_data_CODE(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
         string line;
@@ -213,17 +205,14 @@ namespace gnut
             }
         }
 
-        _mutex.unlock();
         return consume;
     }
 
     int t_biabernese::_decode_data_sinex(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
 
@@ -240,7 +229,6 @@ namespace gnut
             complete = false;
             if (line.find("-BIAS/SOLUTION") != line.npos || line.find("%=ENDBIA") == 0)
             {
-                _mutex.unlock();
                 return 0;
             }
             else if (line.substr(1, 4) == "DSB " || line.substr(1, 4) == "ISB " || line.substr(1, 4) == "OSB ")
@@ -346,17 +334,14 @@ namespace gnut
             }
         }
 
-        _mutex.unlock();
         return consume;
     }
 
     int t_biabernese::_decode_data_sinex_0(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, sz) == 0)
         {
-            _mutex.unlock();
             return 0;
         };
         string line;
@@ -372,7 +357,6 @@ namespace gnut
             complete = false;
             if (line.find("-BIAS/SOLUTION") != line.npos || line.find("%=ENDBIA") == 0)
             {
-                _mutex.unlock();
                 return 0;
             }
             else if (line.substr(1, 4) == "DSB " || line.substr(1, 4) == "ISB " || line.substr(1, 4) == "OSB ")
@@ -443,7 +427,6 @@ namespace gnut
             }
         }
 
-        _mutex.unlock();
         return consume;
     }
 

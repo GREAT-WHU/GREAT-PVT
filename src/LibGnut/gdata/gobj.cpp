@@ -26,106 +26,82 @@ namespace gnut
 
     t_gobj::~t_gobj()
     {
-        _gmutex.lock();
         _mappcv.clear();
         _mapeccxyz.clear();
         _mapeccneu.clear();
         _mapant.clear();
         _mapcrd.clear();
-        _gmutex.unlock();
     }
 
     void t_gobj::id(std::string str)
     {
-        _gmutex.lock();
         _id = str;
-        _gmutex.unlock();
     }
 
     std::string t_gobj::id() const
     {
-        _gmutex.lock();
         std::string tmp = _id;
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gobj::overwrite(bool overwrite)
     {
-        _gmutex.lock();
         _overwrite = overwrite;
-        _gmutex.unlock();
     }
 
     bool t_gobj::overwrite()
     {
-        _gmutex.lock();
 
-        _gmutex.unlock();
         return _overwrite;
     }
 
     void t_gobj::name(std::string str)
     {
-        _gmutex.lock();
 
         _name = str;
 
-        _gmutex.unlock();
         return;
     }
 
     std::string t_gobj::name() const
     {
-        _gmutex.lock();
         std::string tmp = _name;
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gobj::domes(std::string str)
     {
-        _gmutex.lock();
 
         _domes = str;
 
-        _gmutex.unlock();
         return;
     }
 
     std::string t_gobj::domes() const
     {
-        _gmutex.lock();
         std::string tmp = _domes;
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gobj::desc(std::string str)
     {
-        _gmutex.lock();
 
         _desc = str;
 
-        _gmutex.unlock();
         return;
     }
 
     std::string t_gobj::desc() const
     {
-        _gmutex.lock();
         std::string tmp = _desc;
-        _gmutex.unlock();
         return tmp;
     }
 
     void t_gobj::eccxyz(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end)
     {
-        _gmutex.lock();
 
         _eccxyz(ecc, beg, end);
 
-        _gmutex.unlock();
         return;
     }
 
@@ -214,12 +190,10 @@ namespace gnut
 
     t_gtriple t_gobj::eccxyz(const t_gtime& t) const
     {
-        _gmutex.lock();
 
         t_gtriple eccxyz(0.0, 0.0, 0.0);
         eccxyz = this->_eccxyz(t);
 
-        _gmutex.unlock();
         return eccxyz;
     }
 
@@ -270,11 +244,9 @@ namespace gnut
 
     void t_gobj::eccneu(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end)
     {
-        _gmutex.lock();
 
         _eccneu(ecc, beg, end);
 
-        _gmutex.unlock();
         return;
     }
 
@@ -363,12 +335,10 @@ namespace gnut
 
     t_gtriple t_gobj::eccneu(const t_gtime& t) const
     {
-        _gmutex.lock();
 
         t_gtriple eccneu(0.0, 0.0, 0.0);
         eccneu = this->_eccneu(t);
 
-        _gmutex.unlock();
         return eccneu;
     }
 
@@ -417,22 +387,18 @@ namespace gnut
 
     void t_gobj::crd(const t_gtriple& crd, const t_gtriple& std, const t_gtime& beg, const t_gtime& end, bool overwrite)
     {
-        _gmutex.lock();
 
         _crd(crd, std, beg, end, overwrite);
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gobj::crd(const t_gtriple& crd, const t_gtriple& std)
     {
-        _gmutex.lock();
 
         _mapcrd.begin()->second.first = crd;
         _mapcrd.begin()->second.second = std;
 
-        _gmutex.unlock();
         return;
     }
 
@@ -565,7 +531,6 @@ namespace gnut
 
     t_gtriple t_gobj::crd_arp(const t_gtime& t) const
     {
-        _gmutex.lock();
 
         t_gtriple marker(0.0, 0.0, 0.0);
         marker = this->_crd(t);
@@ -574,18 +539,15 @@ namespace gnut
         t_gtriple arp(0.0, 0.0, 0.0);
         arp = marker + this->_eccxyz(t);
 
-        _gmutex.unlock();
         return arp;
     }
 
     t_gtriple t_gobj::crd(const t_gtime& t) const
     {
-        _gmutex.lock();
 
         t_gtriple marker(0.0, 0.0, 0.0);
         marker = this->_crd(t);
 
-        _gmutex.unlock();
         return marker;
     }
 
@@ -667,12 +629,10 @@ namespace gnut
 
     t_gtriple t_gobj::std(const t_gtime& t) const
     {
-        _gmutex.lock();
 
         t_gtriple marker(0.0, 0.0, 0.0);
         marker = this->_std(t);
 
-        _gmutex.unlock();
         return marker;
     }
 
@@ -717,9 +677,7 @@ namespace gnut
 
     void t_gobj::pcv(std::shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
     {
-        _gmutex.lock();
         this->_pcv(pcv, beg, end);
-        _gmutex.unlock();
     }
 
     void t_gobj::_pcv(std::shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
@@ -806,9 +764,7 @@ namespace gnut
 
     std::shared_ptr<t_gpcv> t_gobj::pcv(const t_gtime& t) const
     {
-        _gmutex.lock();
         std::shared_ptr<t_gpcv> tmp = _pcv(t);
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -860,11 +816,9 @@ namespace gnut
 
     void t_gobj::ant(std::string ant, const t_gtime& beg, const t_gtime& end)
     {
-        _gmutex.lock();
 
         _ant(ant, beg, end);
 
-        _gmutex.unlock();
         return;
     }
 
@@ -956,9 +910,7 @@ namespace gnut
 
     std::string t_gobj::ant(const t_gtime& t) const
     {
-        _gmutex.lock();
         std::string tmp = this->_ant(t);
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -986,7 +938,6 @@ namespace gnut
 
     std::vector<t_gtime> t_gobj::pcv_id() const
     {
-        _gmutex.lock();
 
         std::vector<t_gtime> tmp;
         t_mappcv::const_iterator itMAP = _mappcv.begin();
@@ -995,15 +946,12 @@ namespace gnut
             tmp.push_back(itMAP->first);
             itMAP++;
         }
-        _gmutex.unlock();
         return tmp;
     }
 
     std::vector<t_gtime> t_gobj::ant_id() const
     {
-        _gmutex.lock();
         std::vector<t_gtime> tmp = this->_ant_id();
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -1021,7 +969,6 @@ namespace gnut
 
     std::vector<t_gtime> t_gobj::crd_id() const
     {
-        _gmutex.lock();
 
         std::vector<t_gtime> tmp;
         t_mapcrd::const_iterator itMAP = _mapcrd.begin();
@@ -1030,7 +977,6 @@ namespace gnut
             tmp.push_back(itMAP->first);
             itMAP++;
         }
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -1041,7 +987,6 @@ namespace gnut
             return;
         }
 
-        _gmutex.lock();
 
         std::vector<t_gtime> vant = this->_ant_id();
 
@@ -1069,13 +1014,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return;
     }
 
     void t_gobj::compare(std::shared_ptr<t_gobj> gobj, const t_gtime& tt, std::string source)
     {
-        _gmutex.lock();
 
         std::string old, alt;
         t_gtriple trip_old, trip_alt;
@@ -1238,7 +1181,6 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return;
     }
 

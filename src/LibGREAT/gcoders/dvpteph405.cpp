@@ -25,23 +25,18 @@ namespace great
 
     int t_dvpteph405::decode_head(char* buff, int bufLen, vector<string>& errmsg)
     {
-        _mutex.lock();
 
         if (t_gcoder::_add2buffer(buff, bufLen) == 0)
         {
-            _mutex.unlock();
             return 0;
         }
-        _mutex.unlock();
         return -1;
     }
 
     int t_dvpteph405::decode_data(char* buff, int bufLen, int& cnt, vector<string>& errmsg)
     {
-        _mutex.lock();
         if (t_gcoder::_add2buffer(buff, bufLen) == 0)
         {
-            _mutex.unlock();
             return 0;
         }
 
@@ -165,7 +160,6 @@ namespace great
 
                 _decode_buffer.toString(tmp);
             }
-            _mutex.unlock();
             return irecsz;
         }
         catch (...)

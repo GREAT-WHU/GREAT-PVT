@@ -48,17 +48,14 @@ namespace gnut
 
     std::shared_ptr<t_geph> t_gallnav::find(GSAT sat, const t_gtime& t, const bool& chk_mask)
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
-        _gmutex.unlock();
         return tmp;
     };
     int t_gallnav::pos(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
                        const bool& chk_mask) // [m]
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
@@ -81,7 +78,6 @@ namespace gnut
                     vel[i] = 0.0;
                 }
             }
-            _gmutex.unlock();
             return -1;
         }
 
@@ -92,7 +88,6 @@ namespace gnut
             irc = tmp->pos(t, xyz, var, vel, false);
         }
 
-        _gmutex.unlock();
         return irc;
     }
 
@@ -104,7 +99,6 @@ namespace gnut
                        double vel[3],
                        const bool& chk_mask) // [m]
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, iod, t, _chkHealth && chk_mask);
 
@@ -127,7 +121,6 @@ namespace gnut
                     vel[i] = 0.0;
                 }
             }
-            _gmutex.unlock();
             return -1;
         }
 
@@ -138,32 +131,27 @@ namespace gnut
             irc = tmp->pos(t, xyz, var, vel, false);
         }
 
-        _gmutex.unlock();
         return irc;
     }
 
     bool t_gallnav::health(GSAT sat, const t_gtime& t)
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, false);
 
         if (tmp == _null)
         {
-            _gmutex.unlock();
             return false;
         }
 
         bool status = tmp->healthy();
 
-        _gmutex.unlock();
         return status;
     }
 
     int t_gallnav::nav(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
                        const bool& chk_mask) // [m]
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
@@ -181,12 +169,10 @@ namespace gnut
                     vel[i] = 0.0;
                 }
             }
-            _gmutex.unlock();
             return -1;
         }
         int irc = tmp->nav(t, xyz, var, vel, _chkHealth && chk_mask);
 
-        _gmutex.unlock();
         return irc;
     }
 
@@ -194,7 +180,6 @@ namespace gnut
     int t_gallnav::clk(GSAT sat, const t_gtime& t, double* clk, double* var, double* dclk,
                        const bool& chk_mask) // [s]
     {
-        _gmutex.lock();
 
         std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
@@ -209,12 +194,10 @@ namespace gnut
             {
                 *dclk = 0.0;
             }
-            _gmutex.unlock();
             return -1;
         }
 
         int irc = tmp->clk(t, clk, var, dclk, _chkHealth && chk_mask);
-        _gmutex.unlock();
         return irc;
     }
 
@@ -227,7 +210,6 @@ namespace gnut
 
     std::set<GSAT> t_gallnav::satellites() const
     {
-        _gmutex.lock();
 
         std::set<GSAT> all_sat;
         auto itPRN = _mapsat.begin();
@@ -238,13 +220,11 @@ namespace gnut
             itPRN++;
         }
 
-        _gmutex.unlock();
         return all_sat;
     }
 
     int t_gallnav::add(std::shared_ptr<t_gnav> nav)
     {
-        _gmutex.lock();
 
         t_gtime ep(nav->epoch());
         GSAT sat = nav->sat();
@@ -297,13 +277,11 @@ namespace gnut
             }
         }
 
-        _gmutex.unlock();
         return 0;
     }
 
     unsigned int t_gallnav::nepochs(GSAT prn)
     {
-        _gmutex.lock();
 
         unsigned int tmp = 0;
         if (_mapsat.find(prn) != _mapsat.end())
@@ -311,7 +289,6 @@ namespace gnut
             tmp = _mapsat[prn].size();
         }
 
-        _gmutex.unlock();
         return tmp;
     }
 
@@ -330,7 +307,6 @@ namespace gnut
             return;
         }
 
-        _gmutex.lock();
 
         // loop over all satellites
         auto itPRN = _mapsat.begin();
@@ -381,7 +357,6 @@ namespace gnut
             }
             itPRN++;
         }
-        _gmutex.unlock();
     }
 
     int t_gallnav::nsat(const GSYS& gs) const

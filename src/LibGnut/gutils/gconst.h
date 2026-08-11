@@ -24,7 +24,6 @@
 #include <vector>
 #include "gexport/ExportLibGnut.h"
 
-
 namespace gnut
 {
 // function
@@ -47,21 +46,21 @@ namespace gnut
 #define SGN(x) ((x) <= 0.0 ? -1.0 : 1.0)
 #endif
 #ifndef SWAP_I
-#define SWAP_I(x, y)                                                                                                                       \
-    do                                                                                                                                     \
-    {                                                                                                                                      \
-        int _z = x;                                                                                                                        \
-        x = y;                                                                                                                             \
-        y = _z;                                                                                                                            \
+#define SWAP_I(x, y)                                                                                                   \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        int _z = x;                                                                                                    \
+        x = y;                                                                                                         \
+        y = _z;                                                                                                        \
     } while (0)
 #endif
 #ifndef SWAP_D
-#define SWAP_D(x, y)                                                                                                                       \
-    do                                                                                                                                     \
-    {                                                                                                                                      \
-        double _z = x;                                                                                                                     \
-        x = y;                                                                                                                             \
-        y = _z;                                                                                                                            \
+#define SWAP_D(x, y)                                                                                                   \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        double _z = x;                                                                                                 \
+        x = y;                                                                                                         \
+        y = _z;                                                                                                        \
     } while (0)
 #endif
 #ifndef ROUND
@@ -137,13 +136,13 @@ namespace gnut
 #endif
 
 #ifndef P2_5
-#define P2_5 0.03125                /* 2^-5 */
+#define P2_5 0.03125 /* 2^-5 */
 #endif
 #ifndef P2_6
-#define P2_6 0.015625               /* 2^-6 */
+#define P2_6 0.015625 /* 2^-6 */
 #endif
 #ifndef P2_10
-#define P2_10 0.0009765625          /* 2^-10 */
+#define P2_10 0.0009765625 /* 2^-10 */
 #endif
 #ifndef P2_11
 #define P2_11 4.882812500000000E-04 /* 2^-11 */
@@ -223,50 +222,50 @@ namespace gnut
 
     // GPS
 #ifndef A_WGS
-#define A_WGS 6378137.000         ///< [m] WGS84 semi-major axis
+#define A_WGS 6378137.000 ///< [m] WGS84 semi-major axis
 #endif
 #ifndef B_WGS
-#define B_WGS 6356752.300         ///< [m] WGS84 semi-minor axis
+#define B_WGS 6356752.300 ///< [m] WGS84 semi-minor axis
 #endif
 #ifndef E_WGS
-#define E_WGS 0.081819            ///< [-] WGS84 eccentricity
+#define E_WGS 0.081819 ///< [-] WGS84 eccentricity
 #endif
 #ifndef F_WGS
-#define F_WGS 0.003352811         ///< [-] WGS84 flatenning
+#define F_WGS 0.003352811 ///< [-] WGS84 flatenning
 #endif
 #ifndef MUDOT_GPS
 #define MUDOT_GPS (0.00836 * D2R) ///< avarage GPS satellite angular velocity [rad]
 #endif
 #ifndef EPS0_GPS
-#define EPS0_GPS (13.5 * D2R)     ///< maximal GPS satellites crossing angle [deg]
+#define EPS0_GPS (13.5 * D2R) ///< maximal GPS satellites crossing angle [deg]
 #endif
 
 // GLONASS
 #ifndef GM_PZ90
-#define GM_PZ90 398.60044e12      ///< [] PZ90 earth's graviational constant
+#define GM_PZ90 398.60044e12 ///< [] PZ90 earth's graviational constant
 #endif
 #ifndef Aell_PZ90
-#define Aell_PZ90 6378136.000     ///< [m] PZ90 semi-major axes
+#define Aell_PZ90 6378136.000 ///< [m] PZ90 semi-major axes
 #endif
 #ifndef C20_PZ90
-#define C20_PZ90 -1082.62575e-6   ///< [] PZ90
+#define C20_PZ90 -1082.62575e-6 ///< [] PZ90
 #endif
 #ifndef MUDOT_GLO
 #define MUDOT_GLO (0.00888 * D2R) ///< avarage GLO satellite angular velocity [rad]
 #endif
 #ifndef EPS0_GLO
-#define EPS0_GLO (14.2 * D2R)     ///< maximal GLO satellites crossing angle [deg]
+#define EPS0_GLO (14.2 * D2R) ///< maximal GLO satellites crossing angle [deg]
 #endif
 #ifndef Finv_GLO
-#define Finv_GLO 298.25784        ///< inverse flattening [-]
+#define Finv_GLO 298.25784 ///< inverse flattening [-]
 #endif
 #ifndef OMGE_DOT_GLO
-#define OMGE_DOT_GLO 7.292115e-5  ///< Mean angular velocity of the Earth [rad/sec]
+#define OMGE_DOT_GLO 7.292115e-5 ///< Mean angular velocity of the Earth [rad/sec]
 #endif
 
 // Galileo
 #ifndef GM_GAL
-#define GM_GAL 3.986004418e14        ///< Geocentric gravitational constant [m^3/s^2]
+#define GM_GAL 3.986004418e14 ///< Geocentric gravitational constant [m^3/s^2]
 #endif
 #ifndef OMGE_DOT_GAL
 #define OMGE_DOT_GAL 7.2921151467e-5 ///< Mean angular velocity of the Earth [rad/sec]
@@ -274,13 +273,13 @@ namespace gnut
 
 // BeiDou
 #ifndef GM_CGCS
-#define GM_CGCS 3.986004418e14    ///< []  CGCS2000 earth's graviational constant
+#define GM_CGCS 3.986004418e14 ///< []  CGCS2000 earth's graviational constant
 #endif
 #ifndef OMGE_DOT_BDS
 #define OMGE_DOT_BDS 7.2921150e-5 ///< BDS value of the earth's rotation rate [rad/sec]//
 #endif
 #ifndef Aell_CGCS
-#define Aell_CGCS 6378137.000     ///< [m] CGCS2000 semi-major axes
+#define Aell_CGCS 6378137.000 ///< [m] CGCS2000 semi-major axes
 #endif
 
 // METEO
@@ -294,93 +293,91 @@ namespace gnut
 #define G_POLE 9.8321849378 ///< [m/s2] polar gravity
 #endif
 #ifndef G_WMO
-#define G_WMO 9.80665       ///< [m/s2] gravity acceleration (WMO constant for lat=45)
+#define G_WMO 9.80665 ///< [m/s2] gravity acceleration (WMO constant for lat=45)
 #endif
 #ifndef KS_SOM
-#define KS_SOM 0.001931853  ///< [-] Somigliana's constant
+#define KS_SOM 0.001931853 ///< [-] Somigliana's constant
 #endif
 #ifndef Md
-#define Md 28.9644          ///< [g/mol] molar mass (mean molecular weight) of dry air
+#define Md 28.9644 ///< [g/mol] molar mass (mean molecular weight) of dry air
 #endif
 #ifndef Mw
-#define Mw 18.01528         ///< [g/mol] molar mass (mean molecular weight) of water
+#define Mw 18.01528 ///< [g/mol] molar mass (mean molecular weight) of water
 #endif
 #ifndef Ru
-#define Ru 8.3144621        ///< [J/mol/K] universal gas constant
+#define Ru 8.3144621 ///< [J/mol/K] universal gas constant
 #endif
 #ifndef Rd
-#define Rd 287.058          ///< [J/kg/K] spec. gas constant for Dry Air (Rd = 287.058)  Ru/(Md/1000)
+#define Rd 287.058 ///< [J/kg/K] spec. gas constant for Dry Air (Rd = 287.058)  Ru/(Md/1000)
 #endif
 #ifndef Rv
-#define Rv 461.495          ///< [J/kg/K] spec. gas constant for Wat Vap (Rv = 461.495)  Ru/(Mw/1000)
+#define Rv 461.495 ///< [J/kg/K] spec. gas constant for Wat Vap (Rv = 461.495)  Ru/(Mw/1000)
 #endif
 #ifndef Eps
-#define Eps 0.62198         ///< [-] molecular weight ratio (Mw/Md)     (Eps = 0.62198)
+#define Eps 0.62198 ///< [-] molecular weight ratio (Mw/Md)     (Eps = 0.62198)
 #endif
 #ifndef TC2TK
-#define TC2TK 273.15        ///< conversion from deg of Celsius to Kelvins
+#define TC2TK 273.15 ///< conversion from deg of Celsius to Kelvins
 #endif
 #ifndef TPOINT
-#define TPOINT 273.16       ///< temperature of triple point [K], i.e. 0.01 Deg C
+#define TPOINT 273.16 ///< temperature of triple point [K], i.e. 0.01 Deg C
 #endif
-
-    typedef std::map<std::string, std::vector<double>> t_map_refr; ///< refractivity coefficients
 
 #ifndef K1_ESS
-#define K1_ESS 77.64   ///< [K/hPa]   Essen and Froome (1951)
+#define K1_ESS 77.64 ///< [K/hPa]   Essen and Froome (1951)
 #endif
 #ifndef K2_ESS
-#define K2_ESS 64.68   ///< [K/hPa]   Essen and Froome (1951)
+#define K2_ESS 64.68 ///< [K/hPa]   Essen and Froome (1951)
 #endif
 #ifndef K3_ESS
 #define K3_ESS 3.718e5 ///< [K^2/hPa] Essen and Froome (1951)
 #endif
 
 #ifndef K1_SMW
-#define K1_SMW 77.607  ///< [K/hPa]   Smith and Weintraub (1953) // FULL RESOLUTION
+#define K1_SMW 77.607 ///< [K/hPa]   Smith and Weintraub (1953) // FULL RESOLUTION
 #endif
 #ifndef K2_SMW
-#define K2_SMW 71.6    ///< [K/hPa]   Smith and Weintraub (1953) // original paper 3-par formula!
+#define K2_SMW 71.6 ///< [K/hPa]   Smith and Weintraub (1953) // original paper 3-par formula!
 #endif
 #ifndef K3_SMW
 #define K3_SMW 3.747e5 ///< [K^2/hPa] Smith and Weintraub (1953) // original paper 3-par formula!
 #endif
 
 #ifndef K1_THA
-#define K1_THA 77.604  ///< [K/hPa]   Thayer (1974)
+#define K1_THA 77.604 ///< [K/hPa]   Thayer (1974)
 #endif
 #ifndef K2_THA
-#define K2_THA 64.79   ///< [K/hPa]   Thayer (1974)
+#define K2_THA 64.79 ///< [K/hPa]   Thayer (1974)
 #endif
 #ifndef K3_THA
 #define K3_THA 3.776e5 ///< [K^2/hPa] Thayer (1974)
 #endif
 
 #ifndef K1_BEV
-#define K1_BEV 77.6    ///< [K/hPa]   Bevis (1994)
+#define K1_BEV 77.6 ///< [K/hPa]   Bevis (1994)
 #endif
 #ifndef K2_BEV
-#define K2_BEV 70.4    ///< [K/hPa]   Bevis (1994)
+#define K2_BEV 70.4 ///< [K/hPa]   Bevis (1994)
 #endif
 #ifndef K3_BEV
 #define K3_BEV 3.739e5 ///< [K^2/hPa] Bevis (1994)
 #endif
 
 #ifndef K1_FOE
-#define K1_FOE 77.65   ///< [K/hPa]   Foelsche (1999)
+#define K1_FOE 77.65 ///< [K/hPa]   Foelsche (1999)
 #endif
 #ifndef K2_FOE
-#define K2_FOE 65.99   ///< [K/hPa]   Foelsche (1999)
+#define K2_FOE 65.99 ///< [K/hPa]   Foelsche (1999)
 #endif
 #ifndef K3_FOE
 #define K3_FOE 3.777e5 ///< [K^2/hPa] Foelsche (1999)
 #endif
 
 #ifndef K1_RUE
-#define K1_RUE 77.6848   ///< [K/hPa]   Rueger (2002)
+#define K1_RUE 77.6848 ///< [K/hPa]   Rueger (2002)
 #endif
 #ifndef K2_RUE
-#define K2_RUE 71.2952   ///< [K/hPa]   Rueger (2002)
+#define K2_RUE 71.2952 ///< [K/hPa]   Rueger (2002)
 #endif
 #ifndef K3_RUE
 #define K3_RUE 3.75463e5 ///< [K^2/hPa] Rueger (2002)
