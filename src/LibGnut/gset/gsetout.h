@@ -19,14 +19,28 @@
 #ifndef GSETOUT_H
 #define GSETOUT_H
 
+#ifndef XMLKEY_OUT
 #define XMLKEY_OUT "outputs" ///< The defination of outputs module in xml file
+#endif
 
+#ifndef DEFAULT_FILE_VER
 #define DEFAULT_FILE_VER ""    ///< default version for file format
+#endif
+#ifndef DEFAULT_FILE_UPD
 #define DEFAULT_FILE_UPD 0     ///< default auto update [min] for file saving
+#endif
+#ifndef DEFAULT_FILE_LEN
 #define DEFAULT_FILE_LEN 0     ///< default auto length [min] for file saving
+#endif
+#ifndef DEFAULT_FILE_SMP
 #define DEFAULT_FILE_SMP 0     ///< default auto sample [sec] for file saving
+#endif
+#ifndef DEFAULT_FILE_OFF
 #define DEFAULT_FILE_OFF 0     ///< default file offset [min] for file saving
+#endif
+#ifndef DEFAULT_FILE_SYS
 #define DEFAULT_FILE_SYS "UTC" ///< default file system       for file saving
+#endif
 
 #include <string>
 #include <iostream>
@@ -36,13 +50,12 @@
 #include "gsetbase.h"
 #include "spdlog/spdlog.h"
 
-using namespace std;
 using namespace pugi;
 using namespace spdlog;
 
 namespace gnut
 {
-    enum OFMT
+    enum class OFMT
     {
         XXX_OUT,
         LOG_OUT,
@@ -63,14 +76,14 @@ namespace gnut
          * @param[in] s file format
          * @return OFMT : file format
          */
-        static OFMT str2ofmt(const string& s);
+        static OFMT str2ofmt(const std::string& s);
 
         /**
          * @brief change from OFMT to string
          * @param[in] f file format
          * @return string : file format
          */
-        static string ofmt2str(const OFMT& f);
+        static std::string ofmt2str(const OFMT& f);
 
         /**@brief settings check */
         void check();
@@ -97,24 +110,24 @@ namespace gnut
          * @param[in] fmt file format
          * @return int : format output size
          */
-        int output_size(const string& fmt);
+        int output_size(const std::string& fmt);
 
         /**
          * @brief  get string outputs
          * @param[in] fmt file format
          * @return string : string outputs
          */
-        string outputs(const string& fmt);
+        std::string outputs(const std::string& fmt);
 
         /*
          * @brief  get string log type
          */
-        string log_type();
+        std::string log_type();
 
         /*
          * @brief  get string log name
          */
-        string log_name();
+        std::string log_name();
 
         /*
          * @brief  get string log level
@@ -124,20 +137,20 @@ namespace gnut
         /*
          * @brief  get string log pattern
          */
-        string log_pattern();
+        std::string log_pattern();
 
         /**
          * @brief  get formats
          * @return set<string> : all the outputs
          */
-        set<string> oformats();
+        std::set<std::string> oformats();
 
         /**
          * @brief  get string output version
          * @param[in] fmt file format
          * @return string : string output version
          */
-        string version(const string& fmt);
+        std::string version(const std::string& fmt);
 
     protected:
         /**
@@ -145,15 +158,15 @@ namespace gnut
          * @param[in] fmt file format
          * @return string : string output file
          */
-        string _outputs(const string& fmt);
+        std::string _outputs(const std::string& fmt);
 
         /**
          * @brief  get all string output file
          * @return set<string> : all string output file
          */
-        set<string> _oformats();
+        std::set<std::string> _oformats();
 
-        set<OFMT> _OFMT_supported; ///< vector of supported OFMTs (app-specific)
+        std::set<OFMT> _OFMT_supported; ///< vector of supported OFMTs (app-specific)
         bool _append;              ///< append mode
         int _verb;                 ///< output verbosity
 

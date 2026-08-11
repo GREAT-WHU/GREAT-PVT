@@ -25,7 +25,6 @@
 -*/
 #include "gall/gallrslt.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -53,17 +52,17 @@ namespace gnut
         }
         else
         {
-            cerr << "WRONG TYPE. POSSSIBLE ARE: CRD_X, CRD_Y, CRD_Z, CLK, TRP, AMB" << endl;
+            std::cerr << "WRONG TYPE. POSSSIBLE ARE: CRD_X, CRD_Y, CRD_Z, CLK, TRP, AMB" << std::endl;
         }
 
         v_rslt.push_back(rslt);
     }
 
-    void t_gallrslt::append(const string& type,
+    void t_gallrslt::append(const std::string& type,
                             const t_gtime& beg,
                             const t_gtime& end,
                             int idx,
-                            const string& prn,
+                            GSAT prn,
                             double adj,
                             double rms,
                             double val)
@@ -97,10 +96,16 @@ namespace gnut
         }
         else
         {
-            cerr << "WRONG TYPE. POSSSIBLE ARE: CRD_X, CRD_Y, CRD_Z, CLK, TRP, AMB" << endl;
+            std::cerr << "WRONG TYPE. POSSSIBLE ARE: CRD_X, CRD_Y, CRD_Z, CLK, TRP, AMB" << std::endl;
         }
 
         v_rslt.push_back(rslt);
+    }
+
+    void t_gallrslt::append(const std::string& type, const t_gtime& beg, const t_gtime& end, int idx,
+                            const std::string& prn, double adj, double rms, double val)
+    {
+        append(type, beg, end, idx, str2gsat(prn), adj, rms, val);
     }
 
     bool t_gallrslt::result::operator<(const t_gallrslt::result& rslt) const

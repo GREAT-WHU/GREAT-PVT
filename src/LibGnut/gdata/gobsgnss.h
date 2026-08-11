@@ -35,9 +35,10 @@
 #include "gutils/gtime.h"
 #include "gutils/gsys.h"
 
+#ifndef DEF_CHANNEL
 #define DEF_CHANNEL 255
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -46,59 +47,59 @@ namespace gnut
 
     ///< priority tables for choice of available signals (code [m])
     const static GOBS code_choise[9][19] = {
-        {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},                               //
-        {C1A, C1B, C1C, X, C1I, C1L, C1M, X, C1P, C1Q, C1S, C1W, C1X, C1Y, C1Z, P1, C1, CA, CB}, //  C1
-        {X, X, C2C, C2D, C2I, C2L, C2M, X, C2P, C2Q, C2S, C2W, C2X, C2Y, X, P2, C2, CC, CD},     //  C2
-        {X, X, X, X, C3I, X, X, X, X, C3Q, X, X, C3X, X, X, X, X, X, X},                         //
-        {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},                               //
-        {X, X, X, X, C5I, X, X, X, X, C5Q, X, X, C5X, X, X, P5, C5, X, X},                       //  C5
-        {C6A, C6B, C6C, X, C6I, X, X, X, X, C6Q, X, X, C6X, X, C6Z, X, C6, X, X},                //  C6
-        {X, X, X, X, C7I, X, X, X, X, C7Q, X, X, C7X, X, X, X, C7, X, X},                        //  C7
-        {X, X, X, X, C8I, X, X, X, X, C8Q, X, X, C8X, X, X, X, C8, X, X}                         //  C8
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X},                               //
+        {gnut::GOBS::C1A, gnut::GOBS::C1B, gnut::GOBS::C1C, gnut::GOBS::X, gnut::GOBS::C1I, gnut::GOBS::C1L, gnut::GOBS::C1M, gnut::GOBS::X, gnut::GOBS::C1P, gnut::GOBS::C1Q, gnut::GOBS::C1S, gnut::GOBS::C1W, gnut::GOBS::C1X, gnut::GOBS::C1Y, gnut::GOBS::C1Z, gnut::GOBS::P1, gnut::GOBS::C1, gnut::GOBS::CA, gnut::GOBS::CB}, //  C1
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C2C, gnut::GOBS::C2D, gnut::GOBS::C2I, gnut::GOBS::C2L, gnut::GOBS::C2M, gnut::GOBS::X, gnut::GOBS::C2P, gnut::GOBS::C2Q, gnut::GOBS::C2S, gnut::GOBS::C2W, gnut::GOBS::C2X, gnut::GOBS::C2Y, gnut::GOBS::X, gnut::GOBS::P2, gnut::GOBS::C2, gnut::GOBS::CC, gnut::GOBS::CD},     //  C2
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C3I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C3Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C3X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X},                         //
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X},                               //
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C5I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C5Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C5X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::P5, gnut::GOBS::C5, gnut::GOBS::X, gnut::GOBS::X},                       //  C5
+        {gnut::GOBS::C6A, gnut::GOBS::C6B, gnut::GOBS::C6C, gnut::GOBS::X, gnut::GOBS::C6I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C6Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C6X, gnut::GOBS::X, gnut::GOBS::C6Z, gnut::GOBS::X, gnut::GOBS::C6, gnut::GOBS::X, gnut::GOBS::X},                //  C6
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C7I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C7Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C7X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C7, gnut::GOBS::X, gnut::GOBS::X},                        //  C7
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C8I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C8Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C8X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::C8, gnut::GOBS::X, gnut::GOBS::X}                         //  C8
     };
 
     ///< priority tables for choice of available signals (phase [full-cycles])
     const static GOBS phase_choise[9][19] = {
-        {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},                                //
-        {L1A, L1B, L1C, X, L1I, L1L, L1M, L1N, L1P, L1Q, L1S, L1W, L1X, L1Y, L1Z, X, L1, LA, LB}, //  L1
-        {X, X, L2C, L2D, L2I, L2L, L2M, L2N, L2P, L2Q, L2S, L2W, L2X, L2Y, X, X, L2, LC, LD},     //  L2
-        {X, X, X, X, L3I, X, X, X, X, L3Q, X, X, L3X, X, X, X, X, X, X},                          //
-        {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},                                //
-        {X, X, X, X, L5I, X, X, X, X, L5Q, X, X, L5X, X, X, X, L5, X, X},                         //  L5
-        {L6A, L6B, L6C, X, L6I, X, X, X, X, L6Q, X, X, L6X, X, L6Z, X, L6, X, X},                 //  L6
-        {X, X, X, X, L7I, X, X, X, X, L7Q, X, X, L7X, X, X, X, L7, X, X},                         //  L7
-        {X, X, X, X, L8I, X, X, X, X, L8Q, X, X, L8X, X, X, X, L8, X, X}                          //  L8
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X},                                //
+        {gnut::GOBS::L1A, gnut::GOBS::L1B, gnut::GOBS::L1C, gnut::GOBS::X, gnut::GOBS::L1I, gnut::GOBS::L1L, gnut::GOBS::L1M, gnut::GOBS::L1N, gnut::GOBS::L1P, gnut::GOBS::L1Q, gnut::GOBS::L1S, gnut::GOBS::L1W, gnut::GOBS::L1X, gnut::GOBS::L1Y, gnut::GOBS::L1Z, gnut::GOBS::X, gnut::GOBS::L1, gnut::GOBS::LA, gnut::GOBS::LB}, //  L1
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L2C, gnut::GOBS::L2D, gnut::GOBS::L2I, gnut::GOBS::L2L, gnut::GOBS::L2M, gnut::GOBS::L2N, gnut::GOBS::L2P, gnut::GOBS::L2Q, gnut::GOBS::L2S, gnut::GOBS::L2W, gnut::GOBS::L2X, gnut::GOBS::L2Y, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L2, gnut::GOBS::LC, gnut::GOBS::LD},     //  L2
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L3I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L3Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L3X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X},                          //
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X},                                //
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L5I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L5Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L5X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L5, gnut::GOBS::X, gnut::GOBS::X},                         //  L5
+        {gnut::GOBS::L6A, gnut::GOBS::L6B, gnut::GOBS::L6C, gnut::GOBS::X, gnut::GOBS::L6I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L6Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L6X, gnut::GOBS::X, gnut::GOBS::L6Z, gnut::GOBS::X, gnut::GOBS::L6, gnut::GOBS::X, gnut::GOBS::X},                 //  L6
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L7I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L7Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L7X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L7, gnut::GOBS::X, gnut::GOBS::X},                         //  L7
+        {gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L8I, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L8Q, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L8X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::L8, gnut::GOBS::X, gnut::GOBS::X}                          //  L8
     };
 
-    const static map<GSYS, map<GOBSBAND, string>> range_order_attr_raw = {
-        {GPS, {{BAND_1, "CPW"}, {BAND_2, "CLXPW"}, {BAND_5, "QX"}}},
-        {GAL, {{BAND_1, "CX"}, {BAND_5, "IQX"}, {BAND_7, "IQX"}, {BAND_8, "IQX"}, {BAND_6, "ABCXZ"}}},
-        {BDS, {{BAND_2, "IQX"}, {BAND_7, "IQX"}, {BAND_6, "IQX"}, {BAND_5, "DPX"}, {BAND_9, "DPZ"}, {BAND_8, "DPX"}, {BAND_1, "DPX"}}},
-        {GLO, {{BAND_1, "CP"}, {BAND_2, "CP"}}},
-        {QZS, {{BAND_1, "CSLX"}, {BAND_2, "LX"}, {BAND_5, "IQX"}}}};
+    const static std::map<GSYS, std::map<GOBSBAND, std::string>> range_order_attr_raw = {
+        {GSYS::GPS, {{gnut::GOBSBAND::BAND_1, "CPW"}, {gnut::GOBSBAND::BAND_2, "CLXPW"}, {gnut::GOBSBAND::BAND_5, "QX"}}},
+        {GSYS::GAL, {{gnut::GOBSBAND::BAND_1, "CX"}, {gnut::GOBSBAND::BAND_5, "IQX"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_8, "IQX"}, {gnut::GOBSBAND::BAND_6, "ABCXZ"}}},
+        {GSYS::BDS, {{gnut::GOBSBAND::BAND_2, "IQX"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_6, "IQX"}, {gnut::GOBSBAND::BAND_5, "DPX"}, {gnut::GOBSBAND::BAND_9, "DPZ"}, {gnut::GOBSBAND::BAND_8, "DPX"}, {gnut::GOBSBAND::BAND_1, "DPX"}}},
+        {GSYS::GLO, {{gnut::GOBSBAND::BAND_1, "CP"}, {gnut::GOBSBAND::BAND_2, "CP"}}},
+        {GSYS::QZS, {{gnut::GOBSBAND::BAND_1, "CSLX"}, {gnut::GOBSBAND::BAND_2, "LX"}, {gnut::GOBSBAND::BAND_5, "IQX"}}}};
 
-    const static map<GSYS, map<GOBSBAND, string>> range_order_attr_cmb = {
-        {GPS, {{BAND_1, "CPW"}, {BAND_2, "CLXPW"}, {BAND_5, "QX"}}},
-        {GAL, {{BAND_1, "CX"}, {BAND_5, "IQX"}, {BAND_7, "IQX"}, {BAND_8, "IQX"}, {BAND_6, "ABCXZ"}}},
-        {BDS, {{BAND_2, "IQX"}, {BAND_7, "IQX"}, {BAND_6, "IQX"}, {BAND_5, "DPX"}, {BAND_9, "DPZ"}, {BAND_8, "DPX"}, {BAND_1, "DPX"}}},
-        {GLO, {{BAND_1, "CP"}, {BAND_2, "CP"}}},
-        {QZS, {{BAND_1, "CSLX"}, {BAND_2, "LX"}, {BAND_5, "IQX"}}}};
+    const static std::map<GSYS, std::map<GOBSBAND, std::string>> range_order_attr_cmb = {
+        {GSYS::GPS, {{gnut::GOBSBAND::BAND_1, "CPW"}, {gnut::GOBSBAND::BAND_2, "CLXPW"}, {gnut::GOBSBAND::BAND_5, "QX"}}},
+        {GSYS::GAL, {{gnut::GOBSBAND::BAND_1, "CX"}, {gnut::GOBSBAND::BAND_5, "IQX"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_8, "IQX"}, {gnut::GOBSBAND::BAND_6, "ABCXZ"}}},
+        {GSYS::BDS, {{gnut::GOBSBAND::BAND_2, "IQX"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_6, "IQX"}, {gnut::GOBSBAND::BAND_5, "DPX"}, {gnut::GOBSBAND::BAND_9, "DPZ"}, {gnut::GOBSBAND::BAND_8, "DPX"}, {gnut::GOBSBAND::BAND_1, "DPX"}}},
+        {GSYS::GLO, {{gnut::GOBSBAND::BAND_1, "CP"}, {gnut::GOBSBAND::BAND_2, "CP"}}},
+        {GSYS::QZS, {{gnut::GOBSBAND::BAND_1, "CSLX"}, {gnut::GOBSBAND::BAND_2, "LX"}, {gnut::GOBSBAND::BAND_5, "IQX"}}}};
 
-    const static map<GSYS, map<GOBSBAND, string>> phase_order_attr_raw = {
-        {GPS, {{BAND_1, "CSLXPWYM"}, {BAND_2, "CDLXPWYM"}, {BAND_5, "IQX"}}},
-        {GAL, {{BAND_1, "ABCXZ"}, {BAND_5, "IQX"}, {BAND_7, "IQX"}, {BAND_8, "IQX"}, {BAND_6, "ABCXZ"}}},
+    const static std::map<GSYS, std::map<GOBSBAND, std::string>> phase_order_attr_raw = {
+        {GSYS::GPS, {{gnut::GOBSBAND::BAND_1, "CSLXPWYM"}, {gnut::GOBSBAND::BAND_2, "CDLXPWYM"}, {gnut::GOBSBAND::BAND_5, "IQX"}}},
+        {GSYS::GAL, {{gnut::GOBSBAND::BAND_1, "ABCXZ"}, {gnut::GOBSBAND::BAND_5, "IQX"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_8, "IQX"}, {gnut::GOBSBAND::BAND_6, "ABCXZ"}}},
         // LX changed for BDS3
-        {BDS, {{BAND_2, "XIQ"}, {BAND_7, "IQX"}, {BAND_6, "IQX"}, {BAND_5, "DPX"}, {BAND_9, "DPZ"}, {BAND_8, "DPX"}, {BAND_1, "DPX"}}},
-        {GLO, {{BAND_1, "PC"}, {BAND_2, "CP"}}},                   // fix bugs change Band_1 CP->PC  glfeng
-        {QZS, {{BAND_1, "CSLX"}, {BAND_2, "LX"}, {BAND_5, "IQX"}}} // glfeng
+        {GSYS::BDS, {{gnut::GOBSBAND::BAND_2, "XIQ"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_6, "IQX"}, {gnut::GOBSBAND::BAND_5, "DPX"}, {gnut::GOBSBAND::BAND_9, "DPZ"}, {gnut::GOBSBAND::BAND_8, "DPX"}, {gnut::GOBSBAND::BAND_1, "DPX"}}},
+        {GSYS::GLO, {{gnut::GOBSBAND::BAND_1, "PC"}, {gnut::GOBSBAND::BAND_2, "CP"}}},                   // fix bugs change Band_1 CP->PC  glfeng
+        {GSYS::QZS, {{gnut::GOBSBAND::BAND_1, "CSLX"}, {gnut::GOBSBAND::BAND_2, "LX"}, {gnut::GOBSBAND::BAND_5, "IQX"}}} // glfeng
     };
 
-    const static map<GSYS, map<GOBSBAND, string>> phase_order_attr_cmb = {
-        {GPS, {{BAND_1, "CSLXPWYM"}, {BAND_2, "CDLXPWYM"}, {BAND_5, "IQX"}}},
-        {GAL, {{BAND_1, "ABCXZ"}, {BAND_5, "IQX"}, {BAND_7, "IQX"}, {BAND_8, "IQX"}, {BAND_6, "ABCXZ"}}},
-        {BDS, {{BAND_2, "QXI"}, {BAND_7, "IQX"}, {BAND_6, "IQX"}, {BAND_5, "DPX"}, {BAND_9, "DPZ"}, {BAND_8, "DPX"}, {BAND_1, "DPX"}}},
-        {GLO, {{BAND_1, "PC"}, {BAND_2, "CP"}}},                   // fix bugs change Band_1 CP->PC  glfeng
-        {QZS, {{BAND_1, "CSLX"}, {BAND_2, "LX"}, {BAND_5, "IQX"}}} // glfeng
+    const static std::map<GSYS, std::map<GOBSBAND, std::string>> phase_order_attr_cmb = {
+        {GSYS::GPS, {{gnut::GOBSBAND::BAND_1, "CSLXPWYM"}, {gnut::GOBSBAND::BAND_2, "CDLXPWYM"}, {gnut::GOBSBAND::BAND_5, "IQX"}}},
+        {GSYS::GAL, {{gnut::GOBSBAND::BAND_1, "ABCXZ"}, {gnut::GOBSBAND::BAND_5, "IQX"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_8, "IQX"}, {gnut::GOBSBAND::BAND_6, "ABCXZ"}}},
+        {GSYS::BDS, {{gnut::GOBSBAND::BAND_2, "QXI"}, {gnut::GOBSBAND::BAND_7, "IQX"}, {gnut::GOBSBAND::BAND_6, "IQX"}, {gnut::GOBSBAND::BAND_5, "DPX"}, {gnut::GOBSBAND::BAND_9, "DPZ"}, {gnut::GOBSBAND::BAND_8, "DPX"}, {gnut::GOBSBAND::BAND_1, "DPX"}}},
+        {GSYS::GLO, {{gnut::GOBSBAND::BAND_1, "PC"}, {gnut::GOBSBAND::BAND_2, "CP"}}},                   // fix bugs change Band_1 CP->PC  glfeng
+        {GSYS::QZS, {{gnut::GOBSBAND::BAND_1, "CSLX"}, {gnut::GOBSBAND::BAND_2, "LX"}, {gnut::GOBSBAND::BAND_5, "IQX"}}} // glfeng
 
     };
 
@@ -117,10 +118,11 @@ namespace gnut
          * @param spdlog
          */
         /** @brief constructor 1. */
-        t_gobsgnss(const string& sat);
+        t_gobsgnss(GSAT sat);
+        t_gobsgnss(const std::string& sat);
 
         /** @brief constructor 2. */
-        t_gobsgnss(const string& site, const string& sat, const t_gtime& t);
+        t_gobsgnss(const std::string& site, const std::string& sat, const t_gtime& t);
 
         /** @brief default destructor. */
         virtual ~t_gobsgnss();
@@ -146,7 +148,7 @@ namespace gnut
          * @param name
          * @param b
          */
-        void setrangestate(const string& name, const bool& b);
+        void setrangestate(const std::string& name, const bool& b);
 
         /**
          * @brief get range state
@@ -155,7 +157,7 @@ namespace gnut
          * @return true
          * @return false
          */
-        bool getrangestate(const string& name);
+        bool getrangestate(const std::string& name);
 
         /**
          * @brief set obs Level Flag
@@ -182,7 +184,7 @@ namespace gnut
         bool obsWithCorr();
 
         /** @brief get number of observations. */
-        size_t size() const;
+        std::size_t size() const;
 
         /** @brief get system-specific frequency  for band i. */
         double frequency(const GOBSBAND& b) const;
@@ -194,13 +196,13 @@ namespace gnut
         double wavelength(const GOBSBAND& b) const;
 
         /** @brief get wavelength for iono-free LC. */
-        double wavelength_L3(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double wavelength_L3(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /** @brief get wavelength for wild lane. */
-        double wavelength_WL(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double wavelength_WL(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /** @brief get wavelength for narrow lane. */
-        double wavelength_NL(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double wavelength_NL(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /** @brief get GNSS system from satellite IDOC. */
         GSYS gsys() const;
@@ -229,16 +231,16 @@ namespace gnut
         GOBS select_phase(const GOBSBAND& b, const bool& isRawAll = true) const;
 
         /** @brief get vector of available observations. */
-        vector<GOBS> obs() const;
+        std::vector<GOBS> obs() const;
 
         /** @brief get set of available phase observations for a band. */
-        set<GOBS> obs_phase(const int& band) const;
+        std::set<GOBS> obs_phase(const GOBSBAND& band) const;
 
         /** @brief get a single observation (DIFFERENT UNITS!). */
         double getobs(const GOBS& obs) const;
 
         /** @brief get a single observation (DIFFERENT UNITS!). */
-        double getobs(const string& obs) const;
+        double getobs(const std::string& obs) const;
 
         /** @brief get approximate elevation. */
         const double& getele() const;
@@ -250,10 +252,10 @@ namespace gnut
         int getslip(const GOBS& obs) const;
 
         /** @brief get a lost-of-lock indicator. */
-        int getlli(const string& obs) const;
+        int getlli(const std::string& obs) const;
 
         /** @brief get number of code/phase available bands. */
-        void nbands(pair<int, int>& nb);
+        void nbands(std::pair<int, int>& nb);
 
         /**
          * @brief get range outliers
@@ -360,7 +362,7 @@ namespace gnut
         double obs_S(const t_gband& gb) const;
 
         /** @brief modify phase observation by adding dL: i = 0 [cycles], i = 1 [m] */
-        int mod_L(const double& dL, const GOBS& gobs = X, const int i = 1);
+        int mod_L(const double& dL, const GOBS& gobs = gnut::GOBS::X, const int i = 1);
 
         /** @brief modify phase observation by adding dL: i = 0 [cycles], i = 1 [m], i = 2 [set val to 0] */
         int mod_L(const double& dL, const GOBSBAND& band, const int i = 1);
@@ -376,11 +378,11 @@ namespace gnut
          * @param coef3
          * @return double
          */
-        double frequency_lc(const int& band1,    // return value [Hz] of phase linear combination frequency (c1*O1 + ... )
+        double frequency_lc(const GOBSBAND& band1,    // return value [Hz] of phase linear combination frequency (c1*O1 + ... )
                             const double& coef1, // for 2 or 3 bands with given coefficients
-                            const int& band2,
+                            const GOBSBAND& band2,
                             const double& coef2,
-                            const int& band3 = 0,
+                            const GOBSBAND& band3 = GOBSBAND::BAND,
                             const double& coef3 = 0) const; // -->> OLD INTERFACE !!
 
         /**
@@ -392,7 +394,7 @@ namespace gnut
          * @param coef2
          * @return double
          */
-        double isf_lc(const int& band1, const double& coef1, const int& band2, const double& coef2) const;
+        double isf_lc(const GOBSBAND& band1, const double& coef1, const GOBSBAND& band2, const double& coef2) const;
 
         /**
          * @brief return value of linear combination phase noise factor
@@ -582,7 +584,7 @@ namespace gnut
          *
          * @return string
          */
-        const string& site() const
+        const std::string& site() const
         {
             return _staid;
         }
@@ -591,7 +593,7 @@ namespace gnut
          *
          * @return string
          */
-        const string& sat() const
+        GSAT sat() const
         {
             return _satid;
         }
@@ -600,16 +602,16 @@ namespace gnut
          *
          * @return string
          */
-        string sys() const
+        std::string sys() const
         {
-            return _satid.substr(0, 1);
+            return t_gsys::gsys2str(_gsys);
         }
         /**
          * @brief get satellite lost-of-lock identifications
          *
          * @return map<GOBS, int>
          */
-        const map<GOBS, int>& lli() const
+        const std::map<GOBS, int>& lli() const
         {
             return _glli;
         }
@@ -618,7 +620,7 @@ namespace gnut
          *
          * @return map<GOBS, int>
          */
-        const map<GOBS, int>& slip() const
+        const std::map<GOBS, int>& slip() const
         {
             return _gslip;
         }
@@ -628,10 +630,16 @@ namespace gnut
          *
          * @param id
          */
-        void sat(const string& id)
+        void sat(GSAT id)
         {
             _satid = id;
-            _gsys = t_gsys::char2gsys(id[0]);
+            _gsys = gsat2gsys(id);
+        }
+
+        /** @brief set satellite id from text input. */
+        void sat(const std::string& id)
+        {
+            sat(str2gsat(id));
         }
 
         /**
@@ -639,7 +647,7 @@ namespace gnut
          *
          * @param id
          */
-        void site(const string& id)
+        void site(const std::string& id)
         {
             _staid = id;
         }
@@ -681,7 +689,7 @@ namespace gnut
          *
          * @return set<GFRQ>
          */
-        set<GFRQ> freq_avail() const;
+        std::set<GFRQ> freq_avail() const;
 
         /**
          * @brief get available band
@@ -689,7 +697,7 @@ namespace gnut
          * @param _phase
          * @return set<GOBSBAND>
          */
-        set<GOBSBAND> band_avail(bool _phase = true) const;
+        std::set<GOBSBAND> band_avail(bool _phase = true) const;
 
         /**
          * @brief
@@ -707,7 +715,7 @@ namespace gnut
          * @param b2
          * @return double
          */
-        double P3(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double P3(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /**
          * @brief get geometry-free combination for code    [m]
@@ -716,7 +724,7 @@ namespace gnut
          * @param b2
          * @return double
          */
-        double P4(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double P4(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /**
          * @brief get ionosphere-free combination for phase [m]
@@ -725,7 +733,7 @@ namespace gnut
          * @param b2
          * @return double
          */
-        double L3(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double L3(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /**
          * @brief get geometry-free combination for phase   [m]
@@ -734,7 +742,7 @@ namespace gnut
          * @param b2
          * @return double
          */
-        double L4(const GOBSBAND& b1 = BAND_1, const GOBSBAND& b2 = BAND_2) const;
+        double L4(const GOBSBAND& b1 = gnut::GOBSBAND::BAND_1, const GOBSBAND& b2 = gnut::GOBSBAND::BAND_2) const;
 
         /**
          * @brief return coefficients (c1,c2) of the ionosphere-free linear combination
@@ -1049,31 +1057,31 @@ namespace gnut
          *
          * @return set<GFRQ>
          */
-        set<GFRQ> _freq_avail() const;
+        std::set<GFRQ> _freq_avail() const;
 
         /**
          * @brief get available bands for phase
          *
          * @return set<GOBSBAND>
          */
-        set<GOBSBAND> _band_avail() const;
+        std::set<GOBSBAND> _band_avail() const;
 
         /**
          * @brief get available bands for code
          *
          * @return set<GOBSBAND>
          */
-        set<GOBSBAND> _band_avail_code() const;
+        std::set<GOBSBAND> _band_avail_code() const;
 
     protected:
-        map<GOBS, double> _gobs;  // maps of observations
-        map<GOBS, int> _glli;     // maps of lost-of-lock identifications
-        map<GOBS, int> _gslip;    // maps of estimated cycle slips
-        map<GOBS, int> _goutlier; // maps of gross error of range/doppler observations
-        map<GOBS, int> _gLevel;   // level
+        std::map<GOBS, double> _gobs;  // maps of observations
+        std::map<GOBS, int> _glli;     // maps of lost-of-lock identifications
+        std::map<GOBS, int> _gslip;    // maps of estimated cycle slips
+        std::map<GOBS, int> _goutlier; // maps of gross error of range/doppler observations
+        std::map<GOBS, int> _gLevel;   // level
 
-        string _staid;          // station id
-        string _satid;          // satellite id ["G??", "R??", "E??" ...]
+        std::string _staid;          // station id
+        GSAT _satid = GSAT::NONE; // satellite PRN
         GSYS _gsys;             // system
         t_gtime _epoch;         // epoch of the observation
         double _apr_ele;        // approximate elevation

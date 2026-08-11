@@ -22,7 +22,6 @@
 #include "gutils/gobs.h"
 #include "gutils/gsys.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -31,52 +30,52 @@ namespace gnut
         t_gsetbase()
     {
         _set.insert(XMLKEY_GNSS);
-        stringstream os;
-        _sigma_def[GPS] = t_gpair(2.0, 0.02);
-        _sigma_def[GLO] = t_gpair(4.0, 0.04);
-        _sigma_def[GAL] = t_gpair(3.0, 0.03);
-        _sigma_def[BDS] = t_gpair(5.0, 0.03);
-        _sigma_def[QZS] = t_gpair(5.0, 0.03);
-        _sigma_def[IRN] = t_gpair(5.0, 0.03);
-        _sigma_def_doppler[GPS] = 0.04;
-        _sigma_def_doppler[GLO] = 0.08;
-        _sigma_def_doppler[GAL] = 0.06;
-        _sigma_def_doppler[BDS] = 0.06;
-        _sigma_def_doppler[QZS] = 0.06;
-        _sigma_def_doppler[IRN] = 0.06;
+        std::stringstream os;
+        _sigma_def[GSYS::GPS] = t_gpair(2.0, 0.02);
+        _sigma_def[GSYS::GLO] = t_gpair(4.0, 0.04);
+        _sigma_def[GSYS::GAL] = t_gpair(3.0, 0.03);
+        _sigma_def[GSYS::BDS] = t_gpair(5.0, 0.03);
+        _sigma_def[GSYS::QZS] = t_gpair(5.0, 0.03);
+        _sigma_def[GSYS::IRN] = t_gpair(5.0, 0.03);
+        _sigma_def_doppler[GSYS::GPS] = 0.04;
+        _sigma_def_doppler[GSYS::GLO] = 0.08;
+        _sigma_def_doppler[GSYS::GAL] = 0.06;
+        _sigma_def_doppler[GSYS::BDS] = 0.06;
+        _sigma_def_doppler[GSYS::QZS] = 0.06;
+        _sigma_def_doppler[GSYS::IRN] = 0.06;
 
-        _maxres_def[GPS] = t_gpair(10.0, 0.08);
-        _maxres_def[GLO] = t_gpair(15.0, 0.08);
-        _maxres_def[GAL] = t_gpair(15.0, 0.08);
-        _maxres_def[BDS] = t_gpair(15.0, 0.08);
-        _maxres_def[QZS] = t_gpair(15.0, 0.08);
-        _maxres_def[IRN] = t_gpair(15.0, 0.08);
-        _maxres_def_doppler[GPS] = 0.1;
-        _maxres_def_doppler[GLO] = 0.1;
-        _maxres_def_doppler[GAL] = 0.1;
-        _maxres_def_doppler[BDS] = 0.1;
-        _maxres_def_doppler[QZS] = 0.1;
-        _maxres_def_doppler[IRN] = 0.1;
+        _maxres_def[GSYS::GPS] = t_gpair(10.0, 0.08);
+        _maxres_def[GSYS::GLO] = t_gpair(15.0, 0.08);
+        _maxres_def[GSYS::GAL] = t_gpair(15.0, 0.08);
+        _maxres_def[GSYS::BDS] = t_gpair(15.0, 0.08);
+        _maxres_def[GSYS::QZS] = t_gpair(15.0, 0.08);
+        _maxres_def[GSYS::IRN] = t_gpair(15.0, 0.08);
+        _maxres_def_doppler[GSYS::GPS] = 0.1;
+        _maxres_def_doppler[GSYS::GLO] = 0.1;
+        _maxres_def_doppler[GSYS::GAL] = 0.1;
+        _maxres_def_doppler[GSYS::BDS] = 0.1;
+        _maxres_def_doppler[GSYS::QZS] = 0.1;
+        _maxres_def_doppler[GSYS::IRN] = 0.1;
 
         t_map_gnss gnss_data = GNSS_DATA_PRIORITY();
         for (auto itGNSS = gnss_data.begin(); itGNSS != gnss_data.end(); ++itGNSS)
         {
             GSYS gsys = itGNSS->first;
-            string gs = t_gsys::gsys2str(gsys);
+            std::string gs = t_gsys::gsys2str(gsys);
 
             for (auto itBAND = gnss_data[gsys].begin(); itBAND != gnss_data[gsys].end(); ++itBAND)
             {
                 GOBSBAND gobsband = itBAND->first;
-                string band = gobsband2str(gobsband);
+                std::string band = gobsband2str(gobsband);
                 _band_str[gsys].push_back(band);
 
                 for (auto itTYPE = gnss_data[gsys][gobsband].begin(); itTYPE != gnss_data[gsys][gobsband].end(); ++itTYPE)
                 {
                     GOBSTYPE gobstype = itTYPE->first;
-                    string type = gobstype2str(gobstype);
+                    std::string type = gobstype2str(gobstype);
                     os << gs << "  band: " << band << "  type: " << type << "  attr:";
 
-                    set<string> type_search(_type_str[gsys].begin(), _type_str[gsys].end());
+                    std::set<std::string> type_search(_type_str[gsys].begin(), _type_str[gsys].end());
                     if (type_search.find(type) == type_search.end())
                     {
                         _type_str[gsys].push_back(type);
@@ -86,19 +85,19 @@ namespace gnut
                          ++itATTR)
                     {
                         GOBSATTR gobsattr = *itATTR;
-                        string attr = gobsattr2str(gobsattr);
+                        std::string attr = gobsattr2str(gobsattr);
                         os << " " << attr;
 
-                        set<string> attr_search(_attr_str[gsys].begin(), _attr_str[gsys].end());
+                        std::set<std::string> attr_search(_attr_str[gsys].begin(), _attr_str[gsys].end());
                         if (attr_search.find(attr) == attr_search.end())
                         {
                             _attr_str[gsys].push_back(attr);
                         }
                     }
-                    os << endl;
+                    os << std::endl;
                 }
             }
-            os << endl;
+            os << std::endl;
         }
     }
 
@@ -106,24 +105,27 @@ namespace gnut
     {
     }
 
-    set<string> t_gsetgnss::sat()
+    std::set<GSAT> t_gsetgnss::sat()
     {
         _gmutex.lock();
 
-        set<string> tmp;
-        set<string>::const_iterator it;
+        std::set<GSAT> tmp;
 
         t_map_sats gnss_sats = GNSS_SATS();
         t_map_sats::const_iterator itGNS;
         for (itGNS = gnss_sats.begin(); itGNS != gnss_sats.end(); ++itGNS)
         {
             GSYS gsys = itGNS->first;
-            string gs = t_gsys::gsys2str(gsys);
+            std::string gs = t_gsys::gsys2str(gsys);
             transform(gs.begin(), gs.end(), gs.begin(), ::towlower);
-            set<string> sats = t_gsetbase::_setval(gs, "sat");
-            for (it = sats.begin(); it != sats.end(); ++it)
+            std::set<std::string> sats = t_gsetbase::_setval(gs, "sat");
+            for (const std::string& sat : sats)
             {
-                tmp.insert(*it);
+                GSAT value = str2gsat(sat, gsys);
+                if (value != GSAT::NONE)
+                {
+                    tmp.insert(value);
+                }
             }
         }
 
@@ -131,11 +133,19 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gsetgnss::sat(GSYS gsys, bool def)
+    std::set<GSAT> t_gsetgnss::sat(GSYS gsys, bool def)
     {
         _gmutex.lock();
 
-        set<string> tmp = t_gsetbase::_setval(_gsys(gsys), "sat");
+        std::set<GSAT> tmp;
+        for (const std::string& sat : t_gsetbase::_setval(_gsys(gsys), "sat"))
+        {
+            GSAT value = str2gsat(sat, gsys);
+            if (value != GSAT::NONE)
+            {
+                tmp.insert(value);
+            }
+        }
         if (def && tmp.size() == 0)
         {
             tmp = GNSS_SATS()[gsys];
@@ -145,10 +155,10 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gsetgnss::nav(GSYS gsys, bool def)
+    std::set<std::string> t_gsetgnss::nav(GSYS gsys, bool def)
     {
         _gmutex.lock();
-        set<string> tmp = t_gsetbase::_setval(_gsys(gsys), "nav");
+        std::set<std::string> tmp = t_gsetbase::_setval(_gsys(gsys), "nav");
         if (def && tmp.size() == 0)
         {
             tmp = GNSS_GNAV()[gsys];
@@ -158,24 +168,24 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gsetgnss::obs(GSYS gsys, bool def)
+    std::set<std::string> t_gsetgnss::obs(GSYS gsys, bool def)
     {
         _gmutex.lock();
 
-        string str;
-        set<string> tmp;
+        std::string str;
+        std::set<std::string> tmp;
 
-        vector<string> type = t_gsetbase::_vecval(_gsys(gsys), "type");
-        vector<string> band = t_gsetbase::_vecval(_gsys(gsys), "band");
-        vector<string> attr = t_gsetbase::_vecval(_gsys(gsys), "attr");
+        std::vector<std::string> type = t_gsetbase::_vecval(_gsys(gsys), "type");
+        std::vector<std::string> band = t_gsetbase::_vecval(_gsys(gsys), "band");
+        std::vector<std::string> attr = t_gsetbase::_vecval(_gsys(gsys), "attr");
 
-        vector<string>::const_iterator itT;
-        vector<string>::const_iterator itB;
-        vector<string>::const_iterator itA;
+        std::vector<std::string>::const_iterator itT;
+        std::vector<std::string>::const_iterator itB;
+        std::vector<std::string>::const_iterator itA;
 
-        string gs = t_gsys::gsys2str(gsys);
-        ostringstream os;
-        os << gs << "  band: " << band.size() << "  type: " << type.size() << "  attr: " << attr.size() << endl;
+        std::string gs = t_gsys::gsys2str(gsys);
+        std::ostringstream os;
+        os << gs << "  band: " << band.size() << "  type: " << type.size() << "  attr: " << attr.size() << std::endl;
 
         int bset = band.size();
         int tset = type.size();
@@ -197,8 +207,8 @@ namespace gnut
         for (itB = band.begin(); itB != band.end(); ++itB)
         {
             GOBSBAND gband = char2gobsband((*itB)[0]);
-            string b = gobsband2str(gband);
-            if (gband == 999)
+            std::string b = gobsband2str(gband);
+            if (gband == GOBSBAND::BAND)
             {
                 continue;
             }
@@ -206,8 +216,8 @@ namespace gnut
             for (itT = type.begin(); itT != type.end(); ++itT)
             {
                 GOBSTYPE gtype = char2gobstype((*itT)[0]);
-                string t = gobstype2str(gtype);
-                if (gtype == 999)
+                std::string t = gobstype2str(gtype);
+                if (gtype == GOBSTYPE::TYPE)
                 {
                     continue;
                 }
@@ -217,8 +227,8 @@ namespace gnut
                 for (itA = attr.begin(); itA != attr.end(); ++itA)
                 {
                     GOBSATTR gattr = char2gobsattr((*itA)[0]);
-                    string a = gobsattr2str(gattr);
-                    if (gattr == 999)
+                    std::string a = gobsattr2str(gattr);
+                    if (gattr == GOBSATTR::ATTR)
                     {
                         continue;
                     }
@@ -234,7 +244,7 @@ namespace gnut
 
                     os << " " << a;
                 }
-                os << endl;
+                os << std::endl;
             }
         }
 
@@ -242,14 +252,14 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gsetgnss::gobs(GSYS gsys)
+    std::set<std::string> t_gsetgnss::gobs(GSYS gsys)
     {
         _gmutex.lock();
 
-        string str;
-        set<string> tmp;
+        std::string str;
+        std::set<std::string> tmp;
 
-        vector<string> vgobs = t_gsetbase::_vecval(_gsys(gsys), "gobs");
+        std::vector<std::string> vgobs = t_gsetbase::_vecval(_gsys(gsys), "gobs");
 
         for (auto it = vgobs.begin(); it != vgobs.end(); it++)
         {
@@ -259,53 +269,53 @@ namespace gnut
         return tmp;
     }
 
-    vector<GOBSTYPE> t_gsetgnss::type(GSYS gsys)
+    std::vector<GOBSTYPE> t_gsetgnss::type(GSYS gsys)
     {
         _gmutex.lock();
 
-        vector<GOBSTYPE> v_tmp = _type(gsys);
+        std::vector<GOBSTYPE> v_tmp = _type(gsys);
 
         _gmutex.unlock();
         return v_tmp;
     }
 
-    vector<GOBSBAND> t_gsetgnss::band(GSYS gsys)
+    std::vector<GOBSBAND> t_gsetgnss::band(GSYS gsys)
     {
         _gmutex.lock();
 
-        vector<GOBSBAND> v_tmp = _band(gsys);
+        std::vector<GOBSBAND> v_tmp = _band(gsys);
 
         _gmutex.unlock();
         return v_tmp;
     }
 
-    vector<FREQ_SEQ> t_gsetgnss::freqs(GSYS gsys)
+    std::vector<FREQ_SEQ> t_gsetgnss::freqs(GSYS gsys)
     {
         _gmutex.lock();
 
-        vector<FREQ_SEQ> v_tmp = _freqs(gsys);
+        std::vector<FREQ_SEQ> v_tmp = _freqs(gsys);
 
         if (v_tmp.empty())
         {
-            v_tmp.push_back(FREQ_1);
-            v_tmp.push_back(FREQ_2);
+            v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+            v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
         }
 
         _gmutex.unlock();
         return v_tmp;
     }
 
-    map<FREQ_SEQ, GOBSBAND> t_gsetgnss::band_index(GSYS gsys)
+    std::map<FREQ_SEQ, GOBSBAND> t_gsetgnss::band_index(GSYS gsys)
     {
         auto XmlFreq = freqs(gsys);
         auto XmlBand = band(gsys);
 
         if (XmlFreq.size() != XmlBand.size())
         {
-            throw logic_error("Band size should be the same with freq size in xml.");
+            throw std::logic_error("Band size should be the same with freq size in xml.");
         }
 
-        map<FREQ_SEQ, GOBSBAND> tmp;
+        std::map<FREQ_SEQ, GOBSBAND> tmp;
         for (unsigned int i = 0; i < XmlBand.size(); i++)
         {
             tmp[XmlFreq[i]] = XmlBand[i];
@@ -314,17 +324,17 @@ namespace gnut
         return tmp;
     }
 
-    map<GOBSBAND, FREQ_SEQ> t_gsetgnss::freq_index(GSYS gsys)
+    std::map<GOBSBAND, FREQ_SEQ> t_gsetgnss::freq_index(GSYS gsys)
     {
         auto XmlFreq = freqs(gsys);
         auto XmlBand = band(gsys);
 
         if (XmlFreq.size() != XmlBand.size())
         {
-            throw logic_error("Band size should be the same with freq size in xml.");
+            throw std::logic_error("Band size should be the same with freq size in xml.");
         }
 
-        map<GOBSBAND, FREQ_SEQ> tmp;
+        std::map<GOBSBAND, FREQ_SEQ> tmp;
         for (unsigned int i = 0; i < XmlBand.size(); i++)
         {
             tmp[XmlBand[i]] = XmlFreq[i];
@@ -333,11 +343,11 @@ namespace gnut
         return tmp;
     }
 
-    vector<GOBSATTR> t_gsetgnss::attr(GSYS gsys)
+    std::vector<GOBSATTR> t_gsetgnss::attr(GSYS gsys)
     {
         _gmutex.lock();
 
-        vector<GOBSATTR> v_tmp = _attr(gsys);
+        std::vector<GOBSATTR> v_tmp = _attr(gsys);
 
         _gmutex.unlock();
         return v_tmp;
@@ -411,23 +421,23 @@ namespace gnut
         return;
     }
 
-    string t_gsetgnss::_gsys(GSYS gsys)
+    std::string t_gsetgnss::_gsys(GSYS gsys)
     {
-        string tmp = t_gsys::gsys2str(gsys);
+        std::string tmp = t_gsys::gsys2str(gsys);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
         return tmp;
     }
 
-    vector<GOBSTYPE> t_gsetgnss::_type(GSYS gsys)
+    std::vector<GOBSTYPE> t_gsetgnss::_type(GSYS gsys)
     {
-        vector<string> v_str = t_gsetbase::_vecval(_gsys(gsys), "type");
-        vector<GOBSTYPE> v_tmp;
-        for (vector<string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
+        std::vector<std::string> v_str = t_gsetbase::_vecval(_gsys(gsys), "type");
+        std::vector<GOBSTYPE> v_tmp;
+        for (std::vector<std::string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
         {
-            string str = *it;
+            std::string str = *it;
             transform(str.begin(), str.end(), str.begin(), ::toupper);
             GOBSTYPE gobstype = str2gobstype(str);
-            if (gobstype != TYPE)
+            if (gobstype != gnut::GOBSTYPE::TYPE)
             {
                 v_tmp.push_back(gobstype);
             }
@@ -435,16 +445,16 @@ namespace gnut
         return v_tmp;
     }
 
-    vector<GOBSBAND> t_gsetgnss::_band(GSYS gsys)
+    std::vector<GOBSBAND> t_gsetgnss::_band(GSYS gsys)
     {
-        vector<string> v_str = t_gsetbase::_vecval(_gsys(gsys), "band");
-        vector<GOBSBAND> v_tmp;
-        for (vector<string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
+        std::vector<std::string> v_str = t_gsetbase::_vecval(_gsys(gsys), "band");
+        std::vector<GOBSBAND> v_tmp;
+        for (std::vector<std::string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
         {
-            string str = *it;
+            std::string str = *it;
             transform(str.begin(), str.end(), str.begin(), ::toupper);
             GOBSBAND gobsband = str2gobsband(str);
-            if (gobsband != BAND)
+            if (gobsband != gnut::GOBSBAND::BAND)
             {
                 v_tmp.push_back(gobsband);
             }
@@ -452,29 +462,29 @@ namespace gnut
 
         if (v_tmp.empty())
         {
-            throw logic_error("You need set your band for " + t_gsys::gsys2str(gsys) + " in xml file");
+            throw std::logic_error("You need set your band for " + t_gsys::gsys2str(gsys) + " in xml file");
 
             switch (gsys)
             {
-                case GPS:
-                    v_tmp.push_back(BAND_1);
-                    v_tmp.push_back(BAND_2);
+                case GSYS::GPS:
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_1);
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_2);
                     break;
-                case GLO:
-                    v_tmp.push_back(BAND_1);
-                    v_tmp.push_back(BAND_2);
+                case GSYS::GLO:
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_1);
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_2);
                     break;
-                case GAL:
-                    v_tmp.push_back(BAND_1);
-                    v_tmp.push_back(BAND_5);
+                case GSYS::GAL:
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_1);
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_5);
                     break;
-                case BDS:
-                    v_tmp.push_back(BAND_2);
-                    v_tmp.push_back(BAND_6);
+                case GSYS::BDS:
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_2);
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_6);
                     break;
-                case QZS:
-                    v_tmp.push_back(BAND_1);
-                    v_tmp.push_back(BAND_2);
+                case GSYS::QZS:
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_1);
+                    v_tmp.push_back(gnut::GOBSBAND::BAND_2);
                 default:
                     break;
             }
@@ -483,15 +493,15 @@ namespace gnut
         return v_tmp;
     }
 
-    vector<FREQ_SEQ> t_gsetgnss::_sysfreq(GSYS gsys)
+    std::vector<FREQ_SEQ> t_gsetgnss::_sysfreq(GSYS gsys)
     {
-        vector<string> v_str = t_gsetbase::_vecval(_gsys(gsys), "freq");
-        vector<FREQ_SEQ> v_tmp;
-        for (vector<string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
+        std::vector<std::string> v_str = t_gsetbase::_vecval(_gsys(gsys), "freq");
+        std::vector<FREQ_SEQ> v_tmp;
+        for (std::vector<std::string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
         {
-            string str = *it;
+            std::string str = *it;
             FREQ_SEQ gsysfreq = str2sysfreq(str);
-            if (gsysfreq != FREQ_X)
+            if (gsysfreq != gnut::FREQ_SEQ::FREQ_X)
             {
                 v_tmp.push_back(gsysfreq);
             }
@@ -501,42 +511,42 @@ namespace gnut
         {
             switch (gsys)
             {
-                case GPS:
-                    v_tmp.push_back(FREQ_1);
-                    v_tmp.push_back(FREQ_2);
+                case GSYS::GPS:
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
                     break;
-                case GLO:
-                    v_tmp.push_back(FREQ_1);
-                    v_tmp.push_back(FREQ_2);
+                case GSYS::GLO:
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
                     break;
-                case GAL:
-                    v_tmp.push_back(FREQ_1);
-                    v_tmp.push_back(FREQ_2);
+                case GSYS::GAL:
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
                     break;
-                case BDS:
-                    v_tmp.push_back(FREQ_1);
-                    v_tmp.push_back(FREQ_2);
+                case GSYS::BDS:
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
                     break;
-                case QZS:
-                    v_tmp.push_back(FREQ_1);
-                    v_tmp.push_back(FREQ_2);
+                case GSYS::QZS:
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+                    v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
                 default:
                     break;
             }
 
-            cout << "Warning : do not set the freq, use default settings" << endl;
+            std::cout << "Warning : do not set the freq, use default settings" << std::endl;
         }
 
         return v_tmp;
     }
 
-    vector<FREQ_SEQ> t_gsetgnss::_freqs(GSYS gsys)
+    std::vector<FREQ_SEQ> t_gsetgnss::_freqs(GSYS gsys)
     {
-        vector<string> v_str = t_gsetbase::_vecval(_gsys(gsys), "freq");
-        vector<FREQ_SEQ> v_tmp;
-        for (vector<string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
+        std::vector<std::string> v_str = t_gsetbase::_vecval(_gsys(gsys), "freq");
+        std::vector<FREQ_SEQ> v_tmp;
+        for (std::vector<std::string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
         {
-            string str = *it;
+            std::string str = *it;
             transform(str.begin(), str.end(), str.begin(), ::toupper);
             FREQ_SEQ gobsband = str2gnssfreq(str);
             if (gobsband != FREQ_SEQ::FREQ_X)
@@ -547,23 +557,23 @@ namespace gnut
 
         if (v_tmp.empty())
         {
-            v_tmp.push_back(FREQ_1);
-            v_tmp.push_back(FREQ_2);
+            v_tmp.push_back(gnut::FREQ_SEQ::FREQ_1);
+            v_tmp.push_back(gnut::FREQ_SEQ::FREQ_2);
         }
 
         return v_tmp;
     }
 
-    vector<GOBSATTR> t_gsetgnss::_attr(GSYS gsys)
+    std::vector<GOBSATTR> t_gsetgnss::_attr(GSYS gsys)
     {
-        vector<string> v_str = t_gsetbase::_vecval(_gsys(gsys), "attr");
-        vector<GOBSATTR> v_tmp;
-        for (vector<string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
+        std::vector<std::string> v_str = t_gsetbase::_vecval(_gsys(gsys), "attr");
+        std::vector<GOBSATTR> v_tmp;
+        for (std::vector<std::string>::const_iterator it = v_str.begin(); it != v_str.end(); ++it)
         {
-            string str = *it;
+            std::string str = *it;
             transform(str.begin(), str.end(), str.begin(), ::toupper);
             GOBSATTR gobsattr = str2gobsattr(str);
-            if (gobsattr != ATTR)
+            if (gobsattr != gnut::GOBSATTR::ATTR)
             {
                 v_tmp.push_back(gobsattr);
             }
@@ -574,7 +584,7 @@ namespace gnut
     double t_gsetgnss::_sigma_C(GSYS gsys)
     {
         double sig = 0.0;
-        string sys = _gsys(gsys);
+        std::string sys = _gsys(gsys);
         sig = t_gsetbase::_dblatt(sys, "sigma_C");
 
         if (double_eq(sig, 0.0))
@@ -602,7 +612,7 @@ namespace gnut
     double t_gsetgnss::_sigma_L(GSYS gsys)
     {
         double sig = 0.0;
-        string sys = _gsys(gsys);
+        std::string sys = _gsys(gsys);
         sig = t_gsetbase::_dblatt(sys, "sigma_L");
 
         if (double_eq(sig, 0.0))
@@ -658,21 +668,21 @@ namespace gnut
     {
         _gmutex.lock();
 
-        cerr << " <gps>            \t\t  <!-- any GNSS constellation: GPS GLO GAL BDS SBS QZS -->\n"
+        std::cerr << " <gps>            \t\t  <!-- any GNSS constellation: GPS GLO GAL BDS SBS QZS -->\n"
              << "   <sat>  </sat>  \t\t  <!-- list of GPS satellites: G01 G02 .. or empty(ALL) -->\n"
              << "   <type> </type> \t\t  <!-- list of GPS  obs types: C L D S P or empty(ALL)  -->\n"
              << "   <band> </band> \t\t  <!-- list of GPS  obs bands: 1 2 5 or empty(ALL) -->\n"
              << "   <attr> </attr> \t\t  <!-- list of PGS attributes: A B C D I L M N P Q S W X Y Z or empty(ALL) -->\n"
              << " </gps>\n\n";
 
-        cerr << " <glo>            \t\t  <!-- any GNSS constellation: GPS GLO GAL BDS SBS QZS -->\n"
+        std::cerr << " <glo>            \t\t  <!-- any GNSS constellation: GPS GLO GAL BDS SBS QZS -->\n"
              << "   <sat>  </sat>  \t\t  <!-- list of GPS satellites: R01 R02 .. or empty(ALL) -->\n"
              << "   <type> </type> \t\t  <!-- list of GPS  obs types: C L D S P or empty(ALL)  -->\n"
              << "   <band> </band> \t\t  <!-- list of GPS  obs bands: 1 2 3 or empty(ALL) -->\n"
              << "   <attr> </attr> \t\t  <!-- list of PGS attributes: A B C D I L M N P Q S W X Y Z or empty(ALL) -->\n"
              << " </glo>\n\n";
 
-        cerr << "\t<!-- gnss observation definition:\n"
+        std::cerr << "\t<!-- gnss observation definition:\n"
              << "\t      .. ID name\n"
              << "\t name   .. full name\n"
              << "\t desc   .. description\n"

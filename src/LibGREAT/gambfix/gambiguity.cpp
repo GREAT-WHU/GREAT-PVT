@@ -13,7 +13,6 @@
 #include "gutils/gobs.h"
 #include "gmodels/gpar.h"
 #include <gproc/gfltmatrix.h>
-using namespace std;
 
 namespace great
 {
@@ -29,7 +28,7 @@ namespace great
         _wl_Upd_time = t_gtime(WL_IDENTIFY);
     }
 
-    t_gambiguity::t_gambiguity(string site, t_gsetbase* gset) :
+    t_gambiguity::t_gambiguity(std::string site, t_gsetbase* gset) :
         _part_fix(false),
         _is_first(true),
         _is_first_wl(true),
@@ -50,11 +49,11 @@ namespace great
         _sat_rm = dynamic_cast<t_gsetgen*>(_gset)->sat_rm();
         _interval = dynamic_cast<t_gsetgen*>(_gset)->sampling();
 
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_gset)->band_index(gnut::GSYS::QZS);
 
         _fix_mode = dynamic_cast<t_gsetamb*>(_gset)->fix_mode();
         _upd_mode = dynamic_cast<t_gsetamb*>(_gset)->upd_mode();
@@ -123,7 +122,7 @@ namespace great
         return _amb_fixed;
     }
 
-    int t_gambiguity::processBatch(const t_gtime& t, t_gflt* gflt, string mode)
+    int t_gambiguity::processBatch(const t_gtime& t, t_gflt* gflt, std::string mode)
     {
         if (_gupd && _gupd->wl_epo_mode())
         {
@@ -142,7 +141,7 @@ namespace great
         _sats_index.clear();
         _lock_epo_num.clear();
 
-        vector<int> fixed_amb;
+        std::vector<int> fixed_amb;
         _amb_freqs.clear();
         _DD.clear();
         _total_amb_num = _fixed_amb_num = 0;
@@ -305,9 +304,9 @@ namespace great
             }
         }
 
-        if (_last_fix_time[mode].find("sum") != _last_fix_time[mode].end())
+        if (_last_fix_sum.find(mode) != _last_fix_sum.end())
         {
-            if (t.diff(_last_fix_time[mode]["sum"]) >= _ctrl_last_fixepo_gap * _interval && fixed_amb.size() < _ctrl_min_fixed_num)
+            if (t.diff(_last_fix_sum[mode]) >= _ctrl_last_fixepo_gap * _interval && fixed_amb.size() < _ctrl_min_fixed_num)
             {
                 return -1;
             }
@@ -372,7 +371,7 @@ namespace great
                 _fix_epo_num[mode][get<0>(it_dd->ddSats[1])]++;
                 _last_fix_time[mode][get<0>(it_dd->ddSats[1])] = t;
             }
-            _last_fix_time[mode]["sum"] = t;
+            _last_fix_sum[mode] = t;
         }
         else
         {
@@ -393,7 +392,7 @@ namespace great
         return _param;
     }
 
-    void t_gambiguity::setSatRef(set<string>& satRef)
+    void t_gambiguity::setSatRef(std::set<GSAT>& satRef)
     {
         _sat_refs = satRef;
 
@@ -436,8 +435,8 @@ namespace great
         }
 
         int namb = fltpar.Nrows();
-        vector<double> fltpar_;
-        vector<int> ibias_;
+        std::vector<double> fltpar_;
+        std::vector<int> ibias_;
 
         for (int i = 1; i <= namb; i++)
         {
@@ -463,83 +462,55 @@ namespace great
         return ratio_post;
     }
 
-    void t_gambiguity::setWaveLength(map<string, int>& glofrq_num)
+    void t_gambiguity::setWaveLength(std::map<GSAT, int>& glofrq_num)
     {
-        set<string> waveLenSats;
-
-        // get system/satellite need to calculate wavelength
         for (auto strsys : _sys)
         {
             GSYS gsys = t_gsys::str2gsys(strsys);
-            switch (gsys)
+            std::vector<GSAT> satellites;
+            if (gsys == GSYS::GLO)
             {
-                case GPS:
-                    waveLenSats.insert("G");
-                    break;
-                case GAL:
-                    waveLenSats.insert("E");
-                    break;
-                case BDS:
-                    waveLenSats.insert("C");
-                    break;
-                case GLO: // FDMA
-                    for (auto it_R : glofrq_num)
-                    {
-                        waveLenSats.insert(it_R.first);
-                    }
-                    break;
-                case QZS:
-                    waveLenSats.insert("J");
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        t_gobsgnss* gnss = new t_gobsgnss();
-        // Loop waveLenSats
-        for (auto iter : waveLenSats)
-        {
-            if (iter == "2" || iter == "3" || iter == "4" || iter == "5")
-            { // xjhan
-                gnss->sat("G");
+                for (const auto& item : glofrq_num)
+                {
+                    satellites.push_back(item.first);
+                }
             }
             else
             {
-                gnss->sat(iter);
+                satellites.push_back(str2gsat("01", gsys));
             }
 
-            GSYS gsys = gnss->gsys();
-            if (iter.substr(0, 1) == "R")
+            for (GSAT sat : satellites)
             {
-                gnss->channel(glofrq_num.at(iter));
-            }
+                t_gobsgnss gnss;
+                gnss.sat(sat);
+                if (gsys == GSYS::GLO)
+                {
+                    gnss.channel(glofrq_num.at(sat));
+                }
+                std::map<std::string, double>& wavelength = gsys == GSYS::GLO ? _sat_wavelen[sat] : _sys_wavelen[gsys];
 
-            _sys_wavelen[iter]["L1"] = gnss->wavelength(_band_index[gsys][FREQ_1]);
-            _sys_wavelen[iter]["L2"] = gnss->wavelength(_band_index[gsys][FREQ_2]);
-            _sys_wavelen[iter]["WL"] = gnss->wavelength_WL(_band_index[gsys][FREQ_1], _band_index[gsys][FREQ_2]);
-            _sys_wavelen[iter]["NL"] = gnss->wavelength_NL(_band_index[gsys][FREQ_1], _band_index[gsys][FREQ_2]);
-            if (_frequency >= 3)
-            {
-                _sys_wavelen[iter]["L3"] = gnss->wavelength(_band_index[gsys][FREQ_3]);
-                _sys_wavelen[iter]["EWL"] = gnss->wavelength_WL(_band_index[gsys][FREQ_2], _band_index[gsys][FREQ_3]);
-            }
-            if (_frequency >= 4)
-            {
-                _sys_wavelen[iter]["L4"] = gnss->wavelength(_band_index[gsys][FREQ_4]);
-                _sys_wavelen[iter]["EWL24"] = gnss->wavelength_WL(_band_index[gsys][FREQ_2], _band_index[gsys][FREQ_4]);
-            }
-            if (_frequency >= 5)
-            {
-                _sys_wavelen[iter]["L5"] = gnss->wavelength(_band_index[gsys][FREQ_5]);
-                _sys_wavelen[iter]["EWL25"] = gnss->wavelength_WL(_band_index[gsys][FREQ_2], _band_index[gsys][FREQ_5]);
+                wavelength["L1"] = gnss.wavelength(_band_index[gsys][gnut::FREQ_SEQ::FREQ_1]);
+                wavelength["L2"] = gnss.wavelength(_band_index[gsys][gnut::FREQ_SEQ::FREQ_2]);
+                wavelength["WL"] = gnss.wavelength_WL(_band_index[gsys][gnut::FREQ_SEQ::FREQ_1], _band_index[gsys][gnut::FREQ_SEQ::FREQ_2]);
+                wavelength["NL"] = gnss.wavelength_NL(_band_index[gsys][gnut::FREQ_SEQ::FREQ_1], _band_index[gsys][gnut::FREQ_SEQ::FREQ_2]);
+                if (_frequency >= 3)
+                {
+                    wavelength["L3"] = gnss.wavelength(_band_index[gsys][gnut::FREQ_SEQ::FREQ_3]);
+                    wavelength["EWL"] = gnss.wavelength_WL(_band_index[gsys][gnut::FREQ_SEQ::FREQ_2], _band_index[gsys][gnut::FREQ_SEQ::FREQ_3]);
+                }
+                if (_frequency >= 4)
+                {
+                    wavelength["L4"] = gnss.wavelength(_band_index[gsys][gnut::FREQ_SEQ::FREQ_4]);
+                    wavelength["EWL24"] = gnss.wavelength_WL(_band_index[gsys][gnut::FREQ_SEQ::FREQ_2], _band_index[gsys][gnut::FREQ_SEQ::FREQ_4]);
+                }
+                if (_frequency >= 5)
+                {
+                    wavelength["L5"] = gnss.wavelength(_band_index[gsys][gnut::FREQ_SEQ::FREQ_5]);
+                    wavelength["EWL25"] = gnss.wavelength_WL(_band_index[gsys][gnut::FREQ_SEQ::FREQ_2], _band_index[gsys][gnut::FREQ_SEQ::FREQ_5]);
+                }
             }
         }
-
-        delete gnss;
-        gnss = nullptr;
-
-        return;
     }
 
     bool t_gambiguity::_checkAmbDepend(bool isFirst,
@@ -550,7 +521,7 @@ namespace great
                                        int iMaxamb_ow,
                                        int iMaxamb_for_check)
     {
-        const string strCprogName = "check_amb_depend";
+        const std::string strCprogName = "check_amb_depend";
         const double dEPS = 1e-12;
         static int iNdim_ow = 0;
         static int iNdim_for_check = 0;
@@ -578,7 +549,7 @@ namespace great
                 _pdC = new double[iMaxamb_for_check + 1 + 100];
                 if (iMaxamb_ow == 0 || iMaxamb_for_check == 0)
                 {
-                    string err = "***ERROR: memory allocatation for e&c ";
+                    std::string err = "***ERROR: memory allocatation for e&c ";
                     throw err;
                 }
                 iNdim_ow = iMaxamb_ow;
@@ -588,7 +559,7 @@ namespace great
 
             if (*iNdef >= iNdim_for_check)
             {
-                string err2 = "***ERROR: independent ones already reaches the allocated memory ";
+                std::string err2 = "***ERROR: independent ones already reaches the allocated memory ";
                 throw err2;
             }
 
@@ -600,7 +571,7 @@ namespace great
                 {
                     if (arriIpt2ow[j] > iNdim_ow)
                     {
-                        string err3 = "***ERROR: base element beyond the allocated memory ";
+                        std::string err3 = "***ERROR: base element beyond the allocated memory ";
                         throw err3;
                     }
                     _pdC[i] = _pdC[i] + _pdE[(arriIpt2ow[j] - 1) * (iNdim_for_check + 1) + i] * dOper[j];
@@ -673,8 +644,8 @@ namespace great
 
     int t_gambiguity::_defineDDAmb(t_gamb_cmn* amb_cmn)
     {
-        vector<t_gpar> params_ALL = amb_cmn->param().getAllPar();
-        vector<t_gpar> params;
+        std::vector<t_gpar> params_ALL = amb_cmn->param().getAllPar();
+        std::vector<t_gpar> params;
         int amb_idx1, amb_idx2;
 
         // prepare amb par
@@ -682,20 +653,20 @@ namespace great
         {
             it_par->index = distance(params_ALL.begin(), it_par) + 1;
             it_par->pred = it_par->value() + amb_cmn->dx()(it_par->index);
-            if (it_par->str_type().find("AMB") == string::npos || it_par->str_type().find("AMB13") != string::npos ||
+            if (it_par->str_type().find("AMB") == std::string::npos || it_par->str_type().find("AMB13") != std::string::npos ||
                 _sat_rm.find(it_par->prn) != _sat_rm.end() || double_eq(it_par->value(), 0.0))
             {
                 continue;
             }
             else
             {
-                if (it_par->str_type().find("AMB_L1") != string::npos)
+                if (it_par->str_type().find("AMB_L1") != std::string::npos)
                 {
-                    _amb_freqs[it_par->prn][it_par->site].push_back(FREQ_1);
+                    _amb_freqs[it_par->prn][it_par->site].push_back(gnut::FREQ_SEQ::FREQ_1);
                 }
-                else if (it_par->str_type().find("AMB_L2") != string::npos)
+                else if (it_par->str_type().find("AMB_L2") != std::string::npos)
                 {
-                    _amb_freqs[it_par->prn][it_par->site].push_back(FREQ_2);
+                    _amb_freqs[it_par->prn][it_par->site].push_back(gnut::FREQ_SEQ::FREQ_2);
                 }
 
                 params.push_back(*it_par);
@@ -719,16 +690,16 @@ namespace great
             return -1;
         }
 
-        vector<t_gpar>::const_iterator OuterLoopBeg = params.begin();
-        vector<t_gpar>::const_iterator InnerLoopEnd = params.end();
-        vector<t_gpar>::const_iterator OuterLoopEnd = --(params.end());
+        std::vector<t_gpar>::const_iterator OuterLoopBeg = params.begin();
+        std::vector<t_gpar>::const_iterator InnerLoopEnd = params.end();
+        std::vector<t_gpar>::const_iterator OuterLoopEnd = --(params.end());
         for (auto itsat1 = OuterLoopBeg; itsat1 != OuterLoopEnd; itsat1++)
         {
             amb_idx1 = distance(OuterLoopBeg, itsat1) + 1;
             for (auto itsat2 = itsat1 + 1; itsat2 != InnerLoopEnd; itsat2++)
             {
                 // whether same system
-                if (t_gsys::sat2gsys(itsat1->prn) != t_gsys::sat2gsys(itsat2->prn) || itsat1->site != itsat2->site)
+                if (gsat2gsys(itsat1->prn) != gsat2gsys(itsat2->prn) || itsat1->site != itsat2->site)
                 {
                     continue;
                 }
@@ -773,16 +744,16 @@ namespace great
 
                 double sigma = 0.0;
                 dd.rlc = itsat1->pred - itsat2->pred; // Unit:meter
-                if (itsat1->prn.substr(0, 1) == "R")
+                if (gsat2gsys(itsat1->prn) == GSYS::GLO)
                 {
-                    if (_sys_wavelen[itsat1->prn]["NL"] == 0)
+                    if (_sat_wavelen[itsat1->prn]["NL"] == 0)
                     {
                         continue;
                     }
-                    dd.rlc = itsat1->pred / _sys_wavelen[itsat1->prn]["NL"] - itsat2->pred / _sys_wavelen[itsat2->prn]["NL"]; // Unit:Cycle
+                    dd.rlc = itsat1->pred / _sat_wavelen[itsat1->prn]["NL"] - itsat2->pred / _sat_wavelen[itsat2->prn]["NL"]; // Unit:Cycle
                     if (_obstype == OBSCOMBIN::RAW_ALL)
                     {
-                        dd.rwl_R1 = itsat2->pred / _sys_wavelen[itsat2->prn]["NL"]; // temp save, it is not its real meaning!
+                        dd.rwl_R1 = itsat2->pred / _sat_wavelen[itsat2->prn]["NL"]; // temp save, it is not its real meaning!
                     }
                 }
 
@@ -818,8 +789,8 @@ namespace great
 
     bool t_gambiguity::_calDDAmbWL()
     {
-        string sat1, sat2;
-        string sat11, sat12, sat21, sat22;
+        GSAT sat1, sat2;
+        GSAT sat11, sat12, sat21, sat22;
         // widelane ambiguities from MW-combination
         for (auto itdd = _DD.begin(); itdd != _DD.end();)
         {
@@ -836,12 +807,12 @@ namespace great
                 itdd->rwl = _MW[sat1][2] - _MW[sat2][2];
                 itdd->srwl = sqrt(abs(_MW[sat1][3] / _MW[sat1][1]) + abs(_MW[sat2][3] / _MW[sat2][1]));
 
-                if (sat1.substr(0, 1) == "R")
+                if (gsat2gsys(sat1) == GSYS::GLO)
                 {
                     itdd->rwl_R1 = _MW[sat1][2];
                     itdd->srwl_R1 = sqrt(abs(_MW[sat1][3] / _MW[sat1][1]));
                 }
-                if (sat2.substr(0, 1) == "R")
+                if (gsat2gsys(sat2) == GSYS::GLO)
                 {
                     itdd->rwl_R2 = _MW[sat2][2];
                     itdd->srwl_R2 = sqrt(abs(_MW[sat2][3] / _MW[sat2][1]));
@@ -859,9 +830,9 @@ namespace great
             return true;
         }
     }
-    bool t_gambiguity::_calDDAmbWLALL(t_gamb_cmn* amb_cmn, string mode)
+    bool t_gambiguity::_calDDAmbWLALL(t_gamb_cmn* amb_cmn, std::string mode)
     {
-        string sat11, sat12, sat21, sat22, ambtype1, ambtype2;
+        GSAT sat11, sat12, sat21, sat22; std::string ambtype1, ambtype2;
         double qq, lambda_1 = 0, lambda_2 = 0, lambda_21 = 0, lambda_22 = 0;
 
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
@@ -871,39 +842,39 @@ namespace great
 
             if (mode == "WL")
             {
-                if (sat11.substr(0, 1) != "R")
+                if (gsat2gsys(sat11) != GSYS::GLO)
                 {
-                    lambda_1 = _sys_wavelen[sat11.substr(0, 1)]["L1"];
-                    lambda_2 = _sys_wavelen[sat11.substr(0, 1)]["L2"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat11)]["L1"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat11)]["L2"];
                 }
                 else
                 {
-                    lambda_1 = _sys_wavelen[sat11]["L1"];
-                    lambda_2 = _sys_wavelen[sat11]["L2"];
-                    lambda_21 = _sys_wavelen[sat12]["L1"];
-                    lambda_22 = _sys_wavelen[sat12]["L2"];
+                    lambda_1 = _sat_wavelen[sat11]["L1"];
+                    lambda_2 = _sat_wavelen[sat11]["L2"];
+                    lambda_21 = _sat_wavelen[sat12]["L1"];
+                    lambda_22 = _sat_wavelen[sat12]["L2"];
                 }
                 ambtype1 = "AMB_L1";
                 ambtype2 = "AMB_L2";
             }
             else if (mode == "EWL")
             {
-                lambda_1 = _sys_wavelen[sat11.substr(0, 1)]["L2"];
-                lambda_2 = _sys_wavelen[sat11.substr(0, 1)]["L3"];
+                lambda_1 = _sys_wavelen[gsat2gsys(sat11)]["L2"];
+                lambda_2 = _sys_wavelen[gsat2gsys(sat11)]["L3"];
                 ambtype1 = "AMB_L2";
                 ambtype2 = "AMB_L3";
             }
             else if (mode == "EWL24")
             {
-                lambda_1 = _sys_wavelen[sat11.substr(0, 1)]["L2"];
-                lambda_2 = _sys_wavelen[sat11.substr(0, 1)]["L4"];
+                lambda_1 = _sys_wavelen[gsat2gsys(sat11)]["L2"];
+                lambda_2 = _sys_wavelen[gsat2gsys(sat11)]["L4"];
                 ambtype1 = "AMB_L2";
                 ambtype2 = "AMB_L4";
             }
             else if (mode == "EWL25")
             {
-                lambda_1 = _sys_wavelen[sat11.substr(0, 1)]["L2"];
-                lambda_2 = _sys_wavelen[sat11.substr(0, 1)]["L5"];
+                lambda_1 = _sys_wavelen[gsat2gsys(sat11)]["L2"];
+                lambda_2 = _sys_wavelen[gsat2gsys(sat11)]["L5"];
                 ambtype1 = "AMB_L2";
                 ambtype2 = "AMB_L5";
             }
@@ -929,16 +900,16 @@ namespace great
 
                 if ((sat11 == sat21) && (sat12 == sat22))
                 {
-                    if (sat11.substr(0, 1) != "R")
+                    if (gsat2gsys(sat11) != GSYS::GLO)
                     {
                         itdd->rwl = itdd->rlc / lambda_1 - itdd1->rlc / lambda_2;
                     }
                     else
                     {
-                        itdd->rwl = (itdd->rlc + itdd->rwl_R1) * _sys_wavelen[sat11]["NL"] / lambda_1 -
-                                    itdd->rwl_R1 * _sys_wavelen[sat12]["NL"] / lambda_21;
-                        itdd->rwl -= (itdd1->rlc + itdd1->rwl_R1) * _sys_wavelen[sat11]["NL"] / lambda_2 -
-                                     itdd1->rwl_R1 * _sys_wavelen[sat12]["NL"] / lambda_22;
+                        itdd->rwl = (itdd->rlc + itdd->rwl_R1) * _sat_wavelen[sat11]["NL"] / lambda_1 -
+                                    itdd->rwl_R1 * _sat_wavelen[sat12]["NL"] / lambda_21;
+                        itdd->rwl -= (itdd1->rlc + itdd1->rwl_R1) * _sat_wavelen[sat11]["NL"] / lambda_2 -
+                                     itdd1->rwl_R1 * _sat_wavelen[sat12]["NL"] / lambda_22;
                     }
                     qq = amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_1) -
                          amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[1])) / (lambda_1 * lambda_2) -
@@ -973,7 +944,7 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_getSingleUpd(string mode, t_gtime t, string sat, double& value, double& sigma)
+    bool t_gambiguity::_getSingleUpd(std::string mode, t_gtime t, GSAT sat, double& value, double& sigma)
     {
         UPDTYPE upd_type = str2updmode(trim(mode));
         one_epoch_upd epoch_upd = _gupd->get_epo_upd(upd_type, t);
@@ -1026,7 +997,7 @@ namespace great
 
     bool t_gambiguity::_applyUpd(t_gtime t)
     {
-        string sat1, sat2;
+        GSAT sat1, sat2;
         double upd_wl1, upd_wl2, upd_ewl1, upd_ewl2, upd_nl1, upd_nl2, sig, rec_upd;
         double upd_ewl24_1, upd_ewl24_2, upd_ewl25_1, upd_ewl25_2;
         upd_wl1 = upd_wl2 = rec_upd = 0.0;
@@ -1134,14 +1105,14 @@ namespace great
             if (_obstype == OBSCOMBIN::RAW_ALL || _obstype == OBSCOMBIN::RAW_MIX)
             {
                 // get Narrowlane Ambiguity + apply Widelane + Narrowlane UPD
-                if (sat1.substr(0, 1) != "R")
+                if (gsat2gsys(sat1) != GSYS::GLO)
                 {
                     double lambda_1, lambda_2, lambda_3, lambda_4, lambda_5;
-                    lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L1"];
-                    lambda_2 = _sys_wavelen[sat2.substr(0, 1)]["L2"];
-                    lambda_3 = _sys_wavelen[sat2.substr(0, 1)]["L3"];
-                    lambda_4 = _sys_wavelen[sat2.substr(0, 1)]["L4"];
-                    lambda_5 = _sys_wavelen[sat2.substr(0, 1)]["L5"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat1)]["L1"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat2)]["L2"];
+                    lambda_3 = _sys_wavelen[gsat2gsys(sat2)]["L3"];
+                    lambda_4 = _sys_wavelen[gsat2gsys(sat2)]["L4"];
+                    lambda_5 = _sys_wavelen[gsat2gsys(sat2)]["L5"];
                     itdd->sd_r1_cor = itdd->sd_rnl_cor - lambda_1 / (lambda_2 - lambda_1) * (-upd_wl1 + upd_wl2);
                     itdd->sd_r2_cor = itdd->sd_rnl_cor - lambda_2 / (lambda_2 - lambda_1) * (-upd_wl1 + upd_wl2);
                     if (upd_ewl1 != 0.0 && upd_ewl2 != 0.0)
@@ -1196,10 +1167,10 @@ namespace great
                 else
                 {
                     double lambda_11, lambda_12, lambda_21, lambda_22;
-                    lambda_11 = _sys_wavelen[sat1]["L1"];
-                    lambda_12 = _sys_wavelen[sat1]["L2"];
-                    lambda_21 = _sys_wavelen[sat2]["L1"];
-                    lambda_22 = _sys_wavelen[sat2]["L2"];
+                    lambda_11 = _sat_wavelen[sat1]["L1"];
+                    lambda_12 = _sat_wavelen[sat1]["L2"];
+                    lambda_21 = _sat_wavelen[sat2]["L1"];
+                    lambda_22 = _sat_wavelen[sat2]["L2"];
 
                     itdd->sd_r1_cor = upd_nl1 + lambda_11 / (lambda_12 - lambda_11) * upd_wl1;
                     itdd->sd_r1_cor -= (upd_nl2 + lambda_21 / (lambda_22 - lambda_21) * upd_wl2);
@@ -1208,16 +1179,16 @@ namespace great
 
                     if (itdd->ambtype == "AMB_L1")
                     {
-                        itdd->rnl = (itdd->rlc + itdd->rwl_R1) * _sys_wavelen[sat1]["NL"] / lambda_11;
-                        itdd->rnl -= ((itdd->rwl_R1) * _sys_wavelen[sat2]["NL"] / lambda_21);
+                        itdd->rnl = (itdd->rlc + itdd->rwl_R1) * _sat_wavelen[sat1]["NL"] / lambda_11;
+                        itdd->rnl -= ((itdd->rwl_R1) * _sat_wavelen[sat2]["NL"] / lambda_21);
                         itdd->rnl += itdd->sd_r1_cor;
                         itdd->srnl = itdd->srlc / (lambda_11);
                         itdd->factor = lambda_11;
                     }
                     else if (itdd->ambtype == "AMB_L2")
                     {
-                        itdd->rnl = (itdd->rlc + itdd->rwl_R1) * _sys_wavelen[sat1]["NL"] / lambda_12;
-                        itdd->rnl -= ((itdd->rwl_R1) * _sys_wavelen[sat2]["NL"] / lambda_22);
+                        itdd->rnl = (itdd->rlc + itdd->rwl_R1) * _sat_wavelen[sat1]["NL"] / lambda_12;
+                        itdd->rnl -= ((itdd->rwl_R1) * _sat_wavelen[sat2]["NL"] / lambda_22);
                         itdd->rnl += itdd->sd_r2_cor;
                         itdd->srnl = itdd->srlc / (lambda_21);
                         itdd->factor = lambda_21;
@@ -1227,17 +1198,17 @@ namespace great
 
             if (_obstype == OBSCOMBIN::IONO_FREE)
             {
-                if (sat1.substr(0, 1) != "R")
+                if (gsat2gsys(sat1) != GSYS::GLO)
                 {
                     // apply Widelane UPD
                     if (_upd_mode == UPD_MODE::UPD)
                     {
                         itdd->rwl += (-upd_wl1 + upd_wl2);
                     }
-                    itdd->rnl = itdd->rlc / _sys_wavelen[sat1.substr(0, 1)]["NL"] -
-                                round(itdd->rwl) * _sys_wavelen[sat1.substr(0, 1)]["WL"] / _sys_wavelen[sat1.substr(0, 1)]["L2"];
-                    itdd->srnl = itdd->srlc / _sys_wavelen[sat1.substr(0, 1)]["NL"];
-                    itdd->factor = _sys_wavelen[sat1.substr(0, 1)]["NL"];
+                    itdd->rnl = itdd->rlc / _sys_wavelen[gsat2gsys(sat1)]["NL"] -
+                                round(itdd->rwl) * _sys_wavelen[gsat2gsys(sat1)]["WL"] / _sys_wavelen[gsat2gsys(sat1)]["L2"];
+                    itdd->srnl = itdd->srlc / _sys_wavelen[gsat2gsys(sat1)]["NL"];
+                    itdd->factor = _sys_wavelen[gsat2gsys(sat1)]["NL"];
                     if (_upd_mode == UPD_MODE::UPD)
                     {
                         itdd->rnl += itdd->sd_rnl_cor;
@@ -1250,8 +1221,8 @@ namespace great
                         itdd->rwl += (-upd_wl1 + upd_wl2);
                     }
                     itdd->rnl = itdd->rlc - round(itdd->rwl) * 3.5;
-                    itdd->srnl = itdd->srlc / _sys_wavelen[sat1]["NL"];
-                    itdd->factor = _sys_wavelen[sat1]["NL"];
+                    itdd->srnl = itdd->srlc / _sat_wavelen[sat1]["NL"];
+                    itdd->factor = _sat_wavelen[sat1]["NL"];
                     if (_upd_mode == UPD_MODE::UPD)
                     {
                         itdd->rnl += itdd->sd_rnl_cor;
@@ -1264,9 +1235,9 @@ namespace great
         return true;
     }
 
-    bool t_gambiguity::_applyWLUpd(t_gtime t, string mode)
+    bool t_gambiguity::_applyWLUpd(t_gtime t, std::string mode)
     {
-        string sat1, sat2;
+        GSAT sat1, sat2;
         double upd_wl1, upd_wl2, upd_ewl1, upd_ewl2, sig;
         upd_wl1 = upd_wl2 = upd_ewl1 = upd_ewl2 = 0.0;
 
@@ -1319,18 +1290,18 @@ namespace great
             }
 
             // get Narrowlane Ambiguity + apply Widelane + Narrowlane UPD
-            if (sat1.substr(0, 1) != "R")
+            if (gsat2gsys(sat1) != GSYS::GLO)
             {
                 if (itdd->ambtype == "AMB_L2")
                 {
-                    itdd->factor = _sys_wavelen[sat2.substr(0, 1)]["L2"];
+                    itdd->factor = _sys_wavelen[gsat2gsys(sat2)]["L2"];
                 }
 
                 if (mode == "WL" && itdd->rwl != 0)
                 {
                     itdd->rwl += (-upd_wl1 + upd_wl2);
                     itdd->sd_rwl_cor = (-upd_wl1 + upd_wl2);
-                    itdd->factor = _sys_wavelen[sat1.substr(0, 1)]["WL"];
+                    itdd->factor = _sys_wavelen[gsat2gsys(sat1)]["WL"];
                     itdd++;
 
                     continue;
@@ -1339,7 +1310,7 @@ namespace great
                 {
                     itdd->rewl = itdd->rwl + (-upd_ewl1 + upd_ewl2);
                     itdd->sd_rewl_cor = (-upd_ewl1 + upd_ewl2);
-                    itdd->factor = _sys_wavelen[sat1.substr(0, 1)]["EWL"];
+                    itdd->factor = _sys_wavelen[gsat2gsys(sat1)]["EWL"];
                     itdd++;
 
                     continue;
@@ -1348,7 +1319,7 @@ namespace great
                 {
                     itdd->rewl24 = itdd->rwl + (-upd_ewl1 + upd_ewl2);
                     itdd->sd_rewl24_cor = (-upd_ewl1 + upd_ewl2);
-                    itdd->factor = _sys_wavelen[sat1.substr(0, 1)]["EWL24"];
+                    itdd->factor = _sys_wavelen[gsat2gsys(sat1)]["EWL24"];
                     itdd++;
 
                     continue;
@@ -1357,7 +1328,7 @@ namespace great
                 {
                     itdd->rewl25 = itdd->rwl + (-upd_ewl1 + upd_ewl2);
                     itdd->sd_rewl25_cor = (-upd_ewl1 + upd_ewl2);
-                    itdd->factor = _sys_wavelen[sat1.substr(0, 1)]["EWL25"];
+                    itdd->factor = _sys_wavelen[gsat2gsys(sat1)]["EWL25"];
                     itdd++;
 
                     continue;
@@ -1374,7 +1345,7 @@ namespace great
                 {
                     itdd->rwl += (-upd_wl1 + upd_wl2);
                     itdd->sd_rwl_cor = (-upd_wl1 + upd_wl2);
-                    itdd->factor = _sys_wavelen[sat1]["WL"];
+                    itdd->factor = _sat_wavelen[sat1]["WL"];
                     itdd++;
                     continue;
                 }
@@ -1390,7 +1361,7 @@ namespace great
 
     bool t_gambiguity::_fixAmbIF()
     {
-        string sat1, sat2;
+        GSAT sat1, sat2;
         t_gbdeci bdeci;
         double prob, alpha, alpha1, alpha2;
 
@@ -1400,7 +1371,7 @@ namespace great
             sat2 = get<0>(itdd->ddSats[1]);
 
             // Judge Widelane Ambiguity whether can be fixed
-            if (sat1.substr(0, 1) != "R") //
+            if (gsat2gsys(sat1) != GSYS::GLO) //
             {
                 bdeci.bdeci(itdd->rwl, itdd->srwl, 1, _map_WL_decision["maxdev"], _map_WL_decision["maxsig"], prob, alpha);
                 if (alpha > _map_WL_decision["alpha"])
@@ -1437,7 +1408,7 @@ namespace great
                 itdd->isNlFixed = true;
             }
 
-            if (sat1.substr(0, 1) != "R")
+            if (gsat2gsys(sat1) != GSYS::GLO)
             {
                 if (_part_fix && abs(itdd->rnl - round(itdd->rnl)) < 0.2 && _MW[sat1][5] > 25.0 && _MW[sat2][5] > 25.0)
                 {
@@ -1459,7 +1430,7 @@ namespace great
 
     bool t_gambiguity::_fixAmbUDUC()
     {
-        string sat1, sat2;
+        GSAT sat1, sat2;
 
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
@@ -1523,7 +1494,7 @@ namespace great
     }
     bool t_gambiguity::_fixAmbWL()
     {
-        string sat1, sat2;
+        GSAT sat1, sat2;
         t_gbdeci bdeci;
         double prob, alpha;
 
@@ -1548,9 +1519,9 @@ namespace great
         return true;
     }
 
-    bool t_gambiguity::_fixAmbWL(string mode)
+    bool t_gambiguity::_fixAmbWL(std::string mode)
     {
-        string sat1, sat2;
+        GSAT sat1, sat2;
 
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
@@ -1740,7 +1711,7 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_prepareCovariance(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, vector<double>& value)
+    bool t_gambiguity::_prepareCovariance(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, std::vector<double>& value)
     {
         int row = 0, col = 0;
         // set covariance-matrix
@@ -1781,7 +1752,7 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_prepareCovarianceWL(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, vector<double>& value, string mode)
+    bool t_gambiguity::_prepareCovarianceWL(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, std::vector<double>& value, std::string mode)
     {
         int row = 0, col = 0;
         double lambda_1 = 0.0, lambda_2 = 0.0;
@@ -1792,22 +1763,22 @@ namespace great
 
         for (auto itdd1 = _DD.begin(); itdd1 != _DD.end(); itdd1++)
         {
-            string sat = get<0>(itdd1->ddSats[0]);
+            GSAT sat = get<0>(itdd1->ddSats[0]);
             if (mode == "WL")
             {
                 if (itdd1->rwl == 0)
                 {
                     continue;
                 }
-                if (sat.substr(0, 1) != "R")
+                if (gsat2gsys(sat) != GSYS::GLO)
                 {
-                    lambda_1 = _sys_wavelen[sat.substr(0, 1)]["L1"];
-                    lambda_2 = _sys_wavelen[sat.substr(0, 1)]["L2"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat)]["L1"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat)]["L2"];
                 }
                 else
                 {
-                    lambda_1 = _sys_wavelen[sat]["L1"];
-                    lambda_2 = _sys_wavelen[sat]["L2"];
+                    lambda_1 = _sat_wavelen[sat]["L1"];
+                    lambda_2 = _sat_wavelen[sat]["L2"];
                 }
 
                 value.push_back(itdd1->rwl);
@@ -1818,15 +1789,15 @@ namespace great
                 {
                     continue;
                 }
-                if (sat.substr(0, 1) != "R")
+                if (gsat2gsys(sat) != GSYS::GLO)
                 {
-                    lambda_1 = _sys_wavelen[sat.substr(0, 1)]["L2"];
-                    lambda_2 = _sys_wavelen[sat.substr(0, 1)]["L3"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat)]["L2"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat)]["L3"];
                 }
                 else
                 {
-                    lambda_1 = _sys_wavelen[sat]["L2"];
-                    lambda_2 = _sys_wavelen[sat]["L3"];
+                    lambda_1 = _sat_wavelen[sat]["L2"];
+                    lambda_2 = _sat_wavelen[sat]["L3"];
                 }
 
                 value.push_back(itdd1->rewl);
@@ -1838,7 +1809,7 @@ namespace great
 
             for (auto itdd2 = itdd1; itdd2 != _DD.end(); itdd2++)
             {
-                if (get<0>(itdd1->ddSats[0]).substr(1) != get<0>(itdd2->ddSats[0]).substr(1))
+                if (gsat2prn(get<0>(itdd1->ddSats[0])) != gsat2prn(get<0>(itdd2->ddSats[0])))
                 {
                     continue;
                 }
@@ -1883,7 +1854,7 @@ namespace great
         }
     }
 
-    double t_gambiguity::_lambdaSearch(const Matrix& anor, const vector<double>& fltpar, vector<int>& ibias, double* boot)
+    double t_gambiguity::_lambdaSearch(const Matrix& anor, const std::vector<double>& fltpar, std::vector<int>& ibias, double* boot)
     {
         const int maxcan = 2;
         int namb = fltpar.size();
@@ -1990,10 +1961,10 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_ambSolve(t_gamb_cmn* amb_cmn, vector<int>& fixed_amb, string mode)
+    bool t_gambiguity::_ambSolve(t_gamb_cmn* amb_cmn, std::vector<int>& fixed_amb, std::string mode)
     {
         SymmetricMatrix covariance;
-        vector<double> value;
+        std::vector<double> value;
         double ratio = 0.0;
         double boot = 0.0;
         int index;
@@ -2001,8 +1972,8 @@ namespace great
         {
             for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
             {
-                string sat1 = get<0>(itdd->ddSats[0]);
-                string sat2 = get<0>(itdd->ddSats[1]);
+                GSAT sat1 = get<0>(itdd->ddSats[0]);
+                GSAT sat2 = get<0>(itdd->ddSats[1]);
                 if (mode == "WL" && _WL_flag[sat1][sat2][itdd->site])
                 {
                     _IWL[sat1][sat2][itdd->site] = itdd->iwl;
@@ -2049,8 +2020,8 @@ namespace great
         }
         if (mode == "NL")
         {
-            _os_ratio << "RATIO" << fixed << setw(10) << setprecision(2) << ratio;
-            _os_boot << "BOOTSTRAPPING" << fixed << setw(10) << setprecision(2) << boot;
+            _os_ratio << "RATIO" << std::fixed << std::setw(10) << std::setprecision(2) << ratio;
+            _os_boot << "BOOTSTRAPPING" << std::fixed << std::setw(10) << std::setprecision(2) << boot;
         }
 
         // part amb. fix
@@ -2093,10 +2064,10 @@ namespace great
             for (unsigned int i = 1; i <= value.size(); i++)
             {
                 auto itdd = _DD.begin() + i - 1;
-                string sat1, sat2;
+                GSAT sat1, sat2;
                 sat1 = get<0>(itdd->ddSats[0]);
                 sat2 = get<0>(itdd->ddSats[1]);
-                if (sat1.substr(0, 1) == "R" && sat2.substr(0, 1) == "R")
+                if (gsat2gsys(sat1) == GSYS::GLO && gsat2gsys(sat2) == GSYS::GLO)
                 {
                     if (covariance(i, i) > max_diag)
                     {
@@ -2134,14 +2105,14 @@ namespace great
             }
             if (mode == "NL")
             {
-                _os_ratio << setw(10) << setprecision(2) << ratio;
-                _os_boot << setw(10) << setprecision(2) << boot;
+                _os_ratio << std::setw(10) << std::setprecision(2) << ratio;
+                _os_boot << std::setw(10) << std::setprecision(2) << boot;
             }
         }
         if (mode == "NL" && ratio > _ratio && boot > _boot)
         {
-            _os_ratio << endl;
-            _os_boot << endl;
+            _os_ratio << std::endl;
+            _os_boot << std::endl;
             _writeRatio(ratio);
             if (_boot > 0.0)
             {
@@ -2240,27 +2211,27 @@ namespace great
 
             if (_obstype == OBSCOMBIN::IONO_FREE)
             {
-                string sys = get<0>(itdd->ddSats[0]).substr(0, 1);
-                if (sys != "R")
+                GSYS sys = gsat2gsys(get<0>(itdd->ddSats[0]));
+                if (sys != GSYS::GLO)
                 {
                     integer = (itdd->inl - itdd->sd_rnl_cor + round(itdd->rwl) * _sys_wavelen[sys]["WL"] / _sys_wavelen[sys]["L2"]) *
                               itdd->factor;
                 }
                 else
                 {
-                    string sat1 = get<0>(itdd->ddSats[0]);
-                    string sat2 = get<0>(itdd->ddSats[1]);
+                    GSAT sat1 = get<0>(itdd->ddSats[0]);
+                    GSAT sat2 = get<0>(itdd->ddSats[1]);
                     integer = (itdd->inl - itdd->sd_rnl_cor + 3.5 * round(itdd->rwl));
-                    Ba = 1 / _sys_wavelen[sat1]["NL"];
-                    Bb = -1 / _sys_wavelen[sat2]["NL"];
+                    Ba = 1 / _sat_wavelen[sat1]["NL"];
+                    Bb = -1 / _sat_wavelen[sat2]["NL"];
                     flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat2 - 1].value() * Bb;
                 }
             }
             else if (_obstype == OBSCOMBIN::RAW_ALL || _obstype == OBSCOMBIN::RAW_MIX)
             {
                 double Lx_cor = 0.0;
-                string sys = get<0>(itdd->ddSats[0]).substr(0, 1);
-                if (sys != "R")
+                GSYS sys = gsat2gsys(get<0>(itdd->ddSats[0]));
+                if (sys != GSYS::GLO)
                 {
                     if (itdd->ambtype == "AMB_L1")
                     {
@@ -2286,18 +2257,18 @@ namespace great
                 }
                 else
                 {
-                    string sat1 = get<0>(itdd->ddSats[0]);
-                    string sat2 = get<0>(itdd->ddSats[1]);
+                    GSAT sat1 = get<0>(itdd->ddSats[0]);
+                    GSAT sat2 = get<0>(itdd->ddSats[1]);
                     if (itdd->ambtype == "AMB_L1")
                     {
-                        Ba = 1 / _sys_wavelen[sat1]["L1"];
-                        Bb = -1 / _sys_wavelen[sat2]["L1"];
+                        Ba = 1 / _sat_wavelen[sat1]["L1"];
+                        Bb = -1 / _sat_wavelen[sat2]["L1"];
                         Lx_cor = itdd->sd_r1_cor;
                     }
                     else if (itdd->ambtype == "AMB_L2")
                     {
-                        Ba = 1 / _sys_wavelen[sat1]["L2"];
-                        Bb = -1 / _sys_wavelen[sat2]["L2"];
+                        Ba = 1 / _sat_wavelen[sat1]["L2"];
+                        Bb = -1 / _sat_wavelen[sat2]["L2"];
                         Lx_cor = itdd->sd_r2_cor;
                     }
                     flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat2 - 1].value() * Bb;
@@ -2307,16 +2278,16 @@ namespace great
 
             dl = integer - flt;
 
-            vector<pair<int, double>> B;
-            B.push_back(make_pair(index_sat1, Ba));
-            B.push_back(make_pair(index_sat2, Bb));
+            std::vector<std::pair<int, double>> B;
+            B.push_back(std::make_pair(index_sat1, Ba));
+            B.push_back(std::make_pair(index_sat2, Bb));
 
             Matrix B_mat;
             SymmetricMatrix P_mat;
             ColumnVector l_mat;
             t_gfltEquationMatrix virtual_equ;
             t_gobscombtype type;
-            virtual_equ.add_equ(B, p0, dl, _site, get<0>(itdd->ddSats[0]) + "_" + get<0>(itdd->ddSats[1]), type, false);
+            virtual_equ.add_equ(B, p0, dl, _site, GSAT::NONE, type, false);
             virtual_equ.chageNewMat(B_mat, P_mat, l_mat, gflt->npar_number());
 
             gflt->resetQ();
@@ -2327,7 +2298,7 @@ namespace great
         {
             gflt->update();
         }
-        catch (exception e)
+        catch (std::exception e)
         {
             GREAT_DEBUG(std::string(e.what()) + " Ambiguity Constrain Failed!");
             return false;
@@ -2337,7 +2308,7 @@ namespace great
         //////========================= Virtual observation equation ===========================================
     }
 
-    bool t_gambiguity::_addFixConstraintWL(t_gflt* gflt, string mode)
+    bool t_gambiguity::_addFixConstraintWL(t_gflt* gflt, std::string mode)
     {
         //////========================= Virtual observation equation ===========================================
         double dl = 0.0;
@@ -2367,12 +2338,12 @@ namespace great
             int index_sat2 = get<1>(itdd->ddSats[1]);
             int index_sat3 = get<1>(itdd->ddSats[2]);
             int index_sat4 = get<1>(itdd->ddSats[3]);
-            string sat1 = get<0>(itdd->ddSats[0]);
-            string sat2 = get<0>(itdd->ddSats[1]);
-            string sat3 = get<0>(itdd->ddSats[2]);
-            string sat4 = get<0>(itdd->ddSats[3]);
+            GSAT sat1 = get<0>(itdd->ddSats[0]);
+            GSAT sat2 = get<0>(itdd->ddSats[1]);
+            GSAT sat3 = get<0>(itdd->ddSats[2]);
+            GSAT sat4 = get<0>(itdd->ddSats[3]);
 
-            if (sat1.substr(0, 1) != "R")
+            if (gsat2gsys(sat1) != GSYS::GLO)
             {
                 if (mode == "WL")
                 {
@@ -2380,8 +2351,8 @@ namespace great
                     {
                         continue;
                     }
-                    lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L1"];
-                    lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat1)]["L1"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat1)]["L2"];
                     integer = (itdd->iwl - itdd->sd_rwl_cor);
                 }
                 else if (mode == "EWL")
@@ -2390,8 +2361,8 @@ namespace great
                     {
                         continue;
                     }
-                    lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
-                    lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L3"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat1)]["L2"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat1)]["L3"];
                     integer = (itdd->iewl - itdd->sd_rewl_cor);
                 }
                 else if (mode == "EWL24")
@@ -2400,8 +2371,8 @@ namespace great
                     {
                         continue;
                     }
-                    lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
-                    lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L4"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat1)]["L2"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat1)]["L4"];
                     integer = (itdd->iewl24 - itdd->sd_rewl24_cor);
                 }
                 else if (mode == "EWL25")
@@ -2410,8 +2381,8 @@ namespace great
                     {
                         continue;
                     }
-                    lambda_1 = _sys_wavelen[sat1.substr(0, 1)]["L2"];
-                    lambda_2 = _sys_wavelen[sat1.substr(0, 1)]["L5"];
+                    lambda_1 = _sys_wavelen[gsat2gsys(sat1)]["L2"];
+                    lambda_2 = _sys_wavelen[gsat2gsys(sat1)]["L5"];
                     integer = (itdd->iewl25 - itdd->sd_rewl25_cor);
                 }
                 Ba = 1 / lambda_1;
@@ -2427,10 +2398,10 @@ namespace great
                     {
                         continue;
                     }
-                    lambda_11 = _sys_wavelen[sat1]["L1"];
-                    lambda_12 = _sys_wavelen[sat3]["L2"];
-                    lambda_21 = _sys_wavelen[sat2]["L1"];
-                    lambda_22 = _sys_wavelen[sat4]["L2"];
+                    lambda_11 = _sat_wavelen[sat1]["L1"];
+                    lambda_12 = _sat_wavelen[sat3]["L2"];
+                    lambda_21 = _sat_wavelen[sat2]["L1"];
+                    lambda_22 = _sat_wavelen[sat4]["L2"];
 
                     integer = (itdd->iwl - itdd->sd_rwl_cor);
                 }
@@ -2444,11 +2415,11 @@ namespace great
                   gflt->param()[index_sat2 - 1].value() * Bc + gflt->param()[index_sat4 - 1].value() * Bd;
             dl = integer - flt;
 
-            vector<pair<int, double>> B;
-            B.push_back(make_pair(index_sat1, Ba));
-            B.push_back(make_pair(index_sat3, Bb));
-            B.push_back(make_pair(index_sat2, Bc));
-            B.push_back(make_pair(index_sat4, Bd));
+            std::vector<std::pair<int, double>> B;
+            B.push_back(std::make_pair(index_sat1, Ba));
+            B.push_back(std::make_pair(index_sat3, Bb));
+            B.push_back(std::make_pair(index_sat2, Bc));
+            B.push_back(std::make_pair(index_sat4, Bd));
 
             Matrix B_mat;
             SymmetricMatrix P_mat;
@@ -2459,8 +2430,7 @@ namespace great
                                 p0,
                                 dl,
                                 _site,
-                                get<0>(itdd->ddSats[0]) + "_" + get<0>(itdd->ddSats[2]) + "_" + get<0>(itdd->ddSats[1]) + "_" +
-                                    get<0>(itdd->ddSats[3]),
+                                GSAT::NONE,
                                 type,
                                 false);
             virtual_equ.chageNewMat(B_mat, P_mat, l_mat, gflt->npar_number());
@@ -2472,7 +2442,7 @@ namespace great
         {
             gflt->update();
         }
-        catch (exception e)
+        catch (std::exception e)
         {
             GREAT_DEBUG(std::string(e.what()) + " Solve Equation Fail!");
             return false;
@@ -2484,7 +2454,7 @@ namespace great
     void t_gambiguity::_initRatiofile()
     {
         // output ratio   file
-        string ratio_path = dynamic_cast<t_gsetout*>(_gset)->outputs("ratio"); // xjhan
+        std::string ratio_path = dynamic_cast<t_gsetout*>(_gset)->outputs("ratio"); // xjhan
         if (ratio_path.empty())
         {
             ratio_path = "ratio-" + _site;
@@ -2493,11 +2463,11 @@ namespace great
         substitute(ratio_path, "$(rec)", _site, false);
 
         _ratiofile = new t_giof;
-        _ratiofile->tsys(t_gtime::GPS);
+        _ratiofile->tsys(t_gtime::t_tsys::GPS);
         _ratiofile->mask(ratio_path);
         _ratiofile->append(dynamic_cast<t_gsetout*>(_gset)->append());
-        ostringstream os;
-        os << " Epoch        Ratio" << endl;
+        std::ostringstream os;
+        os << " Epoch        Ratio" << std::endl;
         if (_ratiofile)
         {
             _ratiofile->write(os.str().c_str(), os.str().size());
@@ -2508,14 +2478,14 @@ namespace great
     void t_gambiguity::_initBootfile()
     {
         // output boot   file
-        string bootfile = "boot-" + _site;
+        std::string bootfile = "boot-" + _site;
 
         _bootfile = new t_giof;
-        _bootfile->tsys(t_gtime::GPS);
+        _bootfile->tsys(t_gtime::t_tsys::GPS);
         _bootfile->mask(bootfile);
         _bootfile->append(dynamic_cast<t_gsetout*>(_gset)->append());
-        ostringstream os;
-        os << " Epoch        Boot" << endl;
+        std::ostringstream os;
+        os << " Epoch        Boot" << std::endl;
         if (_bootfile)
         {
             _bootfile->write(os.str().c_str(), os.str().size());
@@ -2525,11 +2495,11 @@ namespace great
 
     void t_gambiguity::_writeRatio(double ratio)
     {
-        ostringstream os;
+        std::ostringstream os;
         int nepoch = (int)(((_crt_time.dmjd() - _beg.dmjd()) * 86400.0 + _interval * 1E-3) / _interval) + 1;
 
         // write ratio data
-        os << " " << setw(4) << nepoch << "     " << fixed << setw(5) << setprecision(2) << ratio << endl;
+        os << " " << std::setw(4) << nepoch << "     " << std::fixed << std::setw(5) << std::setprecision(2) << ratio << std::endl;
 
         // Print ratio results
         if (_ratiofile)
@@ -2547,11 +2517,11 @@ namespace great
 
     void t_gambiguity::_writeBoot(double BootStrapping)
     {
-        ostringstream os;
+        std::ostringstream os;
         int nepoch = (int)(((_crt_time.dmjd() - _beg.dmjd()) * 86400.0 + _interval * 1E-3) / _interval) + 1;
 
         // write bootstrapping data
-        os << " " << setw(4) << nepoch << "     " << fixed << setw(5) << setprecision(2) << BootStrapping * 100.0 << "%" << endl;
+        os << " " << std::setw(4) << nepoch << "     " << std::fixed << std::setw(5) << std::setprecision(2) << BootStrapping * 100.0 << "%" << std::endl;
 
         // Print bootstrapping results
         if (_bootfile)
@@ -2567,14 +2537,14 @@ namespace great
         return;
     }
 
-    double t_gambiguity::_glonassRecUpd(string site)
+    double t_gambiguity::_glonassRecUpd(std::string site)
     {
         double upd_rec = 0.0;
-        set<string> mapSat;
-        list<pair<double, double>> wl_sig;
+        std::set<GSAT> mapSat;
+        std::list<std::pair<double, double>> wl_sig;
         double sigx = 0.0, mean = 0.0, sig = 0.0, upd = 0.0;
         int npnt = 0;
-        string sat1, sat2;
+        GSAT sat1, sat2;
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
             sat1 = get<0>(itdd->ddSats[0]);
@@ -2583,7 +2553,7 @@ namespace great
             {
                 continue;
             }
-            if (sat1.substr(0, 1) != "R" || sat2.substr(0, 1) != "R")
+            if (gsat2gsys(sat1) != GSYS::GLO || gsat2gsys(sat2) != GSYS::GLO)
             {
                 continue;
             }
@@ -2592,7 +2562,7 @@ namespace great
                 mapSat.insert(sat1);
                 if (_getSingleUpd("WL", _wl_Upd_time, sat1, upd, sig))
                 {
-                    wl_sig.push_back(make_pair(_MW[sat1][2] - upd, 1.0));
+                    wl_sig.push_back(std::make_pair(_MW[sat1][2] - upd, 1.0));
                     npnt++;
                 }
             }
@@ -2601,7 +2571,7 @@ namespace great
                 mapSat.insert(sat2);
                 if (_getSingleUpd("WL", _wl_Upd_time, sat2, upd, sig))
                 {
-                    wl_sig.push_back(make_pair(_MW[sat2][2] - upd, 1.0));
+                    wl_sig.push_back(std::make_pair(_MW[sat2][2] - upd, 1.0));
                     npnt++;
                 }
             }
@@ -2625,8 +2595,8 @@ namespace great
         // erase dds do not contain sat_ref
         for (auto it_dd = _DD.begin(); it_dd != _DD.end();)
         {
-            string sat1 = get<0>(it_dd->ddSats[0]);
-            string sat2 = get<0>(it_dd->ddSats[1]);
+            GSAT sat1 = get<0>(it_dd->ddSats[0]);
+            GSAT sat2 = get<0>(it_dd->ddSats[1]);
 
             if (_sat_refs.find(sat1) == _sat_refs.end() && _sat_refs.find(sat2) == _sat_refs.end())
             {
@@ -2661,7 +2631,7 @@ namespace great
         _nobs_total = flt->nobs_total();
         _npar_number = flt->npar_number();
         _amb_fixed = false;
-        _active_amb.insert(make_pair("", 1));
+        _active_amb.insert(std::make_pair("", 1));
         _ratio = 0.0;
     }
 
@@ -2669,12 +2639,12 @@ namespace great
     {
     }
 
-    void t_gamb_cmn::active_amb(map<string, int> active_amb)
+    void t_gamb_cmn::active_amb(std::map<std::string, int> active_amb)
     {
         _active_amb = active_amb;
     }
 
-    int t_gamb_cmn::active_amb(string site)
+    int t_gamb_cmn::active_amb(std::string site)
     {
         return _active_amb[site];
     }
@@ -2708,12 +2678,12 @@ namespace great
         return _boot;
     }
 
-    void t_gamb_cmn::set_mode(string mode)
+    void t_gamb_cmn::set_mode(std::string mode)
     {
         _mode = mode;
     }
 
-    string t_gamb_cmn::get_mode()
+    std::string t_gamb_cmn::get_mode()
     {
         return _mode;
     }

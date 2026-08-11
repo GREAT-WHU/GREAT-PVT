@@ -26,17 +26,18 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <ostream>
 
 #include "gutils/gtriple.h"
 #include "gutils/gcommon.h"
 #include "gexport/ExportLibGnut.h"
-using namespace std;
 
 namespace gnut
 {
     /** @brief GNSS systems and augmentations. */
-    enum GSYS
-    { // GXX = -1,
+    enum class GSYS
+    {
+        // GXX = -1,
         GPS = 1,
         GAL = 2,
         GLO = 3,
@@ -47,8 +48,233 @@ namespace gnut
         GNS = 999
     };
 
+    /** @brief Satellite PRN encoded as constellation * 100 + number. */
+    enum class GSAT : unsigned short
+    {
+        NONE = 0,
+        G01 = 101,
+        G02 = 102,
+        G03 = 103,
+        G04 = 104,
+        G05 = 105,
+        G06 = 106,
+        G07 = 107,
+        G08 = 108,
+        G09 = 109,
+        G10 = 110,
+        G11 = 111,
+        G12 = 112,
+        G13 = 113,
+        G14 = 114,
+        G15 = 115,
+        G16 = 116,
+        G17 = 117,
+        G18 = 118,
+        G19 = 119,
+        G20 = 120,
+        G21 = 121,
+        G22 = 122,
+        G23 = 123,
+        G24 = 124,
+        G25 = 125,
+        G26 = 126,
+        G27 = 127,
+        G28 = 128,
+        G29 = 129,
+        G30 = 130,
+        G31 = 131,
+        G32 = 132,
+        E01 = 201,
+        E02 = 202,
+        E03 = 203,
+        E04 = 204,
+        E05 = 205,
+        E06 = 206,
+        E07 = 207,
+        E08 = 208,
+        E09 = 209,
+        E10 = 210,
+        E11 = 211,
+        E12 = 212,
+        E13 = 213,
+        E14 = 214,
+        E15 = 215,
+        E16 = 216,
+        E17 = 217,
+        E18 = 218,
+        E19 = 219,
+        E20 = 220,
+        E21 = 221,
+        E22 = 222,
+        E23 = 223,
+        E24 = 224,
+        E25 = 225,
+        E26 = 226,
+        E27 = 227,
+        E28 = 228,
+        E29 = 229,
+        E30 = 230,
+        E31 = 231,
+        E32 = 232,
+        E33 = 233,
+        E34 = 234,
+        E35 = 235,
+        E36 = 236,
+        R01 = 301,
+        R02 = 302,
+        R03 = 303,
+        R04 = 304,
+        R05 = 305,
+        R06 = 306,
+        R07 = 307,
+        R08 = 308,
+        R09 = 309,
+        R10 = 310,
+        R11 = 311,
+        R12 = 312,
+        R13 = 313,
+        R14 = 314,
+        R15 = 315,
+        R16 = 316,
+        R17 = 317,
+        R18 = 318,
+        R19 = 319,
+        R20 = 320,
+        R21 = 321,
+        R22 = 322,
+        R23 = 323,
+        R24 = 324,
+        C01 = 401,
+        C02 = 402,
+        C03 = 403,
+        C04 = 404,
+        C05 = 405,
+        C06 = 406,
+        C07 = 407,
+        C08 = 408,
+        C09 = 409,
+        C10 = 410,
+        C11 = 411,
+        C12 = 412,
+        C13 = 413,
+        C14 = 414,
+        C15 = 415,
+        C16 = 416,
+        C17 = 417,
+        C18 = 418,
+        C19 = 419,
+        C20 = 420,
+        C21 = 421,
+        C22 = 422,
+        C23 = 423,
+        C24 = 424,
+        C25 = 425,
+        C26 = 426,
+        C27 = 427,
+        C28 = 428,
+        C29 = 429,
+        C30 = 430,
+        C31 = 431,
+        C32 = 432,
+        C33 = 433,
+        C34 = 434,
+        C35 = 435,
+        C36 = 436,
+        C37 = 437,
+        C38 = 438,
+        C39 = 439,
+        C40 = 440,
+        C41 = 441,
+        C42 = 442,
+        C43 = 443,
+        C44 = 444,
+        C45 = 445,
+        C46 = 446,
+        C47 = 447,
+        C48 = 448,
+        C49 = 449,
+        C50 = 450,
+        C51 = 451,
+        C52 = 452,
+        C53 = 453,
+        C54 = 454,
+        C55 = 455,
+        C56 = 456,
+        C57 = 457,
+        C58 = 458,
+        C59 = 459,
+        C60 = 460,
+        C61 = 461,
+        C62 = 462,
+        C63 = 463,
+        J01 = 501,
+        J02 = 502,
+        J03 = 503,
+        J04 = 504,
+        J05 = 505,
+        J06 = 506,
+        J07 = 507,
+        J08 = 508,
+        J09 = 509,
+        J10 = 510,
+        S20 = 620,
+        S21 = 621,
+        S22 = 622,
+        S23 = 623,
+        S24 = 624,
+        S25 = 625,
+        S26 = 626,
+        S27 = 627,
+        S28 = 628,
+        S29 = 629,
+        S30 = 630,
+        S31 = 631,
+        S32 = 632,
+        S33 = 633,
+        S34 = 634,
+        S35 = 635,
+        S36 = 636,
+        S37 = 637,
+        S38 = 638,
+        S39 = 639,
+        S40 = 640,
+        S41 = 641,
+        S42 = 642,
+        S43 = 643,
+        S44 = 644,
+        S45 = 645,
+        S46 = 646,
+        S47 = 647,
+        S48 = 648,
+        S49 = 649,
+        S50 = 650,
+        S51 = 651,
+        S52 = 652,
+        S53 = 653,
+        S54 = 654,
+        S55 = 655,
+        S56 = 656,
+        S57 = 657,
+        S58 = 658,
+        I01 = 701,
+        I02 = 702,
+        I03 = 703,
+        I04 = 704,
+        I05 = 705,
+        I06 = 706,
+        I07 = 707,
+        I08 = 708,
+        I09 = 709,
+        I10 = 710,
+        I11 = 711,
+        I12 = 712,
+        I13 = 713,
+        I14 = 714,
+        S83 = 683
+    };
+
     /** @brief GNSS freq Sequence ID. */
-    enum FREQ_SEQ
+    enum class FREQ_SEQ
     {
         FREQ_1 = 1,
         FREQ_2 = 2,
@@ -61,7 +287,7 @@ namespace gnut
     };
 
     /** @brief GNSS frequencies. */
-    enum GFRQ
+    enum class GFRQ
     { // FXX = -1,
         G01 = 10,
         G02 = 11,
@@ -97,7 +323,7 @@ namespace gnut
     };
 
     /** @brief GNSS receiver types. */
-    enum RECTYPE
+    enum class RECTYPE
     {
         P1P2, // receiver providing C1, P1, P2
         C1X2, // cross-correlation
@@ -105,7 +331,7 @@ namespace gnut
     };
 
     /** @brief Broadcast messages types. */
-    enum GNAVTYPE
+    enum class GNAVTYPE
     {
         FNAV,
         INAV,
@@ -116,7 +342,7 @@ namespace gnut
     };
 
     /** @brief GNSS type/band/attr definitions. */
-    enum GOBSTYPE
+    enum class GOBSTYPE
     {
         TYPE_C = 1,
         TYPE_L = 2,
@@ -130,7 +356,7 @@ namespace gnut
         TYPE_LRIRATE,
         TYPE = 999 // ""  UNKNOWN
     };
-    enum GOBSBAND
+    enum class GOBSBAND
     {
         BAND_1 = 1,
         BAND_2 = 2,
@@ -149,7 +375,7 @@ namespace gnut
         BAND_LRI,
         BAND = 999 // ""  UNKNOWN
     };
-    enum GOBSATTR
+    enum class GOBSATTR
     {
         ATTR_A = 1,
         ATTR_B = 2,
@@ -171,7 +397,7 @@ namespace gnut
     };
 
     /** @brief GNSS observations. */
-    enum GOBS
+    enum class GOBS
     {
         // psedorange [in meters] (RINEX 3.x)
         C1A = 0,
@@ -463,7 +689,7 @@ namespace gnut
     };
 
     /** @brief GOBS LC. */
-    enum GOBS_LC
+    enum class GOBS_LC
     {
         LC_L1 = 1,
         LC_L2 = 2,
@@ -479,27 +705,36 @@ namespace gnut
     };
 
     /** @brief TYPEDEF. */
-    typedef vector<GOBSATTR> t_vec_attr;          ///< attr vector
-    typedef vector<GOBSBAND> t_vec_band;          ///< band vector
-    typedef vector<GFRQ> t_vec_freq;              ///< frequency vector
-    typedef map<GOBSTYPE, t_vec_attr> t_map_attr; ///< attr map
-    typedef map<GOBSBAND, t_map_attr> t_map_type; ///< type map
-    typedef map<GSYS, set<string>> t_map_sats;    ///< sats map
-    typedef map<GSYS, set<string>> t_map_gnav;    ///< nav map
-    typedef map<GSYS, t_map_type> t_map_gnss;     ///< gnss map
-    typedef map<GSYS, t_vec_band> t_map_band;     ///< band map
-    typedef map<GSYS, t_vec_freq> t_map_freq;     ///< frequency mao
+    typedef std::vector<GOBSATTR> t_vec_attr;          ///< attr vector
+    typedef std::vector<GOBSBAND> t_vec_band;          ///< band vector
+    typedef std::vector<GFRQ> t_vec_freq;              ///< frequency vector
+    typedef std::map<GOBSTYPE, t_vec_attr> t_map_attr; ///< attr map
+    typedef std::map<GOBSBAND, t_map_attr> t_map_type; ///< type map
+    typedef std::map<GSYS, std::set<GSAT>> t_map_sats;      ///< sats map
+    typedef std::map<GSYS, std::set<std::string>> t_map_gnav;    ///< nav map
+    typedef std::map<GSYS, t_map_type> t_map_gnss;     ///< gnss map
+    typedef std::map<GSYS, t_vec_band> t_map_band;     ///< band map
+    typedef std::map<GSYS, t_vec_freq> t_map_freq;     ///< frequency mao
 
-    typedef map<GOBSBAND, t_gtriple> t_map_pcos; ///< triple: ATX  NORTH / EAST / UP
-    typedef map<GSYS, t_map_pcos> t_map_offs;
+    typedef std::map<GOBSBAND, t_gtriple> t_map_pcos; ///< triple: ATX  NORTH / EAST / UP
+    typedef std::map<GSYS, t_map_pcos> t_map_offs;
 
     /** @brief GLOBAL FUNCTIONS. */
-    LibGnut_LIBRARY_EXPORT GOBSATTR str2gobsattr(string s); ///< get GOBSATTR enum from gobs string
-    LibGnut_LIBRARY_EXPORT GOBSBAND str2gobsband(string s); ///< get GOBSBAND enum from gobs string
-    LibGnut_LIBRARY_EXPORT GOBSTYPE str2gobstype(string s); ///< get GOBSTYPE enum from gobs string
-    LibGnut_LIBRARY_EXPORT GNAVTYPE str2gnavtype(string s); ///< get GNAVTYPE enum from gobs string
-    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2sysfreq(string s);  ///< get FREQ_SEQ enum from string
-    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2gnssfreq(string s); ///< get FREQ_SEQ enum from gobs string
+    LibGnut_LIBRARY_EXPORT GSAT str2gsat(const std::string& sat, GSYS sys = GSYS::GPS); ///< convert satellite string to enum
+    LibGnut_LIBRARY_EXPORT std::string gsat2str(GSAT sat);                              ///< convert satellite enum to string
+    LibGnut_LIBRARY_EXPORT std::ostream& operator<<(std::ostream& os, GSAT sat);     ///< write canonical satellite identifier
+    LibGnut_LIBRARY_EXPORT std::string operator+(const std::string& text, GSAT sat); ///< append satellite identifier
+    LibGnut_LIBRARY_EXPORT std::string operator+(GSAT sat, const std::string& text); ///< prepend satellite identifier
+    LibGnut_LIBRARY_EXPORT bool valid_gsat(GSAT sat);                      ///< test whether satellite enum is defined
+    LibGnut_LIBRARY_EXPORT GSYS gsat2gsys(GSAT sat);                       ///< get constellation from satellite enum
+    LibGnut_LIBRARY_EXPORT int gsat2prn(GSAT sat);                         ///< get PRN number from satellite enum
+
+    LibGnut_LIBRARY_EXPORT GOBSATTR str2gobsattr(std::string s); ///< get GOBSATTR enum from gobs string
+    LibGnut_LIBRARY_EXPORT GOBSBAND str2gobsband(std::string s); ///< get GOBSBAND enum from gobs string
+    LibGnut_LIBRARY_EXPORT GOBSTYPE str2gobstype(std::string s); ///< get GOBSTYPE enum from gobs string
+    LibGnut_LIBRARY_EXPORT GNAVTYPE str2gnavtype(std::string s); ///< get GNAVTYPE enum from gobs string
+    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2sysfreq(std::string s);  ///< get FREQ_SEQ enum from string
+    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2gnssfreq(std::string s); ///< get FREQ_SEQ enum from gobs string
 
     LibGnut_LIBRARY_EXPORT GOBSATTR char2gobsattr(char c); ///< get GOBSATTR enum from char
     LibGnut_LIBRARY_EXPORT GOBSBAND char2gobsband(char c); ///< get GOBSBAND enum from char
@@ -508,16 +743,17 @@ namespace gnut
     LibGnut_LIBRARY_EXPORT FREQ_SEQ char2gnssfreq(char c); ///< get FREQ_SEQ enum from char
     LibGnut_LIBRARY_EXPORT GOBS_LC int2gobsfreq(int c);    ///< get GOBS_LC enum from char
 
-    LibGnut_LIBRARY_EXPORT string gobsattr2str(GOBSATTR e); ///< get string enum from GOBSATTR
-    LibGnut_LIBRARY_EXPORT string gobsband2str(GOBSBAND e); ///< get string enum from GOBSBAND
-    LibGnut_LIBRARY_EXPORT string gobstype2str(GOBSTYPE e); ///< get string enum from GOBSTYPE
-    LibGnut_LIBRARY_EXPORT string gnavtype2str(GNAVTYPE e); ///< get string enum from GNAVTYPE
+    LibGnut_LIBRARY_EXPORT std::string gobsattr2str(GOBSATTR e); ///< get string enum from GOBSATTR
+    LibGnut_LIBRARY_EXPORT std::string gobsband2str(GOBSBAND e); ///< get string enum from GOBSBAND
+    LibGnut_LIBRARY_EXPORT std::string gobstype2str(GOBSTYPE e); ///< get string enum from GOBSTYPE
+    LibGnut_LIBRARY_EXPORT std::string gnavtype2str(GNAVTYPE e); ///< get string enum from GNAVTYPE
 
-    LibGnut_LIBRARY_EXPORT string gobs2str(GOBS);   ///< get string from GOBS enum
-    LibGnut_LIBRARY_EXPORT GOBS str2gobs(string s); ///< get GOBS enum from string
-    LibGnut_LIBRARY_EXPORT GOBS tba2gobs(GOBSTYPE t, GOBSBAND b,
+    LibGnut_LIBRARY_EXPORT std::string gobs2str(GOBS);   ///< get string from GOBS enum
+    LibGnut_LIBRARY_EXPORT GOBS str2gobs(std::string s); ///< get GOBS enum from string
+    LibGnut_LIBRARY_EXPORT GOBS tba2gobs(GOBSTYPE t,
+                                         GOBSBAND b,
                                          GOBSATTR a);       ///< get GOBS from type, band, and attribute
-    LibGnut_LIBRARY_EXPORT string gfreqseq2str(FREQ_SEQ f); ///< convert FREQ_SEQ to string
+    LibGnut_LIBRARY_EXPORT std::string gfreqseq2str(FREQ_SEQ f); ///< convert FREQ_SEQ to string
 
     LibGnut_LIBRARY_EXPORT int gobs2band(GOBS o); ///< get band from GOBS enum
 
@@ -531,35 +767,36 @@ namespace gnut
     LibGnut_LIBRARY_EXPORT t_map_sats GNSS_SATS(); ///< static map of default GNSS satellites
     LibGnut_LIBRARY_EXPORT t_map_gnav GNSS_GNAV(); ///< static map of default GNSS navigation types
 
-    LibGnut_LIBRARY_EXPORT t_map_gnss GNSS_DATA_PRIORITY(); ///< static map of default GNSS data types/bands/attrs priorities
-    LibGnut_LIBRARY_EXPORT t_map_band GNSS_BAND_SORTED();   ///< static map of sorted GNSS band w.r.t. wavelength
+    LibGnut_LIBRARY_EXPORT t_map_gnss
+    GNSS_DATA_PRIORITY(); ///< static map of default GNSS data types/bands/attrs priorities
+    LibGnut_LIBRARY_EXPORT t_map_band GNSS_BAND_SORTED(); ///< static map of sorted GNSS band w.r.t. wavelength
 
-    LibGnut_LIBRARY_EXPORT vector<GOBSBAND> sort_band(GSYS gs,
-                                                      set<GOBSBAND>& bands); // sort set of bands w.r.t. wavelength
+    LibGnut_LIBRARY_EXPORT std::vector<GOBSBAND> sort_band(GSYS gs,
+                                                      std::set<GOBSBAND>& bands); // sort set of bands w.r.t. wavelength
 
     LibGnut_LIBRARY_EXPORT t_map_offs GNSS_PCO_OFFSETS(); ///< static map of default GNSS PCO offsets
-    LibGnut_LIBRARY_EXPORT set<GSYS> GNSS_SUPPORTED();    ///< supported GNSS
+    LibGnut_LIBRARY_EXPORT std::set<GSYS> GNSS_SUPPORTED();    ///< supported GNSS
 
     /** @brief GNSS frequency. */
     const t_map_freq GNSS_FREQ_PRIORITY = {
-        {GPS, {LAST_GFRQ, G01, G02, G05}},
-        {GLO, {LAST_GFRQ, R01, R02, R03_CDMA, R05_CDMA}},
-        {GAL, {LAST_GFRQ, E01, E05, E07, E08, E06}},
-        {BDS, {LAST_GFRQ, C02, C07, C06, C05, C09, C08, C01}},
-        {QZS, {LAST_GFRQ, J01, J02, J05, J06}},
-        {SBS, {LAST_GFRQ, S01, S05}},
-        {GNS, {}},
+        {GSYS::GPS, {GFRQ::LAST_GFRQ, GFRQ::G01, GFRQ::G02, GFRQ::G05}},
+        {GSYS::GLO, {GFRQ::LAST_GFRQ, GFRQ::R01, GFRQ::R02, GFRQ::R03_CDMA, GFRQ::R05_CDMA}},
+        {GSYS::GAL, {GFRQ::LAST_GFRQ, GFRQ::E01, GFRQ::E05, GFRQ::E07, GFRQ::E08, GFRQ::E06}},
+        {GSYS::BDS, {GFRQ::LAST_GFRQ, GFRQ::C02, GFRQ::C07, GFRQ::C06, GFRQ::C05, GFRQ::C09, GFRQ::C08, GFRQ::C01}},
+        {GSYS::QZS, {GFRQ::LAST_GFRQ, GFRQ::J01, GFRQ::J02, GFRQ::J05, GFRQ::J06}},
+        {GSYS::SBS, {gnut::GFRQ::LAST_GFRQ, gnut::GFRQ::S01, gnut::GFRQ::S05}},
+        {GSYS::GNS, {}},
     }; // static map of default GNSS freq priorities
 
     /** @brief GNSS band. */
     const t_map_band GNSS_BAND_PRIORITY = {
-        {GPS, {BAND, BAND_1, BAND_2, BAND_5}},
-        {GLO, {BAND, BAND_1, BAND_2, BAND_3, BAND_5}},
-        {GAL, {BAND, BAND_1, BAND_5, BAND_7, BAND_8, BAND_6}},
-        {BDS, {BAND, BAND_2, BAND_7, BAND_6, BAND_5, BAND_9, BAND_8, BAND_1}},
-        {QZS, {BAND, BAND_1, BAND_2, BAND_5, BAND_6}},
-        {SBS, {BAND, BAND_1, BAND_5}},
-        {GNS, {}},
+        {GSYS::GPS, {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_2, gnut::GOBSBAND::BAND_5}},
+        {GSYS::GLO, {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_2, gnut::GOBSBAND::BAND_3, gnut::GOBSBAND::BAND_5}},
+        {GSYS::GAL, {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_5, gnut::GOBSBAND::BAND_7, gnut::GOBSBAND::BAND_8, gnut::GOBSBAND::BAND_6}},
+        {GSYS::BDS, {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_2, gnut::GOBSBAND::BAND_7, gnut::GOBSBAND::BAND_6, gnut::GOBSBAND::BAND_5, gnut::GOBSBAND::BAND_9, gnut::GOBSBAND::BAND_8, gnut::GOBSBAND::BAND_1}},
+        {GSYS::QZS, {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_2, gnut::GOBSBAND::BAND_5, gnut::GOBSBAND::BAND_6}},
+        {GSYS::SBS, {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_5}},
+        {GSYS::GNS, {}},
     }; // static map of default GNSS band priorities
 
 } // namespace gnut

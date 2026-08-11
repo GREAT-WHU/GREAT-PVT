@@ -24,7 +24,6 @@
 #include "gutils/gtime.h"
 #include "gmodels/gotl.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -47,7 +46,7 @@ namespace gnut
         ~t_gallotl();
 
         /** @brief get data. */
-        int data(Matrix& data, const string& site);
+        int data(Matrix& data, const std::string& site);
 
         /**
          * @brief
@@ -67,7 +66,7 @@ namespace gnut
         void add(t_gotl& otl);
 
     private:
-        map<string, t_gotl> _mapotl;
+        std::map<std::string, t_gotl> _mapotl;
     };
 
 } // namespace gnut

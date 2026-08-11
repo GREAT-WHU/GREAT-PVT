@@ -44,7 +44,7 @@ namespace great
         return size;
     }
 
-    int gcoder_buffer::getline(string& str, int from_pos)
+    int gcoder_buffer::getline(std::string& str, int from_pos)
     {
         str = "";
         str.reserve(_buffer.size());
@@ -67,7 +67,7 @@ namespace great
         return str.length();
     }
 
-    void gcoder_buffer::toString(string& str)
+    void gcoder_buffer::toString(std::string& str)
     {
         str = "";
         str.reserve(_buffer.size());
@@ -138,7 +138,7 @@ namespace great
         return sz;
     }
 
-    int gcoder_char_buffer::getline(string& str, int from_pos)
+    int gcoder_char_buffer::getline(std::string& str, int from_pos)
     {
         str = "";
         from_pos += _begpos;
@@ -160,7 +160,7 @@ namespace great
             return -1;
         }
 
-        str = string(_buffer + from_pos, _buffer + ifirst + 1);
+        str = std::string(_buffer + from_pos, _buffer + ifirst + 1);
 
         return str.length();
     }
@@ -186,8 +186,8 @@ namespace great
 
         return bytes_to_eat;
     }
-    void gcoder_char_buffer::toString(string& str)
+    void gcoder_char_buffer::toString(std::string& str)
     {
-        str = string(_buffer + _begpos, _endpos - _begpos);
+        str = std::string(_buffer + _begpos, _endpos - _begpos);
     }
 } // namespace great

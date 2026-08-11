@@ -26,36 +26,35 @@
 #include <string>
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gutils/gtime.h"
 #include "gutils/gmutex.h"
 #include "gexport/ExportLibGnut.h"
 
-using namespace std;
 
 namespace gnut
 {
     /** @brief class for fstream. */
-    class LibGnut_LIBRARY_EXPORT t_giof : public fstream
+    class LibGnut_LIBRARY_EXPORT t_giof : public std::fstream
     {
     public:
         /** @brief constructor 1. */
-        explicit t_giof(string mask = "");
+        explicit t_giof(std::string mask = "");
 
         /** @brief default destructor. */
         virtual ~t_giof();
 
         /** @brief set/get file mask. */
-        int mask(string mask);
-        string mask() const
+        int mask(std::string mask);
+        std::string mask() const
         {
             return _mask;
         }
 
         /** @brief get last filename. */
-        string name() const
+        std::string name() const
         {
             return _name;
         }
@@ -100,12 +99,12 @@ namespace gnut
         t_gtime::t_tsys tsys();
 
     protected:
-        string _replace(); ///< replace mask to name
+        std::string _replace(); ///< replace mask to name
 
         int _irc;              ///  irc status OK=0, Warning>0, Error<0
-        string _mask;          ///< original name mask
-        string _name;          ///< actual (evaluated) name
-        ios::openmode _omode;  ///< output open mode
+        std::string _mask;          ///< original name mask
+        std::string _name;          ///< actual (evaluated) name
+        std::ios::openmode _omode;  ///< output open mode
         bool _repl;            ///< replace if time-specific
         int _toff;             ///< if replace, time offset [min] for the file name
         bool _loop;            ///< loop read

@@ -28,10 +28,13 @@
 
 // special buffer size for file reading
 // --> must be bellow gcoder maximum limit !
+#ifndef FILEBUF_SIZE
 #define FILEBUF_SIZE 20480
+#endif
+#ifndef FILEHDR_SIZE
 #define FILEHDR_SIZE 48
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -53,7 +56,7 @@ namespace gnut
         virtual bool eof();
 
         /** @brief return the file mask. */
-        virtual string mask();
+        virtual std::string mask();
 
         /**
          * @brief set file://dir/name.
@@ -62,9 +65,9 @@ namespace gnut
          *    @retval =-1 false
          *    @retval =1    true
          */
-        virtual int path(string str);
-        virtual string path();
-        virtual string name();
+        virtual int path(std::string str);
+        virtual std::string path();
+        virtual std::string name();
 
         /** @brief reset path. */
         virtual void reset();

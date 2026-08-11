@@ -153,7 +153,7 @@ namespace gnut
 
     int t_rinexc::decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
     {
-        t_gtime epoch(t_gtime::GPS); // epoch
+        t_gtime epoch(t_gtime::t_tsys::GPS); // epoch
         double data[6];              // clk/rms values (off,vel,acc)
         string flg, id, line;
         int tmpsize = 0; // individual reading counter
@@ -239,7 +239,7 @@ namespace gnut
                 map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLPREC)
+                    if (it->second->id_type() == t_gdata::ID_TYPE::ALLPREC)
                     {
                         if (data[3] == UNDEFVAL_CLK)
                         {

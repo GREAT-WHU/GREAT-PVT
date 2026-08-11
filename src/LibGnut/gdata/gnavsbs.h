@@ -28,9 +28,10 @@
 #include "gutils/gcommon.h"
 #include "gutils/gtriple.h"
 
+#ifndef MAX_RINEXN_REC_SBS
 #define MAX_RINEXN_REC_SBS 15
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -62,7 +63,11 @@ namespace gnut
          * @param chk_health
          * @return int
          */
-        virtual int pos(const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, bool chk_health = true) override;
+        virtual int pos(const t_gtime& t,
+                        double xyz[3],
+                        double var[3] = NULL,
+                        double vel[3] = NULL,
+                        bool chk_health = true) override;
 
         /**
          * @brief
@@ -74,7 +79,11 @@ namespace gnut
          * @param chk_health
          * @return int
          */
-        virtual int clk(const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, bool chk_health = true) override;
+        virtual int clk(const t_gtime& t,
+                        double* clk,
+                        double* var = NULL,
+                        double* dclk = NULL,
+                        bool chk_health = true) override;
 
         /**
          * @brief
@@ -82,10 +91,10 @@ namespace gnut
          * @param msg
          * @return int
          */
-        int chk(set<string>& msg) override;
+        int chk(std::set<std::string>& msg) override;
 
         /** @brief convert data to nav. */
-        int data2nav(string sat, const t_gtime& ep, const t_gnavdata& data) override;
+        int data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
         int nav2data(t_gnavdata& data) override;
@@ -115,10 +124,10 @@ namespace gnut
         virtual int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
-        string line() const override;
+        std::string line() const override;
 
         /** @brief get line format. */
-        string linefmt() const override;
+        std::string linefmt() const override;
 
     protected:
         /** @brief get health. */

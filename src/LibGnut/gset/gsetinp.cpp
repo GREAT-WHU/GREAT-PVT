@@ -21,14 +21,13 @@ Ondrejov 244, 251 65, Czech Republic
 #include "gio/great_log.h"
 #include "gutils/gfileconv.h"
 #include "gutils/gmutex.h"
-using namespace std;
 using namespace pugi;
 
 namespace gnut
 {
-    IFMT t_gsetinp::str2ifmt(const string& s)
+    IFMT t_gsetinp::str2ifmt(const std::string& s)
     {
-        string tmp = s;
+        std::string tmp = s;
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         if (tmp == "RINEXC" || tmp == "RNC")
         {
@@ -83,12 +82,12 @@ namespace gnut
             return IFMT::IFCB_INP;
         }
 
-        string message = "The Type : " + tmp + " is not support, check your xml";
+        std::string message = "The Type : " + tmp + " is not support, check your xml";
         GREAT_WARN(message);
-        throw logic_error(message);
+        throw std::logic_error(message);
     }
 
-    string t_gsetinp::ifmt2str(const IFMT& f)
+    std::string t_gsetinp::ifmt2str(const IFMT& f)
     {
         switch (f)
         {
@@ -120,7 +119,7 @@ namespace gnut
                 return "EOP";
             default:
                 GREAT_CRITICAL(std::string("No fmt for ") + std::to_string(static_cast<int>(f)) + ", check your inp.");
-                throw logic_error("check your inp");
+                throw std::logic_error("check your inp");
         }
     }
 
@@ -137,7 +136,7 @@ namespace gnut
     {
     }
 
-    int t_gsetinp::input_size(const string& fmt)
+    int t_gsetinp::input_size(const std::string& fmt)
     {
         _gmutex.lock();
 
@@ -147,7 +146,7 @@ namespace gnut
         return tmp;
     }
 
-    bool t_gsetinp::check_input(const string& fmt)
+    bool t_gsetinp::check_input(const std::string& fmt)
     {
         _gmutex.lock();
         int tmp = _inputs(fmt).size();
@@ -155,7 +154,7 @@ namespace gnut
         return (tmp > 0);
     }
 
-    void t_gsetinp::check_input(const string& fmt, const string& message)
+    void t_gsetinp::check_input(const std::string& fmt, const std::string& message)
     {
         _gmutex.lock();
         int tmp = _inputs(fmt).size();
@@ -163,22 +162,22 @@ namespace gnut
         if (tmp < 0)
         {
             GREAT_CRITICAL(message);
-            throw logic_error(message);
+            throw std::logic_error(message);
         }
     }
 
-    multimap<IFMT, string> t_gsetinp::inputs_all()
+    std::multimap<IFMT, std::string> t_gsetinp::inputs_all()
     {
         _gmutex.lock();
 
-        multimap<IFMT, string> map;
+        std::multimap<IFMT, std::string> map;
 
-        set<string> ifmt = _iformats();
-        set<string>::const_iterator itFMT = ifmt.begin();
+        std::set<std::string> ifmt = _iformats();
+        std::set<std::string>::const_iterator itFMT = ifmt.begin();
 
         while (itFMT != ifmt.end())
         {
-            string fmt = *itFMT;
+            std::string fmt = *itFMT;
             if (fmt.empty())
             {
                 itFMT++;
@@ -186,11 +185,11 @@ namespace gnut
             }
 
             IFMT ifmt = str2ifmt(fmt);
-            vector<string> inputs = _inputs(fmt); // get file name in input node
-            vector<string>::const_iterator itINP = inputs.begin();
+            std::vector<std::string> inputs = _inputs(fmt); // get file name in input node
+            std::vector<std::string>::const_iterator itINP = inputs.begin();
             while (itINP != inputs.end())
             {
-                map.insert(map.end(), pair<IFMT, string>(ifmt, *itINP));
+                map.insert(map.end(), std::pair<IFMT, std::string>(ifmt, *itINP));
                 itINP++;
             }
             itFMT++;
@@ -199,31 +198,31 @@ namespace gnut
         return map;
     }
 
-    vector<string> t_gsetinp::inputs(const string& fmt)
+    std::vector<std::string> t_gsetinp::inputs(const std::string& fmt)
     {
         IFMT ifmt = str2ifmt(fmt);
         return _inputs(ifmt);
     }
 
-    vector<string> t_gsetinp::inputs(const IFMT& ifmt)
+    std::vector<std::string> t_gsetinp::inputs(const IFMT& ifmt)
     {
         return _inputs(ifmt);
     }
 
-    vector<string> t_gsetinp::_inputs(const string& fmt)
+    std::vector<std::string> t_gsetinp::_inputs(const std::string& fmt)
     {
-        vector<string> tmp;
-        set<string> list;
-        string str;
+        std::vector<std::string> tmp;
+        std::set<std::string> list;
+        std::string str;
 
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_INP).first_child(); node; node = node.next_sibling())
         {
             if (node.name() == fmt)
             {
-                istringstream is(node.child_value());
+                std::istringstream is(node.child_value());
                 while (is >> str && !is.fail())
                 {
-                    if (str.find("://") == string::npos)
+                    if (str.find("://") == std::string::npos)
                     {
                         str = GFILE_PREFIX + str;
                     }
@@ -234,7 +233,7 @@ namespace gnut
                     }
                     else
                     {
-                        cout << "READ : " + str + " multiple request ignored" << endl;
+                        std::cout << "READ : " + str + " multiple request ignored" << std::endl;
                     }
                 }
             }
@@ -242,11 +241,11 @@ namespace gnut
         return tmp;
     }
 
-    vector<string> t_gsetinp::_inputs(const IFMT& fmt)
+    std::vector<std::string> t_gsetinp::_inputs(const IFMT& fmt)
     {
-        vector<string> tmp;
-        set<string> list;
-        string str;
+        std::vector<std::string> tmp;
+        std::set<std::string> list;
+        std::string str;
 
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_INP).first_child(); node; node = node.next_sibling())
         {
@@ -258,10 +257,10 @@ namespace gnut
             }
             if (ifmt == fmt)
             {
-                istringstream is(node.child_value());
+                std::istringstream is(node.child_value());
                 while (is >> str && !is.fail())
                 {
-                    if (str.find("://") == string::npos)
+                    if (str.find("://") == std::string::npos)
                     {
                         str = GFILE_PREFIX + str;
                     }
@@ -272,7 +271,7 @@ namespace gnut
                     }
                     else
                     {
-                        cout << "READ : " + str + " multiple request ignored" << endl;
+                        std::cout << "READ : " + str + " multiple request ignored" << std::endl;
                     }
                 }
             }
@@ -280,9 +279,9 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gsetinp::_iformats()
+    std::set<std::string> t_gsetinp::_iformats()
     {
-        set<string> tmp;
+        std::set<std::string> tmp;
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_INP).first_child(); node; node = node.next_sibling())
         {
             tmp.insert(node.name());
@@ -299,11 +298,11 @@ namespace gnut
         xml_node node = _default_node(parent, XMLKEY_INP);
 
         // check supported input formats (see IFMT enum !)
-        set<string> ifmt = _iformats();
-        set<string>::const_iterator itFMT = ifmt.begin();
+        std::set<std::string> ifmt = _iformats();
+        std::set<std::string>::const_iterator itFMT = ifmt.begin();
         while (itFMT != ifmt.end())
         {
-            string fmt = *itFMT;
+            std::string fmt = *itFMT;
             try
             {
                 str2ifmt(fmt);
@@ -338,12 +337,12 @@ namespace gnut
     {
         _gmutex.lock();
 
-        cerr << " <inputs>\n"
+        std::cerr << " <inputs>\n"
              << "   <rinexo> file://dir/name </rinexo> \t\t <!-- obs RINEX decoder -->\n"
              << "   <rinexn> file://dir/name </rinexn> \t\t <!-- nav RINEX decoder -->\n"
              << " </inputs>\n";
 
-        cerr << "\t<!-- inputs description:\n"
+        std::cerr << "\t<!-- inputs description:\n"
              << "\t <decoder> path1 path2 path3  </decoder>\n"
              << "\t ... \n"
              << "\t where path(i) contains [file,tcp,ntrip]:// depending on the application\n"

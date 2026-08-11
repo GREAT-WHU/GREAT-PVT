@@ -11,7 +11,6 @@
 #include "gutils/gtypeconv.h"
 #include "gutils/gsysconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -21,7 +20,7 @@ namespace gnut
         _name(""),
         _overwrite(false)
     {
-        id_type(OBJ);
+        id_type(ID_TYPE::OBJ);
         _pcvnull = 0;
     }
 
@@ -36,17 +35,17 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    void t_gobj::id(string str)
+    void t_gobj::id(std::string str)
     {
         _gmutex.lock();
         _id = str;
         _gmutex.unlock();
     }
 
-    string t_gobj::id() const
+    std::string t_gobj::id() const
     {
         _gmutex.lock();
-        string tmp = _id;
+        std::string tmp = _id;
         _gmutex.unlock();
         return tmp;
     }
@@ -66,7 +65,7 @@ namespace gnut
         return _overwrite;
     }
 
-    void t_gobj::name(string str)
+    void t_gobj::name(std::string str)
     {
         _gmutex.lock();
 
@@ -76,15 +75,15 @@ namespace gnut
         return;
     }
 
-    string t_gobj::name() const
+    std::string t_gobj::name() const
     {
         _gmutex.lock();
-        string tmp = _name;
+        std::string tmp = _name;
         _gmutex.unlock();
         return tmp;
     }
 
-    void t_gobj::domes(string str)
+    void t_gobj::domes(std::string str)
     {
         _gmutex.lock();
 
@@ -94,15 +93,15 @@ namespace gnut
         return;
     }
 
-    string t_gobj::domes() const
+    std::string t_gobj::domes() const
     {
         _gmutex.lock();
-        string tmp = _domes;
+        std::string tmp = _domes;
         _gmutex.unlock();
         return tmp;
     }
 
-    void t_gobj::desc(string str)
+    void t_gobj::desc(std::string str)
     {
         _gmutex.lock();
 
@@ -112,10 +111,10 @@ namespace gnut
         return;
     }
 
-    string t_gobj::desc() const
+    std::string t_gobj::desc() const
     {
         _gmutex.lock();
-        string tmp = _desc;
+        std::string tmp = _desc;
         _gmutex.unlock();
         return tmp;
     }
@@ -180,7 +179,7 @@ namespace gnut
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'eccxyz' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                    std::string lg = "Warning: object " + _id + " 'eccxyz' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
                                 it->first.str("%Y-%m-%d %H:%M:%S");
 
                     GREAT_DEBUG(lg);
@@ -188,7 +187,7 @@ namespace gnut
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'eccxyz' end cut and tied to the existing value " +
+                std::string lg = "Warning: object " + _id + " 'eccxyz' end cut and tied to the existing value " +
                             end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
                 GREAT_DEBUG(lg);
@@ -329,7 +328,7 @@ namespace gnut
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'eccneu' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                    std::string lg = "Warning: object " + _id + " 'eccneu' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
                                 it->first.str("%Y-%m-%d %H:%M:%S");
 
                     GREAT_DEBUG(lg);
@@ -337,7 +336,7 @@ namespace gnut
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'eccneu' end cut and tied to the existing value " +
+                std::string lg = "Warning: object " + _id + " 'eccneu' end cut and tied to the existing value " +
                             end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
                 GREAT_DEBUG(lg);
@@ -439,18 +438,18 @@ namespace gnut
 
     void t_gobj::_crd(const t_gtriple& crd, const t_gtriple& std, const t_gtime& beg, const t_gtime& end, bool overwrite)
     {
-        pair<t_gtriple, t_gtriple> val;
-        val = make_pair(crd, std);
+        std::pair<t_gtriple, t_gtriple> val;
+        val = std::make_pair(crd, std);
 
-        pair<t_gtriple, t_gtriple> zero;
+        std::pair<t_gtriple, t_gtriple> zero;
         t_gtriple nullCRD(0.0, 0.0, 0.0);
         t_gtriple nullSTD(0.0, 0.0, 0.0);
-        zero = make_pair(nullCRD, nullSTD);
+        zero = std::make_pair(nullCRD, nullSTD);
 
         t_mapcrd::iterator it = _mapcrd.find(beg);
         if (end < beg)
         {
-            string lg = "Warning: " + _id + " not valid end time (end<beg) for coordinates (beg:" + beg.str_ymdhms() +
+            std::string lg = "Warning: " + _id + " not valid end time (end<beg) for coordinates (beg:" + beg.str_ymdhms() +
                         " -> end:" + end.str_ymdhms() + ")";
 
             GREAT_WARN(lg);
@@ -505,7 +504,7 @@ namespace gnut
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'crd' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                    std::string lg = "Warning: object " + _id + " 'crd' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
                                 it->first.str("%Y-%m-%d %H:%M:%S");
 
                     GREAT_DEBUG(lg);
@@ -519,7 +518,7 @@ namespace gnut
                     // if can't find end insert
                     if (_mapcrd.find(end) == _mapcrd.end())
                     {
-                        _mapcrd.insert(make_pair(end, zero));
+                        _mapcrd.insert(std::make_pair(end, zero));
                         insert_flag = true;
                     }
                     auto end_pre = _mapcrd.find(end);
@@ -537,7 +536,7 @@ namespace gnut
                 }
                 else
                 {
-                    string lg = "Warning: object " + _id + " 'crd' end cut and tied to the existing value " +
+                    std::string lg = "Warning: object " + _id + " 'crd' end cut and tied to the existing value " +
                                 end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
                     GREAT_DEBUG(lg);
@@ -716,14 +715,14 @@ namespace gnut
         }
     }
 
-    void t_gobj::pcv(shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
+    void t_gobj::pcv(std::shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
     {
         _gmutex.lock();
         this->_pcv(pcv, beg, end);
         _gmutex.unlock();
     }
 
-    void t_gobj::_pcv(shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
+    void t_gobj::_pcv(std::shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end)
     {
         t_mappcv::iterator it = _mappcv.find(beg);
 
@@ -772,7 +771,7 @@ namespace gnut
                 else
                 {
                     // too close to next record
-                    string lg = "Warning: object " + _id + " 'pcv' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                    std::string lg = "Warning: object " + _id + " 'pcv' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
                                 it->first.str("%Y-%m-%d %H:%M:%S");
 
                     GREAT_DEBUG(lg);
@@ -780,7 +779,7 @@ namespace gnut
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'pcv' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                std::string lg = "Warning: object " + _id + " 'pcv' end cut and tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
                             it->first.str("%Y-%m-%d %H:%M:%S");
 
                 GREAT_DEBUG(lg);
@@ -805,18 +804,18 @@ namespace gnut
         //  }
     }
 
-    shared_ptr<t_gpcv> t_gobj::pcv(const t_gtime& t) const
+    std::shared_ptr<t_gpcv> t_gobj::pcv(const t_gtime& t) const
     {
         _gmutex.lock();
-        shared_ptr<t_gpcv> tmp = _pcv(t);
+        std::shared_ptr<t_gpcv> tmp = _pcv(t);
         _gmutex.unlock();
         return tmp;
     }
 
-    shared_ptr<t_gpcv> t_gobj::_pcv(const t_gtime& t) const
+    std::shared_ptr<t_gpcv> t_gobj::_pcv(const t_gtime& t) const
     {
-        shared_ptr<t_gpcv> pcv;
-        string ant;
+        std::shared_ptr<t_gpcv> pcv;
+        std::string ant;
 
         t_mapant::const_iterator it = _mapant.upper_bound(t);
         if (it == _mapant.begin())
@@ -859,7 +858,7 @@ namespace gnut
         return pcv;
     }
 
-    void t_gobj::ant(string ant, const t_gtime& beg, const t_gtime& end)
+    void t_gobj::ant(std::string ant, const t_gtime& beg, const t_gtime& end)
     {
         _gmutex.lock();
 
@@ -869,7 +868,7 @@ namespace gnut
         return;
     }
 
-    void t_gobj::_ant(string ant, const t_gtime& beg, const t_gtime& end)
+    void t_gobj::_ant(std::string ant, const t_gtime& beg, const t_gtime& end)
     {
         t_mapant::iterator it = _mapant.find(beg);
 
@@ -922,7 +921,7 @@ namespace gnut
                 }
                 else
                 { // too close to next record
-                    string lg = "Warning: object " + _id + " 'obj' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
+                    std::string lg = "Warning: object " + _id + " 'obj' end tied to the existing value " + end.str("%Y-%m-%d %H:%M:%S -> ") +
                                 it->first.str("%Y-%m-%d %H:%M:%S");
 
                     GREAT_DEBUG(lg);
@@ -930,7 +929,7 @@ namespace gnut
             }
             else if (end != it->first)
             {
-                string lg = "Warning: object " + _id + " 'ant' " + ant + " end cut and tied to the existing value " +
+                std::string lg = "Warning: object " + _id + " 'ant' " + ant + " end cut and tied to the existing value " +
                             end.str("%Y-%m-%d %H:%M:%S -> ") + it->first.str("%Y-%m-%d %H:%M:%S");
 
                 GREAT_DEBUG(lg);
@@ -955,15 +954,15 @@ namespace gnut
         return;
     }
 
-    string t_gobj::ant(const t_gtime& t) const
+    std::string t_gobj::ant(const t_gtime& t) const
     {
         _gmutex.lock();
-        string tmp = this->_ant(t);
+        std::string tmp = this->_ant(t);
         _gmutex.unlock();
         return tmp;
     }
 
-    string t_gobj::_ant(const t_gtime& t) const
+    std::string t_gobj::_ant(const t_gtime& t) const
     {
         t_mapant::const_iterator it = _mapant.upper_bound(t);
         if (it == _mapant.begin())
@@ -985,11 +984,11 @@ namespace gnut
         }
     }
 
-    vector<t_gtime> t_gobj::pcv_id() const
+    std::vector<t_gtime> t_gobj::pcv_id() const
     {
         _gmutex.lock();
 
-        vector<t_gtime> tmp;
+        std::vector<t_gtime> tmp;
         t_mappcv::const_iterator itMAP = _mappcv.begin();
         while (itMAP != _mappcv.end())
         {
@@ -1000,17 +999,17 @@ namespace gnut
         return tmp;
     }
 
-    vector<t_gtime> t_gobj::ant_id() const
+    std::vector<t_gtime> t_gobj::ant_id() const
     {
         _gmutex.lock();
-        vector<t_gtime> tmp = this->_ant_id();
+        std::vector<t_gtime> tmp = this->_ant_id();
         _gmutex.unlock();
         return tmp;
     }
 
-    vector<t_gtime> t_gobj::_ant_id() const
+    std::vector<t_gtime> t_gobj::_ant_id() const
     {
-        vector<t_gtime> tmp;
+        std::vector<t_gtime> tmp;
         t_mapant::const_iterator itMAP = _mapant.begin();
         while (itMAP != _mapant.end())
         {
@@ -1020,11 +1019,11 @@ namespace gnut
         return tmp;
     }
 
-    vector<t_gtime> t_gobj::crd_id() const
+    std::vector<t_gtime> t_gobj::crd_id() const
     {
         _gmutex.lock();
 
-        vector<t_gtime> tmp;
+        std::vector<t_gtime> tmp;
         t_mapcrd::const_iterator itMAP = _mapcrd.begin();
         while (itMAP != _mapcrd.end())
         {
@@ -1044,7 +1043,7 @@ namespace gnut
 
         _gmutex.lock();
 
-        vector<t_gtime> vant = this->_ant_id();
+        std::vector<t_gtime> vant = this->_ant_id();
 
         if (vant.size() == 0)
         { // ant in obj is not set
@@ -1052,13 +1051,13 @@ namespace gnut
         }
         else
         {
-            for (vector<t_gtime>::iterator it = vant.begin(); it != vant.end(); it++)
+            for (std::vector<t_gtime>::iterator it = vant.begin(); it != vant.end(); it++)
             {
                 // set pcv for all antennas
-                string ant = this->_ant(*it);
+                std::string ant = this->_ant(*it);
                 t_gtime epo = *it;
 
-                shared_ptr<t_gpcv> gpcv = pcvs->gpcv(ant, "*", epo);
+                std::shared_ptr<t_gpcv> gpcv = pcvs->gpcv(ant, "*", epo);
                 if (gpcv != _pcvnull)
                 {
                     this->_pcv(gpcv, epo);
@@ -1074,11 +1073,11 @@ namespace gnut
         return;
     }
 
-    void t_gobj::compare(shared_ptr<t_gobj> gobj, const t_gtime& tt, string source)
+    void t_gobj::compare(std::shared_ptr<t_gobj> gobj, const t_gtime& tt, std::string source)
     {
         _gmutex.lock();
 
-        string old, alt;
+        std::string old, alt;
         t_gtriple trip_old, trip_alt;
         t_gtriple std_old, std_alt;
 

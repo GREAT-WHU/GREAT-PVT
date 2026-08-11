@@ -112,13 +112,27 @@ namespace gnut
 #ifndef PLOG_FUNCTION
 #define PLOG_FUNCTION
 
+#ifndef SPACE_ROW
 #define SPACE_ROW "========================================================="
+#endif
+#ifndef GREAT_TRACE
 #define GREAT_TRACE(...) SPDLOG_LOGGER_CALL(t_great_log::get_instance().get_logger().get(), spdlog::level::trace, __VA_ARGS__)
+#endif
+#ifndef GREAT_DEBUG
 #define GREAT_DEBUG(...) SPDLOG_LOGGER_CALL(t_great_log::get_instance().get_logger().get(), spdlog::level::debug, __VA_ARGS__)
+#endif
+#ifndef GREAT_INFO
 #define GREAT_INFO(...) SPDLOG_LOGGER_CALL(t_great_log::get_instance().get_logger().get(), spdlog::level::info, __VA_ARGS__)
+#endif
+#ifndef GREAT_WARN
 #define GREAT_WARN(...) SPDLOG_LOGGER_CALL(t_great_log::get_instance().get_logger().get(), spdlog::level::warn, __VA_ARGS__)
+#endif
+#ifndef GREAT_ERROR
 #define GREAT_ERROR(...) SPDLOG_LOGGER_CALL(t_great_log::get_instance().get_logger().get(), spdlog::level::err, __VA_ARGS__)
+#endif
+#ifndef GREAT_CRITICAL
 #define GREAT_CRITICAL(...) SPDLOG_LOGGER_CALL(t_great_log::get_instance().get_logger().get(), spdlog::level::critical, __VA_ARGS__)
+#endif
 
     // no line
     // #define PLOG_TRACE(...)       t_tool_log::Instance().getLogger().get()->trace(__VA_ARGS__)

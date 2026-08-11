@@ -23,10 +23,10 @@ namespace great
     t_gprecisebias::t_gprecisebias(t_gallproc* data, t_gsetbase* setting) :
         t_gbiasmodel(setting)
     {
-        _gall_nav = dynamic_cast<t_gallnav*>((*data)[t_gdata::GRP_EPHEM]);
-        _gallobj = dynamic_cast<t_gallobj*>((*data)[t_gdata::ALLOBJ]);
-        _gdata_erp = dynamic_cast<t_gpoleut1*>((*data)[t_gdata::ALLPOLEUT1]);
-        _tide = shared_ptr<t_gtide>(new t_gtideIERS(dynamic_cast<t_gallotl*>((*data)[t_gdata::ALLOTL])));
+        _gall_nav = dynamic_cast<t_gallnav*>((*data)[t_gdata::ID_GROUP::GRP_EPHEM]);
+        _gallobj = dynamic_cast<t_gallobj*>((*data)[t_gdata::ID_TYPE::ALLOBJ]);
+        _gdata_erp = dynamic_cast<t_gpoleut1*>((*data)[t_gdata::ID_TYPE::ALLPOLEUT1]);
+        _tide = std::shared_ptr<t_gtide>(new t_gtideIERS(dynamic_cast<t_gallotl*>((*data)[t_gdata::ID_TYPE::ALLOTL])));
         _minElev = dynamic_cast<t_gsetproc*>(setting)->minimum_elev();
         _crd_est = dynamic_cast<t_gsetproc*>(setting)->crd_est();
         _is_flt = (dynamic_cast<t_gsetgen*>(setting)->estimator() == "FLT");
@@ -39,9 +39,9 @@ namespace great
                 _corrt_sat_pcv = true;
             }
         }
-        _gifcb = dynamic_cast<t_gifcb*>((*data)[t_gdata::IFCB]);
+        _gifcb = dynamic_cast<t_gifcb*>((*data)[t_gdata::ID_TYPE::IFCB]);
         _attitudes = dynamic_cast<t_gsetproc*>(setting)->attitudes();
-        _opl = dynamic_cast<t_gallopl*>((*data)[t_gdata::ALLOPL]);
+        _opl = dynamic_cast<t_gallopl*>((*data)[t_gdata::ID_TYPE::ALLOPL]);
         _mean_pole_model = dynamic_cast<t_gsetproc*>(setting)->mean_pole_model();
     }
 
@@ -54,19 +54,19 @@ namespace great
         return false;
     }
 
-    void t_gprecisebias::update_obj_clk(const string& obj, const t_gtime& epo, double clk)
+    void t_gprecisebias::update_obj_clk(const std::string& obj, const t_gtime& epo, double clk)
     {
         _obj_clk[obj].first = epo;
         _obj_clk[obj].second = clk;
         _rec_clk[obj] = clk;
     }
 
-    double t_gprecisebias::get_rec_clk(const string& obj)
+    double t_gprecisebias::get_rec_clk(const std::string& obj)
     {
         return _rec_clk[obj];
     }
 
-    double t_gprecisebias::tropoDelay(t_gtime& epoch, string& rec, t_gallpar& param, t_gtriple site_ell, t_gsatdata& satdata)
+    double t_gprecisebias::tropoDelay(t_gtime& epoch, std::string& rec, t_gallpar& param, t_gtriple site_ell, t_gsatdata& satdata)
     {
         if (site_ell[2] > 1E4)
         {
@@ -77,7 +77,7 @@ namespace great
             if (_tropoModel == 0)
             {
                 GREAT_DEBUG("Tropo Model setting is not correct. Default used! Check config.");
-                _tropoModel = make_shared<t_saast>();
+                _tropoModel = std::make_shared<t_saast>();
             }
 
             double ele = satdata.ele();
@@ -188,19 +188,19 @@ namespace great
                                      GOBSBAND& band_1,
                                      t_gobs& gobs)
     {
-        if (band_1 == BAND || band_1 == BAND_A || band_1 == BAND_B || band_1 == BAND_C || band_1 == BAND_D)
+        if (band_1 == gnut::GOBSBAND::BAND || band_1 == gnut::GOBSBAND::BAND_A || band_1 == gnut::GOBSBAND::BAND_B || band_1 == gnut::GOBSBAND::BAND_C || band_1 == gnut::GOBSBAND::BAND_D)
         {
             return 0.0;
         }
 
-        if (gobs.band() == BAND || gobs.band() == BAND_A || gobs.band() == BAND_B || gobs.band() == BAND_C || gobs.band() == BAND_D)
+        if (gobs.band() == gnut::GOBSBAND::BAND || gobs.band() == gnut::GOBSBAND::BAND_A || gobs.band() == gnut::GOBSBAND::BAND_B || gobs.band() == gnut::GOBSBAND::BAND_C || gobs.band() == gnut::GOBSBAND::BAND_D)
         {
             return 0.0;
         }
 
         if (ion_model == IONMODEL::VION)
         {
-            throw logic_error(" not support VION model, use SION in XML");
+            throw std::logic_error(" not support VION model, use SION in XML");
         }
 
         double iono_delay = 0.0;
@@ -229,20 +229,20 @@ namespace great
         return iono_delay;
     }
 
-    double t_gprecisebias::isbDelay(t_gallpar& param, t_gsatdata& satdata, string& sat, string& rec, t_gobs& gobs)
+    double t_gprecisebias::isbDelay(t_gallpar& param, t_gsatdata& satdata, GSAT sat, std::string& rec, t_gobs& gobs)
     {
         double isb_offset = 0.0;
 
-        auto gsys = t_gsys::sat2gsys(sat);
+        auto gsys = gsat2gsys(sat);
 
         switch (gsys)
         {
-            case GPS:
+            case GSYS::GPS:
             {
                 break;
             }
             // GLONASS system time offset
-            case GLO:
+            case GSYS::GLO:
             {
                 int idx_isb = param.getParam(rec, par_type::GLO_ISB, "");
                 if (idx_isb >= 0)
@@ -258,7 +258,7 @@ namespace great
 
                 break;
             }
-            case GAL:
+            case GSYS::GAL:
             {
                 // Galileo system time offset
                 int i = param.getParam(rec, par_type::GAL_ISB, "");
@@ -268,7 +268,7 @@ namespace great
                 }
                 break;
             }
-            case BDS:
+            case GSYS::BDS:
             {
                 // BaiDou system time offset
                 int i = param.getParam(rec, par_type::BDS_ISB, "");
@@ -279,7 +279,7 @@ namespace great
                 break;
             }
             // QZSS system time offset
-            case QZS:
+            case GSYS::QZS:
             {
                 int i = param.getParam(_crt_rec, par_type::QZS_ISB, "");
                 if (i >= 0)
@@ -289,7 +289,7 @@ namespace great
                 break;
             }
             default:
-                throw logic_error("can not support such sys ： " + t_gsys::gsys2str(gsys));
+                throw std::logic_error("can not support such sys ： " + t_gsys::gsys2str(gsys));
         }
 
         return isb_offset;
@@ -316,76 +316,76 @@ namespace great
         return true;
     }
 
-    double t_gprecisebias::ifbDelay(t_gallpar& param, t_gsatdata& satdata, string& sat, string& rec, t_gobs& gobs)
+    double t_gprecisebias::ifbDelay(t_gallpar& param, t_gsatdata& satdata, GSAT sat, std::string& rec, t_gobs& gobs)
     {
         double ifb = 0.0;
-        auto gsys = t_gsys::sat2gsys(sat);
+        auto gsys = gsat2gsys(sat);
 
         switch (gsys)
         {
-            case GPS:
+            case GSYS::GPS:
             {
                 int i = param.getParam(_crt_rec, par_type::IFB_GPS, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_3)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
                 {
                     ifb = param[i].value();
                 }
                 break;
             }
-            case GAL:
+            case GSYS::GAL:
             {
                 int i = param.getParam(_crt_rec, par_type::IFB_GAL, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_3)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
                 {
                     ifb = param[i].value();
                 }
                 i = param.getParam(_crt_rec, par_type::IFB_GAL_2, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_4)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_4)
                 {
                     ifb = param[i].value();
                 }
                 i = param.getParam(_crt_rec, par_type::IFB_GAL_3, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_5)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_5)
                 {
                     ifb = param[i].value();
                 }
                 break;
             }
-            case BDS:
+            case GSYS::BDS:
             {
                 int i = param.getParam(_crt_rec, par_type::IFB_BDS, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_3)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
                 {
                     ifb = param[i].value();
                 }
                 i = param.getParam(_crt_rec, par_type::IFB_BDS_2, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_4)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_4)
                 {
                     ifb = param[i].value();
                 }
                 i = param.getParam(_crt_rec, par_type::IFB_BDS_3, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_5)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_5)
                 {
                     ifb = param[i].value();
                 }
                 break;
             }
             // QZSS system time offset
-            case QZS:
+            case GSYS::QZS:
             {
                 int i = param.getParam(_crt_rec, par_type::IFB_QZS, "");
-                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == FREQ_3)
+                if (i >= 0 && gobs.is_code() && _freq_index[satdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
                 {
                     ifb = param[i].value();
                 }
                 break;
             }
-            case GLO:
+            case GSYS::GLO:
             {
                 break;
             }
             default:
-                throw logic_error("can not support such sys ： " + t_gsys::gsys2str(gsys));
+                throw std::logic_error("can not support such sys ： " + t_gsys::gsys2str(gsys));
         }
         return ifb;
     }
@@ -407,10 +407,10 @@ namespace great
         }
 
         t_gtime epoch = satdata.epoch();
-        string sat = satdata.sat();
+        GSAT sat = satdata.sat();
 
-        GOBSBAND b1 = t_gsys::band_priority(satdata.gsys(), FREQ_1);
-        GOBSBAND b3 = t_gsys::band_priority(satdata.gsys(), FREQ_3);
+        GOBSBAND b1 = t_gsys::band_priority(satdata.gsys(), gnut::FREQ_SEQ::FREQ_1);
+        GOBSBAND b3 = t_gsys::band_priority(satdata.gsys(), gnut::FREQ_SEQ::FREQ_3);
 
         double l1 = satdata.wavelength(b1);
         double l3 = satdata.wavelength(b3);
@@ -453,7 +453,7 @@ namespace great
 
         if (double_eq(wavelength, 0.0))
         {
-            throw runtime_error("wavelength is zero when getting windup");
+            throw std::runtime_error("wavelength is zero when getting windup");
         }
 
         if (fabs(satdata.wind()) > 0)
@@ -463,7 +463,7 @@ namespace great
         else
         {
             t_gtime epoch = satdata.epoch();
-            string prn = satdata.sat();
+            GSAT prn = satdata.sat();
             Eigen::Vector3d rSat = _trs_sat_crd.crd_cvect_Eigen();
 
             // First time - initialize to zero
@@ -486,11 +486,11 @@ namespace great
                 Eigen::Vector3d i, j, k;
 
                 // attitude model
-                string antype = "";
+                std::string antype = "";
                 if (_gallobj != 0)
                 {
-                    shared_ptr<t_gobj> sat_obj = _gallobj->obj(satdata.sat());
-                    shared_ptr<t_gpcv> sat_pcv;
+                    std::shared_ptr<t_gobj> sat_obj = _gallobj->obj(gsat2str(satdata.sat()));
+                    std::shared_ptr<t_gpcv> sat_pcv;
                     if (sat_obj != 0)
                     {
                         sat_pcv = sat_obj->pcv(satdata.epoch());
@@ -503,7 +503,7 @@ namespace great
 
                 _satellite_attitude(satdata, antype, i, j, k);
 
-                if (antype.find("BLOCK IIR") != string::npos)
+                if (antype.find("BLOCK IIR") != std::string::npos)
                 {
                     i = (-1.0) * i;
                     j = (-1.0) * j;
@@ -581,14 +581,14 @@ namespace great
 
         if (_gallobj == nullptr)
         {
-            throw runtime_error("cannot correct PCV\n");
+            throw std::runtime_error("cannot correct PCV\n");
         }
 
-        shared_ptr<t_gobj> sat_obj = _gallobj->obj(satdata.sat());
-        shared_ptr<t_gobj> rec_obj = _gallobj->obj(satdata.site());
+        std::shared_ptr<t_gobj> sat_obj = _gallobj->obj(gsat2str(satdata.sat()));
+        std::shared_ptr<t_gobj> rec_obj = _gallobj->obj(satdata.site());
 
-        shared_ptr<t_gpcv> sat_pcv = (sat_obj != nullptr) ? sat_obj->pcv(epoch) : nullptr;
-        shared_ptr<t_gpcv> rec_pcv = (rec_obj != nullptr) ? rec_obj->pcv(epoch) : nullptr;
+        std::shared_ptr<t_gpcv> sat_pcv = (sat_obj != nullptr) ? sat_obj->pcv(epoch) : nullptr;
+        std::shared_ptr<t_gpcv> rec_pcv = (rec_obj != nullptr) ? rec_obj->pcv(epoch) : nullptr;
 
         if (!_isCalSatPCO)
         {
@@ -605,7 +605,7 @@ namespace great
             t_gtriple pco(0, 0, 0);
             if (sat_pcv->pcoS_raw(satdata, pco, band) > 0)
             {
-                string antenna = sat_pcv->anten();
+                std::string antenna = sat_pcv->anten();
                 t_gtriple dx(0, 0, 0);
                 Eigen::Vector3d i, j, k;
                 _satellite_attitude(satdata, antenna, i, j, k);
@@ -648,7 +648,7 @@ namespace great
     }
 
     void t_gprecisebias::_satellite_attitude(t_gsatdata& satdata,
-                                             const string& antenna,
+                                             const std::string& antenna,
                                              Eigen::Vector3d& i,
                                              Eigen::Vector3d& j,
                                              Eigen::Vector3d& k)
@@ -688,17 +688,17 @@ namespace great
         satdata.addvel(trs_velocity);
     }
 
-    Matrix t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, shared_ptr<t_gobj> obj)
+    Matrix t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, std::shared_ptr<t_gobj> obj)
     {
         t_gdata::ID_TYPE type = obj->id_type();
         Matrix rotmatrix(3, 3);
         t_gtriple ell(0.0, 0.0, 0.0);
         double sinPhi, cosPhi, sinLam, cosLam;
 
-        if (type == t_gdata::TRN)
+        if (type == t_gdata::ID_TYPE::TRN)
         {
-            shared_ptr<t_gpcv> sat_pcv = obj->pcv(epoch);
-            string antenna = (sat_pcv)->anten();
+            std::shared_ptr<t_gpcv> sat_pcv = obj->pcv(epoch);
+            std::string antenna = (sat_pcv)->anten();
             t_gtriple dx(0, 0, 0);
             Eigen::Vector3d i, j, k;
             _satellite_attitude(obsdata, antenna, i, j, k);
@@ -706,7 +706,7 @@ namespace great
             rotmatrix.Column(2) << j.data();
             rotmatrix.Column(3) << k.data();
         }
-        else if (type == t_gdata::REC)
+        else if (type == t_gdata::ID_TYPE::REC)
         {
             xyz2ell(_trs_rec_crd, ell, false);
             sinPhi = sin(ell[0]);
@@ -718,7 +718,7 @@ namespace great
         }
         else
         {
-            throw exception();
+            throw std::exception();
         }
 
         return rotmatrix;
@@ -804,11 +804,11 @@ namespace great
             {
                 _crt_obs.addcrd(_trs_sat_crd);
                 _crt_obs.addvel(_trs_sat_vel);
-                shared_ptr<t_gobj> sat_obj = _gallobj->obj(_crt_sat);
-                shared_ptr<t_gobj> rec_obj = _gallobj->obj(_crt_rec);
+                std::shared_ptr<t_gobj> sat_obj = _gallobj->obj(gsat2str(_crt_sat));
+                std::shared_ptr<t_gobj> rec_obj = _gallobj->obj(_crt_rec);
 
-                shared_ptr<t_gpcv> sat_pcv;
-                shared_ptr<t_gpcv> rec_pcv;
+                std::shared_ptr<t_gpcv> sat_pcv;
+                std::shared_ptr<t_gpcv> rec_pcv;
 
                 if (sat_obj != 0)
                 {
@@ -819,13 +819,13 @@ namespace great
                     rec_pcv = rec_obj->pcv(_crt_epo);
                 }
 
-                GOBS_LC lc = LC_L1;
+                GOBS_LC lc = gnut::GOBS_LC::LC_L1;
                 if (sat_pcv)
                 {
                     // Satellite phase center offset
                     t_gtriple pco(0, 0, 0);
 
-                    if (sat_pcv->pcoS(_crt_obs, pco, lc, _band_index[_crt_sys][FREQ_1], _band_index[_crt_sys][FREQ_2]) > 0)
+                    if (sat_pcv->pcoS(_crt_obs, pco, lc, _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_1], _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_2]) > 0)
                     {
                         rot_matrix_sat = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
                         t_gtriple dx(rot_matrix_sat * (pco.crd_cvect()));
@@ -837,7 +837,7 @@ namespace great
                 {
                     // Receiver phase center offset
                     t_gtriple pco(0.0, 0.0, 0.0);
-                    if (rec_pcv->pcoR(_crt_obs, pco, lc, _band_index[_crt_sys][FREQ_1], _band_index[_crt_sys][FREQ_2]) > 0)
+                    if (rec_pcv->pcoR(_crt_obs, pco, lc, _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_1], _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_2]) > 0)
                     {
                         rot_matrix_rec = _RotMatrix_Ant(_crt_obs, _crt_epo, rec_obj);
                         t_gtriple dx(rot_matrix_rec * (pco.crd_cvect()));
@@ -864,7 +864,7 @@ namespace great
     }
 
     bool t_gprecisebias::_get_trs_sat_crdvel(const t_gtime& sat_epoch,
-                                             const string& sat,
+                                             const GSAT sat,
                                              t_gallnav* nav,
                                              t_gtriple& trs_sat_crd,
                                              t_gtriple& trs_sat_vel)
@@ -906,8 +906,8 @@ namespace great
                 return false;
             }
             t_gtime epoch_tt = epoch;
-            epoch_tt.tsys(t_gtime::TT);
-            map<string, double> eop;
+            epoch_tt.tsys(t_gtime::t_tsys::TT);
+            std::map<std::string, double> eop;
             _gdata_erp->getEopData(epoch_tt, eop);
             const double xpole = eop.at("XPOLE");
             const double ypole = eop.at("YPOLE");

@@ -149,7 +149,7 @@ namespace gnut
 
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLOTL)
+                    if (it->second->id_type() == t_gdata::ID_TYPE::ALLOTL)
                     {
                         ((t_gallotl*)it->second)->add(otl);
                     }

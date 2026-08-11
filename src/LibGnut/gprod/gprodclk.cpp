@@ -11,18 +11,17 @@
 
 #include "gprod/gprodclk.h"
 
-using namespace std;
 
 namespace gnut
 {
 
-    t_gprodclk::t_gprodclk(const t_gtime& t, shared_ptr<t_gobj> pt) :
+    t_gprodclk::t_gprodclk(const t_gtime& t, std::shared_ptr<t_gobj> pt) :
         t_gprod(t, pt),
         _clk(0.0),
         _clk_rms(0.0)
     {
-        id_type(CLK);
-        id_group(GRP_PRODUCT);
+        id_type(ID_TYPE::CLK);
+        id_group(ID_GROUP::GRP_PRODUCT);
     }
 
     t_gprodclk::~t_gprodclk()

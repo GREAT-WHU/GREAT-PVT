@@ -11,7 +11,6 @@
 #include "gutils/gcommon.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -34,7 +33,7 @@ namespace gnut
     {
     }
 
-    int t_gio::path(string str)
+    int t_gio::path(std::string str)
     {
         if (str == "")
         {
@@ -45,7 +44,7 @@ namespace gnut
         return 1;
     }
 
-    ostream& operator<<(ostream& os, const t_gio& n)
+    std::ostream& operator<<(std::ostream& os, const t_gio& n)
     {
         os << n.path();
         return os;
@@ -71,7 +70,7 @@ namespace gnut
             _coder->clear();
         }
         // For error message
-        vector<string> errmsg;
+        std::vector<std::string> errmsg;
 
         char* loc_buff = new char[_size];
 

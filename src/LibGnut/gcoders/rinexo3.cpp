@@ -181,7 +181,7 @@ namespace gnut
         {
             string sys(1, _line[0]); // read all linked lines at once!
             string obs = trim(_line.substr(2, 3));
-            GOBS gobs = X;
+            GOBS gobs = gnut::GOBS::X;
 
             if (sys == " ")
             {
@@ -193,7 +193,7 @@ namespace gnut
                 GREAT_DEBUG("SYS / PHASE SHIFT not recognized OBS:" + obs);
                 _irc++;
             }
-            else if ((gobs = str2gobs(obs)) == X)
+            else if ((gobs = str2gobs(obs)) == gnut::GOBS::X)
             {
                 GREAT_DEBUG("SYS / PHASE SHIFT not recognized OBS:" + obs);
                 _irc++;
@@ -277,7 +277,7 @@ namespace gnut
         else if (_line.substr(60, 20).find("GLONASS SLOT / FRQ #") != string::npos)
         {
             int nsat = str2int(_line.substr(0, 3)); // read all linked lines at once!
-            GOBS gobs = X;                          // X: ALL OBS!
+            GOBS gobs = gnut::GOBS::X;                          // X: ALL OBS!
 
             if (nsat == 0)
             {
@@ -337,7 +337,7 @@ namespace gnut
                 map<string, t_gdata*>::iterator itDAT = _data.begin();
                 while (itDAT != _data.end())
                 {
-                    if (itDAT->second->id_type() == t_gdata::ALLOBS)
+                    if (itDAT->second->id_type() == t_gdata::ID_TYPE::ALLOBS)
                     {
                         for (auto itfrq : _glofrq)
                         {
@@ -347,7 +347,7 @@ namespace gnut
                                 {
                                     continue;
                                 }
-                                ((t_gallobs*)itDAT->second)->add_glo_freq(itfrq.first, itObs.second);
+                                ((t_gallobs*)itDAT->second)->add_glo_freq(str2gsat(itfrq.first), itObs.second);
                             }
                         }
                     }
@@ -372,7 +372,7 @@ namespace gnut
                 string val = trim(_line.substr(5 + 13 * (ii % (4)), 8));
                 GOBS gobs = str2gobs(obs);
                 double bias = str2dbl(val);
-                if (gobs == X)
+                if (gobs == gnut::GOBS::X)
                 {
                     GREAT_DEBUG("GLONASS COD/PHS/BIS not recognized OBS:" + obs);
                     _irc++;
@@ -716,7 +716,7 @@ namespace gnut
     int t_rinexo3::_fix_band(string sys, string& go)
     {
         // EXCEPTION FOR BEIDOU (B1 --> B2)
-        if (t_gsys::str2gsys(sys) == BDS)
+        if (t_gsys::str2gsys(sys) == GSYS::BDS)
         {
             if (go[1] == '1' && _version <= "3.03")
             {

@@ -21,7 +21,7 @@ namespace great
         if (nullptr == setting)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
-            throw logic_error("");
+            throw std::logic_error("");
         }
         else
         {
@@ -39,39 +39,39 @@ namespace great
 
         if (_trpModStr == gnut::TROPMODEL::SAASTAMOINEN)
         {
-            _tropoModel = make_shared<t_saast>();
+            _tropoModel = std::make_shared<t_saast>();
         }
         else if (_trpModStr == gnut::TROPMODEL::DAVIS)
         {
-            _tropoModel = make_shared<t_davis>();
+            _tropoModel = std::make_shared<t_davis>();
         }
         else if (_trpModStr == gnut::TROPMODEL::HOPFIELD)
         {
-            _tropoModel = make_shared<t_hopf>();
+            _tropoModel = std::make_shared<t_hopf>();
         }
 
-        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GPS);
-        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GLO);
-        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GAL);
-        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(BDS);
-        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(QZS);
-        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GPS);
-        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GLO);
-        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GAL);
-        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(BDS);
-        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(QZS);
+        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::GPS);
+        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::GLO);
+        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::GAL);
+        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::BDS);
+        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::QZS);
+        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::GPS);
+        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::GLO);
+        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::GAL);
+        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::BDS);
+        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::QZS);
 
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::QZS);
+        _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::GPS);
+        _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::GAL);
+        _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::GLO);
+        _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::BDS);
+        _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::QZS);
 
         _meanpole_model = dynamic_cast<t_gsetproc*>(setting)->mean_pole_model();
     }
@@ -96,10 +96,10 @@ namespace great
                                     double& wgt)
     {
         GSYS gsys = obsdata.gsys();
-        string gsat = obsdata.sat();
+        GSAT gsat = obsdata.sat();
 
         GOBSTYPE type = gobs1.type();
-        if (type != TYPE_C && type != TYPE_P && type != TYPE_L)
+        if (type != gnut::GOBSTYPE::TYPE_C && type != gnut::GOBSTYPE::TYPE_P && type != gnut::GOBSTYPE::TYPE_L)
         {
             GREAT_ERROR(" type should be TYPE_C/TYPE_P/TYPE_L");
             return false;
@@ -119,25 +119,25 @@ namespace great
         }
 
         // get the sys sigRange
-        if (type == TYPE_C || type == TYPE_P)
+        if (type == gnut::GOBSTYPE::TYPE_C || type == gnut::GOBSTYPE::TYPE_P)
         {
-            if (obj_type == t_gdata::REC)
+            if (obj_type == t_gdata::ID_TYPE::REC)
             {
                 switch (gsys)
                 {
-                    case GPS:
+                    case GSYS::GPS:
                         sigRange = _sigCodeGPS;
                         break;
-                    case GLO:
+                    case GSYS::GLO:
                         sigRange = _sigCodeGLO;
                         break;
-                    case GAL:
+                    case GSYS::GAL:
                         sigRange = _sigCodeGAL;
                         break;
-                    case BDS:
+                    case GSYS::BDS:
                         sigRange = _sigCodeBDS;
                         break;
-                    case QZS:
+                    case GSYS::QZS:
                         sigRange = _sigCodeQZS;
                         break;
                     default:
@@ -151,25 +151,25 @@ namespace great
                 return false;
             }
         }
-        else if (type == TYPE_L)
+        else if (type == gnut::GOBSTYPE::TYPE_L)
         {
-            if (obj_type == t_gdata::REC)
+            if (obj_type == t_gdata::ID_TYPE::REC)
             {
                 switch (gsys)
                 {
-                    case GPS:
+                    case GSYS::GPS:
                         sigPhase = _sigPhaseGPS;
                         break;
-                    case GLO:
+                    case GSYS::GLO:
                         sigPhase = _sigPhaseGLO;
                         break;
-                    case GAL:
+                    case GSYS::GAL:
                         sigPhase = _sigPhaseGAL;
                         break;
-                    case BDS:
+                    case GSYS::BDS:
                         sigPhase = _sigPhaseBDS;
                         break;
-                    case QZS:
+                    case GSYS::QZS:
                         sigPhase = _sigPhaseQZS;
                         break;
                     default:
@@ -189,7 +189,7 @@ namespace great
             return false;
         }
 
-        if (obj_type == t_gdata::REC)
+        if (obj_type == t_gdata::ID_TYPE::REC)
         {
             double leo_ele = obsdata.ele_leo();
             double leo_ele_deg = obsdata.ele_leo_deg();
@@ -200,7 +200,7 @@ namespace great
             switch (_weight)
             {
                 case OBSWEIGHT::DEF_OBSWEIGHT:
-                    cerr << "gspplsq: WeightObs (default) should not happened!\n";
+                    std::cerr << "gspplsq: WeightObs (default) should not happened!\n";
                     break;
                 case OBSWEIGHT::EQUAL:
                     factor *= 1;
@@ -225,17 +225,17 @@ namespace great
                     factor *= SSI / 9;
                     break;
                 default:
-                    cerr << "gspplsq: we can't deal with this WeightObs method!";
+                    std::cerr << "gspplsq: we can't deal with this WeightObs method!";
                     return false;
             }
         }
 
         auto b1 = gobs1.band();
-        if (type == TYPE_C || type == TYPE_P)
+        if (type == gnut::GOBSTYPE::TYPE_C || type == gnut::GOBSTYPE::TYPE_P)
         {
             sigRange = sigRange /** 3*/;
         }
-        else if (type == TYPE_L)
+        else if (type == gnut::GOBSTYPE::TYPE_L)
         {
             sigPhase = sigPhase * obsdata.wavelength(b1) /** 3*/;
         }
@@ -254,15 +254,15 @@ namespace great
 
         switch (type)
         {
-            case TYPE_L:
+            case gnut::GOBSTYPE::TYPE_L:
                 if (sigPhase == 0.0)
                 {
                     return false;
                 }
                 wgt = 1.0 / pow(factor * sigPhase, 2);
                 break;
-            case TYPE_C:
-            case TYPE_P:
+            case gnut::GOBSTYPE::TYPE_C:
+            case gnut::GOBSTYPE::TYPE_P:
                 if (sigRange == 0.0)
                 {
                     return false;
@@ -288,7 +288,7 @@ namespace great
     {
         if (!gobs.is_code() && !gobs.is_phase())
         {
-            throw logic_error("only support code and phase observation.");
+            throw std::logic_error("only support code and phase observation.");
         }
 
         double obs = gobs.is_code() ? obsdata.obs_C(gobs) : obsdata.obs_L(gobs);
@@ -300,8 +300,8 @@ namespace great
         }
 
         t_gtime epo = crt_epo;
-        string sat_name = obsdata.sat();
-        string site_name = obsdata.site();
+        GSAT sat_name = obsdata.sat();
+        std::string site_name = obsdata.site();
         double ModelObs = cmpObs(epo, sat_name, site_name, pars, obsdata, gobs);
         if (ModelObs < 0)
         {
@@ -359,7 +359,7 @@ namespace great
                 if (obsdata.site() == par.site)
                 {
                     auto gsys = obsdata.gsys();
-                    double f1 = obsdata.frequency(_band_index[gsys][FREQ_1]);
+                    double f1 = obsdata.frequency(_band_index[gsys][gnut::FREQ_SEQ::FREQ_1]);
                     double fk = obsdata.frequency(gobs.band());
                     double alfa = 0.0;
                     if (gobs.is_phase() && par.prn == obsdata.sat())
@@ -377,7 +377,7 @@ namespace great
                 if (obsdata.site() == par.site)
                 {
                     auto gsys = obsdata.gsys();
-                    double f1 = obsdata.frequency(_band_index[gsys][FREQ_1]);
+                    double f1 = obsdata.frequency(_band_index[gsys][gnut::FREQ_SEQ::FREQ_1]);
                     double fk = obsdata.frequency(gobs.band());
                     double mf = 1.0 / sqrt(1.0 - pow(R_SPHERE / (R_SPHERE + 450000.0) * sin(G_PI / 2.0 - obsdata.ele()), 2));
                     double alfa = 0.0;
@@ -393,98 +393,98 @@ namespace great
                 }
                 break;
             case par_type::GLO_ISB:
-                if (obsdata.site() == par.site && obsdata.gsys() == GLO)
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GLO)
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::GLO_IFCB:
-                if (obsdata.site() == par.site && !gobs.is_phase() && obsdata.gsys() == GLO && par.prn == obsdata.sat())
+                if (obsdata.site() == par.site && !gobs.is_phase() && obsdata.gsys() == GSYS::GLO && par.prn == obsdata.sat())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::GLO_IFPB:
-                if (obsdata.site() == par.site && gobs.is_phase() && obsdata.gsys() == GLO && par.prn == obsdata.sat())
+                if (obsdata.site() == par.site && gobs.is_phase() && obsdata.gsys() == GSYS::GLO && par.prn == obsdata.sat())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::GLO_IFB:
-                if (obsdata.site() == par.site && obsdata.gsys() == GLO && par.prn == obsdata.sat() && gobs.is_code())
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GLO && par.prn == obsdata.sat() && gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::GAL_ISB:
-                if (obsdata.site() == par.site && obsdata.gsys() == GAL)
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GAL)
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::BDS_ISB:
-                if (obsdata.site() == par.site && obsdata.gsys() == BDS)
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::BDS)
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::QZS_ISB:
-                if (obsdata.site() == par.site && obsdata.gsys() == QZS)
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::QZS)
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_QZS:
-                if (obsdata.site() == par.site && obsdata.gsys() == QZS && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_3 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::QZS && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_GPS:
-                if (obsdata.site() == par.site && obsdata.gsys() == GPS && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_3 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GPS && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_GAL:
-                if (obsdata.site() == par.site && obsdata.gsys() == GAL && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_3 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GAL && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_GAL_2:
-                if (obsdata.site() == par.site && obsdata.gsys() == GAL && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_4 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GAL && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_4 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_GAL_3:
-                if (obsdata.site() == par.site && obsdata.gsys() == GAL && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_5 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::GAL && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_5 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_BDS:
-                if (obsdata.site() == par.site && obsdata.gsys() == BDS && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_3 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::BDS && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_BDS_2:
-                if (obsdata.site() == par.site && obsdata.gsys() == BDS && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_4 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::BDS && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_4 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
                 }
                 break;
             case par_type::IFB_BDS_3:
-                if (obsdata.site() == par.site && obsdata.gsys() == BDS && _freq_index[obsdata.gsys()][gobs.band()] == FREQ_5 &&
+                if (obsdata.site() == par.site && obsdata.gsys() == GSYS::BDS && _freq_index[obsdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_5 &&
                     gobs.is_code())
                 {
                     partial = 1.0;
@@ -523,7 +523,7 @@ namespace great
         }
         else
         {
-            cerr << "ZTD mapping function is not set up correctly!!!" << endl;
+            std::cerr << "ZTD mapping function is not set up correctly!!!" << std::endl;
         }
     }
 } // namespace great

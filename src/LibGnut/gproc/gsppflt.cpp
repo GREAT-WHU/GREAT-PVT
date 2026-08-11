@@ -16,9 +16,9 @@
 namespace gnut
 {
 
-    t_gsppflt::t_gsppflt(string mark, t_gsetbase* set) :
+    t_gsppflt::t_gsppflt(std::string mark, t_gsetbase* set) :
         t_gspp(mark, set),
-        _minsat(static_cast<size_t>(SPP_MINSAT)),
+        _minsat(static_cast<std::size_t>(SPP_MINSAT)),
         _filter(0),
         _smooth(false),
         _n_NPD_flt(0),
@@ -28,7 +28,7 @@ namespace gnut
     {
         t_gspp::_get_settings();
 
-        string fltModStr(dynamic_cast<t_gsetflt*>(_set)->method_flt());
+        std::string fltModStr(dynamic_cast<t_gsetflt*>(_set)->method_flt());
         if (fltModStr.compare("kalman") == 0)
         {
             _filter = new t_kalman();
@@ -67,7 +67,7 @@ namespace gnut
 
         int ipar = 0;
 
-        string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
+        std::string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
         if (refclk != "")
         {
             _crd_est = CONSTRPAR::EST;
@@ -131,23 +131,23 @@ namespace gnut
         _ifb5_init = false;
 
         // freq_index and band_index
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::QZS);
+        _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::GPS);
+        _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::GAL);
+        _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::GLO);
+        _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::BDS);
+        _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::QZS);
 
     } // end constructor
 
-    t_gsppflt::t_gsppflt(string mark, t_gsetbase* set, string mode) :
+    t_gsppflt::t_gsppflt(std::string mark, t_gsetbase* set, std::string mode) :
         t_gspp(mark, set, mode),
-        _minsat(static_cast<size_t>(SPP_MINSAT)),
+        _minsat(static_cast<std::size_t>(SPP_MINSAT)),
         _filter(0),
         _smooth(false),
         _n_NPD_flt(0),
@@ -156,7 +156,7 @@ namespace gnut
         _n_ALL_smt(0)
     {
         t_gspp::_get_settings();
-        string fltModStr(dynamic_cast<t_gsetflt*>(_set)->method_flt());
+        std::string fltModStr(dynamic_cast<t_gsetflt*>(_set)->method_flt());
         if (fltModStr.compare("kalman") == 0)
         {
             _filter = new t_kalman();
@@ -195,7 +195,7 @@ namespace gnut
         _vBanc = 0.0;
 
         int ipar = 0;
-        string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
+        std::string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
         if (refclk != "")
         {
             _crd_est = CONSTRPAR::EST;
@@ -259,17 +259,17 @@ namespace gnut
         _ifb5_init = false;
 
         // freq_index and band_index
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_set)->band_index(gnut::GSYS::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::QZS);
+        _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::GPS);
+        _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::GAL);
+        _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::GLO);
+        _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::BDS);
+        _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_set)->freq_index(gnut::GSYS::QZS);
 
     } // end constructor
 
@@ -331,7 +331,7 @@ namespace gnut
     {
         if (beg > end)
         {
-            cerr << _site << " - processing not started [beg > end]\n";
+            std::cerr << _site << " - processing not started [beg > end]\n";
             return -1;
         }
 
@@ -442,15 +442,15 @@ namespace gnut
 
             if (_allprod != 0)
             {
-                shared_ptr<t_gprodcrd> prd_crd = make_shared<t_gprodcrd>(now); // now is rounded value !!
-                shared_ptr<t_gprodclk> prd_clk = make_shared<t_gprodclk>(now); // now is rounded value !!
+                std::shared_ptr<t_gprodcrd> prd_crd = std::make_shared<t_gprodcrd>(now); // now is rounded value !!
+                std::shared_ptr<t_gprodclk> prd_clk = std::make_shared<t_gprodclk>(now); // now is rounded value !!
                 prd_crd->xyz(xyz);
                 prd_clk->clk(clk, clk_std);
                 prd_crd->nSat(_nSat);
                 prd_crd->nSat_excl(_nSat_excl);
 
                 // store DOP
-                set<string> sat_list;
+                std::set<GSAT> sat_list;
                 for (auto it = _data.begin(); it != _data.end(); it++)
                 {
                     sat_list.insert(it->sat());
@@ -521,8 +521,8 @@ namespace gnut
         ColumnVector l, dx, dx_el;
         ColumnVector v_orig, v_norm;
         SymmetricMatrix Qsav, QsavBP;
-        vector<t_gsatdata>::iterator it;
-        vector<GOBSTYPE> obstypes;
+        std::vector<t_gsatdata>::iterator it;
+        std::vector<GOBSTYPE> obstypes;
         t_gallpar XsavBP;
 
         _cntrep = 0; // number of iterations caused by outliers
@@ -598,7 +598,7 @@ namespace gnut
             {
                 if (_addObsP(*it, iobs, groundEll, A, l, P) > 0)
                 {
-                    obstypes.push_back(TYPE_C);
+                    obstypes.push_back(gnut::GOBSTYPE::TYPE_C);
                 }
                 else
                 {
@@ -608,7 +608,7 @@ namespace gnut
 
                 if (_addObsL(*it, iobs, groundEll, A, l, P) > 0)
                 {
-                    obstypes.push_back(TYPE_L);
+                    obstypes.push_back(gnut::GOBSTYPE::TYPE_L);
                 }
                 else
                 {
@@ -646,11 +646,11 @@ namespace gnut
             _filter->update(A, P, l, dx, _Qx);
 
             // increasing variance after update in case of introducing new ambiguity
-            for (size_t iPar = 0; iPar < _param.parNumber(); iPar++)
+            for (std::size_t iPar = 0; iPar < _param.parNumber(); iPar++)
             {
                 if (_param[iPar].parType == par_type::AMB_IF)
                 {
-                    string sat = _param[iPar].prn;
+                    GSAT sat = _param[iPar].prn;
                     if (_newAMB.find(sat) != _newAMB.end() && _cntrep == 1)
                     {
                         if (_newAMB[sat] == 1)
@@ -750,7 +750,7 @@ namespace gnut
         switch (_weight)
         {
             case OBSWEIGHT::DEF_OBSWEIGHT:
-                cerr << "gsppflt: WeightObs (default) should not happened!\n";
+                std::cerr << "gsppflt: WeightObs (default) should not happened!\n";
                 break;
             case OBSWEIGHT::EQUAL:
                 weight_coef = 1;
@@ -835,11 +835,11 @@ namespace gnut
         GSYS gs = gsys.gsys();
 
         GOBSBAND b1, b2, b3, b4, b5;
-        b1 = b2 = b3 = b4 = b5 = BAND;
+        b1 = b2 = b3 = b4 = b5 = gnut::GOBSBAND::BAND;
 
         if (_auto_band)
         { // automatic dual band selection -> for Anubis purpose
-            set<GOBSBAND> bands = satdata.band_avail(_phase);
+            std::set<GOBSBAND> bands = satdata.band_avail(_phase);
             auto itBAND = bands.begin();
             if (bands.size() < 2)
             {
@@ -851,19 +851,19 @@ namespace gnut
         }
         else
         {
-            b1 = _band_index[gs][FREQ_1];
-            b2 = _band_index[gs][FREQ_2];
-            b3 = _band_index[gs][FREQ_3];
-            b4 = _band_index[gs][FREQ_4];
-            b5 = _band_index[gs][FREQ_5];
+            b1 = _band_index[gs][gnut::FREQ_SEQ::FREQ_1];
+            b2 = _band_index[gs][gnut::FREQ_SEQ::FREQ_2];
+            b3 = _band_index[gs][gnut::FREQ_SEQ::FREQ_3];
+            b4 = _band_index[gs][gnut::FREQ_SEQ::FREQ_4];
+            b5 = _band_index[gs][gnut::FREQ_SEQ::FREQ_5];
         }
 
         t_gobs gobs1, gobs2, gobs3, gobs4, gobs5;
-        _getgobs(satdata.sat(), TYPE_C, b1, gobs1);
-        _getgobs(satdata.sat(), TYPE_C, b2, gobs2);
-        _getgobs(satdata.sat(), TYPE_C, b3, gobs3);
-        _getgobs(satdata.sat(), TYPE_C, b4, gobs4);
-        _getgobs(satdata.sat(), TYPE_C, b5, gobs5);
+        _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_C, b1, gobs1);
+        _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_C, b2, gobs2);
+        _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_C, b3, gobs3);
+        _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_C, b4, gobs4);
+        _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_C, b5, gobs5);
 
         double PIF, P1, P2, P3, P4, P5;
         PIF = P1 = P2 = P3 = P4 = P5 = 0.0;
@@ -871,15 +871,15 @@ namespace gnut
         PIF = satdata.P3(gobs1, gobs2);
         P1 = satdata.obs_C(gobs1);
         P2 = satdata.obs_C(gobs2);
-        if (b3 != BAND)
+        if (b3 != gnut::GOBSBAND::BAND)
         {
             P3 = satdata.obs_C(gobs3);
         }
-        if (b4 != BAND)
+        if (b4 != gnut::GOBSBAND::BAND)
         {
             P4 = satdata.obs_C(gobs4);
         }
-        if (b5 != BAND)
+        if (b5 != gnut::GOBSBAND::BAND)
         {
             P5 = satdata.obs_C(gobs5);
         }
@@ -954,19 +954,19 @@ namespace gnut
         double sigCode = 0.0;
         switch (gs)
         {
-            case GPS:
+            case GSYS::GPS:
                 sigCode = _sigCodeGPS;
                 break;
-            case GLO:
+            case GSYS::GLO:
                 sigCode = _sigCodeGLO;
                 break;
-            case GAL:
+            case GSYS::GAL:
                 sigCode = _sigCodeGAL;
                 break;
-            case BDS:
+            case GSYS::BDS:
                 sigCode = _sigCodeBDS;
                 break;
-            case QZS:
+            case GSYS::QZS:
                 sigCode = _sigCodeQZS;
                 break;
             default:
@@ -1066,7 +1066,7 @@ namespace gnut
         }
 
         // Create first design matrix
-        if (gs == GLO || gs == GPS || gs == GAL || gs == BDS || gs == QZS)
+        if (gs == GSYS::GLO || gs == GSYS::GPS || gs == GSYS::GAL || gs == GSYS::BDS || gs == GSYS::QZS)
         {
             for (unsigned int ipar = 1; ipar <= _param.parNumber(); ipar++)
             {
@@ -1122,57 +1122,57 @@ namespace gnut
 
     int t_gsppflt::_prepareData()
     {
-        vector<t_gsatdata>::iterator it = _data.begin();
+        std::vector<t_gsatdata>::iterator it = _data.begin();
         while (it != _data.end())
         {
             switch (_gnss)
             {
-                case GNS:
+                case GSYS::GNS:
                     break;
-                case GPS:
-                    if (it->gsys() != GPS)
+                case GSYS::GPS:
+                    if (it->gsys() != GSYS::GPS)
                     {
                         it = _data.erase(it);
                         continue;
                     }
                     break;
-                case GLO:
-                    if (it->gsys() != GLO)
+                case GSYS::GLO:
+                    if (it->gsys() != GSYS::GLO)
                     {
                         it = _data.erase(it);
                         continue;
                     }
                     break;
-                case GAL:
-                    if (it->gsys() != GAL)
+                case GSYS::GAL:
+                    if (it->gsys() != GSYS::GAL)
                     {
                         it = _data.erase(it);
                         continue;
                     }
                     break;
-                case BDS:
-                    if (it->gsys() != BDS)
+                case GSYS::BDS:
+                    if (it->gsys() != GSYS::BDS)
                     {
                         it = _data.erase(it);
                         continue;
                     }
                     break;
-                case QZS:
-                    if (it->gsys() != QZS)
+                case GSYS::QZS:
+                    if (it->gsys() != GSYS::QZS)
                     {
                         it = _data.erase(it);
                         continue;
                     }
                     break;
-                case IRN:
-                    if (it->gsys() != IRN)
+                case GSYS::IRN:
+                    if (it->gsys() != GSYS::IRN)
                     {
                         it = _data.erase(it);
                         continue;
                     }
                     break;
-                case SBS:
-                    if (it->gsys() != SBS)
+                case GSYS::SBS:
+                    if (it->gsys() != GSYS::SBS)
                     {
                         it = _data.erase(it);
                         continue;
@@ -1189,7 +1189,7 @@ namespace gnut
         BB.ReSize(_data.size(), 4);
         BB = 0.0;
         int iobs = 0;
-        vector<t_gsatdata>::iterator iter = _data.begin();
+        std::vector<t_gsatdata>::iterator iter = _data.begin();
 
         _nSat = _data.size(); // configured GNSS is considered (see erase in above swich)
 
@@ -1201,7 +1201,7 @@ namespace gnut
 
             if (_auto_band)
             {
-                set<GOBSBAND> bands;
+                std::set<GOBSBAND> bands;
                 bands = iter->band_avail(_phase);
                 auto itBAND = bands.begin();
                 if (bands.size() < 2)
@@ -1215,8 +1215,8 @@ namespace gnut
             }
             else
             {
-                b1 = _band_index[gs][FREQ_1];
-                b2 = _band_index[gs][FREQ_2];
+                b1 = _band_index[gs][gnut::FREQ_SEQ::FREQ_1];
+                b2 = _band_index[gs][gnut::FREQ_SEQ::FREQ_2];
             }
             // check data availability
             double P3 = iter->P3(b1, b2);
@@ -1295,7 +1295,7 @@ namespace gnut
         double radius = test_xyz.norm();
         if (radius < B_WGS - 500)
         {
-            string warning =
+            std::string warning =
                 "WARNING: Unexpected site (" + _site + ") coordinates from Bancroft. Orbits/clocks or code observations should be checked.";
             GREAT_DEBUG(warning + _epoch.str_ymdhms(" Epoch "));
             GREAT_DEBUG(warning + _epoch.str_ymdhms(" Epoch "));
@@ -1335,7 +1335,7 @@ namespace gnut
             }
             else
             {
-                cerr << "Undefined CRD constraining" << endl;
+                std::cerr << "Undefined CRD constraining" << std::endl;
                 return -1;
             }
 
@@ -1389,8 +1389,8 @@ namespace gnut
             // check elevation cut-off
             if (iter->ele_deg() < _minElev)
             {
-                ostringstream os;
-                os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << fixed << setprecision(1) << iter->ele_deg()
+                std::ostringstream os;
+                os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << std::fixed << std::setprecision(1) << iter->ele_deg()
                    << ") " << iter->epoch().str_ymdhms();
                 GREAT_DEBUG(os.str());
                 iter = _data.erase(iter); // !!!! zveda iterator !!!!
@@ -1403,16 +1403,16 @@ namespace gnut
             }
 
             // Printing beta and orbit angles for deep verbosity
-            ostringstream os;
-            os << iter->sat() << " " << iter->epoch().str_ymdhms() << " " << fixed << setprecision(1) << iter->beta() << " "
-               << iter->orb_angle() << endl;
+            std::ostringstream os;
+            os << iter->sat() << " " << iter->epoch().str_ymdhms() << " " << std::fixed << std::setprecision(1) << iter->beta() << " "
+               << iter->orb_angle() << std::endl;
             GREAT_DEBUG(os.str());
 
             // check satellite eclipsing
             if (iter->ecl())
             {
-                ostringstream os;
-                os << "Erasing " << iter->sat() << " data due to satellite eclipsing (beta = " << fixed << setprecision(1) << iter->beta()
+                std::ostringstream os;
+                os << "Erasing " << iter->sat() << " data due to satellite eclipsing (beta = " << std::fixed << std::setprecision(1) << iter->beta()
                    << " ,orbit angle = " << iter->orb_angle() << ") " << iter->epoch().str_ymdhms();
                 GREAT_DEBUG(os.str());
                 iter = _data.erase(iter); // !!!! zveda iterator !!!!
@@ -1737,7 +1737,7 @@ namespace gnut
         }
 
         // predict ionosphere delay
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         for (it = _data.begin(); it != _data.end(); it++)
         {
             i = _param.getParam(_site, par_type::VION, it->sat());
@@ -1828,8 +1828,6 @@ namespace gnut
 
     int t_gsppflt::_satPos(t_gtime& epo, t_gsatdata& gsatdata)
     {
-        string satname = gsatdata.sat();
-
         int i;
         int base_size = dynamic_cast<t_gsetgen*>(_set)->list_base().size();
         i = gsatdata.addprd(_gnav); // add sat crd and clk
@@ -1846,7 +1844,7 @@ namespace gnut
     {
         int num = 0;
 
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         for (it = _data.begin(); it != _data.end(); it++)
         {
             GSYS satSys = it->gsys();
@@ -1905,27 +1903,27 @@ namespace gnut
         bool obsGal = false;
         bool obsBds = false;
         bool obsQzs = false;
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         for (it = _data.begin(); it != _data.end(); it++)
         { // loop over all observations
 
-            if (it->gsys() == GPS)
+            if (it->gsys() == GSYS::GPS)
             {
                 obsGps = true;
             }
-            if (it->gsys() == GLO)
+            if (it->gsys() == GSYS::GLO)
             {
                 obsGlo = true;
             }
-            if (it->gsys() == GAL)
+            if (it->gsys() == GSYS::GAL)
             {
                 obsGal = true;
             }
-            if (it->gsys() == BDS)
+            if (it->gsys() == GSYS::BDS)
             {
                 obsBds = true;
             }
-            if (it->gsys() == QZS)
+            if (it->gsys() == GSYS::QZS)
             {
                 obsQzs = true;
             }
@@ -2064,9 +2062,9 @@ namespace gnut
         _param.reIndex();
 
         // Add ionosphere parameter and appropriate rows/columns covar. matrix
-        set<string> mapPRN;
+        std::set<GSAT> mapPRN;
 
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         for (it = _data.begin(); it != _data.end(); it++)
         { // loop over all tracked satellites
             mapPRN.insert(it->sat());
@@ -2098,9 +2096,9 @@ namespace gnut
         {
             if (_param[i].parType == par_type::VION)
             {
-                string sat = _param[i].prn;
+                GSAT sat = _param[i].prn;
 
-                set<string>::iterator prnITER = mapPRN.find(sat);
+                std::set<GSAT>::iterator prnITER = mapPRN.find(sat);
                 if (prnITER == mapPRN.end())
                 {
                     Matrix_remRC(_Qx, _param[i].index, _param[i].index);
@@ -2118,9 +2116,9 @@ namespace gnut
                 {
                     continue;
                 }
-                string sat = _param[i].prn;
+                GSAT sat = _param[i].prn;
 
-                set<string>::iterator prnITER = mapPRN.find(sat);
+                std::set<GSAT>::iterator prnITER = mapPRN.find(sat);
                 if (prnITER == mapPRN.end())
                 {
                     Matrix_remRC(_Qx, _param[i].index, _param[i].index);
@@ -2193,76 +2191,74 @@ namespace gnut
         bool obsBds_4 = false;
         bool obsGal_5 = false;
         bool obsBds_5 = false;
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         for (it = _data.begin(); it != _data.end();)
         {
-            map<FREQ_SEQ, GOBSBAND>& crt_bands = _band_index[it->gsys()];
-            string grec = it->site();
-            string gsat = it->sat();
+            std::map<FREQ_SEQ, GOBSBAND>& crt_bands = _band_index[it->gsys()];
             GSYS gsys = it->gsys();
             int freq_num = 0;
             for (const auto& iter : crt_bands)
             {
-                vector<pair<int, double>> coefP;
-                vector<pair<int, double>> coefL;
+                std::vector<std::pair<int, double>> coefP;
+                std::vector<std::pair<int, double>> coefL;
                 GOBSBAND band = iter.second;
                 t_gobs obsP(it->select_range(band, true));
                 t_gobs obsL(it->select_phase(band, true));
                 // ========================================================================================================================================
                 // check Obs Valid
                 auto freq = iter.first;
-                if (freq > _frequency)
+                if (static_cast<int>(freq) > _frequency)
                 {
                     continue;
                 }
 
-                if (obsP.type() == TYPE_C || obsP.type() == TYPE_P)
+                if (obsP.type() == gnut::GOBSTYPE::TYPE_C || obsP.type() == gnut::GOBSTYPE::TYPE_P)
                 {
                     freq_num += 1;
                 }
                 // check whether 3 frequencies obs_P exist
                 // if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == FREQ_3)
-                if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 3)
+                if ((obsP.type() == GOBSTYPE::TYPE_C || obsP.type() == GOBSTYPE::TYPE_P) && freq == FREQ_SEQ::FREQ_3)
                 {
-                    if (gsys == GPS)
+                    if (gsys == GSYS::GPS)
                     {
                         obsGps = true;
                     }
-                    if (gsys == GAL)
+                    if (gsys == GSYS::GAL)
                     {
                         obsGal = true;
                     }
-                    if (gsys == BDS)
+                    if (gsys == GSYS::BDS)
                     {
                         obsBds = true;
                     }
-                    if (gsys == QZS)
+                    if (gsys == GSYS::QZS)
                     {
                         obsQzs = true;
                     }
                 }
                 // check whether 4 frequencies obs_P exist
                 // if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_4)
-                else if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 4)
+                else if ((obsP.type() == GOBSTYPE::TYPE_C || obsP.type() == GOBSTYPE::TYPE_P) && freq == FREQ_SEQ::FREQ_4)
                 {
-                    if (gsys == GAL)
+                    if (gsys == GSYS::GAL)
                     {
                         obsGal_4 = true;
                     }
-                    if (gsys == BDS)
+                    if (gsys == GSYS::BDS)
                     {
                         obsBds_4 = true;
                     }
                 }
                 // check whether 5 frequencies obs_P exist
                 // if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq >= FREQ_5)
-                else if ((obsP.type() == TYPE_C || obsP.type() == TYPE_P) && freq == 5)
+                else if ((obsP.type() == GOBSTYPE::TYPE_C || obsP.type() == GOBSTYPE::TYPE_P) && freq == FREQ_SEQ::FREQ_5)
                 {
-                    if (gsys == GAL)
+                    if (gsys == GSYS::GAL)
                     {
                         obsGal_5 = true;
                     }
-                    if (gsys == BDS)
+                    if (gsys == GSYS::BDS)
                     {
                         obsBds_5 = true;
                     }
@@ -2424,22 +2420,22 @@ namespace gnut
         }
     }
 
-    int t_gsppflt::_getgobs(string prn, GOBSTYPE type, GOBSBAND band, t_gobs& gobs)
+    int t_gsppflt::_getgobs(GSAT sat, GOBSTYPE type, GOBSBAND band, t_gobs& gobs)
     {
-        map<string, map<GOBSBAND, GOBSATTR>>::iterator itPRN = _signals.find(prn);
+        std::map<GSAT, std::map<GOBSBAND, GOBSATTR>>::iterator itPRN = _signals.find(sat);
         if (itPRN == _signals.end())
         {
-            _signals[prn][band] = ATTR;
-            itPRN = _signals.find(prn);
+            _signals[sat][band] = gnut::GOBSATTR::ATTR;
+            itPRN = _signals.find(sat);
         }
 
-        map<GOBSBAND, GOBSATTR>::iterator itBAND = itPRN->second.find(band);
+        std::map<GOBSBAND, GOBSATTR>::iterator itBAND = itPRN->second.find(band);
         if (itBAND == itPRN->second.end())
         {
-            _signals[prn][band] = ATTR;
+            _signals[sat][band] = gnut::GOBSATTR::ATTR;
         }
 
-        GOBSATTR attr = _signals[prn][band];
+        GOBSATTR attr = _signals[sat][band];
 
         gobs.type(type);
         gobs.band(band);
@@ -2448,7 +2444,7 @@ namespace gnut
         return 1;
     }
 
-    void t_gsppflt::_save_residuals(ColumnVector& v, vector<t_gsatdata>& data, RESIDTYPE restype)
+    void t_gsppflt::_save_residuals(ColumnVector& v, std::vector<t_gsatdata>& data, RESIDTYPE restype)
     {
         int mult = 1;
         if (_phase)
@@ -2459,7 +2455,7 @@ namespace gnut
 
         for (auto it = data.begin(); it != data.end(); it++)
         {
-            vector<double> res;
+            std::vector<double> res;
 
             auto itFrq = _frqNum.find(it->sat());
             if (itFrq == _frqNum.end())
@@ -2483,18 +2479,18 @@ namespace gnut
             {
                 for (unsigned int i = 0; i < sz / 2; i++)
                 {
-                    it->addres(restype, TYPE_C, res[i]);
+                    it->addres(restype, gnut::GOBSTYPE::TYPE_C, res[i]);
                 }
                 for (unsigned int i = sz / 2; i < sz; i++)
                 {
-                    it->addres(restype, TYPE_L, res[i]);
+                    it->addres(restype, gnut::GOBSTYPE::TYPE_L, res[i]);
                 }
             }
             else
             {
                 for (unsigned int i = 0; i < sz; i++)
                 {
-                    it->addres(restype, TYPE_C, res[i]);
+                    it->addres(restype, gnut::GOBSTYPE::TYPE_C, res[i]);
                 }
             }
         }
@@ -2506,33 +2502,33 @@ namespace gnut
         GOBS g1_R2, g1_R3, g1_ref;
         GOBS g2_R2, g2_R3, g2_ref;
         ;
-        g1_R2 = g1_R3 = g2_R2 = g2_R3 = X;
-        if (gsys == GPS || gsys == GLO)
+        g1_R2 = g1_R3 = g2_R2 = g2_R3 = gnut::GOBS::X;
+        if (gsys == GSYS::GPS || gsys == GSYS::GLO)
         {
-            g1_R2 = P1;
-            g1_R3 = C1W;
-            g2_R2 = P2;
-            g2_R3 = C2W;
+            g1_R2 = gnut::GOBS::P1;
+            g1_R3 = gnut::GOBS::C1W;
+            g2_R2 = gnut::GOBS::P2;
+            g2_R3 = gnut::GOBS::C2W;
         }
-        else if (gsys == GAL)
+        else if (gsys == GSYS::GAL)
         {
-            g1_R2 = C1;
-            g1_R3 = C1X;
-            g2_R2 = C5;
-            g2_R3 = C5X;
+            g1_R2 = gnut::GOBS::C1;
+            g1_R3 = gnut::GOBS::C1X;
+            g2_R2 = gnut::GOBS::C5;
+            g2_R3 = gnut::GOBS::C5X;
         }
-        else if (gsys == BDS)
+        else if (gsys == GSYS::BDS)
         {
-            g1_R2 = C1;
-            g1_R3 = C1I;
-            g2_R2 = C7;
-            g2_R3 = C7I;
+            g1_R2 = gnut::GOBS::C1;
+            g1_R3 = gnut::GOBS::C1I;
+            g2_R2 = gnut::GOBS::C7;
+            g2_R3 = gnut::GOBS::C7I;
         }
 
-        GOBS g1 = X;
-        GOBS g2 = X;
+        GOBS g1 = gnut::GOBS::X;
+        GOBS g2 = gnut::GOBS::X;
 
-        if (gobs1->attr() == ATTR)
+        if (gobs1->attr() == gnut::GOBSATTR::ATTR)
         {
             g1 = satdata.id_range(gobs1->band()); // automatic GOBS selection
         }
@@ -2543,7 +2539,7 @@ namespace gnut
 
         if (gobs2 != 0)
         {
-            if (gobs2->attr() == ATTR)
+            if (gobs2->attr() == gnut::GOBSATTR::ATTR)
             {
                 g2 = satdata.id_range(gobs2->band()); // automatic GOBS selection
             }
@@ -2559,7 +2555,7 @@ namespace gnut
         double corr2 = 0.0;
 
         t_gtime epoch = satdata.epoch();
-        string sat = satdata.sat();
+        GSAT sat = satdata.sat();
 
         // conversion 2char <-> 3char signals when needed
         t_gobs tmp1(g1);
@@ -2569,7 +2565,7 @@ namespace gnut
             tmp2.gobs(g2);
         }
         // force 2char signals
-        if (_cbiaschar == CBIASCHAR::CHAR2 && (gsys == GPS || gsys == GLO))
+        if (_cbiaschar == CBIASCHAR::CHAR2 && (gsys == GSYS::GPS || gsys == GSYS::GLO))
         {
             g1 = tmp1.gobs2CH(gsys);
             if (gobs2)
@@ -2591,9 +2587,9 @@ namespace gnut
             g2_ref = g2_R3;
             // original signals
         }
-        else if (_cbiaschar == CBIASCHAR::ORIG || gsys != GPS || gsys != GLO)
+        else if (_cbiaschar == CBIASCHAR::ORIG || gsys != GSYS::GPS || gsys != GSYS::GLO)
         {
-            if (g1 < 1000)
+            if (static_cast<int>(g1) < 1000)
             {
                 g1_ref = g1_R3;
                 g2_ref = g2_R3;
@@ -2607,11 +2603,11 @@ namespace gnut
 
         if (_gallbias)
         {
-            if (freq1 == FREQ_1 && g1 != g1_ref)
+            if (freq1 == gnut::FREQ_SEQ::FREQ_1 && g1 != g1_ref)
             {
                 corr1 = _gallbias->get(epoch, sat, g1_ref, g1);
             }
-            if (freq1 == FREQ_2 && g1 != g2_ref)
+            if (freq1 == gnut::FREQ_SEQ::FREQ_2 && g1 != g2_ref)
             {
                 corr1 = _gallbias->get(epoch, sat, g2_ref, g1);
             }
@@ -2619,11 +2615,11 @@ namespace gnut
             if (gobs2)
             {
                 FREQ_SEQ freq2 = t_gsys::band2freq(satdata.gsys(), gobs2->band());
-                if (freq2 == FREQ_1 && g2 != g1_ref)
+                if (freq2 == gnut::FREQ_SEQ::FREQ_1 && g2 != g1_ref)
                 {
                     corr2 = _gallbias->get(epoch, sat, g1_ref, g2);
                 }
-                if (freq2 == FREQ_2 && g2 != g2_ref)
+                if (freq2 == gnut::FREQ_SEQ::FREQ_2 && g2 != g2_ref)
                 {
                     corr2 = _gallbias->get(epoch, sat, g2_ref, g2);
                 }

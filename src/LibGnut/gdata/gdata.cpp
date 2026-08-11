@@ -11,13 +11,12 @@
 
 #include "gdata/gdata.h"
 
-using namespace std;
 
 namespace gnut
 {
     t_gdata::t_gdata() :
-        _type(NONE),
-        _group(GRP_NONE)
+        _type(ID_TYPE::NONE),
+        _group(ID_GROUP::GRP_NONE)
     {
     }
 
@@ -40,115 +39,115 @@ namespace gnut
 
     int t_gdata::id_type(const ID_TYPE& t)
     {
-        unsigned int last = LAST;
+        unsigned int last = static_cast<unsigned int>(ID_TYPE::LAST);
         for (unsigned int i = 0; i < last; ++i)
         {
-            if (t == ID_TYPE(i))
+            if (t == static_cast<ID_TYPE>(i))
             {
-                return _type = t;
+                return static_cast<int>(_type = t);
             }
         }
 
         GREAT_ERROR("Unknown data id. Reset to nullptr");
-        _type = t_gdata::NONE;
+        _type = t_gdata::ID_TYPE::NONE;
         return 0;
     }
 
     int t_gdata::id_group(const ID_GROUP& g)
     {
-        unsigned int last = GRP_LAST;
+        unsigned int last = static_cast<unsigned int>(ID_GROUP::GRP_LAST);
         for (unsigned int i = 0; i < last; ++i)
         {
-            if (g == ID_GROUP(i))
+            if (g == static_cast<ID_GROUP>(i))
             {
-                return _group = g;
+                return static_cast<int>(_group = g);
             }
         }
         GREAT_ERROR("Unknown group type. Reset to nullptr");
-        _group = t_gdata::GRP_NONE;
+        _group = t_gdata::ID_GROUP::GRP_NONE;
         return 0;
     }
 
-    string t_gdata::type2str(ID_TYPE type)
+    std::string t_gdata::type2str(ID_TYPE type)
     {
-        string str = "";
+        std::string str = "";
 
         switch (type)
         {
-            case NONE:
+            case ID_TYPE::NONE:
                 str = "NONE";
                 break;
-            case OBS:
+            case ID_TYPE::OBS:
                 str = "OBS";
                 break;
-            case OBSGNSS:
+            case ID_TYPE::OBSGNSS:
                 str = "OBSGNSS";
                 break;
-            case EPH:
+            case ID_TYPE::EPH:
                 str = "EPH";
                 break;
-            case EPHGPS:
+            case ID_TYPE::EPHGPS:
                 str = "EPHGPS";
                 break;
-            case EPHGLO:
+            case ID_TYPE::EPHGLO:
                 str = "EPHGLO";
                 break;
-            case EPHGAL:
+            case ID_TYPE::EPHGAL:
                 str = "EPHGAL";
                 break;
-            case EPHQZS:
+            case ID_TYPE::EPHQZS:
                 str = "EPHQZS";
                 break;
-            case EPHBDS:
+            case ID_TYPE::EPHBDS:
                 str = "EPHBDS";
                 break;
-            case EPHIRN:
+            case ID_TYPE::EPHIRN:
                 str = "EPHIRN";
                 break;
-            case EPHSBS:
+            case ID_TYPE::EPHSBS:
                 str = "EPHSBS";
                 break;
-            case EPHPREC:
+            case ID_TYPE::EPHPREC:
                 str = "EPHPREC";
                 break;
 
-            case ALLNAV:
+            case ID_TYPE::ALLNAV:
                 str = "ALLNAV";
                 break;
-            case ALLPREC:
+            case ID_TYPE::ALLPREC:
                 str = "ALLPREC";
                 break;
-            case ALLOBS:
+            case ID_TYPE::ALLOBS:
                 str = "ALLOBS";
                 break;
-            case ALLOBJ:
+            case ID_TYPE::ALLOBJ:
                 str = "ALLOBJ";
                 break;
-            case ALLPCV:
+            case ID_TYPE::ALLPCV:
                 str = "ALLPCV";
                 break;
-            case ALLOTL:
+            case ID_TYPE::ALLOTL:
                 str = "ALLOTL";
                 break;
-            case POS:
+            case ID_TYPE::POS:
                 str = "POS";
                 break;
-            case PCV:
+            case ID_TYPE::PCV:
                 str = "PCV";
                 break;
-            case OTL:
+            case ID_TYPE::OTL:
                 str = "OTL";
                 break;
-            case BIAS:
+            case ID_TYPE::BIAS:
                 str = "BIAS";
                 break;
-            case RSSIMAP:
+            case ID_TYPE::RSSIMAP:
                 str = "RSSIMAP";
                 break;
-            case LCI_POS:
+            case ID_TYPE::LCI_POS:
                 str = "LCI_POS";
                 break;
-            case LAST:
+            case ID_TYPE::LAST:
                 str = "UNDEF";
                 break;
             default:
@@ -157,27 +156,27 @@ namespace gnut
         return str;
     }
 
-    string t_gdata::str_group() const
+    std::string t_gdata::str_group() const
     {
-        string group;
+        std::string group;
         switch (_group)
         {
-            case GRP_NONE:
+            case ID_GROUP::GRP_NONE:
                 group = "GRP_NONE";
                 break;
-            case GRP_OBSERV:
+            case ID_GROUP::GRP_OBSERV:
                 group = "GRP_OBSERV";
                 break;
-            case GRP_EPHEM:
+            case ID_GROUP::GRP_EPHEM:
                 group = "GRP_EPHEM";
                 break;
-            case GRP_PRODUCT:
+            case ID_GROUP::GRP_PRODUCT:
                 group = "GRP_PRODUCT";
                 break;
-            case GRP_MODEL:
+            case ID_GROUP::GRP_MODEL:
                 group = "GRP_MODEL";
                 break;
-            case GRP_LAST:
+            case ID_GROUP::GRP_LAST:
                 group = "GRP_UNDEF";
                 break;
             default:

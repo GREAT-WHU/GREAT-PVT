@@ -43,7 +43,7 @@ namespace gnut
         if (nullptr == settings)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
-            throw logic_error("");
+            throw std::logic_error("");
         }
         else
         {
@@ -62,34 +62,30 @@ namespace gnut
             for (itGNS = gnss_sats.begin(); itGNS != gnss_sats.end(); ++itGNS)
             {
                 GSYS gsys = itGNS->first;
-                set<string> sats = gnss_sats[gsys];
-                for (set<string>::iterator it = sats.begin(); it != sats.end(); ++it)
+                std::set<GSAT> sats = gnss_sats[gsys];
+                for (std::set<GSAT>::iterator it = sats.begin(); it != sats.end(); ++it)
                 {
                     _sat.insert(*it);
                 }
             }
         }
-        _sigCode = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GPS);
-        _sigPhase = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GPS);
-        _sigCode_GLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GLO);
-        _sigPhase_GLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GLO);
-        _sigCode_GAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GAL);
-        _sigPhase_GAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GAL);
-        _sigCode_BDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(BDS);
-        _sigPhase_BDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(BDS);
-        _sigCode_QZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(QZS);
-        _sigPhase_QZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(QZS);
-        _sigCode_IRN = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(IRN);
-        _sigPhase_IRN = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(IRN);
+        _sigCode = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::GPS);
+        _sigPhase = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::GPS);
+        _sigCode_GLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::GLO);
+        _sigPhase_GLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::GLO);
+        _sigCode_GAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::GAL);
+        _sigPhase_GAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::GAL);
+        _sigCode_BDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::BDS);
+        _sigPhase_BDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::BDS);
+        _sigCode_QZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::QZS);
+        _sigPhase_QZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::QZS);
+        _sigCode_IRN = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::IRN);
+        _sigPhase_IRN = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::IRN);
 
-        set<string> rec_list = dynamic_cast<t_gsetgen*>(_set)->rec_all();
+        std::set<std::string> rec_list = dynamic_cast<t_gsetgen*>(_set)->rec_all();
         for (auto rec : rec_list)
         {
-            for (set<string>::iterator it = _sys.begin(); it != _sys.end(); it++)
-            {
-                _dI[rec][*it] = 0.0;
-            }
-            for (set<string>::iterator it = _sat.begin(); it != _sat.end(); it++)
+            for (std::set<GSAT>::iterator it = _sat.begin(); it != _sat.end(); it++)
             {
                 _dI[rec][*it] = 0.0;
             }
@@ -101,7 +97,7 @@ namespace gnut
     {
     }
 
-    int t_gpreproc::ProcessBatch(string site, const t_gtime& beg_r, const t_gtime& end_r, double sampl, bool sync, bool save)
+    int t_gpreproc::ProcessBatch(std::string site, const t_gtime& beg_r, const t_gtime& end_r, double sampl, bool sync, bool save)
     {
         int sign = 1;
         t_gtime beg;
@@ -127,7 +123,7 @@ namespace gnut
             return -1;
         }
 
-        vector<shared_ptr<t_gobsgnss>> epoData;
+        std::vector<std::shared_ptr<t_gobsgnss>> epoData;
 
         double CJ = 0.0; // integer ms clk jump
 
@@ -212,7 +208,7 @@ namespace gnut
             // test data gap
             if (save)
             {
-                shared_ptr<t_gobsgnss> g = *(epoData.begin());
+                std::shared_ptr<t_gobsgnss> g = *(epoData.begin());
                 double diffEpo = g->epoch() - _epoDataPre[_site].begin()->epoch();
                 if (!_firstEpo[_site] && diffEpo > sampl + DIFF_SEC(sampl))
                 {
@@ -226,9 +222,9 @@ namespace gnut
             double n = 0;               // number of detected jumps in particular epoch
             _sumS = 0;
 
-            shared_ptr<t_gobsgnss> obs2;
+            std::shared_ptr<t_gobsgnss> obs2;
 
-            for (vector<shared_ptr<t_gobsgnss>>::iterator it = epoData.begin(); it != epoData.end(); ++it)
+            for (std::vector<std::shared_ptr<t_gobsgnss>>::iterator it = epoData.begin(); it != epoData.end(); ++it)
             {
                 if (*it == 0)
                 {
@@ -239,7 +235,7 @@ namespace gnut
                 obs2 = *it;
                 t_gobsgnss* obs1 = 0;
 
-                vector<t_gobsgnss>::iterator itPre;
+                std::vector<t_gobsgnss>::iterator itPre;
                 for (itPre = _epoDataPre[_site].begin(); itPre != _epoDataPre[_site].end(); ++itPre)
                 {
                     if ((*it)->sat() == (itPre)->sat())
@@ -255,12 +251,12 @@ namespace gnut
                 } // sat not found in previous epoch
 
                 t_gsys gsys(obs1->gsys());
-                if (gsys.gsys() != GPS)
+                if (gsys.gsys() != GSYS::GPS)
                 {
                     Na--; // clk jump is determined only from GPS
                 }
 
-                string satname = obs1->sat();
+                GSAT satname = obs1->sat();
                 if (_sat.find(satname) == _sat.end())
                 {
                     continue; // sat excluded in config
@@ -334,16 +330,15 @@ namespace gnut
 
     int t_gpreproc::_jumps(t_gobsgnss* gobs1, t_spt_gobs gobs2)
     {
-        string prn = gobs2->sat();
         GSYS GS = gobs1->gsys();
 
-        if (GS != GPS)
+        if (GS != GSYS::GPS)
         {
             return -1;
         }
 
-        set<GOBSBAND> freq_1 = gobs1->band_avail();
-        set<GOBSBAND> freq_2 = gobs2->band_avail();
+        std::set<GOBSBAND> freq_1 = gobs1->band_avail();
+        std::set<GOBSBAND> freq_2 = gobs2->band_avail();
 
         if (freq_1.size() < 2 || freq_2.size() < 2)
         {
@@ -351,19 +346,19 @@ namespace gnut
         }
 
         GOBSBAND band;
-        set<GOBSBAND>::reverse_iterator it = freq_1.rbegin();
+        std::set<GOBSBAND>::reverse_iterator it = freq_1.rbegin();
         band = *it;
-        t_gband b1_1(band, ATTR);
+        t_gband b1_1(band, gnut::GOBSATTR::ATTR);
         it++;
         band = *it;
-        t_gband b2_1(band, ATTR);
+        t_gband b2_1(band, gnut::GOBSATTR::ATTR);
 
         it = freq_2.rbegin();
         band = *it;
-        t_gband b1_2(band, ATTR);
+        t_gband b1_2(band, gnut::GOBSATTR::ATTR);
         it++;
         band = *it;
-        t_gband b2_2(band, ATTR);
+        t_gband b2_2(band, gnut::GOBSATTR::ATTR);
 
         // j-epoch
         double L1j = gobs2->obs_L(b1_2); // [m]
@@ -430,11 +425,11 @@ namespace gnut
         this->_nav = nav;
     }
 
-    void t_gpreproc::_repair(vector<t_spt_gobs> epoData, double dL)
+    void t_gpreproc::_repair(std::vector<t_spt_gobs> epoData, double dL)
     {
-        for (vector<t_spt_gobs>::iterator it = epoData.begin(); it != epoData.end(); it++)
+        for (std::vector<t_spt_gobs>::iterator it = epoData.begin(); it != epoData.end(); it++)
         {
-            (*it)->mod_L(dL, X); // modify all phases by dL [m]
+            (*it)->mod_L(dL, gnut::GOBS::X); // modify all phases by dL [m]
         }
     }
 
@@ -461,7 +456,7 @@ namespace gnut
             M = 0;
             ColumnVector S(d);
             S = 0;
-            map<GOBS, double> m_orig;
+            std::map<GOBS, double> m_orig;
 
             bool trans = false;
 
@@ -513,20 +508,20 @@ namespace gnut
             if (trans)
             {
                 O = M.i() * S;
-                set<GOBSBAND> bands;
-                for (map<GOBS, double>::iterator it = m_orig.begin(); it != m_orig.end(); it++)
+                std::set<GOBSBAND> bands;
+                for (std::map<GOBS, double>::iterator it = m_orig.begin(); it != m_orig.end(); it++)
                 {
                     t_gobs s;
                     s.gobs(it->first);
                     bands.insert(s.band());
                 }
 
-                vector<GOBSBAND> vec_bnd = sort_band(gobs->gsys(), bands);
+                std::vector<GOBSBAND> vec_bnd = sort_band(gobs->gsys(), bands);
 
                 int i = 1;
                 for (auto it = vec_bnd.begin(); it != vec_bnd.end(); it++, i++)
                 {
-                    for (map<GOBS, double>::iterator it2 = m_orig.begin(); it2 != m_orig.end(); it2++)
+                    for (std::map<GOBS, double>::iterator it2 = m_orig.begin(); it2 != m_orig.end(); it2++)
                     {
                         t_gobs s;
                         s.gobs(it2->first);
@@ -550,46 +545,46 @@ namespace gnut
         return 1;
     }
 
-    void t_gpreproc::_save(t_spt_gobs gobs, const map<GOBS, double>& slips)
+    void t_gpreproc::_save(t_spt_gobs gobs, const std::map<GOBS, double>& slips)
     {
         t_gtime epo = gobs->epoch();
-        string prn = gobs->sat();
+        GSAT sat = gobs->sat();
 
-        for (map<GOBS, double>::const_iterator it = slips.begin(); it != slips.end(); it++)
+        for (std::map<GOBS, double>::const_iterator it = slips.begin(); it != slips.end(); it++)
         {
             GOBS g = it->first;
             double slp = it->second;
             if (!double_eq(slp, 0.0))
             {
-                _mslips[_site][epo][prn][g] = slp;
+                _mslips[_site][epo][sat][g] = slp;
             }
         }
     }
 
-    void t_gpreproc::_remove_slip(vector<t_spt_gobs> gobs)
+    void t_gpreproc::_remove_slip(std::vector<t_spt_gobs> gobs)
     {
         t_gtime epo = gobs[0]->epoch();
 
-        map<t_gtime, map<string, map<GOBS, double>>>::iterator itEPO;
+        std::map<t_gtime, std::map<GSAT, std::map<GOBS, double>>>::iterator itEPO;
         itEPO = _mslips[_site].find(epo);
         if (itEPO != _mslips[_site].end())
         {
             _mslips[_site].erase(itEPO);
         }
 
-        for (vector<t_spt_gobs>::iterator itG = gobs.begin(); itG != gobs.end(); itG++)
+        for (std::vector<t_spt_gobs>::iterator itG = gobs.begin(); itG != gobs.end(); itG++)
         {
-            set<GOBSBAND> freq = (*itG)->band_avail();
+            std::set<GOBSBAND> freq = (*itG)->band_avail();
             for (auto itF = freq.begin(); itF != freq.end(); itF++)
             {
-                t_gband(*itF, ATTR);
+                t_gband(*itF, gnut::GOBSATTR::ATTR);
                 GOBS g = (*itG)->id_phase(*itF);
                 (*itG)->addlli(g, 0);
             }
         }
     }
 
-    void t_gpreproc::_common(set<GOBSBAND>& set1, set<GOBSBAND>& set2)
+    void t_gpreproc::_common(std::set<GOBSBAND>& set1, std::set<GOBSBAND>& set2)
     {
         for (auto it1 = set1.begin(); it1 != set1.end();)
         {
@@ -622,14 +617,14 @@ namespace gnut
         }
     }
 
-    void t_gpreproc::_common(set<GOBS>& set1, set<GOBS>& set2)
+    void t_gpreproc::_common(std::set<GOBS>& set1, std::set<GOBS>& set2)
     {
-        for (set<GOBS>::iterator it1 = set1.begin(); it1 != set1.end();)
+        for (std::set<GOBS>::iterator it1 = set1.begin(); it1 != set1.end();)
         {
-            set<GOBS>::iterator it2 = set2.find(*it1);
+            std::set<GOBS>::iterator it2 = set2.find(*it1);
             if (it2 == set2.end())
             {
-                set<GOBS>::iterator tmp = it1;
+                std::set<GOBS>::iterator tmp = it1;
                 ++it1;
                 set1.erase(tmp);
             }
@@ -639,12 +634,12 @@ namespace gnut
             }
         }
 
-        for (set<GOBS>::iterator it1 = set2.begin(); it1 != set2.end();)
+        for (std::set<GOBS>::iterator it1 = set2.begin(); it1 != set2.end();)
         {
-            set<GOBS>::iterator it2 = set1.find(*it1);
+            std::set<GOBS>::iterator it2 = set1.find(*it1);
             if (it2 == set1.end())
             {
-                set<GOBS>::iterator tmp = it1;
+                std::set<GOBS>::iterator tmp = it1;
                 ++it1;
                 set2.erase(tmp);
             }
@@ -659,14 +654,14 @@ namespace gnut
     {
         bool slip = false;
 
-        set<GOBSBAND> bands_t1 = gobs1->band_avail();
-        set<GOBSBAND> bands_t2 = gobs2->band_avail();
+        std::set<GOBSBAND> bands_t1 = gobs1->band_avail();
+        std::set<GOBSBAND> bands_t2 = gobs2->band_avail();
 
         this->_common(bands_t1, bands_t2);
 
         if (bands_t1.size() != bands_t2.size())
         {
-            cerr << "ERROR: problem in t_gpreprocc::_common" << endl;
+            std::cerr << "ERROR: problem in t_gpreprocc::_common" << std::endl;
             return -1;
         }
 
@@ -684,24 +679,24 @@ namespace gnut
         t_gobs s_narr;
 
         // sort according to wavelenght
-        vector<GOBSBAND> sorted_t1 = sort_band(gobs1->gsys(), bands_t1);
-        vector<GOBSBAND> sorted_t2 = sort_band(gobs2->gsys(), bands_t2);
+        std::vector<GOBSBAND> sorted_t1 = sort_band(gobs1->gsys(), bands_t1);
+        std::vector<GOBSBAND> sorted_t2 = sort_band(gobs2->gsys(), bands_t2);
 
-        vector<GOBSBAND>::reverse_iterator itFRQ = sorted_t1.rbegin();
+        std::vector<GOBSBAND>::reverse_iterator itFRQ = sorted_t1.rbegin();
 
-        set<GOBS> gf2_t1 = gobs1->obs_phase(*itFRQ);
-        set<GOBS> gf2_t2 = gobs2->obs_phase(*itFRQ);
+        std::set<GOBS> gf2_t1 = gobs1->obs_phase(*itFRQ);
+        std::set<GOBS> gf2_t2 = gobs2->obs_phase(*itFRQ);
         this->_common(gf2_t1, gf2_t2); // signals for wide-lane
 
         // second freq: for narrow-lane
-        vector<GOBSBAND>::iterator it_narr = sorted_t1.begin();
+        std::vector<GOBSBAND>::iterator it_narr = sorted_t1.begin();
         if (nfreq >= 2)
         {
             it_narr++;
         }
 
-        set<GOBS> gNL_t1 = gobs1->obs_phase(*it_narr);
-        set<GOBS> gNL_t2 = gobs2->obs_phase(*it_narr);
+        std::set<GOBS> gNL_t1 = gobs1->obs_phase(*it_narr);
+        std::set<GOBS> gNL_t2 = gobs2->obs_phase(*it_narr);
         this->_common(gNL_t1, gNL_t2); // signals for wide-lane
 
         _m_lcslp.clear();
@@ -711,8 +706,8 @@ namespace gnut
         {
             ++itFRQ;
 
-            set<GOBS> gf1_t1 = gobs1->obs_phase(*itFRQ);
-            set<GOBS> gf1_t2 = gobs2->obs_phase(*itFRQ);
+            std::set<GOBS> gf1_t1 = gobs1->obs_phase(*itFRQ);
+            std::set<GOBS> gf1_t2 = gobs2->obs_phase(*itFRQ);
 
             this->_common(gf1_t1, gf1_t2); // reference signal - last one
 
@@ -727,26 +722,26 @@ namespace gnut
             }
 
             // find freq for extra-wide-lane
-            vector<GOBSBAND>::reverse_iterator itFF;
-            set<GOBS> gFF_t1;
-            set<GOBS> gFF_t2;
+            std::vector<GOBSBAND>::reverse_iterator itFF;
+            std::set<GOBS> gFF_t1;
+            std::set<GOBS> gFF_t2;
             if (i > 1)
             {
-                vector<GOBSBAND>::reverse_iterator itFF = itFRQ;
+                std::vector<GOBSBAND>::reverse_iterator itFF = itFRQ;
                 --itFF;
                 gFF_t1 = gobs1->obs_phase(*itFF);
                 gFF_t2 = gobs2->obs_phase(*itFF);
                 this->_common(gFF_t1, gFF_t2); // freq for extra-widelane
             }
 
-            set<GOBS>::iterator itGOBSFF = gFF_t1.begin();
-            set<GOBS>::iterator itGOBSf2 = gf2_t1.begin();
-            set<GOBS>::iterator itGOBSNL = gNL_t1.begin();
+            std::set<GOBS>::iterator itGOBSFF = gFF_t1.begin();
+            std::set<GOBS>::iterator itGOBSf2 = gf2_t1.begin();
+            std::set<GOBS>::iterator itGOBSNL = gNL_t1.begin();
 
             bool endFF = true;
             bool endNL = true;
 
-            for (set<GOBS>::iterator itGOBSf1 = gf1_t1.begin();;)
+            for (std::set<GOBS>::iterator itGOBSf1 = gf1_t1.begin();;)
             {
                 if (gf1_t1.size() == 0 || gf2_t1.size() == 0)
                 {
@@ -842,9 +837,9 @@ namespace gnut
                     {
                         _iono(gobs1, gobs2, s1, s_narr);
                     }
-                    string prn = gobs1->sat();
+                    GSAT sat = gobs1->sat();
 
-                    diff = (dWL - dNL - disf * _dI[_site][prn] + wlSlp * lam) / nlam;
+                    diff = (dWL - dNL - disf * _dI[_site][sat] + wlSlp * lam) / nlam;
                     double nlSlp = 0;
                     if (fabs(diff) > 2)
                     {
@@ -942,9 +937,9 @@ namespace gnut
 
         double dI = -dL / (k - 1);
 
-        string prn = gobs1->sat();
+        GSAT sat = gobs1->sat();
 
-        _dI[_site][prn] = dI;
+        _dI[_site][sat] = dI;
     }
 
     double t_gpreproc::_findSlp(int& i, t_gobs_pair& gpair)
@@ -961,55 +956,55 @@ namespace gnut
         return wlSlp;
     }
 
-    void t_gpreproc::_gapReport(vector<shared_ptr<t_gobsgnss>> epoData)
+    void t_gpreproc::_gapReport(std::vector<std::shared_ptr<t_gobsgnss>> epoData)
     {
-        for (vector<shared_ptr<t_gobsgnss>>::iterator it = epoData.begin(); it != epoData.end(); it++)
+        for (std::vector<std::shared_ptr<t_gobsgnss>>::iterator it = epoData.begin(); it != epoData.end(); it++)
         {
             t_gtime epo = (*it)->epoch();
-            string prn = (*it)->sat();
-            vector<GOBS> allobs = (*it)->obs();
-            for (vector<GOBS>::iterator itGOBS = allobs.begin(); itGOBS != allobs.end(); itGOBS++)
+            GSAT sat = (*it)->sat();
+            std::vector<GOBS> allobs = (*it)->obs();
+            for (std::vector<GOBS>::iterator itGOBS = allobs.begin(); itGOBS != allobs.end(); itGOBS++)
             {
                 if (gobs_phase(*itGOBS))
                 {
-                    _mslipsGap[_site][epo][prn][*itGOBS] = 1;
+                    _mslipsGap[_site][epo][sat][*itGOBS] = 1;
                 }
             }
         }
     }
 
-    void t_gpreproc::_gapReport(shared_ptr<t_gobsgnss> data)
+    void t_gpreproc::_gapReport(std::shared_ptr<t_gobsgnss> data)
     {
         t_gtime epo = data->epoch();
-        string prn = data->sat();
-        vector<GOBS> allobs = data->obs();
-        for (vector<GOBS>::iterator itGOBS = allobs.begin(); itGOBS != allobs.end(); itGOBS++)
+        GSAT sat = data->sat();
+        std::vector<GOBS> allobs = data->obs();
+        for (std::vector<GOBS>::iterator itGOBS = allobs.begin(); itGOBS != allobs.end(); itGOBS++)
         {
             if (gobs_phase(*itGOBS))
             {
-                _mslipsGap[_site][epo][prn][*itGOBS] = 2;
+                _mslipsGap[_site][epo][sat][*itGOBS] = 2;
             }
         }
     }
 
-    void t_gpreproc::_compare(vector<t_gobsgnss> data1, vector<shared_ptr<t_gobsgnss>> data2)
+    void t_gpreproc::_compare(std::vector<t_gobsgnss> data1, std::vector<std::shared_ptr<t_gobsgnss>> data2)
     {
-        for (vector<shared_ptr<t_gobsgnss>>::iterator it2 = data2.begin(); it2 != data2.end(); it2++)
+        for (std::vector<std::shared_ptr<t_gobsgnss>>::iterator it2 = data2.begin(); it2 != data2.end(); it2++)
         {
             t_gtime epo = (*it2)->epoch();
-            string prn = (*it2)->sat();
+            GSAT sat = (*it2)->sat();
             bool foundPRN = false;
-            for (vector<t_gobsgnss>::iterator it1 = data1.begin(); it1 != data1.end(); it1++)
+            for (std::vector<t_gobsgnss>::iterator it1 = data1.begin(); it1 != data1.end(); it1++)
             {
                 if ((*it2)->sat() == it1->sat())
                 {
                     foundPRN = true;
-                    vector<GOBS> vgobs1 = it1->obs();
-                    vector<GOBS> vgobs2 = (*it2)->obs();
-                    for (vector<GOBS>::iterator itGOBS2 = vgobs2.begin(); itGOBS2 != vgobs2.end(); itGOBS2++)
+                    std::vector<GOBS> vgobs1 = it1->obs();
+                    std::vector<GOBS> vgobs2 = (*it2)->obs();
+                    for (std::vector<GOBS>::iterator itGOBS2 = vgobs2.begin(); itGOBS2 != vgobs2.end(); itGOBS2++)
                     {
                         bool foundGOBS = false;
-                        for (vector<GOBS>::iterator itGOBS1 = vgobs1.begin(); itGOBS1 != vgobs1.end(); itGOBS1++)
+                        for (std::vector<GOBS>::iterator itGOBS1 = vgobs1.begin(); itGOBS1 != vgobs1.end(); itGOBS1++)
                         {
                             if (*itGOBS2 == *itGOBS1)
                             {
@@ -1019,7 +1014,7 @@ namespace gnut
                         }
                         if (!foundGOBS && gobs_phase(*itGOBS2))
                         {
-                            _mslipsGap[_site][epo][prn][*itGOBS2] = 3;
+                            _mslipsGap[_site][epo][sat][*itGOBS2] = 3;
                         }
                     }
                     break;

@@ -14,7 +14,6 @@
 #include "gutils/gsysconv.h"
 #include "gmodels/gtide.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -44,7 +43,7 @@ namespace gnut
         return dxyz;
     }
 
-    t_gtriple t_gtide::load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec)
+    t_gtriple t_gtide::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
         _mutex.lock();
         t_gtriple dxyz(0.0, 0.0, 0.0);

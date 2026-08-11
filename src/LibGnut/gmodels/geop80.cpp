@@ -30,7 +30,6 @@
 #include "gutils/gtypeconv.h"
 #include "gmodels/geop80.h"
 
-using namespace std;
 
 namespace gnut
 {

@@ -24,21 +24,29 @@
 #include <vector>
 #include "gexport/ExportLibGnut.h"
 
-using namespace std;
 
 namespace gnut
 {
 // function
 // get min
+#ifndef MIN
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
+#endif
 
 // pow(2)
+#ifndef SQR
 #define SQR(x) ((x) * (x))
+#endif
 
 // sqrt with zero
+#ifndef SQRT
 #define SQRT(x) ((x) <= 0.0 ? 0.0 : sqrt(x))
+#endif
 
+#ifndef SGN
 #define SGN(x) ((x) <= 0.0 ? -1.0 : 1.0)
+#endif
+#ifndef SWAP_I
 #define SWAP_I(x, y)                                                                                                                       \
     do                                                                                                                                     \
     {                                                                                                                                      \
@@ -46,6 +54,8 @@ namespace gnut
         x = y;                                                                                                                             \
         y = _z;                                                                                                                            \
     } while (0)
+#endif
+#ifndef SWAP_D
 #define SWAP_D(x, y)                                                                                                                       \
     do                                                                                                                                     \
     {                                                                                                                                      \
@@ -53,8 +63,13 @@ namespace gnut
         x = y;                                                                                                                             \
         y = _z;                                                                                                                            \
     } while (0)
+#endif
+#ifndef ROUND
 #define ROUND(x) ((int)floor((x) + 0.5))
+#endif
+#ifndef ROUND_U
 #define ROUND_U(x) ((unsigned int)floor((x) + 0.5))
+#endif
 
 // math
 #ifndef G_PI
@@ -121,101 +136,255 @@ namespace gnut
 #define POST_SHADOW 1800.0 ///< satellite post shadow period [s]
 #endif
 
+#ifndef P2_5
 #define P2_5 0.03125                /* 2^-5 */
+#endif
+#ifndef P2_6
 #define P2_6 0.015625               /* 2^-6 */
+#endif
+#ifndef P2_10
 #define P2_10 0.0009765625          /* 2^-10 */
+#endif
+#ifndef P2_11
 #define P2_11 4.882812500000000E-04 /* 2^-11 */
+#endif
+#ifndef P2_15
 #define P2_15 3.051757812500000E-05 /* 2^-15 */
+#endif
+#ifndef P2_17
 #define P2_17 7.629394531250000E-06 /* 2^-17 */
+#endif
+#ifndef P2_19
 #define P2_19 1.907348632812500E-06 /* 2^-19 */
+#endif
+#ifndef P2_20
 #define P2_20 9.536743164062500E-07 /* 2^-20 */
+#endif
+#ifndef P2_21
 #define P2_21 4.768371582031250E-07 /* 2^-21 */
+#endif
+#ifndef P2_23
 #define P2_23 1.192092895507810E-07 /* 2^-23 */
+#endif
+#ifndef P2_24
 #define P2_24 5.960464477539063E-08 /* 2^-24 */
+#endif
+#ifndef P2_27
 #define P2_27 7.450580596923828E-09 /* 2^-27 */
+#endif
+#ifndef P2_29
 #define P2_29 1.862645149230957E-09 /* 2^-29 */
+#endif
+#ifndef P2_30
 #define P2_30 9.313225746154785E-10 /* 2^-30 */
+#endif
+#ifndef P2_31
 #define P2_31 4.656612873077393E-10 /* 2^-31 */
+#endif
+#ifndef P2_32
 #define P2_32 2.328306436538696E-10 /* 2^-32 */
+#endif
+#ifndef P2_33
 #define P2_33 1.164153218269348E-10 /* 2^-33 */
+#endif
+#ifndef P2_34
 #define P2_34 5.820766091346740E-11 /* 2^-34 */
+#endif
+#ifndef P2_35
 #define P2_35 2.910383045673370E-11 /* 2^-35 */
+#endif
+#ifndef P2_38
 #define P2_38 3.637978807091710E-12 /* 2^-38 */
+#endif
+#ifndef P2_39
 #define P2_39 1.818989403545856E-12 /* 2^-39 */
+#endif
+#ifndef P2_40
 #define P2_40 9.094947017729280E-13 /* 2^-40 */
+#endif
+#ifndef P2_43
 #define P2_43 1.136868377216160E-13 /* 2^-43 */
+#endif
+#ifndef P2_46
 #define P2_46 1.421085471520200E-14 /* 2^-46 */
+#endif
+#ifndef P2_48
 #define P2_48 3.552713678800501E-15 /* 2^-48 */
+#endif
+#ifndef P2_50
 #define P2_50 8.881784197001252E-16 /* 2^-50 */
+#endif
+#ifndef P2_55
 #define P2_55 2.775557561562891E-17 /* 2^-55 */
+#endif
+#ifndef P2_59
 #define P2_59 1.734723475976810E-18 /* 2^-59 */
+#endif
 
     // GPS
+#ifndef A_WGS
 #define A_WGS 6378137.000         ///< [m] WGS84 semi-major axis
+#endif
+#ifndef B_WGS
 #define B_WGS 6356752.300         ///< [m] WGS84 semi-minor axis
+#endif
+#ifndef E_WGS
 #define E_WGS 0.081819            ///< [-] WGS84 eccentricity
+#endif
+#ifndef F_WGS
 #define F_WGS 0.003352811         ///< [-] WGS84 flatenning
+#endif
+#ifndef MUDOT_GPS
 #define MUDOT_GPS (0.00836 * D2R) ///< avarage GPS satellite angular velocity [rad]
+#endif
+#ifndef EPS0_GPS
 #define EPS0_GPS (13.5 * D2R)     ///< maximal GPS satellites crossing angle [deg]
+#endif
 
 // GLONASS
+#ifndef GM_PZ90
 #define GM_PZ90 398.60044e12      ///< [] PZ90 earth's graviational constant
+#endif
+#ifndef Aell_PZ90
 #define Aell_PZ90 6378136.000     ///< [m] PZ90 semi-major axes
+#endif
+#ifndef C20_PZ90
 #define C20_PZ90 -1082.62575e-6   ///< [] PZ90
+#endif
+#ifndef MUDOT_GLO
 #define MUDOT_GLO (0.00888 * D2R) ///< avarage GLO satellite angular velocity [rad]
+#endif
+#ifndef EPS0_GLO
 #define EPS0_GLO (14.2 * D2R)     ///< maximal GLO satellites crossing angle [deg]
+#endif
+#ifndef Finv_GLO
 #define Finv_GLO 298.25784        ///< inverse flattening [-]
+#endif
+#ifndef OMGE_DOT_GLO
 #define OMGE_DOT_GLO 7.292115e-5  ///< Mean angular velocity of the Earth [rad/sec]
+#endif
 
 // Galileo
+#ifndef GM_GAL
 #define GM_GAL 3.986004418e14        ///< Geocentric gravitational constant [m^3/s^2]
+#endif
+#ifndef OMGE_DOT_GAL
 #define OMGE_DOT_GAL 7.2921151467e-5 ///< Mean angular velocity of the Earth [rad/sec]
+#endif
 
 // BeiDou
+#ifndef GM_CGCS
 #define GM_CGCS 3.986004418e14    ///< []  CGCS2000 earth's graviational constant
+#endif
+#ifndef OMGE_DOT_BDS
 #define OMGE_DOT_BDS 7.2921150e-5 ///< BDS value of the earth's rotation rate [rad/sec]//
+#endif
+#ifndef Aell_CGCS
 #define Aell_CGCS 6378137.000     ///< [m] CGCS2000 semi-major axes
+#endif
 
 // METEO
+#ifndef G_RATIO
 #define G_RATIO 0.003449787 ///< [-] gravity ratio
+#endif
+#ifndef G_EQUA
 #define G_EQUA 9.7803253359 ///< [m/s2] equatorial gravity
+#endif
+#ifndef G_POLE
 #define G_POLE 9.8321849378 ///< [m/s2] polar gravity
+#endif
+#ifndef G_WMO
 #define G_WMO 9.80665       ///< [m/s2] gravity acceleration (WMO constant for lat=45)
+#endif
+#ifndef KS_SOM
 #define KS_SOM 0.001931853  ///< [-] Somigliana's constant
+#endif
+#ifndef Md
 #define Md 28.9644          ///< [g/mol] molar mass (mean molecular weight) of dry air
+#endif
+#ifndef Mw
 #define Mw 18.01528         ///< [g/mol] molar mass (mean molecular weight) of water
+#endif
+#ifndef Ru
 #define Ru 8.3144621        ///< [J/mol/K] universal gas constant
+#endif
+#ifndef Rd
 #define Rd 287.058          ///< [J/kg/K] spec. gas constant for Dry Air (Rd = 287.058)  Ru/(Md/1000)
+#endif
+#ifndef Rv
 #define Rv 461.495          ///< [J/kg/K] spec. gas constant for Wat Vap (Rv = 461.495)  Ru/(Mw/1000)
+#endif
+#ifndef Eps
 #define Eps 0.62198         ///< [-] molecular weight ratio (Mw/Md)     (Eps = 0.62198)
+#endif
+#ifndef TC2TK
 #define TC2TK 273.15        ///< conversion from deg of Celsius to Kelvins
+#endif
+#ifndef TPOINT
 #define TPOINT 273.16       ///< temperature of triple point [K], i.e. 0.01 Deg C
+#endif
 
-    typedef map<string, vector<double>> t_map_refr; ///< refractivity coefficients
+    typedef std::map<std::string, std::vector<double>> t_map_refr; ///< refractivity coefficients
 
+#ifndef K1_ESS
 #define K1_ESS 77.64   ///< [K/hPa]   Essen and Froome (1951)
+#endif
+#ifndef K2_ESS
 #define K2_ESS 64.68   ///< [K/hPa]   Essen and Froome (1951)
+#endif
+#ifndef K3_ESS
 #define K3_ESS 3.718e5 ///< [K^2/hPa] Essen and Froome (1951)
+#endif
 
+#ifndef K1_SMW
 #define K1_SMW 77.607  ///< [K/hPa]   Smith and Weintraub (1953) // FULL RESOLUTION
+#endif
+#ifndef K2_SMW
 #define K2_SMW 71.6    ///< [K/hPa]   Smith and Weintraub (1953) // original paper 3-par formula!
+#endif
+#ifndef K3_SMW
 #define K3_SMW 3.747e5 ///< [K^2/hPa] Smith and Weintraub (1953) // original paper 3-par formula!
+#endif
 
+#ifndef K1_THA
 #define K1_THA 77.604  ///< [K/hPa]   Thayer (1974)
+#endif
+#ifndef K2_THA
 #define K2_THA 64.79   ///< [K/hPa]   Thayer (1974)
+#endif
+#ifndef K3_THA
 #define K3_THA 3.776e5 ///< [K^2/hPa] Thayer (1974)
+#endif
 
+#ifndef K1_BEV
 #define K1_BEV 77.6    ///< [K/hPa]   Bevis (1994)
+#endif
+#ifndef K2_BEV
 #define K2_BEV 70.4    ///< [K/hPa]   Bevis (1994)
+#endif
+#ifndef K3_BEV
 #define K3_BEV 3.739e5 ///< [K^2/hPa] Bevis (1994)
+#endif
 
+#ifndef K1_FOE
 #define K1_FOE 77.65   ///< [K/hPa]   Foelsche (1999)
+#endif
+#ifndef K2_FOE
 #define K2_FOE 65.99   ///< [K/hPa]   Foelsche (1999)
+#endif
+#ifndef K3_FOE
 #define K3_FOE 3.777e5 ///< [K^2/hPa] Foelsche (1999)
+#endif
 
+#ifndef K1_RUE
 #define K1_RUE 77.6848   ///< [K/hPa]   Rueger (2002)
+#endif
+#ifndef K2_RUE
 #define K2_RUE 71.2952   ///< [K/hPa]   Rueger (2002)
+#endif
+#ifndef K3_RUE
 #define K3_RUE 3.75463e5 ///< [K^2/hPa] Rueger (2002)
+#endif
 
 // for calulate the ocean tide and else
 #ifndef EARTH_GM

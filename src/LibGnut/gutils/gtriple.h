@@ -27,7 +27,6 @@
 
 #include "gutils/gpair.h"
 #include "newmat/newmat.h"
-using namespace std;
 
 namespace gnut
 {
@@ -66,9 +65,9 @@ namespace gnut
         bool operator==(const t_gtriple& tr) const; ///< equal operator
         bool operator!=(const t_gtriple& tr) const; ///< not equal operator
         bool operator<(const t_gtriple& tr) const;  ///< equal for sorting
-        double& operator[](const size_t idx);       ///< get a reference of element
-        double operator[](const size_t idx) const;  ///< get value of element
-        friend ostream& operator<<(ostream& os, const t_gtriple& x);
+        double& operator[](const std::size_t idx);       ///< get a reference of element
+        double operator[](const std::size_t idx) const;  ///< get value of element
+        friend std::ostream& operator<<(std::ostream& os, const t_gtriple& x);
 
         double crd(int idx) const; ///< get single element
         double norm() const;       ///< Eukl. norm

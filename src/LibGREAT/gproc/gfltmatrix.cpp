@@ -30,18 +30,18 @@ namespace great
     {
     }
 
-    void t_gfltEquationMatrix::add_equ(const vector<pair<int, double>>& B_value,
+    void t_gfltEquationMatrix::add_equ(const std::vector<std::pair<int, double>>& B_value,
                                        const double& P_value,
                                        const double& l_value,
-                                       const string& stie_name,
-                                       const string& sat_name,
+                                       const std::string& stie_name,
+                                       GSAT sat,
                                        const t_gobscombtype& obscombtype,
                                        const bool& is_newamb)
     {
         B.push_back(B_value);
         P.push_back(P_value);
         l.push_back(l_value);
-        this->_site_sat_pairlist.push_back(make_pair(stie_name, sat_name));
+        this->_site_sat_pairlist.push_back(std::make_pair(stie_name, sat));
         this->_obstypelist.push_back(obscombtype);
         this->_newamb_list.push_back(is_newamb);
     }
@@ -100,7 +100,7 @@ namespace great
         return ans;
     }
 
-    string t_gfltEquationMatrix::get_satname(int equ_idx) const
+    GSAT t_gfltEquationMatrix::get_sat(int equ_idx) const
     {
         return _site_sat_pairlist[equ_idx].second;
     }

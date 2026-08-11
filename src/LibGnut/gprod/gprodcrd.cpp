@@ -9,16 +9,15 @@
 
 #include "gprod/gprodcrd.h"
 
-using namespace std;
 
 namespace gnut
 {
 
-    t_gprodcrd::t_gprodcrd(const t_gtime& t, shared_ptr<t_gobj> pt) :
+    t_gprodcrd::t_gprodcrd(const t_gtime& t, std::shared_ptr<t_gobj> pt) :
         t_gprod(t, pt)
     {
-        id_type(POS);
-        id_group(GRP_PRODUCT);
+        id_type(ID_TYPE::POS);
+        id_group(ID_GROUP::GRP_PRODUCT);
     }
 
     t_gprodcrd::~t_gprodcrd()
@@ -83,13 +82,13 @@ namespace gnut
     {
         switch (type)
         {
-            case COV_XY:
+            case COV_TYPE::COV_XY:
                 _xy_cov = cov;
                 break;
-            case COV_XZ:
+            case COV_TYPE::COV_XZ:
                 _xz_cov = cov;
                 break;
-            case COV_YZ:
+            case COV_TYPE::COV_YZ:
                 _yz_cov = cov;
                 break;
             default:
@@ -101,13 +100,13 @@ namespace gnut
     {
         switch (type)
         {
-            case COV_XY:
+            case COV_TYPE::COV_XY:
                 return _xy_cov;
                 break;
-            case COV_XZ:
+            case COV_TYPE::COV_XZ:
                 return _xz_cov;
                 break;
-            case COV_YZ:
+            case COV_TYPE::COV_YZ:
                 return _yz_cov;
                 break;
             default:

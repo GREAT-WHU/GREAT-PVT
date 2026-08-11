@@ -87,12 +87,10 @@ namespace gnut
         t_gtime _file_run; ///< file created
 
         t_gallobj* _allobj;                                    ///< all object
-        map<string, shared_ptr<t_gobj>> _mapsat;               ///< map satellite
         map<string, shared_ptr<t_gobj>> _maprec;               ///< map rec
         map<string, shared_ptr<t_gobj>>::const_iterator itOBJ; ///< itOBJ
 
         set<string> _sites;      ///< site list
-        set<string> _satellites; ///< satellite list
 
     private:
         char _gnsssys; ///< gnss system

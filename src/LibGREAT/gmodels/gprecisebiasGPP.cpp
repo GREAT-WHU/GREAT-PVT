@@ -37,7 +37,7 @@ namespace great
             return false;
         }
 
-        tuple<string, string, t_gtime>* flag = &_rec_sat_before;
+        std::tuple<std::string, GSAT, t_gtime>* flag = &_rec_sat_before;
         if (make_tuple(obsdata.site(), obsdata.sat(), epoch) != *flag)
         {
             bool update_valid = t_gprecisebiasGPP::_update_obs_info_GPP(epoch, _gall_nav, _gallobj, obsdata, params);
@@ -59,7 +59,7 @@ namespace great
 
         // combine equ
         double omc = 0.0, wgt = 0.0;
-        vector<pair<int, double>> coef;
+        std::vector<std::pair<int, double>> coef;
 
         if (!_omc_obs_ALL(epoch, _crt_obs, params, gobs, omc))
         {
@@ -67,7 +67,7 @@ namespace great
             return false;
         };
 
-        if (!_wgt_obs_ALL(t_gdata::REC, gobs, _crt_obs, 1.0, wgt))
+        if (!_wgt_obs_ALL(t_gdata::ID_TYPE::REC, gobs, _crt_obs, 1.0, wgt))
         {
             GREAT_ERROR("weight obs failed");
             return false;
@@ -87,11 +87,11 @@ namespace great
         return true;
     }
 
-    double t_gprecisebiasGPP::cmpObs(t_gtime& epoch, string& sat, string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
+    double t_gprecisebiasGPP::cmpObs(t_gtime& epoch, GSAT sat, std::string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
     {
         if (_gallobj == nullptr)
         {
-            throw logic_error("gallobj is nullptr in precisemodel cmpObs");
+            throw std::logic_error("gallobj is nullptr in precisemodel cmpObs");
         }
 
         // Cartesian coordinates to ellipsodial coordinates
@@ -154,7 +154,7 @@ namespace great
 
         // ion correction
         double ion = 0.0;
-        auto band_1 = _band_index[gsatdata.gsys()][FREQ_1];
+        auto band_1 = _band_index[gsatdata.gsys()][gnut::FREQ_SEQ::FREQ_1];
         ion = ionoDelay(epoch, param, gsatdata, _ion_model, band_1, gobs);
 
         // pcv correction
@@ -224,11 +224,11 @@ namespace great
         this->_trs_rec_pco = this->_trs_rec_crd;
         this->_trs_sat_pco = this->_trs_sat_crd;
 
-        shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(_crt_sat);
-        shared_ptr<t_gobj> rec_obj = this->_gallobj->obj(_crt_rec);
+        std::shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(gsat2str(_crt_sat));
+        std::shared_ptr<t_gobj> rec_obj = this->_gallobj->obj(_crt_rec);
 
-        shared_ptr<t_gpcv> sat_pcv = (sat_obj != 0) ? sat_obj->pcv(crt_epo) : nullptr;
-        shared_ptr<t_gpcv> rec_pcv = (rec_obj != 0) ? rec_obj->pcv(crt_epo) : nullptr;
+        std::shared_ptr<t_gpcv> sat_pcv = (sat_obj != 0) ? sat_obj->pcv(crt_epo) : nullptr;
+        std::shared_ptr<t_gpcv> rec_pcv = (rec_obj != 0) ? rec_obj->pcv(crt_epo) : nullptr;
 
         if (!_isCalSatPCO)
         {
@@ -239,7 +239,7 @@ namespace great
         {
             // Satellite phase center offset
             t_gtriple pco(0, 0, 0);
-            if (sat_pcv->pcoS(_crt_obs, pco, _observ, _band_index[_crt_sys][FREQ_1], _band_index[_crt_sys][FREQ_2]) > 0)
+            if (sat_pcv->pcoS(_crt_obs, pco, _observ, _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_1], _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_2]) > 0)
             {
                 Matrix _rot_matrix = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
                 this->_trs_sat_pco += t_gtriple(_rot_matrix * pco.crd_cvect());
@@ -250,7 +250,7 @@ namespace great
         {
             // Receiver phase center offset
             t_gtriple pco(0.0, 0.0, 0.0);
-            if (rec_pcv->pcoR(_crt_obs, pco, _observ, _band_index[_crt_sys][FREQ_1], _band_index[_crt_sys][FREQ_2]) > 0)
+            if (rec_pcv->pcoR(_crt_obs, pco, _observ, _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_1], _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_2]) > 0)
             {
                 Matrix _rot_matrix = _RotMatrix_Ant(_crt_obs, _crt_epo, rec_obj);
                 this->_trs_rec_pco += t_gtriple(_rot_matrix * pco.crd_cvect());
@@ -329,7 +329,7 @@ namespace great
         _crt_obs.addele_leo(ele_);
 
         // check elevation cut-off
-        if (_crt_obj->id_type() == t_gdata::REC && _crt_obs.ele_deg() < _minElev)
+        if (_crt_obj->id_type() == t_gdata::ID_TYPE::REC && _crt_obs.ele_deg() < _minElev)
         {
             GREAT_WARN("Prepare fail! the elevation is too small");
             return false;
@@ -364,8 +364,8 @@ namespace great
             this->reset_SatPCO(false);
         }
 
-        bool rec_clk_valid = _update_obj_clk_GPP("rec" + _crt_rec, epoch, nav, pars, _crt_rec_clk, _obj_clk);
-        bool sat_clk_valid = _update_obj_clk_GPP("sat" + _crt_sat, epoch, nav, pars, _crt_sat_clk, _obj_clk);
+        bool rec_clk_valid = _update_obj_clk_GPP(_crt_rec, GSAT::NONE, epoch, nav, pars, _crt_rec_clk);
+        bool sat_clk_valid = _update_obj_clk_GPP("", _crt_sat, epoch, nav, pars, _crt_sat_clk);
         if (!rec_clk_valid || !sat_clk_valid)
         {
             GREAT_ERROR("no rec or sat clk for epoch " + epoch.str_ymdhms());
@@ -374,14 +374,13 @@ namespace great
         return true;
     }
 
-    bool t_gprecisebiasGPP::_update_obj_clk_GPP(const string& obj,
+    bool t_gprecisebiasGPP::_update_obj_clk_GPP(const std::string& rec, GSAT sat,
                                                 const t_gtime& crt_epoch,
                                                 t_gallnav* nav,
                                                 t_gallpar& pars,
-                                                double& clk,
-                                                map<string, pair<t_gtime, double>>& obj_clk)
+                                                double& clk)
     {
-        if (!nav || obj.substr(3).empty())
+        if (!nav || (sat == GSAT::NONE && rec.empty()))
         {
             GREAT_ERROR("no navigation files or obj is NONE");
             return false;
@@ -390,37 +389,37 @@ namespace great
         // clk[s] from clk files
         double clk_rms = 0.0;
         double dclk = 0.0;
-        string type = obj.substr(0, 3);
-        string name = obj.substr(3);
-        int base_size = dynamic_cast<t_gsetgen*>(_gset)->list_base().size();
-        int pv_iod = 0; // to do
-        int clk_iod = 0;
+        bool is_sat = sat != GSAT::NONE;
+        std::string name = is_sat ? gsat2str(sat) : rec;
+
 
         // get clk from clk files
         //--can not get any clk informtion from file or gallpar
         int idx_clk = -1;
-        if (type == "rec")
+        if (!is_sat)
         {
             idx_clk = pars.getParam(name, par_type::CLK, "");
         }
 
         // update clk
-        if (obj_clk[name].first != crt_epoch)
+        std::pair<t_gtime, double>& cached = is_sat ? _sat_clk[sat] : _obj_clk[rec];
+        if (cached.first != crt_epoch)
         {
             int clk_valid;
-            clk_valid = _gall_nav->clk(name, crt_epoch, &clk, &clk_rms, &dclk);
+            clk_valid = is_sat ? _gall_nav->clk(sat, crt_epoch, &clk, &clk_rms, &dclk)
+                               : _gall_nav->clk(rec, crt_epoch, &clk, &clk_rms, &dclk);
 
             if (clk_valid < 0)
             {
                 clk = 0.0;
             }
 
-            obj_clk[name].first = crt_epoch;
-            obj_clk[name].second = clk;
+            cached.first = crt_epoch;
+            cached.second = clk;
         }
         else
         {
-            clk = obj_clk[name].second;
+            clk = cached.second;
         }
 
         if (double_eq(clk, 0.0) && idx_clk < 0)
@@ -446,7 +445,7 @@ namespace great
                                          t_gsatdata& obsdata,
                                          t_gallpar& pars,
                                          t_gobs& gobs,
-                                         vector<pair<int, double>>& coeff)
+                                         std::vector<std::pair<int, double>>& coeff)
     {
         auto par_list = pars.getPartialIndex(_crt_rec, _crt_sat);
         for (const int& ipar : par_list)
@@ -456,7 +455,7 @@ namespace great
             t_gbiasmodel::_Partial_basic(crt_epo, _crt_obs, gobs, par, coeff_value);
             if (coeff_value != 0.0)
             {
-                coeff.push_back(make_pair(ipar + 1, coeff_value));
+                coeff.push_back(std::make_pair(ipar + 1, coeff_value));
             }
         }
         return true;

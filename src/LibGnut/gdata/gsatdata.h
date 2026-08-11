@@ -31,7 +31,6 @@
 #include "gset/gsetproc.h"
 #include "gall/gallprec.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -43,7 +42,7 @@ namespace gnut
         t_gsatdata();
 
         /** @brief constructor 1. */
-        t_gsatdata(const string& site, const string& sat, const t_gtime& t);
+        t_gsatdata(const std::string& site, const std::string& sat, const t_gtime& t);
 
         /** @brief copy constructor 3. */
         explicit t_gsatdata(const t_gobsgnss& obs);
@@ -85,7 +84,7 @@ namespace gnut
         void addsatTime(const t_gtime& satTime);
 
         /** @brief determine wheather the satellite is eclipsed (postshadow is considered). */
-        void addecl(map<string, t_gtime>& lastEcl);
+        void addecl(std::map<GSAT, t_gtime>& lastEcl);
 
         /** @brief reset the eclipsing time. */
         void setecl(const bool& ecl);
@@ -341,7 +340,7 @@ namespace gnut
          * @param type
          * @return vector<double>
          */
-        vector<double> residuals(const RESIDTYPE& restype, const GOBSTYPE& type);
+        std::vector<double> residuals(const RESIDTYPE& restype, const GOBSTYPE& type);
 
         /**
          * @brief clean residuals
@@ -447,16 +446,16 @@ namespace gnut
         double _wind = 0.0;                    ///< wind
         bool _low_prec = 0.0;                  ///< low precision of sat pos
         bool _slipf = 0.0;                     ///< cycle slip flag
-        map<GOBSBAND, bool> _is_carrier_range; ///< add to mark carrier-range
+        std::map<GOBSBAND, bool> _is_carrier_range; ///< add to mark carrier-range
         bool _isExistAug = false;
 
         // normalized residuals
-        vector<double> _code_res_norm;
-        vector<double> _phase_res_norm;
+        std::vector<double> _code_res_norm;
+        std::vector<double> _phase_res_norm;
 
         // original residuals
-        vector<double> _code_res_orig;
-        vector<double> _phase_res_orig;
+        std::vector<double> _code_res_orig;
+        std::vector<double> _phase_res_orig;
 
         double _beta_val = 0.0;
         double _orb_angle_val = 0.0;

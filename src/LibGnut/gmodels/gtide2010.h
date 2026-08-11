@@ -27,7 +27,7 @@
 #include <vector>
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gutils/gconst.h"
@@ -37,7 +37,6 @@
 #include "gmodels/ggpt.h"
 #include "gmodels/gtide.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -53,7 +52,7 @@ namespace gnut
         virtual ~t_gtide2010();
 
         /** @brief ocean tide loading. */
-        virtual t_gtriple load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec);
+        virtual t_gtriple load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec);
 
     protected:
         ColumnVector _D;  ///< D

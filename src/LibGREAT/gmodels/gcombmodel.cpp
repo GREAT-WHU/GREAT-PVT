@@ -16,72 +16,72 @@
 #include "gmodels/gprecisebias.h"
 namespace great
 {
-    t_gcombmodel::t_gcombmodel(t_gsetbase* setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
+    t_gcombmodel::t_gcombmodel(t_gsetbase* setting, std::shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
         _bias_model(std::move(bias_model))
     {
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(setting)->band_index(gnut::GSYS::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::QZS);
+        _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::GPS);
+        _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::GAL);
+        _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::GLO);
+        _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::BDS);
+        _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(setting)->freq_index(gnut::GSYS::QZS);
 
         // =======================================================================================
         // sigma
-        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GPS);
-        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GLO);
-        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GAL);
-        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(BDS);
-        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(QZS);
-        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GPS);
-        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GLO);
-        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GAL);
-        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(BDS);
-        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(QZS);
+        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::GPS);
+        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::GLO);
+        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::GAL);
+        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::BDS);
+        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_C(GSYS::QZS);
+        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::GPS);
+        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::GLO);
+        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::GAL);
+        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::BDS);
+        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(setting)->sigma_L(GSYS::QZS);
 
         _frequency = dynamic_cast<t_gsetproc*>(setting)->frequency();
         _ion_model = dynamic_cast<t_gsetproc*>(setting)->ion_model();
         _ifcb_model = dynamic_cast<t_gsetproc*>(setting)->ifcb_model();
         _observ = dynamic_cast<t_gsetproc*>(setting)->obs_combin();
 
-        _gallbias = dynamic_cast<t_gallbias*>((*data)[t_gdata::ALLBIAS]);
+        _gallbias = dynamic_cast<t_gallbias*>((*data)[t_gdata::ID_TYPE::ALLBIAS]);
     }
 
     t_gcombmodel::~t_gcombmodel() = default;
 
-    map<GSYS, map<FREQ_SEQ, GOBSBAND>> t_gcombmodel::get_band_index()
+    std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> t_gcombmodel::get_band_index()
     {
         return _band_index;
     }
 
-    map<GSYS, map<GOBSBAND, FREQ_SEQ>> t_gcombmodel::get_freq_index()
+    std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> t_gcombmodel::get_freq_index()
     {
         return _freq_index;
     }
 
-    t_gcombIF::t_gcombIF(t_gsetbase* setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
+    t_gcombIF::t_gcombIF(t_gsetbase* setting, std::shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
         t_gcombmodel(setting, std::move(bias_model), data)
     {
-        _clk_type_index[make_pair(FREQ_3, GPS)] = par_type::CLK13_G;
-        _clk_type_index[make_pair(FREQ_4, GPS)] = par_type::CLK14_G;
-        _clk_type_index[make_pair(FREQ_5, GPS)] = par_type::CLK15_G;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_3, GSYS::GPS)] = par_type::CLK13_G;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_4, GSYS::GPS)] = par_type::CLK14_G;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_5, GSYS::GPS)] = par_type::CLK15_G;
 
-        _clk_type_index[make_pair(FREQ_3, GAL)] = par_type::CLK13_E;
-        _clk_type_index[make_pair(FREQ_4, GAL)] = par_type::CLK14_E;
-        _clk_type_index[make_pair(FREQ_5, GAL)] = par_type::CLK15_E;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_3, GSYS::GAL)] = par_type::CLK13_E;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_4, GSYS::GAL)] = par_type::CLK14_E;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_5, GSYS::GAL)] = par_type::CLK15_E;
 
-        _clk_type_index[make_pair(FREQ_3, BDS)] = par_type::CLK13_C;
-        _clk_type_index[make_pair(FREQ_4, BDS)] = par_type::CLK14_C;
-        _clk_type_index[make_pair(FREQ_5, BDS)] = par_type::CLK15_C;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_3, GSYS::BDS)] = par_type::CLK13_C;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_4, GSYS::BDS)] = par_type::CLK14_C;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_5, GSYS::BDS)] = par_type::CLK15_C;
 
-        _clk_type_index[make_pair(FREQ_3, QZS)] = par_type::CLK13_J;
-        _clk_type_index[make_pair(FREQ_4, QZS)] = par_type::CLK14_J;
-        _clk_type_index[make_pair(FREQ_5, QZS)] = par_type::CLK15_J;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_3, GSYS::QZS)] = par_type::CLK13_J;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_4, GSYS::QZS)] = par_type::CLK14_J;
+        _clk_type_index[std::make_pair(gnut::FREQ_SEQ::FREQ_5, GSYS::QZS)] = par_type::CLK15_J;
     }
 
     t_gcombIF::~t_gcombIF() = default;
@@ -90,8 +90,8 @@ namespace great
     {
         // ========================================================================================================================================
         // check Obs type
-        const GOBSBAND& b1 = _band_index[obsdata.gsys()][FREQ_1];
-        const GOBSBAND& b2 = _band_index[obsdata.gsys()][FREQ_2];
+        const GOBSBAND& b1 = _band_index[obsdata.gsys()][gnut::FREQ_SEQ::FREQ_1];
+        const GOBSBAND& b2 = _band_index[obsdata.gsys()][gnut::FREQ_SEQ::FREQ_2];
 
         // ========================================================================================================================================
         obsdata.apply_bias(_gallbias);
@@ -101,7 +101,7 @@ namespace great
 
     bool t_gcombIF::cmb_equ_IF(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, GOBSBAND b1, GOBSBAND b2, t_gbaseEquation& result)
     {
-        if (b1 == BAND || b2 == BAND)
+        if (b1 == gnut::GOBSBAND::BAND || b2 == gnut::GOBSBAND::BAND)
         {
             return false;
         }
@@ -111,7 +111,7 @@ namespace great
         t_gobs gobsL1(obsdata.select_phase(b1));
         t_gobs gobsL2(obsdata.select_phase(b2));
 
-        vector<pair<t_gobs, t_gobs>> type_list;
+        std::vector<std::pair<t_gobs, t_gobs>> type_list;
         type_list.emplace_back(gobsP1, gobsP2);
         type_list.emplace_back(gobsL1, gobsL2);
 
@@ -142,16 +142,16 @@ namespace great
             // ========================================================================================================
             if (temp_equ.B[0].size() != temp_equ.B[1].size())
             {
-                throw logic_error("coeff size is not equal in f1 and f2");
+                throw std::logic_error("coeff size is not equal in f1 and f2");
             }
 
-            vector<pair<int, double>> coef_IF;
+            std::vector<std::pair<int, double>> coef_IF;
             double P_IF = 0.0, l_IF = 0.0;
             for (int i = 0; i < temp_equ.B[0].size(); i++)
             {
                 if (temp_equ.B[0][i].first != temp_equ.B[1][i].first)
                 {
-                    throw logic_error("coeff par is not the same in f1 and f2");
+                    throw std::logic_error("coeff par is not the same in f1 and f2");
                 }
                 // combine coeff
                 coef_IF.emplace_back(temp_equ.B[0][i].first, coef1 * temp_equ.B[0][i].second + coef2 * temp_equ.B[1][i].second);
@@ -161,8 +161,8 @@ namespace great
             l_IF = coef1 * temp_equ.l[0] + coef2 * temp_equ.l[1];
 
             // jdhuang :
-            if (_ifcb_model == IFCB_MODEL::COR && _frequency == 3 && gobs1.is_phase() && _freq_index[gsys][b2] == FREQ_3 &&
-                obsdata.gsys() == GPS)
+            if (_ifcb_model == IFCB_MODEL::COR && _frequency == 3 && gobs1.is_phase() && _freq_index[gsys][b2] == gnut::FREQ_SEQ::FREQ_3 &&
+                obsdata.gsys() == GSYS::GPS)
             {
                 l_IF += dynamic_cast<t_gprecisebias*>(_bias_model.get())->ifcbDelay(obsdata, nullptr, OBSCOMBIN::IONO_FREE);
             }
@@ -172,19 +172,19 @@ namespace great
             if (gobs1.is_phase() && (!obsdata.is_carrier_range(b1) || !obsdata.is_carrier_range(b2)))
             {
                 par_type amb_type = par_type::NO_DEF;
-                if (_freq_index[gsys][b2] == FREQ_2)
+                if (_freq_index[gsys][b2] == gnut::FREQ_SEQ::FREQ_2)
                 {
                     amb_type = par_type::AMB_IF;
                 }
-                if (_freq_index[gsys][b2] == FREQ_3)
+                if (_freq_index[gsys][b2] == gnut::FREQ_SEQ::FREQ_3)
                 {
                     amb_type = par_type::AMB13_IF;
                 }
-                if (_freq_index[gsys][b2] == FREQ_4)
+                if (_freq_index[gsys][b2] == gnut::FREQ_SEQ::FREQ_4)
                 {
                     amb_type = par_type::AMB14_IF;
                 }
-                if (_freq_index[gsys][b2] == FREQ_5)
+                if (_freq_index[gsys][b2] == gnut::FREQ_SEQ::FREQ_5)
                 {
                     amb_type = par_type::AMB15_IF;
                 }
@@ -233,11 +233,11 @@ namespace great
         return true;
     }
 
-    bool t_gcombIF::_add_IF_multi_rec_clk(const FREQ_SEQ& freq, t_gsatdata& obsdata, t_gallpar& params, vector<pair<int, double>>& coef_IF)
+    bool t_gcombIF::_add_IF_multi_rec_clk(const FREQ_SEQ& freq, t_gsatdata& obsdata, t_gallpar& params, std::vector<std::pair<int, double>>& coef_IF)
     {
         auto gsys = obsdata.gsys();
         auto site = obsdata.site();
-        if (freq <= FREQ_2)
+        if (freq <= gnut::FREQ_SEQ::FREQ_2)
         {
             return true;
         }
@@ -255,15 +255,15 @@ namespace great
         }
 
         par_type clk_type = par_type::NO_DEF;
-        if (_clk_type_index.find(make_pair(freq, gsys)) != _clk_type_index.end())
+        if (_clk_type_index.find(std::make_pair(freq, gsys)) != _clk_type_index.end())
         {
-            clk_type = _clk_type_index[make_pair(freq, gsys)];
+            clk_type = _clk_type_index[std::make_pair(freq, gsys)];
         }
 
         int idx = params.getParam(site, clk_type, "");
         if (idx < 0)
         {
-            throw runtime_error(" Can not find clk par in t_gcombIF::_add_IF_multi_rec_clk");
+            throw std::runtime_error(" Can not find clk par in t_gcombIF::_add_IF_multi_rec_clk");
             return false;
         }
 
@@ -274,14 +274,14 @@ namespace great
         return true;
     }
 
-    t_gcombALL::t_gcombALL(t_gsetbase* setting, shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
+    t_gcombALL::t_gcombALL(t_gsetbase* setting, std::shared_ptr<t_gbiasmodel> bias_model, t_gallproc* data) :
         t_gcombmodel(setting, std::move(bias_model), data)
     {
-        ambtype_list[FREQ_1] = par_type::AMB_L1;
-        ambtype_list[FREQ_2] = par_type::AMB_L2;
-        ambtype_list[FREQ_3] = par_type::AMB_L3;
-        ambtype_list[FREQ_4] = par_type::AMB_L4;
-        ambtype_list[FREQ_5] = par_type::AMB_L5;
+        ambtype_list[gnut::FREQ_SEQ::FREQ_1] = par_type::AMB_L1;
+        ambtype_list[gnut::FREQ_SEQ::FREQ_2] = par_type::AMB_L2;
+        ambtype_list[gnut::FREQ_SEQ::FREQ_3] = par_type::AMB_L3;
+        ambtype_list[gnut::FREQ_SEQ::FREQ_4] = par_type::AMB_L4;
+        ambtype_list[gnut::FREQ_SEQ::FREQ_5] = par_type::AMB_L5;
     }
 
     t_gcombALL::~t_gcombALL() = default;
@@ -294,10 +294,10 @@ namespace great
         }
 
         // check band_list
-        map<FREQ_SEQ, GOBSBAND>& crt_bands = _band_index[obsdata.gsys()];
+        std::map<FREQ_SEQ, GOBSBAND>& crt_bands = _band_index[obsdata.gsys()];
 
-        string grec = obsdata.site();
-        string gsat = obsdata.sat();
+        std::string grec = obsdata.site();
+        GSAT gsat = obsdata.sat();
         GSYS gsys = obsdata.gsys();
 
         if (crt_bands.empty())
@@ -309,8 +309,8 @@ namespace great
         for (const auto& iter : crt_bands)
         {
             t_gfltEquationMatrix equ_ALL;
-            vector<pair<int, double>> coefP;
-            vector<pair<int, double>> coefL;
+            std::vector<std::pair<int, double>> coefP;
+            std::vector<std::pair<int, double>> coefL;
 
             GOBSBAND band = iter.second;
             t_gobs obsP(obsdata.select_range(band, true));
@@ -318,16 +318,16 @@ namespace great
 
             // check Obs Valid
             auto freq = iter.first;
-            if (freq > _frequency)
+            if (static_cast<int>(freq) > _frequency)
             {
                 continue;
             }
 
             // check Obs Valid
-            if (obsP.type() != TYPE_C && obsP.type() != TYPE_P)
+            if (obsP.type() != gnut::GOBSTYPE::TYPE_C && obsP.type() != gnut::GOBSTYPE::TYPE_P)
             {
                 GREAT_INFO("check your obs file, we have no range obs for " + gobsband2str(band));
-                if (freq == FREQ_1 && _observ != gnut::OBSCOMBIN::RAW_MIX)
+                if (freq == gnut::FREQ_SEQ::FREQ_1 && _observ != gnut::OBSCOMBIN::RAW_MIX)
                 {
                     return false; // skip sat without freq_1 observation
                 }
@@ -337,10 +337,10 @@ namespace great
                 }
             }
 
-            if (obsL.type() != TYPE_L)
+            if (obsL.type() != gnut::GOBSTYPE::TYPE_L)
             {
                 GREAT_INFO("check your obs file, we have no phase obs for " + gobsband2str(band));
-                if (freq == FREQ_1 && _observ != gnut::OBSCOMBIN::RAW_MIX)
+                if (freq == gnut::FREQ_SEQ::FREQ_1 && _observ != gnut::OBSCOMBIN::RAW_MIX)
                 {
                     return false;
                 }
@@ -350,23 +350,23 @@ namespace great
                 }
             }
 
-            if (_frequency == 1 && freq >= FREQ_2)
+            if (_frequency == 1 && freq >= gnut::FREQ_SEQ::FREQ_2)
             {
                 continue;
             }
-            if (_frequency == 2 && freq >= FREQ_3)
+            if (_frequency == 2 && freq >= gnut::FREQ_SEQ::FREQ_3)
             {
                 continue;
             }
-            if (_frequency == 3 && freq >= FREQ_4)
+            if (_frequency == 3 && freq >= gnut::FREQ_SEQ::FREQ_4)
             {
                 continue;
             }
-            if (_frequency == 4 && freq >= FREQ_5)
+            if (_frequency == 4 && freq >= gnut::FREQ_SEQ::FREQ_5)
             {
                 continue;
             }
-            if (freq >= FREQ_6)
+            if (freq >= gnut::FREQ_SEQ::FREQ_6)
             {
                 continue;
             }
@@ -394,10 +394,10 @@ namespace great
                     params[idx].value(obs_L - obs_P);
                 }
 
-                tempL.B[0].push_back(make_pair(idx + 1, 1.0));
+                tempL.B[0].push_back(std::make_pair(idx + 1, 1.0));
                 tempL.l[0] -= params[idx].value();
                 // ifcb correction
-                if (_ifcb_model == IFCB_MODEL::COR && _frequency >= 3 && freq == FREQ_3)
+                if (_ifcb_model == IFCB_MODEL::COR && _frequency >= 3 && freq == gnut::FREQ_SEQ::FREQ_3)
                 {
                     tempL.l[0] += dynamic_cast<t_gprecisebias*>(_bias_model.get())->ifcbDelay(obsdata, nullptr, OBSCOMBIN::RAW_ALL);
                 }
@@ -437,7 +437,7 @@ namespace great
         return true;
     }
 
-    t_gcombDD::t_gcombDD(t_gsetbase* setting, const shared_ptr<t_gbiasmodel>& bias_model, t_gallproc* data) :
+    t_gcombDD::t_gcombDD(t_gsetbase* setting, const std::shared_ptr<t_gbiasmodel>& bias_model, t_gallproc* data) :
         t_gcombmodel(setting, bias_model, data),
         t_gcombALL(setting, bias_model, data),
         t_gcombIF(setting, bias_model, data)
@@ -454,12 +454,12 @@ namespace great
         _observ = observ;
     }
 
-    void t_gcombDD::set_base_data(vector<t_gsatdata>* data_base)
+    void t_gcombDD::set_base_data(std::vector<t_gsatdata>* data_base)
     {
         _data_base = data_base;
     }
 
-    void t_gcombDD::set_site(const string& site, const string& site_base)
+    void t_gcombDD::set_site(const std::string& site, const std::string& site_base)
     {
         _site = site;
         _site_base = site_base;
@@ -486,7 +486,7 @@ namespace great
                 obsdata_other = i;
             }
         }
-        if (obsdata_other.sat().empty())
+        if (obsdata_other.sat() == GSAT::NONE)
         {
             return false;
         }
@@ -496,8 +496,8 @@ namespace great
         if (_observ == OBSCOMBIN::IONO_FREE)
         {
             // check Obs type
-            GOBSBAND b1 = _band_index[obsdata.gsys()][FREQ_1];
-            GOBSBAND b2 = _band_index[obsdata.gsys()][FREQ_2];
+            GOBSBAND b1 = _band_index[obsdata.gsys()][gnut::FREQ_SEQ::FREQ_1];
+            GOBSBAND b2 = _band_index[obsdata.gsys()][gnut::FREQ_SEQ::FREQ_2];
 
             t_gobs gobsP1(obsdata.select_range(b1));
             t_gobs gobsP2(obsdata.select_range(b2));
@@ -509,11 +509,11 @@ namespace great
             t_gobs gobsL1_other(obsdata_other.select_phase(b1));
             t_gobs gobsL2_other(obsdata_other.select_phase(b2));
 
-            vector<pair<t_gobs, t_gobs>> type_list;
+            std::vector<std::pair<t_gobs, t_gobs>> type_list;
             type_list.emplace_back(gobsP1, gobsP2);
             type_list.emplace_back(gobsL1, gobsL2);
 
-            vector<pair<t_gobs, t_gobs>> type_list_other;
+            std::vector<std::pair<t_gobs, t_gobs>> type_list_other;
             type_list_other.emplace_back(gobsP1_other, gobsP2_other);
             type_list_other.emplace_back(gobsL1_other, gobsL2_other);
 
@@ -556,18 +556,18 @@ namespace great
                     // return false;
                     continue;
                 }
-                vector<pair<int, double>> coef_IF;
+                std::vector<std::pair<int, double>> coef_IF;
                 double P_IF = 0.0, l_IF = 0.0;
 
                 if (temp_equ.B[0].size() != temp_equ.B[1].size())
                 {
-                    throw logic_error("coeff size is not equal in f1 and f2");
+                    throw std::logic_error("coeff size is not equal in f1 and f2");
                 }
                 for (int j = 0; j < temp_equ.B[0].size(); j++)
                 {
                     if (temp_equ.B[0][j].first != temp_equ.B[1][j].first)
                     {
-                        throw logic_error("coeff par is not the same in f1 and f2");
+                        throw std::logic_error("coeff par is not the same in f1 and f2");
                     }
                     // combine coeff
                     if (temp_equ.B[0][j].first > npar_orig)
@@ -579,13 +579,13 @@ namespace great
 
                 if (temp_equ_other.B[0].size() != temp_equ_other.B[1].size())
                 {
-                    throw logic_error("coeff size is not equal in f1 and f2");
+                    throw std::logic_error("coeff size is not equal in f1 and f2");
                 }
                 for (int j = 0; j < temp_equ_other.B[0].size(); j++)
                 {
                     if (temp_equ_other.B[0][j].first != temp_equ_other.B[1][j].first)
                     {
-                        throw logic_error("coeff par is not the same in f1 and f2");
+                        throw std::logic_error("coeff par is not the same in f1 and f2");
                     }
                     // combine coeff
                     if (temp_equ_other.B[0][j].first > npar_orig)
@@ -605,15 +605,15 @@ namespace great
                 if (gobs1.is_phase())
                 {
                     par_type amb_type = par_type::AMB_IF;
-                    if (_freq_index[obsdata.gsys()][b2] == FREQ_3)
+                    if (_freq_index[obsdata.gsys()][b2] == gnut::FREQ_SEQ::FREQ_3)
                     {
                         amb_type = par_type::AMB13_IF;
                     }
-                    if (_freq_index[obsdata.gsys()][b2] == FREQ_4)
+                    if (_freq_index[obsdata.gsys()][b2] == gnut::FREQ_SEQ::FREQ_4)
                     {
                         amb_type = par_type::AMB14_IF;
                     }
-                    if (_freq_index[obsdata.gsys()][b2] == FREQ_5)
+                    if (_freq_index[obsdata.gsys()][b2] == gnut::FREQ_SEQ::FREQ_5)
                     {
                         amb_type = par_type::AMB15_IF;
                     }
@@ -640,7 +640,7 @@ namespace great
 
                 // CORRECT CLK
                 // remove 12 clk and isb
-                if (_freq_index[obsdata.gsys()][b2] >= FREQ_3)
+                if (_freq_index[obsdata.gsys()][b2] >= gnut::FREQ_SEQ::FREQ_3)
                 {
                     for (auto iter = coef_IF.begin(); iter != coef_IF.end();)
                     {
@@ -655,22 +655,22 @@ namespace great
                 }
 
                 // add 13 CLK
-                if (_freq_index[obsdata.gsys()][b2] == FREQ_3)
+                if (_freq_index[obsdata.gsys()][b2] == gnut::FREQ_SEQ::FREQ_3)
                 {
                     par_type clk_type;
-                    if (obsdata.gsys() == GPS)
+                    if (obsdata.gsys() == GSYS::GPS)
                     {
                         clk_type = par_type::CLK13_G;
                     }
-                    else if (obsdata.gsys() == GAL)
+                    else if (obsdata.gsys() == GSYS::GAL)
                     {
                         clk_type = par_type::CLK13_E;
                     }
-                    else if (obsdata.gsys() == BDS)
+                    else if (obsdata.gsys() == GSYS::BDS)
                     {
                         clk_type = par_type::CLK13_C;
                     }
-                    else if (obsdata.gsys() == QZS)
+                    else if (obsdata.gsys() == GSYS::QZS)
                     {
                         clk_type = par_type::CLK13_J;
                     }
@@ -710,12 +710,12 @@ namespace great
         else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
         {
             // check band_list
-            map<FREQ_SEQ, GOBSBAND> crt_bands = _band_index[obsdata.gsys()];
-            map<FREQ_SEQ, par_type> ambtype_list = {{FREQ_1, par_type::AMB_L1},
-                                                    {FREQ_2, par_type::AMB_L2},
-                                                    {FREQ_3, par_type::AMB_L3},
-                                                    {FREQ_4, par_type::AMB_L4},
-                                                    {FREQ_5, par_type::AMB_L5}};
+            std::map<FREQ_SEQ, GOBSBAND> crt_bands = _band_index[obsdata.gsys()];
+            std::map<FREQ_SEQ, par_type> ambtype_list = {{gnut::FREQ_SEQ::FREQ_1, par_type::AMB_L1},
+                                                    {gnut::FREQ_SEQ::FREQ_2, par_type::AMB_L2},
+                                                    {gnut::FREQ_SEQ::FREQ_3, par_type::AMB_L3},
+                                                    {gnut::FREQ_SEQ::FREQ_4, par_type::AMB_L4},
+                                                    {gnut::FREQ_SEQ::FREQ_5, par_type::AMB_L5}};
 
             if (crt_bands.empty())
             {
@@ -723,7 +723,7 @@ namespace great
             }
             t_gfltEquationMatrix equ_ALL;
             t_gbaseEquation tempP, tempL;
-            vector<int> index(10, 0);
+            std::vector<int> index(10, 0);
 
             for (int isite = 0; isite < 2; isite++)
             {
@@ -739,7 +739,7 @@ namespace great
 
                 for (const auto& iter : crt_bands)
                 {
-                    if (iter.first > _frequency)
+                    if (static_cast<int>(iter.first) > _frequency)
                     {
                         continue;
                     }
@@ -750,13 +750,13 @@ namespace great
 
                     // check Obs Valid
                     // for P code modified by zhshen
-                    if (obsP.type() != TYPE_C && obsP.type() != TYPE_P)
+                    if (obsP.type() != gnut::GOBSTYPE::TYPE_C && obsP.type() != gnut::GOBSTYPE::TYPE_P)
                     {
                         GREAT_INFO("check your obs file, we have no range obs for " + gobsband2str(band));
                         continue;
                     }
 
-                    if (obsL.type() != TYPE_L)
+                    if (obsL.type() != gnut::GOBSTYPE::TYPE_L)
                     {
                         GREAT_INFO("check your obs file, we have no phase obs for " + gobsband2str(band));
                         continue;
@@ -774,7 +774,7 @@ namespace great
                     {
                         continue;
                     }
-                    index[isite * crt_bands.size() + freq - 1] = tempL.l.size();
+                    index[isite * crt_bands.size() + static_cast<std::size_t>(freq) - 1] = tempL.l.size();
                     // add AMB for ROVER
                     if (satdata_ptr->site() == _site)
                     {
@@ -795,7 +795,7 @@ namespace great
 
                             params_temp[idx].value(obs_L - obs_P);
                         }
-                        tempL.B.back().push_back(make_pair(idx + 1, 1.0));
+                        tempL.B.back().push_back(std::make_pair(idx + 1, 1.0));
                         tempL.l.back() -= params_temp[idx].value();
                     }
                 }
@@ -804,7 +804,7 @@ namespace great
             int freq_count = 0;
             for (const auto& iter : crt_bands)
             {
-                if (iter.first > _frequency)
+                if (static_cast<int>(iter.first) > _frequency)
                 {
                     continue;
                 }
@@ -815,7 +815,7 @@ namespace great
                 t_gobs obsP(obsdata.select_range(band));
                 t_gobs obsL(obsdata.select_phase(band));
 
-                vector<pair<int, double>> B_P, B_L;
+                std::vector<std::pair<int, double>> B_P, B_L;
                 double P_P, P_L, l_P, l_L;
                 int ibase = index[freq_count - 1];
                 int irover = index[crt_bands.size() + freq_count - 1];

@@ -25,7 +25,6 @@
 #include "gutils/gtime.h"
 #include "gutils/gsysconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -50,8 +49,8 @@ namespace gnut
         t_gtriple kart2ell(const t_gtriple& p, const double& a, const double& b);
 
     protected:
-        map<t_gpair, t_gtriple> _rne_r; ///< ocean pole load tide coefficients from Desai (2002): u_r^R, u_n^R, u_e^R.
-        map<t_gpair, t_gtriple> _rne_i; ///< ocean pole load tide coefficients from Desai (2002): u_r^I, u_n^I, u_e^I.
+        std::map<t_gpair, t_gtriple> _rne_r; ///< ocean pole load tide coefficients from Desai (2002): u_r^R, u_n^R, u_e^R.
+        std::map<t_gpair, t_gtriple> _rne_i; ///< ocean pole load tide coefficients from Desai (2002): u_r^I, u_n^I, u_e^I.
     };
 } // namespace gnut
 

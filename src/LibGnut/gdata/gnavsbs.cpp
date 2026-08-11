@@ -15,24 +15,23 @@
 #include "gmodels/gephplan.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
 
     t_gnavsbs::t_gnavsbs() :
         t_gnav(),
-        _toc(t_gtime::GPS)
+        _toc(t_gtime::t_tsys::GPS)
     {
-        id_type(t_gdata::EPHSBS);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::EPHSBS);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
     }
 
     t_gnavsbs::~t_gnavsbs()
     {
     }
 
-    int t_gnavsbs::chk(set<string>& msg)
+    int t_gnavsbs::chk(std::set<std::string>& msg)
     {
         _gmutex.lock();
 
@@ -54,7 +53,7 @@ namespace gnut
 
     int t_gnavsbs::pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-        if (sat().empty())
+        if (sat() == GSAT::NONE)
         {
             return -1; // not valid !!!
         }
@@ -110,7 +109,7 @@ namespace gnut
 
     int t_gnavsbs::clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
-        if (sat().empty())
+        if (sat() == GSAT::NONE)
         {
             return -1; // not valid !!!
         }
@@ -145,18 +144,11 @@ namespace gnut
         return 0;
     }
 
-    int t_gnavsbs::data2nav(string sat, const t_gtime& ep, const t_gnavdata& data)
+    int t_gnavsbs::data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
     {
         _gmutex.lock();
 
-        if (sat.substr(0, 1) == "S")
-        {
-            _sat = sat;
-        }
-        else
-        {
-            _sat = "S" + sat;
-        }
+        _sat = str2gsat(sat, GSYS::SBS);
 
         _epoch = ep;
         _toc = ep;
@@ -227,39 +219,39 @@ namespace gnut
         t_timdbl tmp;
         switch (n)
         {
-            case NAV_X:
-                tmp = make_pair(_toc, _x * 1e0);
+            case NAVDATA::NAV_X:
+                tmp = std::make_pair(_toc, _x * 1e0);
                 break; // meters
-            case NAV_XD:
-                tmp = make_pair(_toc, _x_d * 1e0);
+            case NAVDATA::NAV_XD:
+                tmp = std::make_pair(_toc, _x_d * 1e0);
                 break; // meters
-            case NAV_XDD:
-                tmp = make_pair(_toc, _x_dd * 1e0);
+            case NAVDATA::NAV_XDD:
+                tmp = std::make_pair(_toc, _x_dd * 1e0);
                 break; // meters
-            case NAV_Y:
-                tmp = make_pair(_toc, _y * 1e0);
+            case NAVDATA::NAV_Y:
+                tmp = std::make_pair(_toc, _y * 1e0);
                 break; // meters
-            case NAV_YD:
-                tmp = make_pair(_toc, _y_d * 1e0);
+            case NAVDATA::NAV_YD:
+                tmp = std::make_pair(_toc, _y_d * 1e0);
                 break; // meters
-            case NAV_YDD:
-                tmp = make_pair(_toc, _y_dd * 1e0);
+            case NAVDATA::NAV_YDD:
+                tmp = std::make_pair(_toc, _y_dd * 1e0);
                 break; // meters
-            case NAV_Z:
-                tmp = make_pair(_toc, _z * 1e0);
+            case NAVDATA::NAV_Z:
+                tmp = std::make_pair(_toc, _z * 1e0);
                 break; // meters
-            case NAV_ZD:
-                tmp = make_pair(_toc, _z_d * 1e0);
+            case NAVDATA::NAV_ZD:
+                tmp = std::make_pair(_toc, _z_d * 1e0);
                 break; // meters
-            case NAV_ZDD:
-                tmp = make_pair(_toc, _z_dd * 1e0);
+            case NAVDATA::NAV_ZDD:
+                tmp = std::make_pair(_toc, _z_dd * 1e0);
                 break; // meters
 
-            case NAV_IOD:
-                tmp = make_pair(_toc, _iod * 1e0);
+            case NAVDATA::NAV_IOD:
+                tmp = std::make_pair(_toc, _iod * 1e0);
                 break; //
-            case NAV_HEALTH:
-                tmp = make_pair(_toc, _health * 1e0);
+            case NAVDATA::NAV_HEALTH:
+                tmp = std::make_pair(_toc, _health * 1e0);
                 break; //
 
             default:
@@ -277,10 +269,10 @@ namespace gnut
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
 
-            case NAV_IOD:
+            case NAVDATA::NAV_IOD:
                 _iod = val / 1.e0;
                 break;
-            case NAV_HEALTH:
+            case NAVDATA::NAV_HEALTH:
                 _health = val / 1.e0;
                 break;
 
@@ -292,38 +284,38 @@ namespace gnut
         return 0;
     }
 
-    string t_gnavsbs::line() const
+    std::string t_gnavsbs::line() const
     {
         int w = 20;
-        ostringstream tmp;
+        std::ostringstream tmp;
 
-        tmp << " " << setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << scientific << setprecision(12) << setw(w) << _f0
-            << setw(w) << _f1 << setw(w) << _tki << setw(w) << _x << setw(w) << _x_d << setw(w) << _x_dd << setw(w) << _health << setw(w)
-            << _y << setw(w) << _y_d << setw(w) << _y_dd << setw(w) << _C_rms << setw(w) << _z << setw(w) << _z_d << setw(w) << _z_dd
-            << setw(w) << _iod;
+        tmp << " " << std::setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << std::scientific << std::setprecision(12) << std::setw(w) << _f0
+            << std::setw(w) << _f1 << std::setw(w) << _tki << std::setw(w) << _x << std::setw(w) << _x_d << std::setw(w) << _x_dd << std::setw(w) << _health << std::setw(w)
+            << _y << std::setw(w) << _y_d << std::setw(w) << _y_dd << std::setw(w) << _C_rms << std::setw(w) << _z << std::setw(w) << _z_d << std::setw(w) << _z_dd
+            << std::setw(w) << _iod;
 
         return tmp.str();
     }
 
-    string t_gnavsbs::linefmt() const
+    std::string t_gnavsbs::linefmt() const
     {
-        ostringstream tmp;
+        std::ostringstream tmp;
 
-        tmp << " " << setw(3) << sat() << fixed << " " << _toc.str("%Y-%m-%d %H:%M:%S") << fixed << setprecision(0)
+        tmp << " " << std::setw(3) << sat() << std::fixed << " " << _toc.str("%Y-%m-%d %H:%M:%S") << std::fixed << std::setprecision(0)
 
-            << setw(8) << 0 << setw(8) << _C_rms << setw(4) << _iod << setw(4) << _health << " |" << setw(12) << setprecision(3)
+            << std::setw(8) << 0 << std::setw(8) << _C_rms << std::setw(4) << _iod << std::setw(4) << _health << " |" << std::setw(12) << std::setprecision(3)
             << _f0 * 1e9                                       //   [sec]
-            << setw(8) << setprecision(3) << _f1 * 1e9         //   [sec]
-            << setw(8) << setprecision(0) << _tki * 1e0        //
-            << " |" << setw(14) << setprecision(3) << _x * 1e0 // 1 [km]
-            << setw(11) << setprecision(3) << _x_d * 1e0       // 2 [km/s]
-            << setw(9) << setprecision(3) << _x_dd * 1e6       // 3 [km/s^2]
-            << " |" << setw(14) << setprecision(3) << _y * 1e0 // 1 [km]
-            << setw(11) << setprecision(3) << _y_d * 1e0       // 2 [km/s]
-            << setw(9) << setprecision(3) << _y_dd * 1e6       // 3 [km/s^2]
-            << " |" << setw(14) << setprecision(3) << _z * 1e0 // 1 [km]
-            << setw(11) << setprecision(3) << _z_d * 1e0       // 2 [km/s]
-            << setw(9) << setprecision(3) << _z_dd * 1e6       // 3 [km/s^2]
+            << std::setw(8) << std::setprecision(3) << _f1 * 1e9         //   [sec]
+            << std::setw(8) << std::setprecision(0) << _tki * 1e0        //
+            << " |" << std::setw(14) << std::setprecision(3) << _x * 1e0 // 1 [km]
+            << std::setw(11) << std::setprecision(3) << _x_d * 1e0       // 2 [km/s]
+            << std::setw(9) << std::setprecision(3) << _x_dd * 1e6       // 3 [km/s^2]
+            << " |" << std::setw(14) << std::setprecision(3) << _y * 1e0 // 1 [km]
+            << std::setw(11) << std::setprecision(3) << _y_d * 1e0       // 2 [km/s]
+            << std::setw(9) << std::setprecision(3) << _y_dd * 1e6       // 3 [km/s^2]
+            << " |" << std::setw(14) << std::setprecision(3) << _z * 1e0 // 1 [km]
+            << std::setw(11) << std::setprecision(3) << _z_d * 1e0       // 2 [km/s]
+            << std::setw(9) << std::setprecision(3) << _z_dd * 1e6       // 3 [km/s^2]
             ;
 
         return tmp.str();

@@ -13,12 +13,11 @@
 #include "gio/gxml.h"
 #include "gutils/gfileconv.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
 {
-    t_gxml::t_gxml(string s, bool upper)
+    t_gxml::t_gxml(std::string s, bool upper)
     {
         _root = s;
         _name = "";
@@ -30,7 +29,7 @@ namespace gnut
     {
     }
 
-    int t_gxml::read(const string& file)
+    int t_gxml::read(const std::string& file)
     {
         _gmutexxml.lock();
 
@@ -38,7 +37,7 @@ namespace gnut
 
         if (!(_irc = _doc.load_file(_name.c_str())))
         {
-            GREAT_ERROR("XML-config not read file " + _name + " " + string(_irc.description()));
+            GREAT_ERROR("XML-config not read file " + _name + " " + std::string(_irc.description()));
             _gmutexxml.unlock();
             return -1;
         }
@@ -51,13 +50,13 @@ namespace gnut
         return 0;
     }
 
-    int t_gxml::read_istream(istream& is)
+    int t_gxml::read_istream(std::istream& is)
     {
         _gmutexxml.lock();
 
         if (!(_irc = _doc.load(is)))
         {
-            GREAT_ERROR("XML-config not read istream: " + string(_irc.description()));
+            GREAT_ERROR("XML-config not read istream: " + std::string(_irc.description()));
             _gmutexxml.unlock();
             return -1;
         }
@@ -69,21 +68,21 @@ namespace gnut
         return 0;
     }
 
-    int t_gxml::write(const string& file)
+    int t_gxml::write(const std::string& file)
     {
         _gmutexxml.lock();
 
-        ofstream of;
-        string name(file);
+        std::ofstream of;
+        std::string name(file);
         substitute(name, GFILE_PREFIX, "");
 
         try
         {
             of.open(name.c_str());
         }
-        catch (fstream::failure e)
+        catch (std::fstream::failure e)
         {
-            cerr << "Warning: Exception opening file " << name << ": " << e.what() << endl;
+            std::cerr << "Warning: Exception opening file " << name << ": " << e.what() << std::endl;
             _gmutexxml.unlock();
             return -1;
         }
@@ -97,7 +96,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gxml::write_ostream(ostream& os)
+    int t_gxml::write_ostream(std::ostream& os)
     {
         _gmutexxml.lock();
 
@@ -109,7 +108,7 @@ namespace gnut
 
     xml_node t_gxml::_default_node(xml_node& node, const char* n, const char* val, bool reset)
     {
-        string s(n);
+        std::string s(n);
         if (reset)
         {
             node.remove_child(s.c_str());
@@ -135,7 +134,7 @@ namespace gnut
         return elem;
     }
 
-    void t_gxml::_default_attr(xml_node& node, const char* n, const string& val, bool reset)
+    void t_gxml::_default_attr(xml_node& node, const char* n, const std::string& val, bool reset)
     {
         if (node.attribute(n).empty())
         {
@@ -146,7 +145,7 @@ namespace gnut
             node.attribute(n).set_value(val.c_str());
         }
 
-        string s = node.attribute(n).value();
+        std::string s = node.attribute(n).value();
         node.attribute(n).set_value(s.c_str());
     }
 

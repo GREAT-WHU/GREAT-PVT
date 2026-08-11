@@ -13,6 +13,7 @@
 
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
+#include "gutils/gnss.h"
 #include "gset/gsetamb.h"
 
 using namespace gnut;
@@ -48,7 +49,6 @@ namespace great
         /** @brief default destructor. */
         ~t_updrec() {};
 
-        string obj;   ///< upd objection may be site or satellite
         int npoint;   ///< site number
         double ratio; ///< number of good observation divide number of all observation based on rec.
         double value; ///< upd value
@@ -60,7 +60,7 @@ namespace great
      * map container using satellite name as a index for storaging t_updrec ptr , one epoch/all satellite
      * for wide-lane only one sign epoch "WL_IDENTIFY"
      */
-    typedef map<string, shared_ptr<t_updrec>> LibGREAT_LIBRARY_EXPORT one_epoch_upd;
+    typedef std::map<GSAT, std::shared_ptr<t_updrec>> LibGREAT_LIBRARY_EXPORT one_epoch_upd;
 
     /**
      *@brief     Class for storaging all epoch/all satellite upd data
@@ -82,7 +82,7 @@ namespace great
          * @param[in]  one_sat_upd upd data of one epoch/one satellite
          * @return      void
          */
-        void add_sat_upd(UPDTYPE upd_type, t_gtime epoch, string prn, t_updrec one_sat_upd);
+        void add_sat_upd(UPDTYPE upd_type, t_gtime epoch, GSAT sat, t_updrec one_sat_upd);
 
         /**
          * @brief get upd data of one epoch/all satellite.
@@ -100,7 +100,7 @@ namespace great
          * @param[in] str         satellite name
          * @return      void
          */
-        void re_init_upd(const UPDTYPE& upd_type, const t_gtime& t, string str);
+        void re_init_upd(const UPDTYPE& upd_type, const t_gtime& t, GSAT sat);
 
         /**
          * @ set/get wl upd mode (Epoch by epoch/ Single day solution)
@@ -115,9 +115,9 @@ namespace great
         };
 
     protected:
-        map<UPDTYPE, map<t_gtime, one_epoch_upd>> _upd; ///< upd map container of all epoch/all satellite(different type)
+        std::map<UPDTYPE, std::map<t_gtime, one_epoch_upd>> _upd; ///< upd map container of all epoch/all satellite(different type)
         UPDTYPE _est_upd_type;                          ///< upd mode (for estimation)
-        map<UPDTYPE, t_gtime> _valid_beg;               ///< valid begin epoch (for encoder)
+        std::map<UPDTYPE, t_gtime> _valid_beg;               ///< valid begin epoch (for encoder)
         one_epoch_upd _null_epoch_upd;
         bool _wait_stream; ///< Real-time upd interrupt to maintain float solution results
         bool _wl_epo_mode; ///< WL epoch by epoch or not?

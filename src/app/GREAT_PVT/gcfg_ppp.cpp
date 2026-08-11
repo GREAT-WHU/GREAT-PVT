@@ -4,7 +4,6 @@
 
 #include "gcfg_ppp.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -32,9 +31,9 @@ namespace gnut
         _IFMT_supported.insert(IFMT::UPD_INP);
         _IFMT_supported.insert(IFMT::IFCB_INP);
 
-        _OFMT_supported.insert(LOG_OUT);
-        _OFMT_supported.insert(PPP_OUT);
-        _OFMT_supported.insert(FLT_OUT);
+    _OFMT_supported.insert(OFMT::LOG_OUT);
+    _OFMT_supported.insert(OFMT::PPP_OUT);
+    _OFMT_supported.insert(OFMT::FLT_OUT);
     }
 
     t_gcfg_ppp::~t_gcfg_ppp()

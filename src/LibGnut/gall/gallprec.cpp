@@ -15,7 +15,6 @@
 #include "gutils/gtypeconv.h"
 #include "gall/gallprec.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -24,15 +23,15 @@ namespace gnut
         t_gallnav(),
         _degree_sp3(9),
         _sec(3600.0 * 6),
-        _ref(t_gtime::GPS),
-        _clkref(t_gtime::GPS),
+        _ref(t_gtime::t_tsys::GPS),
+        _clkref(t_gtime::t_tsys::GPS),
         _clkrnx(true),
         _clksp3(false),
         _clknav(false),
         _posnav(false)
     {
-        id_type(t_gdata::ALLPREC);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::ALLPREC);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
         _com = 1;
         _tend = LAST_TIME;
         _tend_clk = LAST_TIME;
@@ -43,7 +42,7 @@ namespace gnut
         _mapprec.clear();
     }
 
-    bool t_gallprec::health(const string& sat, const t_gtime& t)
+    bool t_gallprec::health(GSAT sat, const t_gtime& t)
     {
         if (_mapsat.size() > 0)
         {
@@ -53,11 +52,11 @@ namespace gnut
         return true; // default healthy if no presence of NAV
     }
 
-    int t_gallprec::pos(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
+    int t_gallprec::pos(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp;
+        std::shared_ptr<t_geph> tmp;
         tmp = t_gallprec::_find(sat, t);
         if (tmp == _null)
         {
@@ -86,7 +85,7 @@ namespace gnut
         return irc;
     }
 
-    int t_gallprec::clk(const string& sat, const t_gtime& t, double* clk, double* var, double* dclk, const bool& chk_mask)
+    int t_gallprec::clk(GSAT sat, const t_gtime& t, double* clk, double* var, double* dclk, const bool& chk_mask)
     {
         _gmutex.lock();
 
@@ -123,11 +122,37 @@ namespace gnut
         return 1;
     }
 
-    int t_gallprec::clk_int(const string& sat, const t_gtime& t, double* clk, double* var, double* dclk)
+    int t_gallprec::clk(const std::string& id, const t_gtime& t, double* clk, double* var, double* dclk, const bool& chk_mask)
+    {
+        GSAT sat = str2gsat(id);
+        if (sat != GSAT::NONE)
+        {
+            return this->clk(sat, t, clk, var, dclk, chk_mask);
+        }
+
+        _gmutex.lock();
+        auto it = _mapclk_rec.find(id);
+        if (!_clkrnx || it == _mapclk_rec.end() || _get_clkdata(it->second, t) < 0)
+        {
+            if (clk) *clk = 0.0;
+            if (var) *var = 0.0;
+            if (dclk) *dclk = 0.0;
+            _gmutex.unlock();
+            return -1;
+        }
+
+        t_gpoly poly;
+        poly.interpolate(_CT, _C, t.diff(_clkref), *clk, *dclk);
+        *dclk = *dclk / (_CT.back() - _CT.front());
+        _gmutex.unlock();
+        return 1;
+    }
+
+    int t_gallprec::clk_int(GSAT sat, const t_gtime& t, double* clk, double* var, double* dclk)
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallprec::_find(sat, t);
+        std::shared_ptr<t_geph> tmp = t_gallprec::_find(sat, t);
 
         if (tmp == _null)
         {
@@ -143,23 +168,23 @@ namespace gnut
             _gmutex.unlock();
             return -1;
         }
-        int irc = dynamic_pointer_cast<t_gephprec>(tmp)->clk_int(t, clk, var, dclk);
+        int irc = std::dynamic_pointer_cast<t_gephprec>(tmp)->clk_int(t, clk, var, dclk);
 
         _gmutex.unlock();
         return irc;
     }
 
-    void t_gallprec::add_interval(const string& sat, int intv)
+    void t_gallprec::add_interval(GSAT sat, int intv)
     {
         _intvm[sat] = intv;
     }
 
-    void t_gallprec::add_agency(const string& agency)
+    void t_gallprec::add_agency(const std::string& agency)
     {
         _agency = agency;
     }
 
-    int t_gallprec::addpos(const string& sat,
+    int t_gallprec::addpos(GSAT sat,
                            const t_gtime& ep,
                            const t_gtriple& xyz,
                            const double& t,
@@ -189,7 +214,7 @@ namespace gnut
         return 0;
     }
 
-    int t_gallprec::addvel(const string& sat, const t_gtime& ep, double xyzt[4], double dxyz[4])
+    int t_gallprec::addvel(GSAT sat, const t_gtime& ep, double xyzt[4], double dxyz[4])
     {
         _gmutex.lock();
 
@@ -214,11 +239,13 @@ namespace gnut
         return 0;
     }
 
-    int t_gallprec::addclk(const string& sat, const t_gtime& ep, double clk[3], double dxyz[3])
+    int t_gallprec::addclk(const std::string& id, const t_gtime& ep, double clk[3], double dxyz[3])
     {
         _gmutex.lock();
 
-        if (_overwrite || _mapclk[sat].find(ep) == _mapclk[sat].end())
+        GSAT sat = str2gsat(id);
+        t_map_epo& clocks = sat == GSAT::NONE ? _mapclk_rec[id] : _mapclk[sat];
+        if (_overwrite || clocks.find(ep) == clocks.end())
         {
             t_map_dat data = {
                 {"C0", clk[0]},
@@ -228,16 +255,8 @@ namespace gnut
                 {"SC1", dxyz[1]},
                 {"SC2", dxyz[2]},
             };
-            _mapclk[sat][ep] = data;
-
-            if (sat.length() == 3)
-            {
-                _clk_type_list.insert(AS);
-            }
-            else
-            {
-                _clk_type_list.insert(AR);
-            }
+            clocks[ep] = data;
+            _clk_type_list.insert(sat == GSAT::NONE ? clk_type::AR : clk_type::AS);
         }
         else
         {
@@ -249,11 +268,13 @@ namespace gnut
         return 0;
     }
 
-    int t_gallprec::addclk_tri(const string& sat, const t_gtime& ep, double clk[3], double dxyz[3])
+    int t_gallprec::addclk_tri(const std::string& id, const t_gtime& ep, double clk[3], double dxyz[3])
     {
         _gmutex.lock();
 
-        if (_overwrite || _mapclk[sat].find(ep) == _mapclk[sat].end())
+        GSAT sat = str2gsat(id);
+        t_map_epo& clocks = sat == GSAT::NONE ? _mapclk_rec[id] : _mapclk[sat];
+        if (_overwrite || clocks.find(ep) == clocks.end())
         {
             t_map_dat data = {
                 {"C0", clk[0]},
@@ -264,16 +285,8 @@ namespace gnut
                 {"SC1", dxyz[1]},
                 {"SC2", dxyz[2]},
             };
-            _mapclk[sat][ep] = data;
-
-            if (sat.length() == 3)
-            {
-                _clk_type_list.insert(AS);
-            }
-            else
-            {
-                _clk_type_list.insert(AR);
-            }
+            clocks[ep] = data;
+            _clk_type_list.insert(sat == GSAT::NONE ? clk_type::AR : clk_type::AS);
         }
         else
         {
@@ -285,7 +298,7 @@ namespace gnut
         return 0;
     }
 
-    unsigned int t_gallprec::nepochs(const string& prn)
+    unsigned int t_gallprec::nepochs(GSAT prn)
     {
         _gmutex.lock();
 
@@ -299,9 +312,9 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gallprec::satellites() const
+    std::set<GSAT> t_gallprec::satellites() const
     {
-        set<string> all_sat = t_gallnav::satellites();
+        std::set<GSAT> all_sat = t_gallnav::satellites();
 
         _gmutex.lock();
 
@@ -327,84 +340,19 @@ namespace gnut
 
         _gmutex.lock();
 
-        map<string, t_map_epo>::const_iterator itPRN = _mapsp3.begin();
-        while (itPRN != _mapsp3.end())
+        auto clean = [&](t_map_epo& data)
         {
-            string prn = itPRN->first;
-
-            // find and CLEAN all data (epochs) out of the specified period !
-            map<t_gtime, t_map_dat>::iterator itFirst = _mapsp3[prn].begin();
-            map<t_gtime, t_map_dat>::iterator itLast = _mapsp3[prn].end();
-            map<t_gtime, t_map_dat>::iterator itBeg = _mapsp3[prn].lower_bound(beg); // greater|equal
-            map<t_gtime, t_map_dat>::iterator itEnd = _mapsp3[prn].upper_bound(end); // greater only!
-
-            // remove before BEGIN request
-            if (itBeg != itFirst)
-            {
-                // begin is last
-                if (itBeg == itLast)
-                {
-                    itBeg--;
-                    _mapsp3[prn].erase(itFirst, itLast);
-
-                    // begin is not last
-                }
-                else
-                {
-                    _mapsp3[prn].erase(itFirst, itBeg);
-                }
-            }
-
-            // remove after END request
-            if (itEnd != itLast)
-            {
-                _mapsp3[prn].erase(itEnd, itLast);
-            }
-            ++itPRN;
-        }
-
-        itPRN = _mapclk.begin();
-        while (itPRN != _mapclk.end())
-        {
-            string prn = itPRN->first;
-
-            // find and CLEAN all data (epochs) out of the specified period !
-            map<t_gtime, t_map_dat>::iterator itFirst = _mapclk[prn].begin();
-            map<t_gtime, t_map_dat>::iterator itLast = _mapclk[prn].end();
-            map<t_gtime, t_map_dat>::iterator itBeg = _mapclk[prn].lower_bound(beg); // greater|equal
-            map<t_gtime, t_map_dat>::iterator itEnd = _mapclk[prn].upper_bound(end); // greater only!
-
-            // remove before BEGIN request
-            if (itBeg != itFirst)
-            {
-                // begin is last
-                if (itBeg == itLast)
-                {
-                    itBeg--;
-
-                    _mapclk[prn].erase(itFirst, itLast);
-
-                    // begin is not last
-                }
-                else
-                {
-                    _mapclk[prn].erase(itFirst, itBeg);
-                }
-            }
-
-            // remove after END request
-            if (itEnd != itLast)
-            { // && ++itEnd != itLast ){
-
-                _mapclk[prn].erase(itEnd, itLast);
-            }
-            itPRN++;
-        }
+            data.erase(data.begin(), data.lower_bound(beg));
+            data.erase(data.upper_bound(end), data.end());
+        };
+        for (auto& item : _mapsp3) clean(item.second);
+        for (auto& item : _mapclk) clean(item.second);
+        for (auto& item : _mapclk_rec) clean(item.second);
         _gmutex.unlock();
         return;
     }
 
-    int t_gallprec::nav(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
+    int t_gallprec::nav(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3], const bool& chk_mask)
     {
         int fitdat = 24; // fitting samples
         int fitdeg = 12; // fitting degree
@@ -467,9 +415,9 @@ namespace gnut
         _Y.clear();
         _Z.clear();
 
-        map<t_gtime, t_map_dat>::iterator itBeg = _mapsp3[sat].begin();
-        map<t_gtime, t_map_dat>::iterator itEnd = _mapsp3[sat].end();
-        map<t_gtime, t_map_dat>::iterator itReq = _mapsp3[sat].upper_bound(t);
+        std::map<t_gtime, t_map_dat>::iterator itBeg = _mapsp3[sat].begin();
+        std::map<t_gtime, t_map_dat>::iterator itEnd = _mapsp3[sat].end();
+        std::map<t_gtime, t_map_dat>::iterator itReq = _mapsp3[sat].upper_bound(t);
 
         int dst = distance(itBeg, itEnd); // tab values [#]
         if (dst < fitdeg)
@@ -541,7 +489,7 @@ namespace gnut
         return 1;
     }
 
-    shared_ptr<t_geph> t_gallprec::_find(const string& sat, const t_gtime& t)
+    std::shared_ptr<t_geph> t_gallprec::_find(GSAT sat, const t_gtime& t)
     {
         if (_mapsp3.find(sat) == _mapsp3.end())
         {
@@ -595,7 +543,7 @@ namespace gnut
         return it->second;
     }
 
-    int t_gallprec::_get_crddata(const string& sat, const t_gtime& t)
+    int t_gallprec::_get_crddata(GSAT sat, const t_gtime& t)
     {
         _T.clear();
         _PT.clear();
@@ -610,14 +558,14 @@ namespace gnut
             return -1;
         }
 
-        map<t_gtime, t_map_dat>::iterator itReq = _mapsp3[sat].lower_bound(t); // 1st equal|greater [than t]
+        std::map<t_gtime, t_map_dat>::iterator itReq = _mapsp3[sat].lower_bound(t); // 1st equal|greater [than t]
 
         if (itReq == _mapsp3[sat].end())
         {
             return -1;
         }
 
-        map<t_gtime, t_map_dat>::iterator itReq_tmp = --(_mapsp3[sat].lower_bound(t));
+        std::map<t_gtime, t_map_dat>::iterator itReq_tmp = --(_mapsp3[sat].lower_bound(t));
 
         if (itReq_tmp != std::end(_mapsp3[sat]))
         {
@@ -629,9 +577,9 @@ namespace gnut
 
         _ref = itReq->first; // get the nearest epoch after t as reference
 
-        map<t_gtime, t_map_dat>::iterator itBeg = _mapsp3[sat].begin();
-        map<t_gtime, t_map_dat>::iterator itEnd = _mapsp3[sat].end();
-        map<t_gtime, t_map_dat>::iterator it = itReq;
+        std::map<t_gtime, t_map_dat>::iterator itBeg = _mapsp3[sat].begin();
+        std::map<t_gtime, t_map_dat>::iterator itEnd = _mapsp3[sat].end();
+        std::map<t_gtime, t_map_dat>::iterator it = itReq;
 
         if (itReq == itEnd)
         {
@@ -706,7 +654,7 @@ namespace gnut
         }
         else
         {
-            shared_ptr<t_gephprec> tmp(new t_gephprec());
+            std::shared_ptr<t_gephprec> tmp(new t_gephprec());
             tmp->degree(_degree_sp3);
             tmp->add(sat, _T, _X, _Y, _Z, _C);
             _prec[sat] = tmp;
@@ -715,21 +663,27 @@ namespace gnut
         return 1;
     }
 
-    int t_gallprec::_get_clkdata(const string& sat, const t_gtime& t)
+    int t_gallprec::_get_clkdata(GSAT sat, const t_gtime& t)
+    {
+        auto it = _mapclk.find(sat);
+        if (it == _mapclk.end())
+        {
+            return -1;
+        }
+        return _get_clkdata(it->second, t);
+    }
+
+    int t_gallprec::_get_clkdata(t_map_epo& clocks, const t_gtime& t)
     {
         _CT.clear();
         _C.clear();
         _IFCB_F3.clear();
 
-        if (_mapclk.find(sat) == _mapclk.end())
-        {
-            return -1;
-        }
-        map<t_gtime, t_map_dat>::iterator itBeg = _mapclk[sat].begin();
-        map<t_gtime, t_map_dat>::iterator itEnd = _mapclk[sat].end();
-        map<t_gtime, t_map_dat>::iterator itReq = _mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
+        std::map<t_gtime, t_map_dat>::iterator itBeg = clocks.begin();
+        std::map<t_gtime, t_map_dat>::iterator itEnd = clocks.end();
+        std::map<t_gtime, t_map_dat>::iterator itReq = clocks.lower_bound(t); // 1st equal|greater [than t]
 
-        if (itReq == _mapclk[sat].end())
+        if (itReq == clocks.end())
         {
             return -1; // too old products
         }
@@ -740,7 +694,7 @@ namespace gnut
 
         _clkref = itReq->first; // get the nearest epoch after t as reference
 
-        map<t_gtime, t_map_dat>::iterator it = itReq;
+        std::map<t_gtime, t_map_dat>::iterator it = itReq;
 
         if (itReq == itEnd)
         {
@@ -756,7 +710,7 @@ namespace gnut
         for (int i = 0; i <= limit; i++)
         {
             itleft--;
-            if (itleft == _mapclk[sat].end())
+            if (itleft == clocks.end())
             {
                 flag_left = true;
                 break;
@@ -767,14 +721,14 @@ namespace gnut
         for (int i = 0; i < static_cast<int>(degree_clk - limit); i++)
         {
             itright++;
-            if (itright == _mapclk[sat].end())
+            if (itright == clocks.end())
             {
                 flag_right = true;
                 break;
             }
         }
 
-        if (_mapclk[sat].size() < static_cast<unsigned int>(degree_clk))
+        if (clocks.size() < static_cast<unsigned int>(degree_clk))
         {
             return -1;
         }
@@ -877,16 +831,16 @@ namespace gnut
         return 1;
     }
 
-    int t_gallprec::_get_delta_pos_vel(const string& sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& orbcorr)
+    int t_gallprec::_get_delta_pos_vel(GSAT sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& orbcorr)
     {
         if (_mapsp3.find(sat) == _mapsp3.end() || _mapsp3[sat].size() == 0)
         {
             return -1;
         }
 
-        map<t_gtime, t_map_dat>::iterator itLast = _mapsp3[sat].lower_bound(t);
+        std::map<t_gtime, t_map_dat>::iterator itLast = _mapsp3[sat].lower_bound(t);
 
-        map<t_gtime, t_map_dat>::iterator itPrev = --(_mapsp3[sat].lower_bound(t));
+        std::map<t_gtime, t_map_dat>::iterator itPrev = --(_mapsp3[sat].lower_bound(t));
 
         if (itLast != _mapsp3[sat].end() && int(itLast->second["IOD"]) == iod)
         {
@@ -906,15 +860,15 @@ namespace gnut
         }
     }
 
-    int t_gallprec::_get_delta_clk(const string& sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& clkcorr)
+    int t_gallprec::_get_delta_clk(GSAT sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& clkcorr)
     {
         if (_mapclk.find(sat) == _mapclk.end() || _mapclk[sat].size() == 0)
         {
             return -1;
         }
-        map<t_gtime, t_map_dat>::iterator itLast = _mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
+        std::map<t_gtime, t_map_dat>::iterator itLast = _mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
 
-        map<t_gtime, t_map_dat>::iterator itPrev = --_mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
+        std::map<t_gtime, t_map_dat>::iterator itPrev = --_mapclk[sat].lower_bound(t); // 1st equal|greater [than t]
 
         if (itLast != _mapclk[sat].end() && int(itLast->second["IOD"]) == iod)
         {

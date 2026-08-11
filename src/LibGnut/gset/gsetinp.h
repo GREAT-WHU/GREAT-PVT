@@ -19,7 +19,9 @@
 #ifndef GSETINP_H
 #define GSETINP_H
 
+#ifndef XMLKEY_INP
 #define XMLKEY_INP "inputs" ///< The defination of input node in XML
+#endif
 
 #include "gexport/ExportLibGnut.h"
 #include <map>
@@ -31,7 +33,6 @@
 #include "gset/gsetbase.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -75,39 +76,39 @@ namespace gnut
          * @param[in] s file format
          * @return IFMT : file format
          */
-        static IFMT str2ifmt(const string& s);
+        static IFMT str2ifmt(const std::string& s);
 
         /**
          * @brief change from IFMT to string
          * @param[in] f file format
          * @return string : file format
          */
-        static string ifmt2str(const IFMT& f);
+        static std::string ifmt2str(const IFMT& f);
 
         /**
          * @brief get format input size
          * @param[in] fmt file format
          * @return int : format input size
          */
-        int input_size(const string& fmt);
+        int input_size(const std::string& fmt);
 
         /**@brief check input */
-        bool check_input(const string& fmt);
-        void check_input(const string& fmt, const string& message);
+        bool check_input(const std::string& fmt);
+        void check_input(const std::string& fmt, const std::string& message);
 
         /**
          * @brief get format inputs (all in multimap)
          * @return multimap<IFMT, string> : format inputs (all in multimap)
          */
-        multimap<IFMT, string> inputs_all();
+        std::multimap<IFMT, std::string> inputs_all();
 
         /**
          * @brief get format inputs (ordered)
          * @param[in] fmt file format
          * @return vector<string> : format inputs (ordered)
          */
-        vector<string> inputs(const string& fmt);
-        vector<string> inputs(const IFMT& ifmt);
+        std::vector<std::string> inputs(const std::string& fmt);
+        std::vector<std::string> inputs(const IFMT& ifmt);
 
     protected:
         /**
@@ -115,20 +116,20 @@ namespace gnut
          * @param[in] ftm file format
          * @return vector<string> : all the file name of ftm
          */
-        vector<string> _inputs(const string& fmt);
-        vector<string> _inputs(const IFMT& fmt);
+        std::vector<std::string> _inputs(const std::string& fmt);
+        std::vector<std::string> _inputs(const IFMT& fmt);
 
         /**
          * @brief get all the ftm in input node
          * @return set<string> : all the ftm in input node
          */
-        set<string> _iformats();
+        std::set<std::string> _iformats();
 
     protected:
-        set<IFMT> _IFMT_supported; ///< vector of supported IFMTs (app-specific)
+        std::set<IFMT> _IFMT_supported; ///< vector of supported IFMTs (app-specific)
         bool _chkNavig;            ///< check navigation data or not
         bool _chkHealth;           ///< check data health or not
-        string _corrStream;        ///< error message string
+        std::string _corrStream;        ///< error message string
 
     private:
     };

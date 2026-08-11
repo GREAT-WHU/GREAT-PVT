@@ -12,7 +12,6 @@
 #include "gmodels/gdop.h"
 #include "gutils/gsysconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -24,7 +23,7 @@ namespace gnut
         _site = "";
         _Qx.ReSize(4);
     }
-    t_gdop::t_gdop(t_gallnav* gnav, t_gallobs* gobs, string site)
+    t_gdop::t_gdop(t_gallnav* gnav, t_gallobs* gobs, std::string site)
     {
         _gnav = gnav;
         _gobs = gobs;
@@ -32,7 +31,7 @@ namespace gnut
         _Qx.ReSize(4);
     }
 
-    t_gdop::t_gdop(t_gallnav* gnav, set<string> sats)
+    t_gdop::t_gdop(t_gallnav* gnav, std::set<GSAT> sats)
     {
         _gnav = gnav;
         _sats = sats;
@@ -45,14 +44,14 @@ namespace gnut
     {
     }
 
-    void t_gdop::set_data(t_gallnav* gnav, t_gallobs* gobs, string site)
+    void t_gdop::set_data(t_gallnav* gnav, t_gallobs* gobs, std::string site)
     {
         _gnav = gnav;
         _gobs = gobs;
         _site = site;
     }
 
-    void t_gdop::set_sats(set<string>& sats)
+    void t_gdop::set_sats(std::set<GSAT>& sats)
     {
         _sats = sats;
     }
@@ -71,7 +70,7 @@ namespace gnut
             }
             else if (_sats.size() == 0)
             {
-                string msg = "WARNING - not selected satellites for DOP calculation!";
+                std::string msg = "WARNING - not selected satellites for DOP calculation!";
                 GREAT_DEBUG(msg);
                 return -1;
             }
@@ -86,7 +85,7 @@ namespace gnut
         Matrix A(Nsat, 4);
         A = 0;
         int i = 0;
-        for (set<string>::iterator it = _sats.begin(); it != _sats.end(); it++)
+        for (std::set<GSAT>::iterator it = _sats.begin(); it != _sats.end(); it++)
         {
             double xyz[3] = {0.0, 0.0, 0.0};
             double vel[3] = {0.0, 0.0, 0.0};

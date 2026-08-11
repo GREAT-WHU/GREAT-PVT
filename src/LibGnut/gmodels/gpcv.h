@@ -31,7 +31,6 @@
 #include "gmodels/gephplan.h"
 #include "gdata/gsatdata.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -45,12 +44,12 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_gpcv();
 
-        typedef map<double, double> t_map_Z;  ///< map of ZEN-dependence
-        typedef map<double, t_map_Z> t_map_A; ///< map of AZI-dependence & ZEN-dependence
+        typedef std::map<double, double> t_map_Z;  ///< map of ZEN-dependence
+        typedef std::map<double, t_map_Z> t_map_A; ///< map of AZI-dependence & ZEN-dependence
 
-        typedef map<GFRQ, t_gtriple> t_map_pco; ///< North/East/Up phase centre offsets     (N-freqs)
-        typedef map<GFRQ, t_map_Z> t_map_zen;   ///< map of AZI-dependence                  (N-freqs)
-        typedef map<GFRQ, t_map_A> t_map_azi;   ///< map of AZI-dependence & ZEN-dependence (N-freqs)
+        typedef std::map<GFRQ, t_gtriple> t_map_pco; ///< North/East/Up phase centre offsets     (N-freqs)
+        typedef std::map<GFRQ, t_map_Z> t_map_zen;   ///< map of AZI-dependence                  (N-freqs)
+        typedef std::map<GFRQ, t_map_A> t_map_azi;   ///< map of AZI-dependence & ZEN-dependence (N-freqs)
 
         /** @brief model is for transmitter (satellite). */
         bool is_transmitter() const
@@ -65,27 +64,27 @@ namespace gnut
         }
 
         /** @brief set/get antenna type definition (ATX field 0-19). */
-        void anten(const string& s)
+        void anten(const std::string& s)
         {
             _anten = s;
         }
-        const string& anten() const
+        const std::string& anten() const
         {
             return _anten;
         }
 
         /** @brief set/get antenna identification (ATX field 20-39). */
-        void ident(const string& s)
+        void ident(const std::string& s)
         {
             _ident = s;
         }
-        const string& ident() const
+        const std::string& ident() const
         {
             return _ident;
         }
 
         /** @brief set/get satellite (svn) code (ATX field 40-59). */
-        void svcod(const string& s)
+        void svcod(const std::string& s)
         {
             _svcod = s;
             if (s.empty())
@@ -95,19 +94,21 @@ namespace gnut
             else
             {
                 _trans = true;
+                _sat = str2gsat(_ident);
+                _ident.clear();
             }
         }
-        const string& svcod() const
+        const std::string& svcod() const
         {
             return _svcod;
         }
 
         /** @brief pcvall first map key (antenna/satellite prn). */
-        string pcvkey() const
+        std::string pcvkey() const
         {
             if (is_transmitter())
             {
-                return ident();
+                return gsat2str(_sat);
             }
             else
             {
@@ -115,8 +116,10 @@ namespace gnut
             }
         }
 
+        GSAT sat() const { return _sat; }
+
         /** @brief pcvall second map key (individual/type callibration). */
-        string pcvtyp() const
+        std::string pcvtyp() const
         {
             if (is_transmitter())
             {
@@ -129,31 +132,31 @@ namespace gnut
         }
 
         /** @brief set/get method of callibration. */
-        void method(const string& s)
+        void method(const std::string& s)
         {
             _method = s;
         }
-        const string& method() const
+        const std::string& method() const
         {
             return _method;
         }
 
         /** @brief set/get source of callibration. */
-        void source(const string& s)
+        void source(const std::string& s)
         {
             _source = s;
         }
-        const string& source() const
+        const std::string& source() const
         {
             return _source;
         }
 
         /** @brief set/get sinex code. */
-        void snxcod(const string& s)
+        void snxcod(const std::string& s)
         {
             _snxcod = s;
         }
-        const string& snxcod() const
+        const std::string& snxcod() const
         {
             return _snxcod;
         }
@@ -318,13 +321,14 @@ namespace gnut
         t_gephplan _ephplan;
 
         bool _trans;   ///< transmitter[true], receiver[false]
-        string _anten; ///< antenna type
-        string _ident; ///< antenna identification
-        string _svcod; ///< svn code
+        std::string _anten; ///< antenna type
+        std::string _ident; ///< antenna identification
+        GSAT _sat = GSAT::NONE; ///< satellite PRN
+        std::string _svcod; ///< svn code
 
-        string _method; ///< method of calibration
-        string _source; ///< source of calibration
-        string _snxcod; ///< sinex code
+        std::string _method; ///< method of calibration
+        std::string _source; ///< source of calibration
+        std::string _snxcod; ///< sinex code
         t_gtime _beg;   ///< valid from
         t_gtime _end;   ///< valid until
         double _dazi;   ///< azimuth sampling

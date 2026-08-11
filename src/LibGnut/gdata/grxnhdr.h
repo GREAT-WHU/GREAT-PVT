@@ -31,7 +31,7 @@ namespace gnut
 {
 
     /** @brief system correct. */
-    enum TSYS_CORR
+    enum class TSYS_CORR
     {
         TS_NONE,
         TS_GAUT,
@@ -48,7 +48,7 @@ namespace gnut
     };
 
     /** @brief iono correct. */
-    enum IONO_CORR
+    enum class IONO_CORR
     {
         IO_NONE,
         IO_GAL,
@@ -77,22 +77,22 @@ namespace gnut
     };
 
     /** @brief map system correct. */
-    typedef map<TSYS_CORR, t_tsys_corr> t_map_tsys;
+    typedef std::map<TSYS_CORR, t_tsys_corr> t_map_tsys;
 
     /** @brief map iono correct. */
-    typedef map<IONO_CORR, t_iono_corr> t_map_iono;
+    typedef std::map<IONO_CORR, t_iono_corr> t_map_iono;
 
     /** @brief convert sys_corr to string. */
-    string tsys_corr2str(TSYS_CORR c);
+    std::string tsys_corr2str(TSYS_CORR c);
 
     /** @brief convert iono_corr to string. */
-    string iono_corr2str(IONO_CORR c);
+    std::string iono_corr2str(IONO_CORR c);
 
     /** @brief convert string to sys_corr. */
-    TSYS_CORR str2tsys_corr(string s);
+    TSYS_CORR str2tsys_corr(std::string s);
 
     /** @brief convert string to iono_corr. */
-    IONO_CORR str2iono_corr(string s);
+    IONO_CORR str2iono_corr(std::string s);
 
     /** @brief class for rinex header information. */
     class t_rxnhdr
@@ -109,7 +109,7 @@ namespace gnut
          *
          * @return const string&
          */
-        const string& path() const
+        const std::string& path() const
         {
             return _path;
         } ///< get path
@@ -119,7 +119,7 @@ namespace gnut
          *
          * @param s
          */
-        void path(const string& s)
+        void path(const std::string& s)
         {
             _path = s;
         } ///< set path
@@ -149,7 +149,7 @@ namespace gnut
          *
          * @return const string&
          */
-        const string& rxnver() const
+        const std::string& rxnver() const
         {
             return _rxnver;
         } ///< get rinex receiver
@@ -159,7 +159,7 @@ namespace gnut
          *
          * @param s
          */
-        void rxnver(const string& s)
+        void rxnver(const std::string& s)
         {
             _rxnver = s;
         } ///< set rinex receiver
@@ -169,7 +169,7 @@ namespace gnut
          *
          * @return const string&
          */
-        const string& program() const
+        const std::string& program() const
         {
             return _program;
         } ///< get program
@@ -179,7 +179,7 @@ namespace gnut
          *
          * @param pgm
          */
-        void program(const string& pgm)
+        void program(const std::string& pgm)
         {
             _program = pgm;
         } ///< set program
@@ -189,7 +189,7 @@ namespace gnut
          *
          * @return const string&
          */
-        const string& runby() const
+        const std::string& runby() const
         {
             return _runby;
         } ///< get runby
@@ -199,7 +199,7 @@ namespace gnut
          *
          * @param rnb
          */
-        void runby(const string& rnb)
+        void runby(const std::string& rnb)
         {
             _runby = rnb;
         } ///< set program
@@ -229,7 +229,7 @@ namespace gnut
          *
          * @return const vector<string>&
          */
-        const vector<string>& comment() const
+        const std::vector<std::string>& comment() const
         {
             return _comment;
         } ///< get comment
@@ -239,7 +239,7 @@ namespace gnut
          *
          * @param cmt
          */
-        void comment(const vector<string>& cmt)
+        void comment(const std::vector<std::string>& cmt)
         {
             _comment = cmt;
         } ///< set comment
@@ -269,14 +269,14 @@ namespace gnut
          *
          * @return set<TSYS_CORR>
          */
-        set<TSYS_CORR> tsys_corr() const; ///< system correct
+        std::set<TSYS_CORR> tsys_corr() const; ///< system correct
 
         /**
          * @brief iono correct
          *
          * @return set<IONO_CORR>
          */
-        set<IONO_CORR> iono_corr() const; ///< iono correct
+        std::set<IONO_CORR> iono_corr() const; ///< iono correct
 
         /**
          * @brief get sys_corr
@@ -325,16 +325,16 @@ namespace gnut
          * @param x
          * @return ostream&
          */
-        friend ostream& operator<<(ostream& os, const t_rxnhdr& x);
+        friend std::ostream& operator<<(std::ostream& os, const t_rxnhdr& x);
 
     private:
         char _rxnsys;            ///< G=GPS, R=GLO, E=GAL, S=SBAS, M=Mix
-        string _path;            ///< rinex file path
-        string _rxnver;          ///< rinex version
-        string _program;         ///< name of program creating RINEX file
-        string _runby;           ///< name of agency  creating RINEX file
+        std::string _path;            ///< rinex file path
+        std::string _rxnver;          ///< rinex version
+        std::string _program;         ///< name of program creating RINEX file
+        std::string _runby;           ///< name of agency  creating RINEX file
         t_gtime _gtime;          ///< name of date and file of RINEX creation
-        vector<string> _comment; ///< vector of comments
+        std::vector<std::string> _comment; ///< vector of comments
         int _leapsec;            ///< leapseconds since 6-Jan-1980
         t_map_tsys _ts_corr;     ///< RINEX header tsys corrections
         t_map_iono _io_corr;     ///< RINEX header iono corrections

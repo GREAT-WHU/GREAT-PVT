@@ -32,7 +32,7 @@ namespace great
     {
     public:
         /** @brief default constructor. */
-        t_gpvtflt(string mark, string mark_base, t_gsetbase* set, t_gallproc* allproc = nullptr);
+        t_gpvtflt(std::string mark, std::string mark_base, t_gsetbase* set, t_gallproc* allproc = nullptr);
 
         /** @brief default destructor. */
         virtual ~t_gpvtflt();
@@ -51,7 +51,7 @@ namespace great
          * @param[in] data_base
          * @return -1,failed; 0,float; 1,fixed.
          */
-        virtual int ProcessOneEpoch(const t_gtime& now, vector<t_gsatdata>* data_rover = NULL, vector<t_gsatdata>* data_base = NULL);
+        virtual int ProcessOneEpoch(const t_gtime& now, std::vector<t_gsatdata>* data_rover = NULL, std::vector<t_gsatdata>* data_base = NULL);
 
         /** @brief Add UPD. */
         virtual void Add_UPD(t_gupd* gupd);
@@ -65,7 +65,7 @@ namespace great
          * @param[in/out] current site  data
          * @return void
          */
-        void Add_rho_azel(/*const t_gtime &runEpoch, */ const string& site_name,
+        void Add_rho_azel(/*const t_gtime &runEpoch, */ const std::string& site_name,
                           t_gtriple& xyz_s,
                           const t_gtriple& xyz_r,
                           t_gsatdata& obs_sat);
@@ -74,9 +74,10 @@ namespace great
          * @brief Setting given reference satellites.
          * @param[in] current reference satellites
          */
-        void setRefsat(map<GSYS, string> satref)
+        void setRefsat(std::map<GSYS, std::string> satref)
         {
-            _ipSatRep = satref;
+            _ipSatRep.clear();
+            for (const auto& item : satref) _ipSatRep[item.first] = str2gsat(item.second, item.first);
         }
 
     protected:
@@ -98,13 +99,13 @@ namespace great
          * @param[in/out] rover-site satellite data
          * @return number of common sats
          */
-        int _selcomsat(vector<t_gsatdata>& data_base, vector<t_gsatdata>& data_rover);
+        int _selcomsat(std::vector<t_gsatdata>& data_base, std::vector<t_gsatdata>& data_rover);
 
         /**
          * @brief To jude whether exist UD Phase/Range residuals in current satellite
          * @return true: exist; false: no exist
          */
-        bool _valid_residual(bool phase_process, string sat_name, enum FREQ_SEQ& f, map<string, map<FREQ_SEQ, pair<int, int>>>& index_l);
+        bool _valid_residual(bool phase_process, GSAT sat, FREQ_SEQ& f, std::map<GSAT, std::map<FREQ_SEQ, std::pair<int, int>>>& index_l);
 
         /**
          * @brief add pseudorange and carrier-phase measurement to model. Rewritten for RTK application.
@@ -123,7 +124,7 @@ namespace great
         void _udAmb();
 
         /** @obtain satcrd,satclk,satele,satazi,rho, it must be two bands*/
-        virtual int _preprocess(const string& ssite, vector<t_gsatdata>& sdata);
+        virtual int _preprocess(const std::string& ssite, std::vector<t_gsatdata>& sdata);
 
         /** @brief prepare data.    */
         virtual int _prepareData();
@@ -138,7 +139,7 @@ namespace great
         bool _getSatRef();
 
         /** @brief Detect outlier. */
-        virtual int _outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, string& sat);
+        virtual int _outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, GSAT& sat);
 
         /**
          * @brief add doppler measurement to model
@@ -168,10 +169,10 @@ namespace great
         virtual int _processEpochVel();
 
         /** @brief kml description. */
-        virtual string _gen_kml_description(const t_gtime& epoch, const t_gposdata::data_pos& pos);
+        virtual std::string _gen_kml_description(const t_gtime& epoch, const t_gposdata::data_pos& pos);
 
         /** @brief quality grade. */
-        virtual string _quality_grade(const t_gposdata::data_pos& pos);
+        virtual std::string _quality_grade(const t_gposdata::data_pos& pos);
 
         /** @brief filter time update. */
         virtual void _predict(const t_gtime& runEpoch);
@@ -180,11 +181,11 @@ namespace great
         virtual void _prtOut(t_gtime& epo,
                              t_gallpar& X,
                              const SymmetricMatrix& Q,
-                             vector<t_gsatdata>& data,
-                             ostringstream& os,
+                             std::vector<t_gsatdata>& data,
+                             std::ostringstream& os,
                              xml_node& node,
                              bool saveProd = true);
-        virtual void _prt_port(t_gtime& epo, t_gallpar& X, const SymmetricMatrix& Q, vector<t_gsatdata>& data);
+        virtual void _prt_port(t_gtime& epo, t_gallpar& X, const SymmetricMatrix& Q, std::vector<t_gsatdata>& data);
 
         /** @brief print  the result. */
         void _prtOutHeader();
@@ -196,22 +197,22 @@ namespace great
         bool _slip_detect(const t_gtime& now);
 
         /** @brief add filter epoch data. */
-        int _getData(const t_gtime& now, vector<t_gsatdata>* data, bool isBase);
+        int _getData(const t_gtime& now, std::vector<t_gsatdata>* data, bool isBase);
 
         /** @brief avoid same name with _valid_crd_xml. */
         bool _crd_xml_valid();
 
         /** @brief remove sat. */
-        void _remove_sat(const string& satid);
+        void _remove_sat(GSAT sat);
 
         /** @brief check sat. */
-        bool _check_sat(const string& ssite, t_gsatdata* const iter, Matrix& BB, int& iobs);
+        bool _check_sat(const std::string& ssite, t_gsatdata* const iter, Matrix& BB, int& iobs);
 
         /** @brief compute rec crd. */
-        bool _cmp_rec_crd(const string& ssite, Matrix& BB);
+        bool _cmp_rec_crd(const std::string& ssite, Matrix& BB);
 
         /** @brief compute sat information. */
-        bool _cmp_sat_info(const string& ssite, t_gsatdata* const iter);
+        bool _cmp_sat_info(const std::string& ssite, t_gsatdata* const iter);
 
         /** @brief predict Crd. */
         void _predictCrd();
@@ -254,11 +255,11 @@ namespace great
         Matrix _post_A;                                                           ///< post A P L for RTK
         SymmetricMatrix _post_P;                                                  ///< post A P L for RTK
         ColumnVector _post_l;                                                     ///< post A P L for RTK
-        string _site_base;                                                        ///< base site name;
-        vector<t_gsatdata> _data_base;                                            ///< base data in every epoch;
+        std::string _site_base;                                                        ///< base site name;
+        std::vector<t_gsatdata> _data_base;                                            ///< base data in every epoch;
         t_gpppmodel* _gModel_base;                                                ///< base model
-        set<string> _sat_ref;                                                     ///< reference sat
-        map<GSYS, string> _ipSatRep;                                              ///< input reference satellite
+        std::set<GSAT> _sat_ref;                                                       ///< reference sat
+        std::map<GSYS, GSAT> _ipSatRep;                                                ///< input reference satellite
         t_gupd* _gupd = nullptr;                                                  ///< upd
         t_gambiguity* _ambfix = nullptr;                                          ///< ambfix
         FIX_MODE _fix_mode;                                                       ///< fix mode
@@ -268,29 +269,29 @@ namespace great
         t_gallpar _param_fixed;                                                   ///< param fixed
         t_gtriple _vel;                                                           ///< vel
         SymmetricMatrix _Qx_vel;                                                  ///< Qx_vel
-        map<string, double> _crt_ele;                                             ///< crt vel
-        map<string, map<FREQ_SEQ, double>> _crt_SNR;                              ///< crt SNR
-        vector<pair<string, pair<FREQ_SEQ, GOBSTYPE>>> _obs_index;                ///< obs index
-        map<pair<string, par_type>, tuple<GOBS, GOBS, GOBS, GOBS>> _amb_obs;
+        std::map<GSAT, double> _crt_ele;                                               ///< crt vel
+        std::map<GSAT, std::map<FREQ_SEQ, double>> _crt_SNR;                                ///< crt SNR
+        std::vector<std::pair<GSAT, std::pair<FREQ_SEQ, GOBSTYPE>>> _obs_index;                ///< obs index
+        std::map<std::pair<GSAT, par_type>, std::tuple<GOBS, GOBS, GOBS, GOBS>> _amb_obs;
         ColumnVector _vBanc_base;                       ///< _vBanc_base
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band index
-        map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq index
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band index
+        std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq index
         int _frequency;                                 ///< frequency
         t_gallproc* _allproc = nullptr;                 ///< process data
-        shared_ptr<t_gbasemodel> _base_model = nullptr; ///< base model
+        std::shared_ptr<t_gbasemodel> _base_model = nullptr; ///< base model
         SLIPMODEL _slip_model;                          ///< slip model
-        shared_ptr<t_gpreproc> _gpre;                   ///< preprocess
+        std::shared_ptr<t_gpreproc> _gpre;                   ///< preprocess
         t_gqualitycontrol _gquality_control;            ///< gquality control
         t_gtime _wl_Upd_time;                           ///< wl Upd time
         t_gtime _ewl_Upd_time;                          ///< ewl Upd time
         int _realnobs;                                  ///< number of obs
         RECEIVERTYPE _receiverType;                     ///< receiver Type
-        map<string, string> _sat_freqs;                 ///< sat freqs
+        std::map<GSAT, std::string> _sat_freqs;                   ///< sat freqs
     };
     template <class T1, class T2> void t_out(T1 const& name, T2 const& matrix)
     {
-        cout << name << endl;
-        cout << fixed << setprecision(6) << setw(15) << matrix << endl;
+        std::cout << name << std::endl;
+        std::cout << std::fixed << std::setprecision(6) << std::setw(15) << matrix << std::endl;
         return;
     }
 } // namespace great

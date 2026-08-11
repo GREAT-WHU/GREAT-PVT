@@ -24,22 +24,21 @@
 #include "gutils/gtypeconv.h"
 #include "gutils/gfileconv.h"
 
-using namespace std;
 
 namespace gnut
 {
     t_gallnav::t_gallnav() :
         t_gdata(),
         _com(false),
-        _nepoch(t_gtime::GPS),
+        _nepoch(static_cast<int>(t_gtime::t_tsys::GPS)),
         _multimap(false),
         _overwrite(false),
         _chkHealth(true),
         _chkNavig(true),
         _chkTot(false)
     {
-        id_type(t_gdata::ALLNAV);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::ALLNAV);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
     }
 
     t_gallnav::~t_gallnav()
@@ -47,21 +46,21 @@ namespace gnut
         _mapsat.clear();
     }
 
-    shared_ptr<t_geph> t_gallnav::find(const string& sat, const t_gtime& t, const bool& chk_mask)
+    std::shared_ptr<t_geph> t_gallnav::find(GSAT sat, const t_gtime& t, const bool& chk_mask)
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
+        std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
         _gmutex.unlock();
         return tmp;
     };
-    int t_gallnav::pos(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
+    int t_gallnav::pos(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
                        const bool& chk_mask) // [m]
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
+        std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
         if (tmp == _null)
         {
@@ -97,7 +96,7 @@ namespace gnut
         return irc;
     }
 
-    int t_gallnav::pos(const string& sat,
+    int t_gallnav::pos(GSAT sat,
                        const int& iod,
                        const t_gtime& t,
                        double xyz[3],
@@ -107,7 +106,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallnav::_find(sat, iod, t, _chkHealth && chk_mask);
+        std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, iod, t, _chkHealth && chk_mask);
 
         if (tmp == _null)
         {
@@ -143,11 +142,11 @@ namespace gnut
         return irc;
     }
 
-    bool t_gallnav::health(const string& sat, const t_gtime& t)
+    bool t_gallnav::health(GSAT sat, const t_gtime& t)
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, false);
+        std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, false);
 
         if (tmp == _null)
         {
@@ -161,12 +160,12 @@ namespace gnut
         return status;
     }
 
-    int t_gallnav::nav(const string& sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
+    int t_gallnav::nav(GSAT sat, const t_gtime& t, double xyz[3], double var[3], double vel[3],
                        const bool& chk_mask) // [m]
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
+        std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
         if (tmp == _null)
         {
@@ -192,12 +191,12 @@ namespace gnut
     }
 
     // ----------
-    int t_gallnav::clk(const string& sat, const t_gtime& t, double* clk, double* var, double* dclk,
+    int t_gallnav::clk(GSAT sat, const t_gtime& t, double* clk, double* var, double* dclk,
                        const bool& chk_mask) // [s]
     {
         _gmutex.lock();
 
-        shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
+        std::shared_ptr<t_geph> tmp = t_gallnav::_find(sat, t, _chkHealth && chk_mask);
 
         if (tmp == _null)
         {
@@ -219,11 +218,18 @@ namespace gnut
         return irc;
     }
 
-    set<string> t_gallnav::satellites() const
+    int t_gallnav::clk(const std::string& id, const t_gtime& t, double* clk, double* var, double* dclk,
+                       const bool& chk_mask)
+    {
+        GSAT sat = str2gsat(id);
+        return sat == GSAT::NONE ? -1 : this->clk(sat, t, clk, var, dclk, chk_mask);
+    }
+
+    std::set<GSAT> t_gallnav::satellites() const
     {
         _gmutex.lock();
 
-        set<string> all_sat;
+        std::set<GSAT> all_sat;
         auto itPRN = _mapsat.begin();
 
         while (itPRN != _mapsat.end())
@@ -236,16 +242,16 @@ namespace gnut
         return all_sat;
     }
 
-    int t_gallnav::add(shared_ptr<t_gnav> nav)
+    int t_gallnav::add(std::shared_ptr<t_gnav> nav)
     {
         _gmutex.lock();
 
         t_gtime ep(nav->epoch());
-        string sat = nav->sat();
+        GSAT sat = nav->sat();
 
         if (_chkNavig)
         {
-            set<string> msg;
+            std::set<std::string> msg;
             nav->chk(msg);
         }
 
@@ -259,13 +265,13 @@ namespace gnut
         {
             add = true;
         } // non-existent
-        else if (nav->id_type() == t_gdata::EPHGAL)
+        else if (nav->id_type() == t_gdata::ID_TYPE::EPHGAL)
         { // check nav-type
             auto itB = _mapsat[sat].lower_bound(ep);
             auto itE = _mapsat[sat].upper_bound(ep);
             while (itB != itE)
             {
-                if (dynamic_pointer_cast<t_gnav>(itB->second)->gnavtype() == nav->gnavtype())
+                if (std::dynamic_pointer_cast<t_gnav>(itB->second)->gnavtype() == nav->gnavtype())
                 {
                     add = false;
                     break;
@@ -284,8 +290,8 @@ namespace gnut
 
         if (add)
         {
-            _mapsat[sat].insert(make_pair(ep, nav));
-            if (sat.substr(0, 1) == "R")
+            _mapsat[sat].insert(std::make_pair(ep, nav));
+            if (gsat2gsys(sat) == GSYS::GLO)
             {
                 _gloFreqNum[sat] = nav->freq_num();
             }
@@ -295,7 +301,7 @@ namespace gnut
         return 0;
     }
 
-    unsigned int t_gallnav::nepochs(const string& prn)
+    unsigned int t_gallnav::nepochs(GSAT prn)
     {
         _gmutex.lock();
 
@@ -330,7 +336,7 @@ namespace gnut
         auto itPRN = _mapsat.begin();
         while (itPRN != _mapsat.end())
         {
-            string prn = itPRN->first;
+            GSAT prn = itPRN->first;
 
             // find and CLEAN all data (epochs) out of the specified period !
             auto itFirst = _mapsat[prn].begin();
@@ -383,8 +389,8 @@ namespace gnut
         int nsatell = 0;
         for (auto itSAT = _mapsat.begin(); itSAT != _mapsat.end(); ++itSAT)
         {
-            string sat = itSAT->first;
-            if (t_gsys::char2gsys(sat[0]) == gs || gs == GNS)
+            GSAT sat = itSAT->first;
+            if (gsat2gsys(sat) == gs || gs == GSYS::GNS)
             {
                 nsatell++;
             }
@@ -400,14 +406,14 @@ namespace gnut
         }
         t_iono_corr io;
         // default settings , according rtklib->rtkcmn.c->ionmodel
-        if (c == IO_GPSA)
+        if (c == IONO_CORR::IO_GPSA)
         {
             io.x0 = 0.1118e-07;
             io.x1 = -0.7451e-08;
             io.x2 = -0.5961e-07;
             io.x3 = 0.1192e-06;
         }
-        else if (c == IO_GPSB)
+        else if (c == IONO_CORR::IO_GPSB)
         {
             io.x0 = 0.1167e+06;
             io.x1 = -0.2294e+06;
@@ -426,14 +432,14 @@ namespace gnut
         }
     }
 
-    shared_ptr<t_geph> t_gallnav::_find(const string& sat, const t_gtime& t, const bool& chk_mask)
+    std::shared_ptr<t_geph> t_gallnav::_find(GSAT sat, const t_gtime& t, const bool& chk_mask)
     {
         if (_mapsat.find(sat) == _mapsat.end())
         {
             return _null; // make_shared<t_geph>();
         }
 
-        GSYS gnss = t_gsys::str2gsys(sat.substr(0, 1));
+        GSYS gnss = gsat2gsys(sat);
 
         if (_mapsat[sat].size() == 0)
         {
@@ -448,7 +454,7 @@ namespace gnut
 
         double maxdiff = t_gnav::nav_validity(gnss) * 1.1;
 
-        if (gnss == GAL)
+        if (gnss == GSYS::GAL)
         {
             // Galileo ephemerides are valid for toc+10min -> toc+20...180min
             for (int bck = 1; bck <= 5; bck++)
@@ -471,7 +477,7 @@ namespace gnut
                 }
             }
         }
-        else if (gnss == BDS)
+        else if (gnss == GSYS::BDS)
         {
             // BeiDou ephemerides are valid for toc -> toc+60min
             for (int bck = 1; bck <= 5; bck++)
@@ -494,7 +500,7 @@ namespace gnut
                 }
             }
         }
-        else if (gnss == GLO)
+        else if (gnss == GSYS::GLO)
         {
             t_gtime tt = t - maxdiff; // time span of Glonass ephemerides is 15 min
 
@@ -559,21 +565,21 @@ namespace gnut
         return it->second;
     }
 
-    shared_ptr<t_geph> t_gallnav::_find(const string& sat, const int& iod, const t_gtime& t, const bool& chk_mask)
+    std::shared_ptr<t_geph> t_gallnav::_find(GSAT sat, const int& iod, const t_gtime& t, const bool& chk_mask)
     {
         if (_mapsat.find(sat) == _mapsat.end())
         {
             return _null; // make_shared<t_geph>();
         }
 
-        GSYS gnss = t_gsys::str2gsys(sat.substr(0, 1));
+        GSYS gnss = gsat2gsys(sat);
         double maxdiff = t_gnav::nav_validity(gnss);
 
         auto it = _mapsat.at(sat).rbegin();
         while (it != _mapsat.at(sat).rend())
         {
-            shared_ptr<t_gnav> pt_nav;
-            if ((pt_nav = dynamic_pointer_cast<t_gnav>(it->second)) != nullptr)
+            std::shared_ptr<t_gnav> pt_nav;
+            if ((pt_nav = std::dynamic_pointer_cast<t_gnav>(it->second)) != nullptr)
             {
                 if (pt_nav->iod() == iod && abs(pt_nav->epoch().diff(t)) <= maxdiff)
                 {

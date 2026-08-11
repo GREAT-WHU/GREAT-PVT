@@ -21,11 +21,11 @@ namespace great
     {
         _sampling = dynamic_cast<t_gsetgen*>(settings)->sampling();
 
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::QZS);
     }
 
     t_gbds_codebias_cor::t_gbds_codebias_cor(t_gsetbase* settings)
@@ -34,7 +34,7 @@ namespace great
         if (nullptr == settings)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
-            throw logic_error("");
+            throw std::logic_error("");
         }
         else
         {
@@ -42,35 +42,35 @@ namespace great
         }
 
         _correct_bds_code_bias = dynamic_cast<t_gsetproc*>(settings)->bds_code_bias_correction();
-        set<string> sys_list = dynamic_cast<t_gsetgen*>(settings)->sys();
+        std::set<std::string> sys_list = dynamic_cast<t_gsetgen*>(settings)->sys();
         if (sys_list.find("BDS") == sys_list.end())
         {
             _correct_bds_code_bias = false;
         }
 
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::BDS);
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GLO);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(settings)->band_index(gnut::GSYS::QZS);
 
         // set Wanninger & Beer
-        _IGSO_MEO_Corr[BAND_2]["IGSO"] =
+        _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_2]["IGSO"] =
             {{0, -0.55}, {1, -0.40}, {2, -0.34}, {3, -0.23}, {4, -0.15}, {5, -0.04}, {6, 0.09}, {7, 0.19}, {8, 0.27}, {9, 0.35}}; // B1
-        _IGSO_MEO_Corr[BAND_7]["IGSO"] =
+        _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_7]["IGSO"] =
             {{0, -0.71}, {1, -0.36}, {2, -0.33}, {3, -0.19}, {4, -0.14}, {5, -0.03}, {6, 0.08}, {7, 0.17}, {8, 0.24}, {9, 0.33}}; // B2
-        _IGSO_MEO_Corr[BAND_6]["IGSO"] =
+        _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_6]["IGSO"] =
             {{0, -0.27}, {1, -0.23}, {2, -0.21}, {3, -0.15}, {4, -0.11}, {5, -0.04}, {6, 0.05}, {7, 0.14}, {8, 0.19}, {9, 0.32}}; // B3
 
-        _IGSO_MEO_Corr[BAND_2]["MEO"] =
+        _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_2]["MEO"] =
             {{0, -0.47}, {1, -0.38}, {2, -0.32}, {3, -0.23}, {4, -0.11}, {5, 0.06}, {6, 0.34}, {7, 0.69}, {8, 0.97}, {9, 1.05}}; // B1
-        _IGSO_MEO_Corr[BAND_7]["MEO"] =
+        _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_7]["MEO"] =
             {{0, -0.40}, {1, -0.31}, {2, -0.26}, {3, -0.18}, {4, -0.06}, {5, 0.09}, {6, 0.28}, {7, 0.48}, {8, 0.64}, {9, 0.69}}; // B2
-        _IGSO_MEO_Corr[BAND_6]["MEO"] =
+        _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_6]["MEO"] =
             {{0, -0.22}, {1, -0.15}, {2, -0.13}, {3, -0.10}, {4, -0.04}, {5, 0.05}, {6, 0.14}, {7, 0.27}, {8, 0.36}, {9, 0.47}}; // B3
     }
 
-    void t_gbds_codebias_cor::apply_IGSO_MEO(const string& rec, t_gtriple& rec_crd, t_gallnav* gnav, vector<t_gsatdata>& obsdata)
+    void t_gbds_codebias_cor::apply_IGSO_MEO(const std::string& rec, t_gtriple& rec_crd, t_gallnav* gnav, std::vector<t_gsatdata>& obsdata)
     {
         if (!this->_correct_bds_code_bias || obsdata.size() == 0)
         {
@@ -86,10 +86,10 @@ namespace great
         }
 
         // Calculate elevation and Correct Obs
-        map<GOBSBAND, double> Band_cor;
-        string sat_type;
+        std::map<GOBSBAND, double> Band_cor;
+        std::string sat_type;
 
-        vector<t_gsatdata>::iterator data;
+        std::vector<t_gsatdata>::iterator data;
         for (data = obsdata.begin(); data != obsdata.end();)
         {
             if (data->getrangestate("bds_code_bias"))
@@ -97,18 +97,18 @@ namespace great
                 data++;
                 continue;
             }
-            if (data->site() != rec || data->gsys() != BDS)
+            if (data->site() != rec || data->gsys() != GSYS::BDS)
             {
                 data++;
                 continue;
             }
-            string sat = data->sat();
-            if (sat <= "C05" || sat > "C16") // BDS2 - IGSO/MEO
+            GSAT sat = data->sat();
+            if (sat <= GSAT::C05 || sat > GSAT::C16) // BDS2 - IGSO/MEO
             {
                 data++;
                 continue;
             }
-            if (sat == "C11" || sat == "C12" || sat == "C14")
+            if (sat == GSAT::C11 || sat == GSAT::C12 || sat == GSAT::C14)
             {
                 sat_type = "MEO";
             }
@@ -137,27 +137,27 @@ namespace great
             int elev0_int = floor(elev0);
             if (elev0_int < 0)
             {
-                Band_cor[BAND_2] = _IGSO_MEO_Corr[BAND_2][sat_type][0];
-                Band_cor[BAND_7] = _IGSO_MEO_Corr[BAND_7][sat_type][0];
-                Band_cor[BAND_6] = _IGSO_MEO_Corr[BAND_6][sat_type][0];
+                Band_cor[gnut::GOBSBAND::BAND_2] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_2][sat_type][0];
+                Band_cor[gnut::GOBSBAND::BAND_7] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_7][sat_type][0];
+                Band_cor[gnut::GOBSBAND::BAND_6] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_6][sat_type][0];
             }
             else if (elev0_int >= 9)
             {
-                Band_cor[BAND_2] = _IGSO_MEO_Corr[BAND_2][sat_type][9];
-                Band_cor[BAND_7] = _IGSO_MEO_Corr[BAND_7][sat_type][9];
-                Band_cor[BAND_6] = _IGSO_MEO_Corr[BAND_6][sat_type][9];
+                Band_cor[gnut::GOBSBAND::BAND_2] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_2][sat_type][9];
+                Band_cor[gnut::GOBSBAND::BAND_7] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_7][sat_type][9];
+                Band_cor[gnut::GOBSBAND::BAND_6] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_6][sat_type][9];
             }
             else
             {
-                Band_cor[BAND_2] = _IGSO_MEO_Corr[BAND_2][sat_type][elev0_int] * (1.0 - elev0 + elev0_int) +
-                                   _IGSO_MEO_Corr[BAND_2][sat_type][elev0_int + 1] * (elev0 - elev0_int);
-                Band_cor[BAND_7] = _IGSO_MEO_Corr[BAND_7][sat_type][elev0_int] * (1.0 - elev0 + elev0_int) +
-                                   _IGSO_MEO_Corr[BAND_7][sat_type][elev0_int + 1] * (elev0 - elev0_int);
-                Band_cor[BAND_6] = _IGSO_MEO_Corr[BAND_6][sat_type][elev0_int] * (1.0 - elev0 + elev0_int) +
-                                   _IGSO_MEO_Corr[BAND_6][sat_type][elev0_int + 1] * (elev0 - elev0_int);
+                Band_cor[gnut::GOBSBAND::BAND_2] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_2][sat_type][elev0_int] * (1.0 - elev0 + elev0_int) +
+                                   _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_2][sat_type][elev0_int + 1] * (elev0 - elev0_int);
+                Band_cor[gnut::GOBSBAND::BAND_7] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_7][sat_type][elev0_int] * (1.0 - elev0 + elev0_int) +
+                                   _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_7][sat_type][elev0_int + 1] * (elev0 - elev0_int);
+                Band_cor[gnut::GOBSBAND::BAND_6] = _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_6][sat_type][elev0_int] * (1.0 - elev0 + elev0_int) +
+                                   _IGSO_MEO_Corr[gnut::GOBSBAND::BAND_6][sat_type][elev0_int + 1] * (elev0 - elev0_int);
             }
 
-            vector<GOBS> obs_vec = data->obs();
+            std::vector<GOBS> obs_vec = data->obs();
             for (auto obs_type : obs_vec)
             {
                 if (!t_gobs(obs_type).is_code())
@@ -178,7 +178,7 @@ namespace great
         return;
     }
 
-    bool t_gbds_codebias_cor::_recAprCoordinate(const string& rec, t_gtriple& rec_crd, t_gallnav* gnav, vector<t_gsatdata>& obsdata)
+    bool t_gbds_codebias_cor::_recAprCoordinate(const std::string& rec, t_gtriple& rec_crd, t_gallnav* gnav, std::vector<t_gsatdata>& obsdata)
     {
         Matrix BB;
 
@@ -186,7 +186,7 @@ namespace great
         BB = 0.0;
         int iobs = 0;
 
-        vector<t_gsatdata>::iterator iter;
+        std::vector<t_gsatdata>::iterator iter;
         for (iter = obsdata.begin(); iter != obsdata.end();)
         {
             if (iter->site() != rec)
@@ -197,15 +197,15 @@ namespace great
 
             GSYS gs = iter->gsys();
 
-            GOBSBAND b1 = _band_index[gs][FREQ_1];
-            GOBSBAND b2 = _band_index[gs][FREQ_2];
+            GOBSBAND b1 = _band_index[gs][gnut::FREQ_SEQ::FREQ_1];
+            GOBSBAND b2 = _band_index[gs][gnut::FREQ_SEQ::FREQ_2];
 
             GOBS l1 = iter->select_phase(b1);
             GOBS l2 = iter->select_phase(b2);
             GOBS p1 = iter->select_range(b1);
             GOBS p2 = iter->select_range(b2);
 
-            if (p1 == X || l1 == X || p2 == X || l2 == X)
+            if (p1 == gnut::GOBS::X || l1 == gnut::GOBS::X || p2 == gnut::GOBS::X || l2 == gnut::GOBS::X)
             {
                 iter++;
                 continue;
@@ -271,18 +271,18 @@ namespace great
         else
         {
             _debug_outliers = new t_giof;
-            _debug_outliers->tsys(t_gtime::GPS);
+            _debug_outliers->tsys(t_gtime::t_tsys::GPS);
             _debug_outliers->mask("debug_outliers.log");
             _debug_outliers->append(false);
         }
         _observ = dynamic_cast<t_gsetproc*>(settings)->obs_combin();
         _frequency = dynamic_cast<t_gsetproc*>(settings)->frequency();
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::QZS);
+        _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GSYS::GPS);
+        _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GSYS::GAL);
+        _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GSYS::GLO);
+        _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GSYS::BDS);
+        _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(settings)->freq_index(gnut::GSYS::QZS);
 
         _single_mix = {gnut::OBSCOMBIN::RAW_MIX};
     }
@@ -300,11 +300,11 @@ namespace great
         }
     }
 
-    void t_goutliers_process::excludeBadObs(vector<t_gsatdata>& obsdata)
+    void t_goutliers_process::excludeBadObs(std::vector<t_gsatdata>& obsdata)
     {
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         bool valid_SNR, valid_Code, valid_Phase, Freq_Lack;
-        set<FREQ_SEQ> nFreq;
+        std::set<FREQ_SEQ> nFreq;
 
         for (it = obsdata.begin(); it != obsdata.end();)
         {
@@ -316,7 +316,7 @@ namespace great
             double P1 = 0.0;
 
             GSYS gsys = it->gsys();
-            set<GOBSBAND> band_avail;
+            std::set<GOBSBAND> band_avail;
 
             band_avail = it->band_avail(true);
 
@@ -337,7 +337,7 @@ namespace great
                     }
 
                     // skip exceed frequency setting
-                    if (_freq_index[gsys][band] > _frequency)
+                    if (static_cast<int>(_freq_index[gsys][band]) > _frequency)
                     {
                         continue;
                     }
@@ -370,7 +370,7 @@ namespace great
 
                     if (_single_mix.find(_observ) == _single_mix.end())
                     {
-                        if (_freq_index[gsys][band] == FREQ_1)
+                        if (_freq_index[gsys][band] == gnut::FREQ_SEQ::FREQ_1)
                         {
                             P1 = obs_code;
                         }
@@ -403,7 +403,7 @@ namespace great
 
                 if (!valid_SNR || !valid_Phase || !valid_Code || Freq_Lack)
                 {
-                    vector<GOBS> obss = it->obs();
+                    std::vector<GOBS> obss = it->obs();
                     it = obsdata.erase(it);
                     continue;
                 }
@@ -425,7 +425,7 @@ namespace great
     {
     }
 
-    int t_gqualitycontrol::processOneEpoch(const t_gtime& now, const string& rec, t_gtriple& rec_crd, vector<t_gsatdata>& obsdata)
+    int t_gqualitycontrol::processOneEpoch(const t_gtime& now, const std::string& rec, t_gtriple& rec_crd, std::vector<t_gsatdata>& obsdata)
     {
         this->_outliers_proc.excludeBadObs(obsdata);
         this->_bds_codebias_cor.apply_IGSO_MEO(rec, rec_crd, _gnav, obsdata);

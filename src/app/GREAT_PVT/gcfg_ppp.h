@@ -53,7 +53,6 @@
 #include "gcoders/biabernese.h"
 #include "gcoders/atx.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut

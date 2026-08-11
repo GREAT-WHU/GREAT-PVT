@@ -20,7 +20,6 @@
 #include "gutils/gtime.h"
 #include "gexport/ExportLibGREAT.h"
 
-using namespace std;
 using namespace gnut;
 
 namespace great
@@ -40,7 +39,7 @@ namespace great
         /**
          *@brief      the map stored the record in the poleut1 file
          */
-        typedef map<t_gtime, map<string, double>> t_mapdata;
+        typedef std::map<t_gtime, std::map<std::string, double>> t_mapdata;
 
         /**
          * @brief add begin and end time of file data.
@@ -56,10 +55,10 @@ namespace great
          * @param[in]   mode      the time mode
          * @param[in]   intv      the interval of data
          */
-        void setEopData(t_gtime mjdtime, map<string, double> data, string mode, double intv);
+        void setEopData(t_gtime mjdtime, std::map<std::string, double> data, std::string mode, double intv);
 
         /** @brief get interpolated pole and UT1 data for a given time. */
-        void getEopData(t_gtime mjdtime, map<string, double>& data);
+        void getEopData(t_gtime mjdtime, std::map<std::string, double>& data);
 
         /**
         * @brief whether the poleut1 data is empty
@@ -100,7 +99,7 @@ namespace great
          * @brief return mode of ut1.
          * @return  mode of ut1
          */
-        string getUt1Mode()
+        std::string getUt1Mode()
         {
             return _UT1_mode;
         };
@@ -116,7 +115,7 @@ namespace great
 
     protected:
         t_mapdata _poleut1_data; ///< map of pole and ut1 data.
-        string _UT1_mode;        ///< UT1 type.
+        std::string _UT1_mode;        ///< UT1 type.
         int _beg_time;           ///< begin time.
         int _end_end;            ///< end time.
         double _intv;            ///< interval.

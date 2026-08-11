@@ -61,7 +61,7 @@ namespace great
                         map<string, t_gdata*>::iterator it = _data.begin();
                         while (it != _data.end())
                         {
-                            if (it->second->id_type() == t_gdata::ALLPOLEUT1)
+                            if (it->second->id_type() == t_gdata::ID_TYPE::ALLPOLEUT1)
                             {
                                 istr >> time >> time >> _begtime >> _endtime >> _interval;
                                 dynamic_cast<t_gpoleut1*>(it->second)->setBegEndTime(_begtime, _endtime);
@@ -160,7 +160,7 @@ namespace great
                         {
                             break;
                         }
-                        if (it->second->id_type() == t_gdata::ALLPOLEUT1)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLPOLEUT1)
                         {
                             dynamic_cast<t_gpoleut1*>(it->second)->setEopData(T, data, _timetype, _interval);
                         }

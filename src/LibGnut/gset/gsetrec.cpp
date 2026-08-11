@@ -19,7 +19,6 @@
 #include "gset/gsetrec.h"
 #include "gutils/gsysconv.h"
 
-using namespace std;
 using namespace pugi;
 
 #ifndef XMLKEY_GEN
@@ -51,12 +50,12 @@ namespace gnut
     {
     }
 
-    shared_ptr<t_grec> t_gsetrec::grec(string s)
+    std::shared_ptr<t_grec> t_gsetrec::grec(std::string s)
     {
         _gmutex.lock();
 
-        string str;
-        shared_ptr<t_grec> tmp = make_shared<t_grec>();
+        std::string str;
+        std::shared_ptr<t_grec> tmp = std::make_shared<t_grec>();
 
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
         if (!site)
@@ -84,9 +83,9 @@ namespace gnut
             }
         }
 
-        string str_beg_gen = _doc.child(XMLKEY_ROOT).child("gen").child_value("beg");
+        std::string str_beg_gen = _doc.child(XMLKEY_ROOT).child("gen").child_value("beg");
         substitute(str_beg_gen, "\"", "");
-        t_gtime gen_beg(t_gtime::GPS);
+        t_gtime gen_beg(t_gtime::t_tsys::GPS);
         if (!str_beg_gen.empty())
         {
             gen_beg.from_str("%Y-%m-%d %H:%M:%S", trim(str_beg_gen));
@@ -96,9 +95,9 @@ namespace gnut
             gen_beg = FIRST_TIME;
         }
 
-        string str_end_gen = _doc.child(XMLKEY_ROOT).child("gen").child_value("end");
+        std::string str_end_gen = _doc.child(XMLKEY_ROOT).child("gen").child_value("end");
         substitute(str_end_gen, "\"", "");
-        t_gtime gen_end(t_gtime::GPS);
+        t_gtime gen_end(t_gtime::t_tsys::GPS);
         if (!str_end_gen.empty())
         {
             gen_end.from_str("%Y-%m-%d %H:%M:%S", trim(str_end_gen));
@@ -118,9 +117,9 @@ namespace gnut
         tmp->rec(site.attribute("rec").value(), beg, end);
         tmp->ant(site.attribute("ant").value(), beg, end);
 
-        string x = site.attribute("X").value();
-        string y = site.attribute("Y").value();
-        string z = site.attribute("Z").value();
+        std::string x = site.attribute("X").value();
+        std::string y = site.attribute("Y").value();
+        std::string z = site.attribute("Z").value();
         if (!x.empty() && !y.empty() && !z.empty())
         {
             xyz[0] = str2dbl(x);
@@ -130,9 +129,9 @@ namespace gnut
             tmp->crd(xyz, std, beg, end);
         }
 
-        string dx = site.attribute("DX").value();
-        string dy = site.attribute("DY").value();
-        string dz = site.attribute("DZ").value();
+        std::string dx = site.attribute("DX").value();
+        std::string dy = site.attribute("DY").value();
+        std::string dz = site.attribute("DZ").value();
         if (!dx.empty() && !dy.empty() && !dz.empty())
         {
             xyz[0] = str2dbl(dx);
@@ -141,9 +140,9 @@ namespace gnut
             tmp->eccxyz(xyz, beg, end);
         }
 
-        string dn = site.attribute("DN").value();
-        string de = site.attribute("DE").value();
-        string du = site.attribute("DU").value();
+        std::string dn = site.attribute("DN").value();
+        std::string de = site.attribute("DE").value();
+        std::string du = site.attribute("DU").value();
         if (!dx.empty() && !dy.empty() && !dz.empty())
         {
             xyz[0] = str2dbl(dn);
@@ -156,22 +155,22 @@ namespace gnut
         return tmp;
     }
 
-    set<string> t_gsetrec::objects()
+    std::set<std::string> t_gsetrec::objects()
     {
         return _objects();
     }
 
-    set<string> t_gsetrec::_objects()
+    std::set<std::string> t_gsetrec::_objects()
     {
-        set<string> tmp;
-        string str;
+        std::set<std::string> tmp;
+        std::string str;
 
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).first_child(); node; node = node.next_sibling())
         {
-            string name = node.name();
+            std::string name = node.name();
             if (name.compare(XMLKEY_REC_REC) == 0)
             {
-                string str = node.attribute("id").as_string();
+                std::string str = node.attribute("id").as_string();
                 if (!str.empty())
                 {
                     tmp.insert(str);
@@ -181,27 +180,27 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple t_gsetrec::get_crd_xyz(string s)
+    t_gtriple t_gsetrec::get_crd_xyz(std::string s)
     {
         return _get_crd_xyz(s);
     }
 
-    set<string> t_gsetrec::recs()
+    std::set<std::string> t_gsetrec::recs()
     {
         return _objects();
     }
 
-    set<string> t_gsetrec::all_rec()
+    std::set<std::string> t_gsetrec::all_rec()
     {
-        set<string> tmp;
-        string temp;
+        std::set<std::string> tmp;
+        std::string temp;
         auto xml_node = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).children("rec");
         for (auto rec_node = xml_node.begin(); rec_node != xml_node.end(); rec_node++)
         {
             temp += rec_node->child_value();
         }
-        istringstream is(temp);
-        string word;
+        std::istringstream is(temp);
+        std::string word;
         while (is >> word)
         {
             transform(word.begin(), word.end(), word.begin(), ::toupper);
@@ -211,7 +210,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtriple t_gsetrec::_get_crd_xyz(string s)
+    t_gtriple t_gsetrec::_get_crd_xyz(std::string s)
     {
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
 
@@ -219,7 +218,7 @@ namespace gnut
         return xyz;
     }
 
-    t_gtriple t_gsetrec::_get_ecc_neu(string s)
+    t_gtriple t_gsetrec::_get_ecc_neu(std::string s)
     {
         xml_node site = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC).find_child_by_attribute(XMLKEY_REC_REC, "id", s.c_str());
 
@@ -227,7 +226,7 @@ namespace gnut
         return neu;
     }
 
-    t_gtriple t_gsetrec::_get_crd_blh(string s)
+    t_gtriple t_gsetrec::_get_crd_blh(std::string s)
     {
         t_gtriple zero(0.0, 0.0, HSL_UNKNOWN);
 
@@ -274,15 +273,15 @@ namespace gnut
 
         _default_attr(node, "overwrite", _overwrite);
 
-        map<string, xml_node> mchild;
+        std::map<std::string, xml_node> mchild;
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_REC); node;)
         {
             xml_node rec = node;
             node = node.next_sibling(XMLKEY_REC);
 
-            string id = rec.attribute("id").value();
-            string name = rec.attribute("name").value();
-            string domes = rec.attribute("domes").value();
+            std::string id = rec.attribute("id").value();
+            std::string name = rec.attribute("name").value();
+            std::string domes = rec.attribute("domes").value();
 
             if (name.empty())
             {
@@ -310,16 +309,16 @@ namespace gnut
             else
             {
                 _doc.child(XMLKEY_ROOT).remove_child(rec);
-                cout << "warning - removed duplicated record [id] for rec:" + id << endl;
+                std::cout << "warning - removed duplicated record [id] for rec:" + id << std::endl;
             }
 
-            map<string, xml_node> mattr;
+            std::map<std::string, xml_node> mattr;
             for (xml_node set = rec.child("set"); set;)
             {
                 xml_node tmp = set;
                 set = set.next_sibling("set");
 
-                string beg = tmp.attribute("beg").value();
+                std::string beg = tmp.attribute("beg").value();
                 if (mattr.find(beg) == mattr.end())
                 {
                     mattr[beg] = set;
@@ -327,7 +326,7 @@ namespace gnut
                 else
                 {
                     rec.remove_child(tmp);
-                    cout << "warning - removed duplicated record [set] for rec:" + id + ", beg:" + beg << endl;
+                    std::cout << "warning - removed duplicated record [set] for rec:" + id + ", beg:" + beg << std::endl;
                 }
             }
         }
@@ -340,7 +339,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        cerr << " <rec"
+        std::cerr << " <rec"
              << " id=\"GOPE\""
              << " X=\"3979316.0\""
              << " Y=\"1050312.0\""

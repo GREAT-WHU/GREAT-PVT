@@ -22,7 +22,7 @@ using namespace gnut;
 namespace great
 {
     /** @brief PLANET considered */
-    enum PLANET
+    enum class PLANET
     {
         PLANET_MERC = 0,   ///< Mercury.
         PLANET_VENU = 1,   ///< Venus.
@@ -86,15 +86,15 @@ namespace great
                       const double& au,
                       const double& emrat,
                       int ipt[3][13],
-                      const vector<string>& constname,
-                      const vector<double>& constval);
+                      const std::vector<std::string>& constname,
+                      const std::vector<double>& constval);
 
         /**
          * @brief add JPL body data.
          * @param[in]   index        chebyshev coefficient's index
          * @param[in]   coeff        value of chebyshev coefficient
          */
-        void add_data(const int& index, const vector<double>& coeff);
+        void add_data(const int& index, const std::vector<double>& coeff);
 
         /**
          * @brief get position of planet in crs(J2000), earth is center body.
@@ -102,7 +102,7 @@ namespace great
          * @param[in]   planet_name   planet's name
          * @param[out]  pos             position of planet(t_gtriple)
          */
-        void get_pos(const double& tm, const string& plane_tname, t_gtriple& pos);
+        void get_pos(const double& tm, const std::string& plane_tname, t_gtriple& pos);
 
         /**
          * @brief get position of planet in crs(J2000), earth is center body.
@@ -110,14 +110,14 @@ namespace great
          * @param[in]   planet_name   planet's name
          * @param[out]  pos             position of planet(columnvector)
          */
-        void get_pos(const double& tm, const string& planet_name, ColumnVector& pos);
+        void get_pos(const double& tm, const std::string& planet_name, ColumnVector& pos);
 
         /**
          * @brief string type to PLANET
          * @param[in]   planet    planet name expressed by string
          * @return    planet name expressed by PLANET(enum)
          */
-        int str2planet(const string& planet) const;
+        int str2planet(const std::string& planet) const;
 
     protected:
         double _start_mjd = 0.0;
@@ -126,8 +126,8 @@ namespace great
         double _days;                         ///< interval time for Chebychev coefficient
         double _au;                           ///< Astronomical unit
         double _emrat;                        ///< Earth-Moon mass ratio.
-        map<int, vector<double>> _chebycoeff; ///< int--index of time  Chebychev coefficient
-        map<int, t_gplanet> _allplanets;      ///< int--planet
+        std::map<int, std::vector<double>> _chebycoeff; ///< int--index of time  Chebychev coefficient
+        std::map<int, t_gplanet> _allplanets;      ///< int--planet
 
         double empty_return = 0.0;
 
@@ -161,7 +161,7 @@ namespace great
          * @param[in]   ifl         interpolation symbol(1--interp pos only;2--pos and vel)
          * @param[out]  pv         postion and velocity of the target planet
          */
-        void _interp(const vector<double>& coeff,
+        void _interp(const std::vector<double>& coeff,
                      const int& ipt,
                      const int& ncf,
                      const int& ncm,

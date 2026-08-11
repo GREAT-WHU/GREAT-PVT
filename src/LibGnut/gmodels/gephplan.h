@@ -28,7 +28,6 @@
 #include "gutils/gtriple.h"
 #include "gmodels/geop80.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -59,7 +58,7 @@ namespace gnut
         t_geop80 _eop; ///< eop
 
     private:
-        map<double, t_gtriple> _record_itrf_sunpos;
+        std::map<double, t_gtriple> _record_itrf_sunpos;
     };
 } // namespace gnut
 

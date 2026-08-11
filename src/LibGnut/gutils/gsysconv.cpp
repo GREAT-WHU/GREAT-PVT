@@ -15,7 +15,6 @@
 #include "gutils/gsysconv.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {

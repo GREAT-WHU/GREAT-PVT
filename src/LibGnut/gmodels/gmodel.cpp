@@ -19,7 +19,7 @@ namespace gnut
     {
     }
 
-    void t_gmodel::setSite(const string& site)
+    void t_gmodel::setSite(const std::string& site)
     {
         this->_site = site;
     }

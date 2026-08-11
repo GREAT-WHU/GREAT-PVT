@@ -26,7 +26,6 @@
 #include "newmat/newmat.h"
 #include "gexport/ExportLibGnut.h"
 
-using namespace std;
 namespace gnut
 {
 
@@ -46,7 +45,7 @@ namespace gnut
      * @param[in]     &        a int vector
      * @return void
      */
-    LibGnut_LIBRARY_EXPORT void Matrix_rem(SymmetricMatrix&, vector<int>&);
+    LibGnut_LIBRARY_EXPORT void Matrix_rem(SymmetricMatrix&, std::vector<int>&);
 
     /**
      * @brief remove rows and columns stored in set
@@ -80,7 +79,7 @@ namespace gnut
      * @param[in]     &        a int vector
      * @return void
      */
-    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix&, vector<int>&);
+    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix&, std::vector<int>&);
 
     /**
      * @brief add zero r_th row and r_th column in DiagMatrix.

@@ -64,13 +64,12 @@ namespace gnut
         string _orbrefs;         ///< orb reference
         string _orbtype;         ///< orb type
         string _agency;          ///< agency
-        vector<string> _prn;     ///< satellite prn
-        vector<string> _sat_sp3; ///< satellite name
+        vector<GSAT> _prn;       ///< satellite PRN
+        vector<GSAT> _sat_sp3;   ///< satellite name
         vector<int> _acc;        ///< acc
         vector<string> _timesys; ///< time of system
         vector<int> _accbase;    ///< acc base
         int _maxsats;            ///< max number of satellite
-        string _sattype;         ///< satellite type
         string _data_type;       ///< data type
         t_map_prn _mapsp3;       ///< map sp3
         t_map_dat _sp3data;      ///< sp3 data

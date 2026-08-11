@@ -41,9 +41,9 @@ namespace gnut
         _pco_mod("igsXX_XXXX"),
         _ac(""),
         _pt_prod(0),
-        _file_beg(t_gtime::GPS),
-        _file_end(t_gtime::GPS),
-        _file_run(t_gtime::GPS),
+        _file_beg(t_gtime::t_tsys::GPS),
+        _file_end(t_gtime::t_tsys::GPS),
+        _file_run(t_gtime::t_tsys::GPS),
         _allobj(0),
         _end_epoch(false),
         _end_estim(false)
@@ -389,8 +389,8 @@ namespace gnut
                 string begfmt = trim(_line.substr(16, 12));
                 string endfmt = trim(_line.substr(29, 12));
                 string rcv = trim(_line.substr(42, 20));
-                t_gtime beg(t_gtime::GPS);
-                t_gtime end(t_gtime::GPS);
+                t_gtime beg(t_gtime::t_tsys::GPS);
+                t_gtime end(t_gtime::t_tsys::GPS);
 
                 if (begfmt.compare("00:000:00000") == 0)
                 {
@@ -428,8 +428,8 @@ namespace gnut
                 string begfmt = trim(_line.substr(16, 12));
                 string endfmt = trim(_line.substr(29, 12));
                 string ant = trim(_line.substr(42, 20));
-                t_gtime beg(t_gtime::GPS);
-                t_gtime end(t_gtime::GPS);
+                t_gtime beg(t_gtime::t_tsys::GPS);
+                t_gtime end(t_gtime::t_tsys::GPS);
 
                 if (begfmt.compare("00:000:00000") == 0)
                 {
@@ -465,8 +465,8 @@ namespace gnut
                 transform(site.begin(), site.end(), site.begin(), ::toupper);
                 string begfmt = trim(_line.substr(16, 12));
                 string endfmt = trim(_line.substr(29, 12));
-                t_gtime beg(t_gtime::GPS);
-                t_gtime end(t_gtime::GPS);
+                t_gtime beg(t_gtime::t_tsys::GPS);
+                t_gtime end(t_gtime::t_tsys::GPS);
 
                 if (begfmt.compare("00:000:00000") == 0)
                 {
@@ -559,8 +559,8 @@ namespace gnut
 
             string begfmt = trim(_line.substr(16, 12));
             string endfmt = trim(_line.substr(29, 12));
-            t_gtime beg(t_gtime::GPS);
-            t_gtime end(t_gtime::GPS);
+            t_gtime beg(t_gtime::t_tsys::GPS);
+            t_gtime end(t_gtime::t_tsys::GPS);
 
             if (begfmt.compare("00:000:00000") == 0)
             {
@@ -594,7 +594,7 @@ namespace gnut
             transform(param.begin(), param.end(), param.begin(), ::toupper);
 
             string epofmt = trim(_line.substr(27, 12));
-            t_gtime epo(t_gtime::GPS);
+            t_gtime epo(t_gtime::t_tsys::GPS);
             epo.from_str("%y:%j:%s", epofmt);
 
             double est = str2dbl(trim(_line.substr(47, 21)));
@@ -615,7 +615,7 @@ namespace gnut
         }
 
         // ORDER IS IMPORTANT!
-        if (pt_data->id_type() == t_gdata::ALLPROD && pt_data->id_group() == t_gdata::GRP_PRODUCT)
+        if (pt_data->id_type() == t_gdata::ID_TYPE::ALLPROD && pt_data->id_group() == t_gdata::ID_GROUP::GRP_PRODUCT)
         {
             // ALL PRODUCTS (MET) special case (input meteo parameters -> encode only)
             // ----> currently the product needs to be labeled "MET" to be recognized
@@ -627,7 +627,7 @@ namespace gnut
         }
 
         // ALL OBJECTS
-        if (pt_data->id_type() == t_gdata::ALLOBJ)
+        if (pt_data->id_type() == t_gdata::ID_TYPE::ALLOBJ)
         {
             if (!_allobj)
             {

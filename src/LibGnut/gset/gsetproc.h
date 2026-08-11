@@ -19,8 +19,12 @@
 #ifndef GSETPROC_H
 #define GSETPROC_H
 
+#ifndef XMLKEY_PROC
 #define XMLKEY_PROC "process" ///< The defination of process node in XML
+#endif
+#ifndef XMLKEY_ROM
 #define XMLKEY_ROM "read_ofile_mode"
+#endif
 
 #include <string>
 #include <iostream>
@@ -29,7 +33,6 @@
 #include "gutils/gobs.h"
 #include "gset/gsetbase.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -127,7 +130,7 @@ namespace gnut
         CFILE
     };
 
-    enum RECEIVERTYPE
+    enum class RECEIVERTYPE
     {
         DEF,
         F9P,
@@ -140,7 +143,7 @@ namespace gnut
         SLIPMODEL_UNDEF
     };
 
-    enum IONMODEL
+    enum class IONMODEL
     {
         VION,
         SION,
@@ -162,14 +165,14 @@ namespace gnut
         /** @brief constructor */
         t_gobscombtype();
         t_gobscombtype(const t_gobscombtype& other);
-        explicit t_gobscombtype(const string& obscombtype);
+        explicit t_gobscombtype(const std::string& obscombtype);
         t_gobscombtype(const t_gobs& obstype, OBSCOMBIN combtype);
         t_gobscombtype(const t_gobs& obstype, GOBSBAND b1, FREQ_SEQ freq_1, OBSCOMBIN combtype);
         t_gobscombtype(const t_gobs& obstype, GOBSBAND b1, GOBSBAND b2, FREQ_SEQ freq_1, FREQ_SEQ freq_2, OBSCOMBIN combtype);
         t_gobscombtype(GOBSTYPE t, GOBSBAND b, OBSCOMBIN obscomb);
 
         /** @brief convert2str */
-        string convert2str() const;
+        std::string convert2str() const;
 
         bool operator==(const t_gobscombtype& g) const;
         bool operator<(const t_gobscombtype& g) const;
@@ -189,11 +192,11 @@ namespace gnut
 
     protected:
         GOBSTYPE _obs_type = GOBSTYPE::TYPE;
-        GOBSBAND _obs_band = BAND;
-        GOBSBAND _obs_band_1 = BAND;
-        GOBSBAND _obs_band_2 = BAND;
-        FREQ_SEQ _obs_freq_1 = FREQ_X;
-        FREQ_SEQ _obs_freq_2 = FREQ_X;
+        GOBSBAND _obs_band = gnut::GOBSBAND::BAND;
+        GOBSBAND _obs_band_1 = gnut::GOBSBAND::BAND;
+        GOBSBAND _obs_band_2 = gnut::GOBSBAND::BAND;
+        FREQ_SEQ _obs_freq_1 = gnut::FREQ_SEQ::FREQ_X;
+        FREQ_SEQ _obs_freq_2 = gnut::FREQ_SEQ::FREQ_X;
         OBSCOMBIN _obs_combine = OBSCOMBIN::DEF_OBSCOMBIN;
     };
 
@@ -246,7 +249,7 @@ namespace gnut
         int minsat();
 
         /**@brief set process */
-        string ref_clk();
+        std::string ref_clk();
         SLIPMODEL slip_model();
         IONMODEL ion_model();
         TROPMODEL tropo_model();
@@ -260,27 +263,27 @@ namespace gnut
         CBIASCHAR cbiaschar();
 
         /**@brief str convert */
-        GRDMPFUNC str2grdmpfunc(const string& mf);
-        ZTDMPFUNC str2ztdmpfunc(const string& mf);
-        IONMPFUNC str2ionmpfunc(const string& mf);
-        OBSWEIGHT str2obsweight(const string& wg);
-        TROPMODEL str2tropmodel(const string& tm);
-        RESIDTYPE str2residtype(const string& rs);
-        OBSCOMBIN str2obscombin(const string& oc);
-        ATTITUDES str2attitudes(const string& at);
-        CBIASCHAR str2cbiaschar(const string& cb);
+        GRDMPFUNC str2grdmpfunc(const std::string& mf);
+        ZTDMPFUNC str2ztdmpfunc(const std::string& mf);
+        IONMPFUNC str2ionmpfunc(const std::string& mf);
+        OBSWEIGHT str2obsweight(const std::string& wg);
+        TROPMODEL str2tropmodel(const std::string& tm);
+        RESIDTYPE str2residtype(const std::string& rs);
+        OBSCOMBIN str2obscombin(const std::string& oc);
+        ATTITUDES str2attitudes(const std::string& at);
+        CBIASCHAR str2cbiaschar(const std::string& cb);
 
         /**@brief str convert */
-        static string grdmpfunc2str(GRDMPFUNC MF);
-        static string ztdmpfunc2str(ZTDMPFUNC MF);
-        static string ionmpfunc2str(IONMPFUNC MF);
-        static string obsweight2str(OBSWEIGHT WG);
-        static string tropmodel2str(TROPMODEL TM);
-        static string residtype2str(RESIDTYPE RS);
-        static string obscombin2str(OBSCOMBIN OC);
-        static string attitude2str(ATTITUDES AT);
-        static string cbiaschar2str(CBIASCHAR CB);
-        static string basepos2str(BASEPOS BP);
+        static std::string grdmpfunc2str(GRDMPFUNC MF);
+        static std::string ztdmpfunc2str(ZTDMPFUNC MF);
+        static std::string ionmpfunc2str(IONMPFUNC MF);
+        static std::string obsweight2str(OBSWEIGHT WG);
+        static std::string tropmodel2str(TROPMODEL TM);
+        static std::string residtype2str(RESIDTYPE RS);
+        static std::string obscombin2str(OBSCOMBIN OC);
+        static std::string attitude2str(ATTITUDES AT);
+        static std::string cbiaschar2str(CBIASCHAR CB);
+        static std::string basepos2str(BASEPOS BP);
 
         /**@brief ifcb_model */
         IFCB_MODEL ifcb_model();
@@ -289,7 +292,7 @@ namespace gnut
         BASEPOS basepos();
 
         /**@brief str convert */
-        BASEPOS str2basepos(const string& str);
+        BASEPOS str2basepos(const std::string& str);
 
         /**@brief bds code bias correction */
         bool bds_code_bias_correction();
@@ -301,7 +304,7 @@ namespace gnut
         modeofmeanpole mean_pole_model();
 
         /**@brief str convert */
-        modeofmeanpole str2meanpolemodel(const string& tm);
+        modeofmeanpole str2meanpolemodel(const std::string& tm);
 
     protected:
         bool _phase;            ///< use phase data [true=1, false=0]
@@ -331,7 +334,7 @@ namespace gnut
         double _sig_init_qzs;  ///< accuracy of initial QZSS system time difference
         double _minimum_elev;  ///< elevation angle cut-off [degree]
         double _max_res_norm;  ///< normalized residuals threshold
-        string _crd_est;       ///< FIX or estimate CRD
+        std::string _crd_est;       ///< FIX or estimate CRD
         bool _pos_kin;         ///< static/kinematic receiver (true == kinematic)
         int _frequency;        ///< frequency
 
@@ -343,8 +346,6 @@ namespace gnut
         double _sig_init_rec_pcox;      ///< receiver X PCO estimaion
         double _sig_init_rec_pcoy;      ///< receiver Y PCO estimaion
         double _sig_init_rec_pcoz;      ///< receiver Z PCO estimaion
-        map<string, bool> _sat_pco_xyz; ///< which component of satellite PCO to be estimated(X/Y/Z)
-        map<string, bool> _rec_pco_xyz; ///< which component of receiver PCO to be estimated(X/Y/Z)
         double _sat_azi_beg;            ///< begin azimuth angle of satellite PCV
         double _sat_azi_end;            ///< end azimuth angle of satellite PCV
         double _sat_dazi;               ///< azimuth interval of satellite PCV

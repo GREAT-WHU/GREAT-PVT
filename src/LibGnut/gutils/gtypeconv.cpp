@@ -16,14 +16,13 @@
 #include "gutils/gtypeconv.h"
 #include "gutils/gconst.h"
 
-using namespace std;
 
 namespace gnut
 {
 
     bool double_eq(const double& a, const double& b)
     {
-        if (fabs(a - b) < numeric_limits<double>::epsilon())
+        if (fabs(a - b) < std::numeric_limits<double>::epsilon())
         {
             return true; // must be editeed with machine epsilon (FOLLOWING FLOAT BELLOW!)
         }
@@ -35,7 +34,7 @@ namespace gnut
 
     bool float_eq(const float& a, const float& b)
     {
-        if (fabs(a - b) < numeric_limits<float>::epsilon())
+        if (fabs(a - b) < std::numeric_limits<float>::epsilon())
         {
             return true;
         }
@@ -50,15 +49,15 @@ namespace gnut
         return floor(d + 0.5);
     }
 
-    string dbl2str(const double& d, int prec)
+    std::string dbl2str(const double& d, int prec)
     {
-        ostringstream out;
-        out << fixed << setprecision(prec) << " " << setw(0) << d;
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(prec) << " " << std::setw(0) << d;
         return out.str();
     }
 
 #ifndef STR2DBL
-    double str2dbl(const string& s)
+    double str2dbl(const std::string& s)
     {
         return strtod(s.c_str(), NULL);
 
@@ -73,7 +72,7 @@ namespace gnut
     // http://tinodidriksen.com/2011/05/28/cpp-convert-string-to-double-speed/
     // http://pastebin.com/dHP1pgQ4
     // bool naive(T & r, const char *p)
-    double str2dbl(const string& s)
+    double str2dbl(const std::string& s)
     {
         return str2dbl(s.c_str());
     }
@@ -83,9 +82,15 @@ namespace gnut
     double str2dbl(const char* p)
     {
 
+#ifndef white_space
 #define white_space(c) ((c) == ' ' || (c) == '\t')
+#endif
+#ifndef valid_digit
 #define valid_digit(c) ((c) >= '0' && (c) <= '9')
+#endif
+#ifndef null_double
 #define null_double 0.0;
+#endif
 
         // Skip leading white space, if any.
         while (white_space(*p))
@@ -228,86 +233,86 @@ namespace gnut
     }
 #endif
 
-    double strSci2dbl(const string& s)
+    double strSci2dbl(const std::string& s)
     {
         double i = 0.0;
-        string str(s);
+        std::string str(s);
         substitute(str, "d", "E");
         substitute(str, "D", "E");
-        istringstream istr(str);
+        std::istringstream istr(str);
         istr >> i;
         return i;
     }
 
-    string int2str(const int& i)
+    std::string int2str(const int& i)
     {
-        ostringstream out;
+        std::ostringstream out;
         out << i;
         return out.str();
     }
 
-    string int2str(const int& i, const int& width)
+    std::string int2str(const int& i, const int& width)
     {
-        ostringstream out;
-        out << setw(width) << setfill('0') << i;
+        std::ostringstream out;
+        out << std::setw(width) << std::setfill('0') << i;
         return out.str();
     }
 
-    int str2int(const string& s)
+    int str2int(const std::string& s)
     {
         int i = 0;
-        istringstream istr(s);
+        std::istringstream istr(s);
         istr >> i;
         return i;
     }
 
-    string bl2str(const bool& s)
+    std::string bl2str(const bool& s)
     {
         if (s)
         {
-            return string("TRUE");
+            return std::string("TRUE");
         }
         else
         {
-            return string("FALSE");
+            return std::string("FALSE");
         }
     }
 
-    string rtrim(const string& s)
+    std::string rtrim(const std::string& s)
     {
-        string str;
-        size_t endpos = s.find_last_not_of(" \t");
-        if (string::npos != endpos)
+        std::string str;
+        std::size_t endpos = s.find_last_not_of(" \t");
+        if (std::string::npos != endpos)
         {
             str = s.substr(0, endpos + 1);
         }
         return str;
     }
 
-    string ltrim(const string& s)
+    std::string ltrim(const std::string& s)
     {
-        string str;
-        size_t startpos = s.find_first_not_of(" \t");
-        if (string::npos != startpos)
+        std::string str;
+        std::size_t startpos = s.find_first_not_of(" \t");
+        if (std::string::npos != startpos)
         {
             str = s.substr(startpos);
         }
         return str;
     }
 
-    string trim(const string& s)
+    std::string trim(const std::string& s)
     {
         return ltrim(rtrim(s));
     }
 
-    size_t substitute(string& line, const string& a, const string& b, bool caseSensitive)
+    std::size_t substitute(std::string& line, const std::string& a, const std::string& b, bool caseSensitive)
     {
-        size_t n = 0;
+        std::size_t n = 0;
 
         if (caseSensitive)
         {
-            string tmp(line);
-            while ((n = line.find(a)) != string::npos)
+            std::string tmp(line);
+            while ((n = line.find(a)) != std::string::npos)
             {
                 tmp = line.substr(0, n) + b + line.substr(n + a.length());
                 line = tmp;
@@ -315,12 +320,12 @@ namespace gnut
         }
         else
         {
-            string lineLC(line);
-            string findLC(a);
+            std::string lineLC(line);
+            std::string findLC(a);
             transform(lineLC.begin(), lineLC.end(), lineLC.begin(), ::tolower);
             transform(findLC.begin(), findLC.end(), findLC.begin(), ::tolower);
 
-            while ((n = lineLC.find(findLC)) != string::npos)
+            while ((n = lineLC.find(findLC)) != std::string::npos)
             {
                 lineLC = line.substr(0, n) + b + line.substr(n + a.length());
                 line = lineLC;

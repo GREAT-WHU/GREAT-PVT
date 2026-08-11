@@ -11,13 +11,13 @@
 
 namespace gnut
 {
-    t_gpppmodel::t_gpppmodel(string site, t_gsetbase* settings) :
+    t_gpppmodel::t_gpppmodel(std::string site, t_gsetbase* settings) :
         t_gsppmodel(site, settings),
         _gallobj(0)
     {
         if (_trpModStr == TROPMODEL::EXTERN)
         {
-            _tropoModel = make_shared<t_gtropo>();
+            _tropoModel = std::make_shared<t_gtropo>();
         }
         _phase = dynamic_cast<t_gsetproc*>(_settings)->phase();
         _grad_mf = dynamic_cast<t_gsetproc*>(_settings)->grad_mf();

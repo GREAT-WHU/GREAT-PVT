@@ -35,12 +35,19 @@ History
 #include "gdata/gnavqzs.h"
 #include "gdata/gnavsbs.h"
 
+#ifndef MAX_GPS_PRN
 #define MAX_GPS_PRN 32
+#endif
+#ifndef MAX_GLO_PRN
 #define MAX_GLO_PRN 24
+#endif
+#ifndef MAX_GAL_PRN
 #define MAX_GAL_PRN 30
+#endif
+#ifndef NAV_BUF
 #define NAV_BUF 1024
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -56,8 +63,8 @@ namespace gnut
         /** @brief destructor. */
         virtual ~t_gallnav();
 
-        typedef multimap<t_gtime, shared_ptr<t_geph>> t_map_ref; ///<  all data for a single satellite
-        typedef map<string, t_map_ref> t_map_sat;                ///<  all data for all satellites
+        typedef std::multimap<t_gtime, std::shared_ptr<t_geph>> t_map_ref; ///<  all data for a single satellite
+        typedef std::map<GSAT, t_map_ref> t_map_sat;                  ///< all data for all satellites
 
         /**
          * @brief get satellite health.
@@ -66,7 +73,7 @@ namespace gnut
          * @param[in]  t        time
          * @return    status
          */
-        virtual bool health(const string& sat, const t_gtime& t);
+        virtual bool health(GSAT sat, const t_gtime& t);
 
         /**
          * @brief
@@ -79,7 +86,7 @@ namespace gnut
          * @param chk_mask
          * @return int
          */
-        virtual int nav(const string& sat,
+        virtual int nav(GSAT sat,
                         const t_gtime& t,
                         double xyz[3] = NULL,
                         double var[3] = NULL,
@@ -97,7 +104,7 @@ namespace gnut
          * @param chk_mask
          * @return int
          */
-        virtual int pos(const string& sat,
+        virtual int pos(GSAT sat,
                         const t_gtime& t,
                         double xyz[3] = NULL,
                         double var[3] = NULL,
@@ -116,7 +123,7 @@ namespace gnut
          * @param chk_mask
          * @return int
          */
-        virtual int pos(const string& sat,
+        virtual int pos(GSAT sat,
                         const int& iod,
                         const t_gtime& t,
                         double xyz[3] = NULL,
@@ -135,7 +142,14 @@ namespace gnut
          * @param[in]  chk_mask
          * @return    irc
          */
-        virtual int clk(const string& sat,
+        virtual int clk(GSAT sat,
+                        const t_gtime& t,
+                        double* clk = NULL,
+                        double* var = NULL,
+                        double* dclk = NULL,
+                        const bool& chk_mask = true);
+
+        virtual int clk(const std::string& id,
                         const t_gtime& t,
                         double* clk = NULL,
                         double* var = NULL,
@@ -156,7 +170,7 @@ namespace gnut
          *
          * @return    all satellites
          */
-        virtual set<string> satellites() const;
+        virtual std::set<GSAT> satellites() const;
 
         /**
          * @brief add single navigation message.
@@ -164,7 +178,7 @@ namespace gnut
          * @param[in]  nav    navigation system
          * @return    0
          */
-        virtual int add(shared_ptr<t_gnav> nav);
+        virtual int add(std::shared_ptr<t_gnav> nav);
 
         /**
          * @brief get number of epochs.
@@ -172,7 +186,7 @@ namespace gnut
          * @param[in]  prn    satellite prn
          * @return    number of epochs
          */
-        virtual unsigned int nepochs(const string& prn);
+        virtual unsigned int nepochs(GSAT prn);
 
         /**
          * @brief position/clock reference point.
@@ -200,14 +214,14 @@ namespace gnut
          * @param[in]  chk_mask
          * @return    tmp
          */
-        shared_ptr<t_geph> find(const string& sat, const t_gtime& t, const bool& chk_mask = true);
+        std::shared_ptr<t_geph> find(GSAT sat, const t_gtime& t, const bool& chk_mask = true);
 
         /**
          * @brief return frequency number of GLONASS.
          *
          * @return    _glo_freq_num
          */
-        const map<string, int>& glo_freq_num() const
+        const std::map<GSAT, int>& glo_freq_num() const
         {
             return _gloFreqNum;
         }
@@ -238,7 +252,7 @@ namespace gnut
          * @param[in]  chk_mask
          * @return    null
          */
-        virtual shared_ptr<t_geph> _find(const string& sat, const t_gtime& t, const bool& chk_mask = true);
+        virtual std::shared_ptr<t_geph> _find(GSAT sat, const t_gtime& t, const bool& chk_mask = true);
 
         /**
          * @brief find appropriate t_geph element.
@@ -249,7 +263,7 @@ namespace gnut
          * @param[in]  chk_mask
          * @return
          */
-        virtual shared_ptr<t_geph> _find(const string& sat, const int& iod, const t_gtime& t, const bool& chk_mask = true);
+        virtual std::shared_ptr<t_geph> _find(GSAT sat, const int& iod, const t_gtime& t, const bool& chk_mask = true);
 
     protected:
         bool _com = false;       ///< position/clock reference point (com = true; apc = false);
@@ -260,9 +274,9 @@ namespace gnut
         bool _chkTot = false;
         int _nepoch = 0;              ///< maximum number of epochs (0 = keep all)
         t_map_sat _mapsat;            ///< map over all satellites (positions,..?)
-        shared_ptr<t_geph> _null;     ///< null pointer
+        std::shared_ptr<t_geph> _null;     ///< null pointer
         t_map_iono _brdc_iono_cor;    ///< ionosphere correction in BRDC
-        map<string, int> _gloFreqNum; ///< frequency number of GLONASS
+        std::map<GSAT, int> _gloFreqNum;   ///< frequency number of GLONASS
     };
 
 } // namespace gnut

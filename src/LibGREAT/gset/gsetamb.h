@@ -11,12 +11,13 @@
 #ifndef GSETAMB_H
 #define GSETAMB_H
 
+#ifndef XMLKEY_AMBIGUITY
 #define XMLKEY_AMBIGUITY "ambiguity"
+#endif
 
 #include "gexport/ExportLibGREAT.h"
 #include "gset/gsetbase.h"
 
-using namespace std;
 using namespace gnut;
 namespace great
 {
@@ -37,14 +38,14 @@ namespace great
      * @param[in]    mode      type of UPD
      * @return       string    type of UPD in string form
      */
-    LibGREAT_LIBRARY_EXPORT string updmode2str(UPDTYPE mode);
+    LibGREAT_LIBRARY_EXPORT std::string updmode2str(UPDTYPE mode);
 
     /**
      * @brief change string to UPDTYPE.
      * @param[in]    mode      type of UPD in string form
      * @return       UPDTYPE   type of UPD
      */
-    LibGREAT_LIBRARY_EXPORT UPDTYPE str2updmode(string mode);
+    LibGREAT_LIBRARY_EXPORT UPDTYPE str2updmode(std::string mode);
 
     /** @brief enum of FIX mode. */
     enum class FIX_MODE
@@ -115,7 +116,7 @@ namespace great
          * @brief   get ambiguity decision.
          * @return    map<string, double>    ambiguity decision
          */
-        map<string, double> get_amb_decision(string str);
+        std::map<std::string, double> get_amb_decision(std::string str);
 
         /**
         * @brief   whether take partial ambiguity fixed mode.
@@ -136,15 +137,15 @@ namespace great
          * @param[in]  str   fix mode in string form
          * @return    FIX_MODE    type of UPD
          */
-        FIX_MODE str2fixmode(string str);
-        string fixmode2str(FIX_MODE mode);
+        FIX_MODE str2fixmode(std::string str);
+        std::string fixmode2str(FIX_MODE mode);
 
         /**
          * @brief change string to UPD mode.
          * @param[in]  str   upd mode in string form
          * @return    UPD_MODE    UPD mode
          */
-        UPD_MODE str2upd_mode(string str);
+        UPD_MODE str2upd_mode(std::string str);
 
         /**
         * @brief   whether set reference satellite.
@@ -161,7 +162,7 @@ namespace great
         int full_fix_num();
 
     protected:
-        map<string, map<string, double>> _default_decision = {
+        std::map<std::string, std::map<std::string, double>> _default_decision = {
             {"EWL", {{"maxdev", 0.07}, {"maxsig", 0.10}, {"alpha", 1000}}},
             {"WL", {{"maxdev", 0.25}, {"maxsig", 0.10}, {"alpha", 1000}}},
             {"NL", {{"maxdev", 0.25}, {"maxsig", 0.10}, {"alpha", 1000}}}}; ///< default ambiguity decision

@@ -23,17 +23,16 @@
 #include "gdata/gnavqzs.h"
 #include "gdata/gnavsbs.h"
 #include "gdata/gnavirn.h"
-using namespace std;
 
 namespace gnut
 {
     t_gsatdata::t_gsatdata() :
         t_gobsgnss()
     {
-        id_type(t_gdata::SATDATA);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::SATDATA);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
-    t_gsatdata::t_gsatdata(const string& site, const string& sat, const t_gtime& t) :
+    t_gsatdata::t_gsatdata(const std::string& site, const std::string& sat, const t_gtime& t) :
         t_gobsgnss(site, sat, t),
         _satcrd(0.0, 0.0, 0.0),
         _satpco(0.0, 0.0, 0.0),
@@ -56,8 +55,8 @@ namespace gnut
         _yaw(999)
 
     {
-        id_type(t_gdata::SATDATA);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::SATDATA);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
 
     t_gsatdata::t_gsatdata(const t_gobsgnss& obs) :
@@ -80,8 +79,8 @@ namespace gnut
         _drate(0.0),
         _yaw(999)
     {
-        id_type(t_gdata::SATDATA);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::SATDATA);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
 
     t_gsatdata::~t_gsatdata()
@@ -426,15 +425,15 @@ namespace gnut
 
     int t_gsatdata::_addprd(t_gallnav* gnav, const bool& corrTOT, const bool& msk_health)
     {
-        string satname(_satid);
+        GSAT satname = _satid;
 
         GSYS gs = this->gsys();
 
         GOBSBAND b1, b2;
-        b1 = b2 = BAND;
+        b1 = b2 = gnut::GOBSBAND::BAND;
 
         // automatic selection of two bands for IF LC
-        set<GOBSBAND> bands = _band_avail_code();
+        std::set<GOBSBAND> bands = _band_avail_code();
         auto itBAND = bands.begin();
         if (corrTOT)
         {
@@ -460,7 +459,7 @@ namespace gnut
         }
 
         double P3 = 0.0;
-        if (b1 != BAND && b2 != BAND)
+        if (b1 != gnut::GOBSBAND::BAND && b2 != gnut::GOBSBAND::BAND)
         {
             P3 = this->P3(b1, b2);
         }
@@ -490,14 +489,13 @@ namespace gnut
         double dclk = 0.0;
         double clkrms = 0.0;
 
-        if (satname.substr(0, 1) != "G" && satname.substr(0, 1) != "R" && satname.substr(0, 1) != "E" && satname.substr(0, 1) != "J" &&
-            satname.substr(0, 1) != "C")
+        if (gs != GSYS::GPS && gs != GSYS::GLO && gs != GSYS::GAL && gs != GSYS::QZS && gs != GSYS::BDS)
         {
             GREAT_DEBUG(" satelite " + satname + _epoch.str_ymdhms(" Undefined satellite system! "));
             return -1;
         }
 
-        t_gtime epoT(t_gtime::GPS);
+        t_gtime epoT(t_gtime::t_tsys::GPS);
         double satclk = 0.0;
         double satclk2 = 1.0;
         int cnt = 0;
@@ -544,10 +542,10 @@ namespace gnut
 
         // relativistic correction
         // WARNING: GLONASS clk already include the correction if broadcast eph are used !!!!!
-        if (gs != GLO || (gs == GLO && gnav->id_type() == t_gdata::ALLPREC))
+        if (gs != GSYS::GLO || (gs == GSYS::GLO && gnav->id_type() == t_gdata::ID_TYPE::ALLPREC))
         {
             double rel = 2.0 * (txyz[0] * vel[0] + txyz[1] * vel[1] + txyz[2] * vel[2]) / CLIGHT / CLIGHT; // default
-            shared_ptr<t_geph> eph = gnav->find(satname, epoT);
+            std::shared_ptr<t_geph> eph = gnav->find(satname, epoT);
 
             if (rel == 0.0)
             {
@@ -600,7 +598,7 @@ namespace gnut
         return _eclipse;
     }
 
-    void t_gsatdata::addecl(map<string, t_gtime>& lastEcl)
+    void t_gsatdata::addecl(std::map<GSAT, t_gtime>& lastEcl)
     {
         if (fabs(_b()) < EPS0_GPS && fabs(_orb_angle()) < EPS0_GPS)
         {
@@ -632,11 +630,11 @@ namespace gnut
 
         if (restype == RESIDTYPE::RES_ORIG)
         {
-            if (type == TYPE_C)
+            if (type == gnut::GOBSTYPE::TYPE_C)
             {
                 _code_res_orig.push_back(res);
             }
-            if (type == TYPE_L)
+            if (type == gnut::GOBSTYPE::TYPE_L)
             {
                 _phase_res_orig.push_back(res);
             }
@@ -644,11 +642,11 @@ namespace gnut
 
         if (restype == RESIDTYPE::RES_NORM)
         {
-            if (type == TYPE_C)
+            if (type == gnut::GOBSTYPE::TYPE_C)
             {
                 _code_res_norm.push_back(res);
             }
-            if (type == TYPE_L)
+            if (type == gnut::GOBSTYPE::TYPE_L)
             {
                 _phase_res_norm.push_back(res);
             }
@@ -657,19 +655,19 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    vector<double> t_gsatdata::residuals(const RESIDTYPE& restype, const GOBSTYPE& type)
+    std::vector<double> t_gsatdata::residuals(const RESIDTYPE& restype, const GOBSTYPE& type)
     {
         _gmutex.lock();
 
-        vector<double> res;
+        std::vector<double> res;
 
         if (restype == RESIDTYPE::RES_ORIG)
         {
-            if (type == TYPE_C)
+            if (type == gnut::GOBSTYPE::TYPE_C)
             {
                 res = _code_res_orig;
             }
-            else if (type == TYPE_L)
+            else if (type == gnut::GOBSTYPE::TYPE_L)
             {
                 res = _phase_res_orig;
             }
@@ -677,11 +675,11 @@ namespace gnut
 
         if (restype == RESIDTYPE::RES_NORM)
         {
-            if (type == TYPE_C)
+            if (type == gnut::GOBSTYPE::TYPE_C)
             {
                 res = _code_res_norm;
             }
-            else if (type == TYPE_L)
+            else if (type == gnut::GOBSTYPE::TYPE_L)
             {
                 res = _phase_res_norm;
             }

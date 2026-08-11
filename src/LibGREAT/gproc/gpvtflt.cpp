@@ -16,7 +16,7 @@
 #include "gproc/gqualitycontrol.h"
 #include "gio/great_log.h"
 
-great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase* gset, t_gallproc* allproc) :
+great::t_gpvtflt::t_gpvtflt(std::string mark, std::string mark_base, t_gsetbase* gset, t_gallproc* allproc) :
     t_gspp(mark, gset),
     t_gpppflt(mark, gset),
     _fix_mode(FIX_MODE::NO),
@@ -50,29 +50,29 @@ great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase* gset, t_g
         xyz_standard = dynamic_cast<t_gsetrec*>(gset)->get_crd_xyz(_site);
     }
 
-    _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GPS);
-    _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GAL);
-    _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GLO);
-    _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::BDS);
-    _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::QZS);
-    _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GPS);
-    _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GAL);
-    _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GLO);
-    _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::BDS);
-    _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::QZS);
+    _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GSYS::GPS);
+    _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GSYS::GAL);
+    _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GSYS::GLO);
+    _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GSYS::BDS);
+    _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(gset)->band_index(gnut::GSYS::QZS);
+    _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GSYS::GPS);
+    _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GSYS::GAL);
+    _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GSYS::GLO);
+    _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GSYS::BDS);
+    _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(gset)->freq_index(gnut::GSYS::QZS);
 
-    _gobs = dynamic_cast<t_gallobs*>((*_allproc)[t_gdata::ALLOBS]);
-    _gnav = dynamic_cast<t_gallprec*>((*_allproc)[t_gdata::GRP_EPHEM]);
-    _gupd = dynamic_cast<t_gupd*>((*_allproc)[t_gdata::UPD]);
+    _gobs = dynamic_cast<t_gallobs*>((*_allproc)[t_gdata::ID_TYPE::ALLOBS]);
+    _gnav = dynamic_cast<t_gallprec*>((*_allproc)[t_gdata::ID_GROUP::GRP_EPHEM]);
+    _gupd = dynamic_cast<t_gupd*>((*_allproc)[t_gdata::ID_TYPE::UPD]);
 
-    this->setOTL(dynamic_cast<t_gallotl*>((*_allproc)[t_gdata::ALLOTL]));
-    this->setOBJ(dynamic_cast<t_gallobj*>((*_allproc)[t_gdata::ALLOBJ]));
-    this->setDCB(dynamic_cast<t_gallbias*>((*_allproc)[t_gdata::ALLBIAS]));
-    this->setFCB(dynamic_cast<t_gallbias*>((*_allproc)[t_gdata::ALLBIAS]));
+    this->setOTL(dynamic_cast<t_gallotl*>((*_allproc)[t_gdata::ID_TYPE::ALLOTL]));
+    this->setOBJ(dynamic_cast<t_gallobj*>((*_allproc)[t_gdata::ID_TYPE::ALLOBJ]));
+    this->setDCB(dynamic_cast<t_gallbias*>((*_allproc)[t_gdata::ID_TYPE::ALLBIAS]));
+    this->setFCB(dynamic_cast<t_gallbias*>((*_allproc)[t_gdata::ID_TYPE::ALLBIAS]));
 
     _frequency = dynamic_cast<t_gsetproc*>(gset)->frequency();
     _slip_model = dynamic_cast<t_gsetproc*>(gset)->slip_model();
-    _gpre = make_shared<t_gpreproc>(_gobs, gset);
+    _gpre = std::make_shared<t_gpreproc>(_gobs, gset);
     _gpre->setNav(_gnav);
 
     if (_ambfix)
@@ -85,7 +85,7 @@ great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase* gset, t_g
         _ambfix = new t_gambiguity(_site, _set);
     }
 
-    shared_ptr<t_gbiasmodel> precise_bias(new t_gprecisebiasGPP(_allproc, gset));
+    std::shared_ptr<t_gbiasmodel> precise_bias(new t_gprecisebiasGPP(_allproc, gset));
 
     if (!_isBase)
     {
@@ -93,19 +93,19 @@ great::t_gpvtflt::t_gpvtflt(string mark, string mark_base, t_gsetbase* gset, t_g
         {
             case OBSCOMBIN::RAW_ALL:
             case OBSCOMBIN::RAW_MIX:
-                _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
+                _base_model = std::shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
                 break;
             case OBSCOMBIN::IONO_FREE:
-                _base_model = shared_ptr<t_gbasemodel>(new t_gcombIF(gset, precise_bias, _allproc));
+                _base_model = std::shared_ptr<t_gbasemodel>(new t_gcombIF(gset, precise_bias, _allproc));
                 break;
             default:
-                _base_model = shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
+                _base_model = std::shared_ptr<t_gbasemodel>(new t_gcombALL(gset, precise_bias, _allproc));
                 break;
         }
     }
     else
     {
-        _base_model = shared_ptr<t_gbasemodel>(new t_gcombDD(gset, precise_bias, _allproc));
+        _base_model = std::shared_ptr<t_gbasemodel>(new t_gcombDD(gset, precise_bias, _allproc));
         dynamic_cast<t_gcombDD*>(&(*_base_model))->set_observ(_observ);
         dynamic_cast<t_gcombDD*>(&(*_base_model))->set_site(_site, _site_base);
     }
@@ -139,11 +139,11 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
     t_gsys gsys(satdata.gsys());
     GSYS gs = gsys.gsys();
     GOBSBAND b1, b2, b3, b4, b5;
-    b1 = b2 = b3 = b4 = b5 = BAND;
+    b1 = b2 = b3 = b4 = b5 = gnut::GOBSBAND::BAND;
 
     if (_auto_band)
     { // automatic dual band selection -> for Anubis purpose
-        set<GOBSBAND> bands = satdata.band_avail();
+        std::set<GOBSBAND> bands = satdata.band_avail();
         auto itBAND = bands.begin();
         if (bands.size() < 2)
         {
@@ -155,35 +155,35 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
     }
     else
     { // select fix defined band according the table
-        b1 = t_gsys::band_priority(gs, FREQ_1);
-        b2 = t_gsys::band_priority(gs, FREQ_2);
-        b3 = t_gsys::band_priority(gs, FREQ_3);
-        b4 = t_gsys::band_priority(gs, FREQ_4);
-        b5 = t_gsys::band_priority(gs, FREQ_5);
+        b1 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_1);
+        b2 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_2);
+        b3 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_3);
+        b4 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_4);
+        b5 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_5);
     }
 
     t_gobs gobs1, gobs2, gobs3, gobs4, gobs5;
 
-    _getgobs(satdata.sat(), TYPE_D, b1, gobs1);
-    _getgobs(satdata.sat(), TYPE_D, b2, gobs2);
-    _getgobs(satdata.sat(), TYPE_D, b3, gobs3);
-    _getgobs(satdata.sat(), TYPE_D, b4, gobs4);
-    _getgobs(satdata.sat(), TYPE_D, b5, gobs5);
+    _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_D, b1, gobs1);
+    _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_D, b2, gobs2);
+    _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_D, b3, gobs3);
+    _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_D, b4, gobs4);
+    _getgobs(satdata.sat(), gnut::GOBSTYPE::TYPE_D, b5, gobs5);
 
     double D1, D2, D3, D4, D5;
     D1 = D2 = D3 = D4 = D5 = 0.0;
-    vector<int> index_freq(5, 0);
+    std::vector<int> index_freq(5, 0);
     D1 = satdata.obs_D(gobs1);
     D2 = satdata.obs_D(gobs2);
-    if (b3 != BAND)
+    if (b3 != gnut::GOBSBAND::BAND)
     {
         D3 = satdata.obs_D(gobs3);
     }
-    if (b4 != BAND)
+    if (b4 != gnut::GOBSBAND::BAND)
     {
         D4 = satdata.obs_D(gobs4);
     }
-    if (b5 != BAND)
+    if (b5 != gnut::GOBSBAND::BAND)
     {
         D5 = satdata.obs_D(gobs5);
     }
@@ -224,19 +224,19 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
     double sigDoppler = 0.0;
     switch (gs)
     {
-        case GPS:
+        case GSYS::GPS:
             sigDoppler = _sigDopplerGPS;
             break;
-        case GLO:
+        case GSYS::GLO:
             sigDoppler = _sigDopplerGLO;
             break;
-        case GAL:
+        case GSYS::GAL:
             sigDoppler = _sigDopplerGAL;
             break;
-        case BDS:
+        case GSYS::BDS:
             sigDoppler = _sigDopplerBDS;
             break;
-        case QZS:
+        case GSYS::QZS:
             sigDoppler = _sigDopplerQZS;
             break;
         default:
@@ -388,7 +388,7 @@ int great::t_gpvtflt::_rtkinit()
 int great::t_gpvtflt::_setCrd()
 {
     // save base coordinate to grec
-    shared_ptr<gnut::t_gobj> grec_base = _gallobj->obj(_site_base);
+    std::shared_ptr<gnut::t_gobj> grec_base = _gallobj->obj(_site_base);
     if (grec_base == nullptr)
     {
         return -1;
@@ -406,7 +406,7 @@ int great::t_gpvtflt::_setCrd()
     if (basepos == BASEPOS::SPP)
     {
         t_gtime time = _gobs->beg_obs(_site_base);
-        shared_ptr<t_gsppflt> sppflt = make_shared<t_gsppflt>(_site_base, _set);
+        std::shared_ptr<t_gsppflt> sppflt = std::make_shared<t_gsppflt>(_site_base, _set);
         sppflt->minsat(5);
         sppflt->setDAT(_gobs, _gnav);
         sppflt->setOBJ(_gallobj);
@@ -434,24 +434,24 @@ int great::t_gpvtflt::_setCrd()
 }
 
 bool great::t_gpvtflt::_valid_residual(bool phase_process,
-                                       string sat_name,
-                                       enum FREQ_SEQ& f,
-                                       map<string, map<FREQ_SEQ, pair<int, int>>>& index_l)
+                                       GSAT sat,
+                                       FREQ_SEQ& f,
+                                       std::map<GSAT, std::map<FREQ_SEQ, std::pair<int, int>>>& index_l)
 {
     try
     {
         /* if no phase observable, psudorange is also unusable */
         if (phase_process)
         {
-            index_l.at(sat_name).at(_observ == OBSCOMBIN::IONO_FREE ? FREQ_1 : f).second;
+            index_l.at(sat).at(_observ == OBSCOMBIN::IONO_FREE ? gnut::FREQ_SEQ::FREQ_1 : f).second;
         }
         else
         {
-            index_l.at(sat_name).at(_observ == OBSCOMBIN::IONO_FREE ? FREQ_1 : f).second;
-            index_l.at(sat_name).at(_observ == OBSCOMBIN::IONO_FREE ? FREQ_1 : f).first;
+            index_l.at(sat).at(_observ == OBSCOMBIN::IONO_FREE ? gnut::FREQ_SEQ::FREQ_1 : f).second;
+            index_l.at(sat).at(_observ == OBSCOMBIN::IONO_FREE ? gnut::FREQ_SEQ::FREQ_1 : f).first;
         }
     }
-    catch (exception e)
+    catch (std::exception e)
     {
         return false;
     }
@@ -462,21 +462,21 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
 {
     try
     {
-        map<string, map<FREQ_SEQ, pair<int, int>>> index_l;
+        std::map<GSAT, std::map<FREQ_SEQ, std::pair<int, int>>> index_l;
         for (int i = 0; i < _obs_index.size(); i++)
         {
-            string sat = _obs_index[i].first;
+            GSAT sat = _obs_index[i].first;
             FREQ_SEQ f = _obs_index[i].second.first;
             GOBSTYPE obstype = _obs_index[i].second.second;
             if (index_l.find(sat) == index_l.end())
             {
-                index_l.insert(make_pair(sat, map<FREQ_SEQ, pair<int, int>>()));
+                index_l.insert(std::make_pair(sat, std::map<FREQ_SEQ, std::pair<int, int>>()));
             }
             if (index_l[sat].find(f) == index_l[sat].end())
             {
-                index_l[sat].insert(make_pair(f, make_pair(-1, -1)));
+                index_l[sat].insert(std::make_pair(f, std::make_pair(-1, -1)));
             }
-            if (obstype == TYPE_C)
+            if (obstype == gnut::GOBSTYPE::TYPE_C)
             {
                 index_l[sat][f].first = i + 1;
             }
@@ -489,7 +489,7 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
         _obs_index.clear();
         int iobs = 1;
 
-        set<string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
+        std::set<std::string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
 
         int nrows = A.Nrows();
         Matrix DD;
@@ -501,8 +501,8 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
         bool isPhaseProcess = true;
         for (auto sys_iter = sysall.begin(); sys_iter != sysall.end(); sys_iter++)
         {
-            enum GSYS sys = t_gsys::str2gsys(*sys_iter);
-            vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(sys);
+            GSYS sys = t_gsys::str2gsys(*sys_iter);
+            std::vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(sys);
             int nf = 5;
             if (band.size())
             {
@@ -513,46 +513,46 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
                 nf = 1;
             }
             FREQ_SEQ f;
-            string sat_ref;
-            for (FREQ_SEQ freq = FREQ_1; freq <= 2 * nf; freq = (FREQ_SEQ)(freq + 1))
+            GSAT sat_ref = GSAT::NONE;
+            for (int freq = 1; freq <= 2 * nf; ++freq)
             {
                 if (freq <= nf)
                 { // phase equations
                     isPhaseProcess = true;
-                    f = freq;
+                    f = static_cast<FREQ_SEQ>(freq);
                 }
                 else
                 { // code equations
                     isPhaseProcess = false;
-                    f = (FREQ_SEQ)(freq - nf);
+                    f = static_cast<FREQ_SEQ>(freq - nf);
                 }
-                if (f > _frequency)
+                if (static_cast<int>(f) > _frequency)
                 {
                     continue;
                 }
-                string sat;
+                GSAT sat = GSAT::NONE;
                 t_gsatdata obs_sat_ref;
-                enum GSYS gs;
+                GSYS gs;
                 if (!isSetRefSat || (_observ == OBSCOMBIN::RAW_MIX && !isPhaseProcess))
                 {
-                    sat_ref.clear();
+                    sat_ref = GSAT::NONE;
                 }
-                if (sat_ref.empty())
+                if (sat_ref == GSAT::NONE)
                 {
                     for (auto it = _data.begin(); it != _data.end(); it++)
                     {
-                        string sat = it->sat();
+                        GSAT sat = it->sat();
 
                         gs = it->gsys();
-                        if (gs == QZS)
+                        if (gs == GSYS::QZS)
                         {
-                            gs = GPS;
+                            gs = GSYS::GPS;
                         }
                         if (gs != sys)
                         {
                             continue;
                         }
-                        if ((gs == BDS) && t_gsys::bds_geo(sat))
+                        if ((gs == GSYS::BDS) && t_gsys::bds_geo(sat))
                         {
                             continue;
                         }
@@ -563,11 +563,11 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
 
                         if (isSetRefSat && (_observ == gnut::OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX))
                         {
-                            FREQ_SEQ f1 = FREQ_1;
-                            FREQ_SEQ f2 = FREQ_2;
-                            FREQ_SEQ f3 = FREQ_3;
-                            FREQ_SEQ f4 = FREQ_4;
-                            FREQ_SEQ f5 = FREQ_5;
+                            FREQ_SEQ f1 = gnut::FREQ_SEQ::FREQ_1;
+                            FREQ_SEQ f2 = gnut::FREQ_SEQ::FREQ_2;
+                            FREQ_SEQ f3 = gnut::FREQ_SEQ::FREQ_3;
+                            FREQ_SEQ f4 = gnut::FREQ_SEQ::FREQ_4;
+                            FREQ_SEQ f5 = gnut::FREQ_SEQ::FREQ_5;
                             if (_valid_residual(isPhaseProcess, sat, f1, index_l) == false ||
                                 (_frequency >= 2 && nf >= 2 && _valid_residual(isPhaseProcess, sat, f2, index_l) == false) ||
                                 (_frequency >= 3 && nf >= 3 && _valid_residual(isPhaseProcess, sat, f3, index_l) == false) ||
@@ -582,7 +582,7 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
                             continue;
                         }
 
-                        if (sat_ref.empty())
+                        if (sat_ref == GSAT::NONE)
                         {
                             sat_ref = sat;
                             obs_sat_ref = *it;
@@ -596,16 +596,16 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
                         }
                     }
                 }
-                if (sat_ref.empty())
+                if (sat_ref == GSAT::NONE)
                 {
                     continue;
                 }
-                if (_ipSatRep[sys] != "" && sat_ref != _ipSatRep[sys])
+                if (_ipSatRep[sys] != GSAT::NONE && sat_ref != _ipSatRep[sys])
                 {
-                    cerr << "refsat bug" << endl;
+                    std::cerr << "refsat bug" << std::endl;
                     continue;
                 }
-                if (freq == FREQ_1)
+                if (freq == static_cast<int>(FREQ_SEQ::FREQ_1))
                 {
                     _sat_ref.insert(sat_ref);
                 }
@@ -629,9 +629,9 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
                     }
 
                     gs = it->gsys();
-                    if (gs == QZS)
+                    if (gs == GSYS::QZS)
                     {
-                        gs = GPS;
+                        gs = GSYS::GPS;
                     }
                     if (gs != sys)
                     {
@@ -654,12 +654,12 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
 
                     DD(iobs, index_ref) = -1;
                     DD(iobs, index_sat) = 1;
-                    GOBSTYPE obstype = TYPE_C;
+                    GOBSTYPE obstype = gnut::GOBSTYPE::TYPE_C;
                     if (isPhaseProcess)
                     {
                         obstype = GOBSTYPE::TYPE_L;
                     }
-                    _obs_index.push_back(make_pair(it->sat(), make_pair(f, obstype)));
+                    _obs_index.push_back(std::make_pair(it->sat(), std::make_pair(f, obstype)));
                     iobs++;
                 } // end sat
             } // end f
@@ -708,25 +708,25 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
         _post_l = l;
         return -1;
     }
-    string site = _site;
+    std::string site = _site;
     t_gallpar par_temp = _param;
     double amb_correct = 0, amb_correct_2 = 0, amb_correct_dd = 0;
     int idx = 0, idx2 = 0;
-    map<string, map<FREQ_SEQ, pair<int, int>>> index_l;
+    std::map<GSAT, std::map<FREQ_SEQ, std::pair<int, int>>> index_l;
     for (int i = 0; i < _obs_index.size(); i++)
     {
-        string sat = _obs_index[i].first;
+        GSAT sat = _obs_index[i].first;
         FREQ_SEQ f = _obs_index[i].second.first;
         GOBSTYPE obstype = _obs_index[i].second.second;
         if (index_l.find(sat) == index_l.end())
         {
-            index_l.insert(make_pair(sat, map<FREQ_SEQ, pair<int, int>>()));
+            index_l.insert(std::make_pair(sat, std::map<FREQ_SEQ, std::pair<int, int>>()));
         }
         if (index_l[sat].find(f) == index_l[sat].end())
         {
-            index_l[sat].insert(make_pair(f, make_pair(-1, -1)));
+            index_l[sat].insert(std::make_pair(f, std::make_pair(-1, -1)));
         }
-        if (obstype == TYPE_C)
+        if (obstype == gnut::GOBSTYPE::TYPE_C)
         {
             index_l[sat][f].first = i + 1;
         }
@@ -750,7 +750,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
     t_DD_amb DD = _ambfix->getDD();
     t_DD_amb DD_sav = _ambfix->getDD_sav();
     int iobs = 0;
-    vector<int> ind;
+    std::vector<int> ind;
     for (auto it = 1; it <= nobs; it++)
     {
         ind.push_back(it);
@@ -758,16 +758,16 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
 
     for (auto itref = _sat_ref.begin(); itref != _sat_ref.end(); itref++)
     {
-        string satref = *itref;
+        GSAT satref = *itref;
         for (auto itdd = DD.begin(); itdd != DD.end(); itdd++)
         {
             if (itdd->isWlFixed && itdd->isNlFixed)
             {
-                string sat1 = get<0>(itdd->ddSats[0]);
-                string sat2 = get<0>(itdd->ddSats[1]);
+                GSAT sat1 = get<0>(itdd->ddSats[0]);
+                GSAT sat2 = get<0>(itdd->ddSats[1]);
 
-                string crt_sat = sat1;
-                if (crt_sat.substr(0, 1) != satref.substr(0, 1))
+                GSAT crt_sat = sat1;
+                if (gsat2gsys(crt_sat) != gsat2gsys(satref))
                 {
                     continue;
                 }
@@ -783,7 +783,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
                     itdd->inl *= -1.0;
                     itdd->iwl *= -1.0;
                 }
-                FREQ_SEQ freq = FREQ_X;
+                FREQ_SEQ freq = gnut::FREQ_SEQ::FREQ_X;
                 double dif = 0.0;
                 double dif2 = 0.0;
                 double factor_L2 = 0.0;
@@ -792,35 +792,35 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
                 {
                     t_gobsgnss gnss(satref);
                     auto gs = gnss.gsys();
-                    double lambda_1 = gnss.wavelength(_band_index[gs][FREQ_1]);
-                    double lambda_2 = gnss.wavelength(_band_index[gs][FREQ_2]);
+                    double lambda_1 = gnss.wavelength(_band_index[gs][gnut::FREQ_SEQ::FREQ_1]);
+                    double lambda_2 = gnss.wavelength(_band_index[gs][gnut::FREQ_SEQ::FREQ_2]);
 
                     double wl = round(itdd->rwl);
                     double mw_coef = lambda_2 * SQR(lambda_1) / (SQR(lambda_2) - SQR(lambda_1));
                     dif = itdd->rlc - (itdd->inl * itdd->factor + wl * mw_coef);
-                    freq = FREQ_1;
+                    freq = gnut::FREQ_SEQ::FREQ_1;
                 }
                 else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
                 {
                     if (itdd->ambtype == "AMB_L1")
                     {
-                        freq = FREQ_1;
+                        freq = gnut::FREQ_SEQ::FREQ_1;
                     }
                     else if (itdd->ambtype == "AMB_L2")
                     {
-                        freq = FREQ_2;
+                        freq = gnut::FREQ_SEQ::FREQ_2;
                     }
                     else if (itdd->ambtype == "AMB_L3")
                     {
-                        freq = FREQ_3;
+                        freq = gnut::FREQ_SEQ::FREQ_3;
                     }
                     else if (itdd->ambtype == "AMB_L4")
                     {
-                        freq = FREQ_4;
+                        freq = gnut::FREQ_SEQ::FREQ_4;
                     }
                     else if (itdd->ambtype == "AMB_L5")
                     {
-                        freq = FREQ_5;
+                        freq = gnut::FREQ_SEQ::FREQ_5;
                     }
                     else
                     {
@@ -857,7 +857,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
                     amb_correct_dd = amb_correct - amb_correct_2;
                     dif = itdd->rlc - amb_correct_dd - itdd->inl * itdd->factor;
                 }
-                if (freq != FREQ_X)
+                if (freq != gnut::FREQ_SEQ::FREQ_X)
                 {
                     if (index_l.find(crt_sat) == index_l.end())
                     {
@@ -865,7 +865,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
                     }
                     auto index = index_l[crt_sat][freq].second;
                     _post_l(index) += dif;
-                    vector<int>::iterator it = find(ind.begin(), ind.end(), index);
+                    std::vector<int>::iterator it = find(ind.begin(), ind.end(), index);
                     if (it != ind.end())
                     {
                         ind.erase(it);
@@ -873,11 +873,11 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
 
                     if (f2_use)
                     {
-                        auto index2 = index_l[crt_sat][FREQ_2].second;
+                        auto index2 = index_l[crt_sat][gnut::FREQ_SEQ::FREQ_2].second;
                         if (index2 > 0)
                         {
                             _post_l(index2) += dif2;
-                            vector<int>::iterator it2 = find(ind.begin(), ind.end(), index2);
+                            std::vector<int>::iterator it2 = find(ind.begin(), ind.end(), index2);
                             if (it2 != ind.end())
                             {
                                 ind.erase(it2);
@@ -889,7 +889,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
         } // end dd
     } // end satref
 
-    vector<int> ind1 = ind, ind2 = ind;
+    std::vector<int> ind1 = ind, ind2 = ind;
 
     int pobs = nobs - ind.size();
     Matrix_rem(_post_P, ind);
@@ -950,21 +950,21 @@ int great::t_gpvtflt::_prepareData()
     return flag;
 }
 
-int great::t_gpvtflt::_preprocess(const string& ssite, vector<t_gsatdata>& sdata)
+int great::t_gpvtflt::_preprocess(const std::string& ssite, std::vector<t_gsatdata>& sdata)
 {
     Matrix BB;
 
     BB.ReSize(sdata.size(), 4);
     BB = 0.0;
     int iobs = 0;
-    vector<t_gsatdata>::iterator iter = sdata.begin();
+    std::vector<t_gsatdata>::iterator iter = sdata.begin();
 
     _nSat = sdata.size();
-    set<string> sat_rm = dynamic_cast<t_gsetgen*>(_set)->sat_rm();
+    std::set<GSAT> sat_rm = dynamic_cast<t_gsetgen*>(_set)->sat_rm();
     while (iter != sdata.end())
     {
         // except sat from config file
-        string satname = iter->sat();
+        GSAT satname = iter->sat();
         if (sat_rm.find(satname) != sat_rm.end())
         {
             iter = sdata.erase(iter);
@@ -973,8 +973,8 @@ int great::t_gpvtflt::_preprocess(const string& ssite, vector<t_gsatdata>& sdata
 
         if (!_isBase)
         {
-            shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(satname);
-            shared_ptr<t_gpcv> sat_pcv = sat_obj->pcv(_epoch);
+            std::shared_ptr<t_gobj> sat_obj = this->_gallobj->obj(gsat2str(satname));
+            std::shared_ptr<t_gpcv> sat_pcv = sat_obj->pcv(_epoch);
             if (!sat_pcv)
             {
                 iter = sdata.erase(iter);
@@ -1119,7 +1119,7 @@ void great::t_gpvtflt::_delPar(const par_type par)
 
 int great::t_gpvtflt::_combineMW(t_gsatdata& satdata)
 {
-    string sat = satdata.sat();
+    GSAT sat = satdata.sat();
     double obs_intv = _sampling;
     t_gtime crt_time = _epoch;
     if (crt_time == _beg_time)
@@ -1134,7 +1134,7 @@ int great::t_gpvtflt::_combineMW(t_gsatdata& satdata)
     GOBSBAND b1, b2;
     if (_auto_band)
     { // automatic dual band selection -> for Anubis purpose
-        set<GOBSBAND> bands = satdata.band_avail();
+        std::set<GOBSBAND> bands = satdata.band_avail();
         auto itBAND = bands.begin();
         b1 = *itBAND;
         itBAND++;
@@ -1142,7 +1142,7 @@ int great::t_gpvtflt::_combineMW(t_gsatdata& satdata)
     }
     else
     { // select fix defined band according the table
-        vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(satdata.gsys());
+        std::vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(satdata.gsys());
         if (band.size())
         {
             b1 = band[0];
@@ -1150,8 +1150,8 @@ int great::t_gpvtflt::_combineMW(t_gsatdata& satdata)
         }
         else
         {
-            b1 = t_gsys::band_priority(satdata.gsys(), FREQ_1);
-            b2 = t_gsys::band_priority(satdata.gsys(), FREQ_2);
+            b1 = t_gsys::band_priority(satdata.gsys(), gnut::FREQ_SEQ::FREQ_1);
+            b2 = t_gsys::band_priority(satdata.gsys(), gnut::FREQ_SEQ::FREQ_2);
         }
     }
     t_gobs gobsP1 = t_gobs(satdata.select_range(b1));
@@ -1251,7 +1251,7 @@ int great::t_gpvtflt::_processEpochVel()
     Matrix A;
     DiagonalMatrix P;
     ColumnVector l, dx;
-    vector<t_gsatdata>::iterator it;
+    std::vector<t_gsatdata>::iterator it;
     t_gallpar param_vel;
 
     int ipar = 0;
@@ -1391,7 +1391,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
     t_gallpar XsavBP;
     double vtpv;
     int nobs_total, npar_number;
-    string outlier = "";
+    GSAT outlier = GSAT::NONE;
     // number of iterations caused by outliers
     _cntrep = 0;
     _crt_SNR.clear();
@@ -1401,7 +1401,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
         _remove_sat(outlier);
         if (_epoch.sow() > 345330)
         {
-            cout << endl;
+            std::cout << std::endl;
         }
         if (_prepareData() < 0)
         {
@@ -1503,11 +1503,11 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
         // increasing variance after update in case of introducing new ambiguity
         if (_cntrep == 1 && !_reset_amb && !_reset_par && !_pos_kin)
         {
-            for (size_t iPar = 0; iPar < _param.parNumber(); iPar++)
+            for (std::size_t iPar = 0; iPar < _param.parNumber(); iPar++)
             {
-                if (_param[iPar].str_type().find("AMB") != string::npos)
+                if (_param[iPar].str_type().find("AMB") != std::string::npos)
                 {
-                    string sat = _param[iPar].prn;
+                    GSAT sat = _param[iPar].prn;
                     if (_newAMB.find(sat) != _newAMB.end())
                     {
                         if (_newAMB[sat] == 1)
@@ -1680,7 +1680,7 @@ int great::t_gpvtflt::_amb_resolution()
     }
 
     // output the fixed result
-    ostringstream os;
+    std::ostringstream os;
     if (_amb_state) // fixed
     {
         /*cout << _epoch.str_ymdhms() << endl;
@@ -1694,7 +1694,7 @@ int great::t_gpvtflt::_amb_resolution()
         _param_fixed = _ambfix->getFinalParams();
         _prtOut(_epoch, _param_fixed, _filter->Qx(), _data, os, line, true);
         _prt_port(_epoch, _param_fixed, _filter->Qx(), _data);
-        cout << _epoch.str_ymdhms() << endl;
+        std::cout << _epoch.str_ymdhms() << std::endl;
     }
     else
     {
@@ -1735,26 +1735,26 @@ bool t_gpvtflt::_getSatRef()
         }
     }
     t_gallpar params_ALL = _filter->param();
-    set<string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
+    std::set<std::string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
     for (auto sys_iter = sysall.begin(); sys_iter != sysall.end(); sys_iter++)
     {
         GSYS sys = t_gsys::str2gsys(*sys_iter);
         double max_mw = 0.0;
-        string ref;
+        GSAT ref = GSAT::NONE;
 
         for (int i = 0; i < params_ALL.parNumber(); i++)
         {
-            if (params_ALL[i].str_type().find("AMB") == string::npos)
+            if (params_ALL[i].str_type().find("AMB") == std::string::npos)
             {
                 continue;
             }
 
-            if (t_gsys::sat2gsys(params_ALL[i].prn) != sys)
+            if (gsat2gsys(params_ALL[i].prn) != sys)
             {
                 continue;
             }
 
-            if (sys == GSYS::BDS && stoi(params_ALL[i].prn.substr(1, 3)) <= 5)
+            if (sys == GSYS::BDS && gsat2prn(params_ALL[i].prn) <= 5)
             {
                 continue; // exclude BDS C01~C05
             }
@@ -1798,7 +1798,7 @@ bool t_gpvtflt::_getSatRef()
             }
         }
 
-        if (!ref.empty())
+        if (ref != GSAT::NONE)
         {
             _sat_ref.insert(ref);
         }
@@ -1813,7 +1813,7 @@ bool t_gpvtflt::_getSatRef()
     }
 }
 
-int great::t_gpvtflt::_outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, string& sat)
+int great::t_gpvtflt::_outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, GSAT& sat)
 {
     int nobs = v.Nrows();
     double max = 0.0;
@@ -1830,24 +1830,24 @@ int great::t_gpvtflt::_outlierDetect(const ColumnVector& v, const SymmetricMatri
     {
         _Qx = Qsav;
         sat = _obs_index[idx - 1].first;
-        string obsType = gobstype2str(_obs_index[idx - 1].second.second);
-        ostringstream os;
-        os << _site << " outlier (" << obsType << _obs_index[idx - 1].second.first << ") " << sat << " v: " << fixed << setw(16) << right
-           << setprecision(3) << max;
+        std::string obsType = gobstype2str(_obs_index[idx - 1].second.second);
+        std::ostringstream os;
+        os << _site << " outlier (" << obsType << static_cast<int>(_obs_index[idx - 1].second.first) << ") " << sat << " v: " << std::fixed << std::setw(16) << std::right
+           << std::setprecision(3) << max;
         GREAT_INFO(_epoch.str_ymdhms(" epoch ") + os.str());
     }
     else
     {
-        sat = "";
+        sat = GSAT::NONE;
         idx = 0;
     }
     return idx;
 }
 
-string great::t_gpvtflt::_gen_kml_description(const t_gtime& epoch, const t_gposdata::data_pos& posdata)
+std::string great::t_gpvtflt::_gen_kml_description(const t_gtime& epoch, const t_gposdata::data_pos& posdata)
 {
     char s[1000];
-    string grade = _quality_grade(posdata);
+    std::string grade = _quality_grade(posdata);
     sprintf(s,
             "<B>Epoch:</B><BR><BR>\
         <TABLE border = \"1\"  width=\"100%%\"  Align = \"center\">\
@@ -1878,10 +1878,10 @@ string great::t_gpvtflt::_gen_kml_description(const t_gtime& epoch, const t_gpos
             posdata.vn[1],
             posdata.vn[2]);
 
-    return string(s);
+    return std::string(s);
 }
 
-string great::t_gpvtflt::_quality_grade(const t_gposdata::data_pos& pos)
+std::string great::t_gpvtflt::_quality_grade(const t_gposdata::data_pos& pos)
 {
     if (sqrt(pos.Rpos[0]) < 0.1 && sqrt(pos.Rpos[1]) < 0.1 && sqrt(pos.Rpos[2]) < 0.1)
     {
@@ -1932,9 +1932,9 @@ int great::t_gpvtflt::processBatch(const t_gtime& beg_r, const t_gtime& end_r, b
 
     if (_grec == nullptr)
     {
-        ostringstream os;
+        std::ostringstream os;
         os << "ERROR: No object found (" << _site << "). Processing terminated!!! " << beg_r.str_ymdhms() << " -> " << end_r.str_ymdhms()
-           << endl;
+           << std::endl;
         GREAT_ERROR(os.str());
         _gmutex.unlock();
         return -1;
@@ -2017,8 +2017,8 @@ int great::t_gpvtflt::processBatch(const t_gtime& beg_r, const t_gtime& end_r, b
         double percent = now.diff(_beg_time) / _end_time.diff(_beg_time) * 100.0;
         if (double_eq(now.sow() % 1, 0.0))
         {
-            std::cerr << "\r" << _site << "   " << now.str_ymdhms() << setw(5) << " Q = " << (_amb_state ? 1 : 2) << fixed
-                      << setprecision(1) << setw(6) << percent << "%";
+            std::cerr << "\r" << _site << "   " << now.str_ymdhms() << std::setw(5) << " Q = " << (_amb_state ? 1 : 2) << std::fixed
+                      << std::setprecision(1) << std::setw(6) << percent << "%";
         }
         if (_sampling > 1)
         {
@@ -2100,7 +2100,7 @@ bool great::t_gpvtflt::InitProc(const t_gtime& begT, const t_gtime& endT, double
     return true;
 }
 
-int great::t_gpvtflt::ProcessOneEpoch(const t_gtime& now, vector<t_gsatdata>* data_rover, vector<t_gsatdata>* data_base)
+int great::t_gpvtflt::ProcessOneEpoch(const t_gtime& now, std::vector<t_gsatdata>* data_rover, std::vector<t_gsatdata>* data_base)
 {
     if (_getData(now, data_rover, false) == 0)
     {
@@ -2117,15 +2117,15 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime& now, vector<t_gsatdata>* da
         }
     }
 
-    vector<t_gsatdata>::iterator it = _data.begin();
-    string double_freq = "";
-    string single_freq = "";
+    std::vector<t_gsatdata>::iterator it = _data.begin();
+    std::string double_freq = "";
+    std::string single_freq = "";
 
     _sat_freqs.clear();
     while (it != _data.end())
     {
-        GOBSBAND b1 = _band_index[it->gsys()][FREQ_1];
-        GOBSBAND b2 = _band_index[it->gsys()][FREQ_2];
+        GOBSBAND b1 = _band_index[it->gsys()][gnut::FREQ_SEQ::FREQ_1];
+        GOBSBAND b2 = _band_index[it->gsys()][gnut::FREQ_SEQ::FREQ_2];
 
         auto obsL1 = it->select_phase(b1);
         auto obsL2 = it->select_phase(b2);
@@ -2153,7 +2153,7 @@ int great::t_gpvtflt::ProcessOneEpoch(const t_gtime& now, vector<t_gsatdata>* da
     {
         if (_getData(now, data_base, true) == 0)
         {
-            GREAT_TRACE(string("gpvtflt:  ") + _site_base + now.str_ymdhms(" no observation found at epoch: "));
+            GREAT_TRACE(std::string("gpvtflt:  ") + _site_base + now.str_ymdhms(" no observation found at epoch: "));
             return -1;
         }
         // apply dcb
@@ -2206,14 +2206,14 @@ void great::t_gpvtflt::Add_UPD(t_gupd* gupd)
     _gupd = gupd;
 }
 
-int great::t_gpvtflt::_selcomsat(vector<t_gsatdata>& data_base, vector<t_gsatdata>& data_rover)
+int great::t_gpvtflt::_selcomsat(std::vector<t_gsatdata>& data_base, std::vector<t_gsatdata>& data_rover)
 {
     int nSat = 0;
-    vector<t_gsatdata> bdata, rdata;
+    std::vector<t_gsatdata> bdata, rdata;
     // first to recycle on base-site observations
     for (auto iter_base = data_base.begin(); iter_base != data_base.end(); iter_base++)
     {
-        string comsat = iter_base->sat();
+        GSAT comsat = iter_base->sat();
         // second to recycle on rover-site obserations
         for (auto iter_rover = data_rover.begin(); iter_rover != data_rover.end(); iter_rover++)
         {
@@ -2236,7 +2236,7 @@ int great::t_gpvtflt::_selcomsat(vector<t_gsatdata>& data_base, vector<t_gsatdat
 
 void great::t_gpvtflt::_udsdAmb()
 {
-    for (map<string, int>::iterator it = _newAMB.begin(); it != _newAMB.end();)
+    for (std::map<GSAT, int>::iterator it = _newAMB.begin(); it != _newAMB.end();)
     {
         if (it->second > 2)
         {
@@ -2256,7 +2256,7 @@ void great::t_gpvtflt::_udsdAmb()
             {
                 GREAT_INFO("AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
 
-                _amb_obs.erase(make_pair(_param[i].prn, _param[i].parType));
+                _amb_obs.erase(std::make_pair(_param[i].prn, _param[i].parType));
 
                 _newAMB.erase(_param[i].prn);
 
@@ -2269,26 +2269,26 @@ void great::t_gpvtflt::_udsdAmb()
         return;
     }
     // Add ambiguity parameter and appropriate rows/columns covar. matrix
-    set<string> mapPRN;
+    std::set<GSAT> mapPRN;
     for (int i = 0; i < _data.size(); i++)
     {
         auto rsatdata = _data[i];
         auto bsatdata = _data_base[i];
 
         GSYS gs = rsatdata.gsys();
-        string sat = rsatdata.sat();
+        GSAT sat = rsatdata.sat();
         mapPRN.insert(rsatdata.sat());
 
-        vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(gs);
+        std::vector<GOBSBAND> band = dynamic_cast<t_gsetgnss*>(_set)->band(gs);
 
-        tuple<GOBS, GOBS, GOBS, GOBS> amb_obs_identifier = make_tuple(X, X, X, X);
+        std::tuple<GOBS, GOBS, GOBS, GOBS> amb_obs_identifier = make_tuple(gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X);
 
         if (_observ == OBSCOMBIN::IONO_FREE)
         {
             GOBSBAND b1, b2;
             if (_auto_band)
             { // automatic dual band selection -> for Anubis purpose
-                set<GOBSBAND> bands = rsatdata.band_avail();
+                std::set<GOBSBAND> bands = rsatdata.band_avail();
                 auto itBAND = bands.begin();
                 if (bands.size() < 2)
                 {
@@ -2307,8 +2307,8 @@ void great::t_gpvtflt::_udsdAmb()
                 }
                 else
                 {
-                    b1 = t_gsys::band_priority(gs, FREQ_1);
-                    b2 = t_gsys::band_priority(gs, FREQ_2);
+                    b1 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_1);
+                    b2 = t_gsys::band_priority(gs, gnut::FREQ_SEQ::FREQ_2);
                 }
             }
             bool update_amb = false;
@@ -2336,7 +2336,7 @@ void great::t_gpvtflt::_udsdAmb()
                     get<3>(amb_obs_identifier) = gobs2.gobs();
                 }
 
-                if (gobs1.gobs() == X || gobs2.gobs() == X || gobs1_P.gobs() == X || gobs2_P.gobs() == X)
+                if (gobs1.gobs() == gnut::GOBS::X || gobs2.gobs() == gnut::GOBS::X || gobs1_P.gobs() == gnut::GOBS::X || gobs2_P.gobs() == gnut::GOBS::X)
                 {
                     update_amb = false;
                     break;
@@ -2360,14 +2360,14 @@ void great::t_gpvtflt::_udsdAmb()
             }
             if (update_amb == false)
             {
-                if (_amb_obs.find(make_pair(sat, par_type::AMB_IF)) == _amb_obs.end())
+                if (_amb_obs.find(std::make_pair(sat, par_type::AMB_IF)) == _amb_obs.end())
                 {
                     GREAT_INFO("amb_obs not correct!" + sat + " " + _epoch.str_hms());
                 }
-                else if (_amb_obs[make_pair(sat, par_type::AMB_IF)] != amb_obs_identifier)
+                else if (_amb_obs[std::make_pair(sat, par_type::AMB_IF)] != amb_obs_identifier)
                 {
                     GREAT_INFO("Warning: amb_obs switched silently!" + sat + " " + _epoch.str_hms());
-                    _amb_obs[make_pair(sat, par_type::AMB_IF)] = amb_obs_identifier;
+                    _amb_obs[std::make_pair(sat, par_type::AMB_IF)] = amb_obs_identifier;
                 }
                 continue;
             }
@@ -2389,7 +2389,7 @@ void great::t_gpvtflt::_udsdAmb()
                 _newAMB[sat] = 1;
             }
 
-            _amb_obs[make_pair(sat, par_type::AMB_IF)] = amb_obs_identifier;
+            _amb_obs[std::make_pair(sat, par_type::AMB_IF)] = amb_obs_identifier;
         }
         else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
         {
@@ -2398,7 +2398,7 @@ void great::t_gpvtflt::_udsdAmb()
             if (_auto_band)
             { // automatic dual band selection -> for Anubis purpose
                 GOBSBAND b1, b2;
-                set<GOBSBAND> bands = rsatdata.band_avail();
+                std::set<GOBSBAND> bands = rsatdata.band_avail();
                 auto itBAND = bands.begin();
                 if (bands.size() < 2)
                 {
@@ -2415,37 +2415,38 @@ void great::t_gpvtflt::_udsdAmb()
             {
                 nf = band.size();
             }
-            for (FREQ_SEQ f = FREQ_1; f <= nf; f = (FREQ_SEQ)(f + 1))
+            for (int freq = 1; freq <= nf; ++freq)
             {
+                FREQ_SEQ f = static_cast<FREQ_SEQ>(freq);
                 GOBSBAND b;
                 par_type amb_type;
                 switch (f)
                 {
-                    case gnut::FREQ_1:
+                    case FREQ_SEQ::FREQ_1:
                         amb_type = par_type::AMB_L1;
                         break;
-                    case gnut::FREQ_2:
+                    case FREQ_SEQ::FREQ_2:
                         amb_type = par_type::AMB_L2;
                         break;
-                    case gnut::FREQ_3:
+                    case FREQ_SEQ::FREQ_3:
                         amb_type = par_type::AMB_L3;
                         break;
-                    case gnut::FREQ_4:
+                    case FREQ_SEQ::FREQ_4:
                         amb_type = par_type::AMB_L4;
                         break;
-                    case gnut::FREQ_5:
+                    case FREQ_SEQ::FREQ_5:
                         amb_type = par_type::AMB_L5;
                         break;
                     default:
                         break;
                 }
-                if (f > _frequency)
+                if (freq > _frequency)
                 {
                     continue;
                 }
-                if (band.size() >= f)
+                if (band.size() >= static_cast<std::size_t>(freq))
                 { // automatic dual band selection -> for Anubis purpose
-                    b = band[f - 1];
+                    b = band[freq - 1];
                 }
                 else
                 {
@@ -2464,7 +2465,7 @@ void great::t_gpvtflt::_udsdAmb()
                         tmpsatdata = bsatdata;
                     }
                     t_gobs gobs(tmpsatdata.select_phase(b));
-                    if (gobs.gobs() == X)
+                    if (gobs.gobs() == gnut::GOBS::X)
                     {
                         update_amb = false;
                         skip = true;
@@ -2478,7 +2479,7 @@ void great::t_gpvtflt::_udsdAmb()
                         break;
                     }
                     t_gobs gobsP(tmpsatdata.select_range(b));
-                    if (gobsP.gobs() == X)
+                    if (gobsP.gobs() == gnut::GOBS::X)
                     {
                         update_amb = false;
                         skip = true;
@@ -2511,14 +2512,14 @@ void great::t_gpvtflt::_udsdAmb()
                 }
                 if (update_amb == false)
                 {
-                    if (_amb_obs.find(make_pair(sat, amb_type)) == _amb_obs.end())
+                    if (_amb_obs.find(std::make_pair(sat, amb_type)) == _amb_obs.end())
                     {
                         GREAT_INFO("amb_obs not correct!" + sat + " " + _epoch.str_hms());
                     }
-                    else if (_amb_obs[make_pair(sat, amb_type)] != amb_obs_identifier)
+                    else if (_amb_obs[std::make_pair(sat, amb_type)] != amb_obs_identifier)
                     {
                         GREAT_INFO("Warning: amb_obs switched silently!" + sat + " " + _epoch.str_hms());
-                        _amb_obs[make_pair(sat, amb_type)] = amb_obs_identifier;
+                        _amb_obs[std::make_pair(sat, amb_type)] = amb_obs_identifier;
                     }
                     continue;
                 }
@@ -2540,7 +2541,7 @@ void great::t_gpvtflt::_udsdAmb()
                     newAmb = 1;
                 }
 
-                _amb_obs[make_pair(sat, amb_type)] = amb_obs_identifier;
+                _amb_obs[std::make_pair(sat, amb_type)] = amb_obs_identifier;
             }
             if (newAmb)
             {
@@ -2557,12 +2558,12 @@ void great::t_gpvtflt::_udsdAmb()
         if (_param[i].parType == par_type::AMB_IF || _param[i].parType == par_type::AMB_L1 || _param[i].parType == par_type::AMB_L2 ||
             _param[i].parType == par_type::AMB_L3 || _param[i].parType == par_type::AMB_L4 || _param[i].parType == par_type::AMB_L5)
         {
-            set<string>::iterator prnITER = mapPRN.find(_param[i].prn);
+            std::set<GSAT>::iterator prnITER = mapPRN.find(_param[i].prn);
             if (prnITER == mapPRN.end())
             {
                 GREAT_INFO("AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
 
-                _amb_obs.erase(make_pair(_param[i].prn, _param[i].parType));
+                _amb_obs.erase(std::make_pair(_param[i].prn, _param[i].parType));
 
                 _newAMB.erase(_param[i].prn);
 
@@ -2579,7 +2580,7 @@ void great::t_gpvtflt::_udsdAmb()
 
 void great::t_gpvtflt::_udAmb()
 {
-    for (map<string, int>::iterator it = _newAMB.begin(); it != _newAMB.end();)
+    for (std::map<GSAT, int>::iterator it = _newAMB.begin(); it != _newAMB.end();)
     {
         if (it->second > 2)
         {
@@ -2592,22 +2593,22 @@ void great::t_gpvtflt::_udAmb()
     }
 
     // Add ambiguity parameter and appropriate rows/columns covar. matrix
-    set<string> mapPRN;
+    std::set<GSAT> mapPRN;
 
-    vector<t_gsatdata>::iterator it;
+    std::vector<t_gsatdata>::iterator it;
     for (it = _data.begin(); it != _data.end(); ++it)
     { // loop over all satellites
         mapPRN.insert(it->sat());
 
-        tuple<GOBS, GOBS, GOBS, GOBS> amb_obs_identifier = make_tuple(X, X, X, X);
+        std::tuple<GOBS, GOBS, GOBS, GOBS> amb_obs_identifier = make_tuple(gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X);
 
         GSYS gs = it->gsys();
 
-        GOBSBAND b1 = _band_index[gs][FREQ_1];
-        GOBSBAND b2 = _band_index[gs][FREQ_2];
-        GOBSBAND b3 = _band_index[gs][FREQ_3];
-        GOBSBAND b4 = _band_index[gs][FREQ_4];
-        GOBSBAND b5 = _band_index[gs][FREQ_5];
+        GOBSBAND b1 = _band_index[gs][gnut::FREQ_SEQ::FREQ_1];
+        GOBSBAND b2 = _band_index[gs][gnut::FREQ_SEQ::FREQ_2];
+        GOBSBAND b3 = _band_index[gs][gnut::FREQ_SEQ::FREQ_3];
+        GOBSBAND b4 = _band_index[gs][gnut::FREQ_SEQ::FREQ_4];
+        GOBSBAND b5 = _band_index[gs][gnut::FREQ_SEQ::FREQ_5];
 
         t_gobs gobs1(it->select_phase(b1));
         t_gobs gobs2(it->select_phase(b2));
@@ -2678,19 +2679,19 @@ void great::t_gpvtflt::_udAmb()
             }
 
             // check amb_obs
-            amb_obs_identifier = make_tuple(gobs1.gobs(), gobs2.gobs(), X, X);
+            amb_obs_identifier = make_tuple(gobs1.gobs(), gobs2.gobs(), gnut::GOBS::X, gnut::GOBS::X);
             if (idx < 0 || it->getlli(gobs1.gobs()) >= 1 || it->getlli(gobs2.gobs()) >= 1)
             {
-                _amb_obs[make_pair(it->sat(), par_type::AMB_IF)] = amb_obs_identifier;
+                _amb_obs[std::make_pair(it->sat(), par_type::AMB_IF)] = amb_obs_identifier;
             }
-            else if (_amb_obs.find(make_pair(it->sat(), par_type::AMB_IF)) == _amb_obs.end())
+            else if (_amb_obs.find(std::make_pair(it->sat(), par_type::AMB_IF)) == _amb_obs.end())
             {
                 GREAT_INFO("amb_obs not correct!" + it->sat() + " " + _epoch.str_hms());
             }
-            else if (_amb_obs[make_pair(it->sat(), par_type::AMB_IF)] != amb_obs_identifier)
+            else if (_amb_obs[std::make_pair(it->sat(), par_type::AMB_IF)] != amb_obs_identifier)
             {
                 GREAT_INFO("Warning: amb_obs switched silently!" + it->sat() + " " + _epoch.str_hms());
-                _amb_obs[make_pair(it->sat(), par_type::AMB_IF)] = amb_obs_identifier;
+                _amb_obs[std::make_pair(it->sat(), par_type::AMB_IF)] = amb_obs_identifier;
             }
         }
         else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
@@ -2698,7 +2699,7 @@ void great::t_gpvtflt::_udAmb()
             int newAmb = 0;
             for (const auto& ib : _band_index[gs])
             {
-                if (ib.first > _frequency)
+                if (static_cast<int>(ib.first) > _frequency)
                 {
                     continue;
                 }
@@ -2707,35 +2708,35 @@ void great::t_gpvtflt::_udAmb()
                 double Pi;
                 par_type amb_type;
 
-                if (ib.first == FREQ_1)
+                if (ib.first == gnut::FREQ_SEQ::FREQ_1)
                 {
                     amb_type = par_type::AMB_L1;
                     Li = L1;
                     Pi = P1;
                     gobsi = gobs1;
                 }
-                else if (ib.first == FREQ_2)
+                else if (ib.first == gnut::FREQ_SEQ::FREQ_2)
                 {
                     amb_type = par_type::AMB_L2;
                     Li = L2;
                     Pi = P2;
                     gobsi = gobs2;
                 }
-                else if (ib.first == FREQ_3)
+                else if (ib.first == gnut::FREQ_SEQ::FREQ_3)
                 {
                     amb_type = par_type::AMB_L3;
                     Li = L3;
                     Pi = P3;
                     gobsi = gobs3;
                 }
-                else if (ib.first == FREQ_4)
+                else if (ib.first == gnut::FREQ_SEQ::FREQ_4)
                 {
                     amb_type = par_type::AMB_L4;
                     Li = L4;
                     Pi = P4;
                     gobsi = gobs4;
                 }
-                else if (ib.first == FREQ_5)
+                else if (ib.first == gnut::FREQ_SEQ::FREQ_5)
                 {
                     amb_type = par_type::AMB_L5;
                     Li = L5;
@@ -2754,16 +2755,16 @@ void great::t_gpvtflt::_udAmb()
                 int idx = -1;
                 // add L1 amb - everytime when RAW observations
                 idx = _param.getParam(_site, amb_type, it->sat());
-                amb_obs_identifier = make_tuple(gobsi.gobs(), X, X, X);
+                amb_obs_identifier = make_tuple(gobsi.gobs(), gnut::GOBS::X, gnut::GOBS::X, gnut::GOBS::X);
                 // check amb_obs
                 if (idx < 0 || it->getlli(gobsi.gobs()) >= 1)
                 {
-                    _amb_obs[make_pair(it->sat(), amb_type)] = amb_obs_identifier;
+                    _amb_obs[std::make_pair(it->sat(), amb_type)] = amb_obs_identifier;
                 }
-                else if (_amb_obs[make_pair(it->sat(), amb_type)] != amb_obs_identifier)
+                else if (_amb_obs[std::make_pair(it->sat(), amb_type)] != amb_obs_identifier)
                 {
                     GREAT_INFO("Warning: amb_obs switched silently!" + it->sat() + " " + _epoch.str_hms());
-                    _amb_obs[make_pair(it->sat(), amb_type)] = amb_obs_identifier;
+                    _amb_obs[std::make_pair(it->sat(), amb_type)] = amb_obs_identifier;
                     it->addlli(gobsi.gobs(), 1);
                 }
                 if (idx < 0)
@@ -2787,7 +2788,7 @@ void great::t_gpvtflt::_udAmb()
                     _newAMB[it->sat()] = 1;
                     if (_param[idx].amb_ini == true)
                     {
-                        std::cout << "reset AMB  " << _epoch.str_hms() << endl;
+                        std::cout << "reset AMB  " << _epoch.str_hms() << std::endl;
                     }
                 }
             }
@@ -2811,12 +2812,12 @@ void great::t_gpvtflt::_udAmb()
             {
                 continue;
             }
-            set<string>::iterator prnITER = mapPRN.find(_param[i].prn);
+            std::set<GSAT>::iterator prnITER = mapPRN.find(_param[i].prn);
             if (prnITER == mapPRN.end())
             {
                 GREAT_INFO("AMB will be removed! For Sat PRN " + _param[i].prn + " Epoch: " + _epoch.str_ymdhms());
 
-                _amb_obs.erase(make_pair(_param[i].prn, _param[i].parType));
+                _amb_obs.erase(std::make_pair(_param[i].prn, _param[i].parType));
 
                 _newAMB.erase(_param[i].prn);
 
@@ -2831,7 +2832,7 @@ void great::t_gpvtflt::_udAmb()
     return;
 }
 
-void great::t_gpvtflt::Add_rho_azel(const string& site_name, t_gtriple& xyz_s, const t_gtriple& xyz_r, t_gsatdata& obs_sat)
+void great::t_gpvtflt::Add_rho_azel(const std::string& site_name, t_gtriple& xyz_s, const t_gtriple& xyz_r, t_gsatdata& obs_sat)
 {
     t_gtriple xyz_rho = xyz_s - xyz_r;
     t_gtriple ell_r, neu_s;
@@ -2850,7 +2851,7 @@ void great::t_gpvtflt::Add_rho_azel(const string& site_name, t_gtriple& xyz_s, c
     // Apply tides
     if (_isBase && site_name != _site)
     {
-        string tmp = _site;
+        std::string tmp = _site;
         _site = site_name;
         _apply_tides(_epoch, xRec);
         _site = tmp;
@@ -2892,8 +2893,8 @@ void great::t_gpvtflt::Add_rho_azel(const string& site_name, t_gtriple& xyz_s, c
 void great::t_gpvtflt::_prtOut(t_gtime& epoch,
                                t_gallpar& X,
                                const SymmetricMatrix& Q,
-                               vector<t_gsatdata>& data,
-                               ostringstream& os,
+                               std::vector<t_gsatdata>& data,
+                               std::ostringstream& os,
                                xml_node& node,
                                bool saveProd)
 {
@@ -2902,7 +2903,7 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
     X.getCrdParam(_site, xyz);
     if (_crd_est == CONSTRPAR::FIX)
     {
-        shared_ptr<t_gobj> grec = _gallobj->obj(_site);
+        std::shared_ptr<t_gobj> grec = _gallobj->obj(_site);
         xyz = grec->crd_arp(epoch);
     }
     xyz2ell(xyz, ell, false);
@@ -2989,7 +2990,7 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
         vRec = t_gtriple(0.0, 0.0, 0.0);
     }
 
-    set<string> sat_list;
+    std::set<GSAT> sat_list;
     for (auto it = _data.begin(); it != _data.end(); it++)
     {
         sat_list.insert(it->sat());
@@ -3002,11 +3003,11 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
         hdop = _dop.hdop();
     }
 
-    set<string> ambs = X.amb_prns();
+    std::set<GSAT> ambs = X.amb_prns();
     int nsat = ambs.size();
 
     // get amb status
-    string amb = "Float";
+    std::string amb = "Float";
     if (_amb_state)
     {
         amb = "Fixed";
@@ -3014,23 +3015,23 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
 
     if (_allprod != 0 && saveProd)
     {
-        shared_ptr<t_gprod> prdcrd = _allprod->get(_site, t_gdata::POS, epoch);
+        std::shared_ptr<t_gprod> prdcrd = _allprod->get(_site, t_gdata::ID_TYPE::POS, epoch);
         if (prdcrd)
         {
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz(xyz_ecc);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz_rms(crd_rms);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_XY, cov_xy);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_XZ, cov_xz);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_YZ, cov_yz);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz(xyz_ecc);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz_rms(crd_rms);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_TYPE::COV_XY, cov_xy);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_TYPE::COV_XZ, cov_xz);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_TYPE::COV_YZ, cov_yz);
         }
         else
         {
-            prdcrd = make_shared<t_gprodcrd>(epoch);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz(xyz_ecc);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz_rms(crd_rms);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_XY, cov_xy);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_XZ, cov_xz);
-            dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_YZ, cov_yz);
+            prdcrd = std::make_shared<t_gprodcrd>(epoch);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz(xyz_ecc);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->xyz_rms(crd_rms);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_TYPE::COV_XY, cov_xy);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_TYPE::COV_XZ, cov_xz);
+            std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->cov(COV_TYPE::COV_YZ, cov_yz);
             _allprod->add(prdcrd, _site);
         }
 
@@ -3059,21 +3060,21 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
     // write kml
     if (_kml)
     {
-        ostringstream out;
+        std::ostringstream out;
         t_gtriple ell1(ell);
         if (ell1[1] > G_PI)
         {
             ell1[1] = ell1[1] - 2 * G_PI;
         }
-        out << fixed << setprecision(11) << " " << setw(0) << ell1[1] * R2D << ',' << ell1[0] * R2D;
-        string val = out.str();
+        out << std::fixed << std::setprecision(11) << " " << std::setw(0) << ell1[1] * R2D << ',' << ell1[0] * R2D;
+        std::string val = out.str();
 
         xml_node root = _doc;
         node = this->_default_node(root, _root.c_str());
         xml_node document = node.child("Document");
         xml_node last_child = document.last_child();
         xml_node placemark = document.insert_child_after("Placemark", last_child);
-        string q = "#P" + _quality_grade(posdata);
+        std::string q = "#P" + _quality_grade(posdata);
         this->_default_node(placemark, "styleUrl", q.c_str());
         this->_default_node(placemark, "time", int2str(_epoch.sow()).c_str());
         xml_node point = this->_default_node(placemark, "Point");
@@ -3081,14 +3082,14 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
         xml_node description = placemark.append_child("description");
         description.append_child(pugi::node_cdata).set_value(_gen_kml_description(epoch, posdata).c_str());
         xml_node TimeStamp = placemark.append_child("TimeStamp");
-        string time = trim(epoch.str_ymd()) + "T" + trim(epoch.str_hms()) + "Z";
+        std::string time = trim(epoch.str_ymd()) + "T" + trim(epoch.str_hms()) + "Z";
         this->_default_node(TimeStamp, "when", time.c_str());
         xml_node Placemark = document.child("Placemark");
         xml_node LineString = Placemark.child("LineString");
         this->_default_node(LineString, "coordinates", val.c_str(), false);
     }
 
-    string str_dsec = dbl2str(epoch.dsec());
+    std::string str_dsec = dbl2str(epoch.dsec());
 
     double bl = 0;
     t_gtriple tmpell, tmpdxyz, tmpneu;
@@ -3101,56 +3102,56 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
         bl = tmpneu.norm();
     }
 
-    os << fixed << setprecision(5) << " "
+    os << std::fixed << std::setprecision(5) << " "
        << " " << epoch.sow() + epoch.dsec();
     if (_crd_est != CONSTRPAR::FIX)
     {
-        os << fixed << setprecision(5) << " " << setw(15) << xyz_ecc[0] // [m]
-           << " " << setw(15) << xyz_ecc[1]                             // [m]
-           << " " << setw(15) << xyz_ecc[2]                             // [m]
-           << " " << setw(10) << vRec[0]                                // [m/s]
-           << " " << setw(10) << vRec[1]                                // [m/s]
-           << " " << setw(10) << vRec[2]                                // [m/s]
-           << fixed << setprecision(5) << " " << setw(9) << Xrms        // [m]
-           << " " << setw(9) << Yrms                                    // [m]
-           << " " << setw(9) << Zrms                                    // [m]
-           << " " << setw(9) << Vxrms                                   // [m/s]
-           << " " << setw(9) << Vyrms                                   // [m/s]
-           << " " << setw(9) << Vzrms                                   // [m/s]
+        os << std::fixed << std::setprecision(5) << " " << std::setw(15) << xyz_ecc[0] // [m]
+           << " " << std::setw(15) << xyz_ecc[1]                             // [m]
+           << " " << std::setw(15) << xyz_ecc[2]                             // [m]
+           << " " << std::setw(10) << vRec[0]                                // [m/s]
+           << " " << std::setw(10) << vRec[1]                                // [m/s]
+           << " " << std::setw(10) << vRec[2]                                // [m/s]
+           << std::fixed << std::setprecision(5) << " " << std::setw(9) << Xrms        // [m]
+           << " " << std::setw(9) << Yrms                                    // [m]
+           << " " << std::setw(9) << Zrms                                    // [m]
+           << " " << std::setw(9) << Vxrms                                   // [m/s]
+           << " " << std::setw(9) << Vyrms                                   // [m/s]
+           << " " << std::setw(9) << Vzrms                                   // [m/s]
             ;
     }
-    os << fixed << setprecision(0) << " " << setw(5) << nsat                             // nsat
-       << fixed << setprecision(1) << fixed << setprecision(2) << " " << setw(5) << pdop // pdop
-       << fixed << setprecision(2) << " " << setw(8) << _sig_unit                        // m0
-       << " " << setw(8) << amb;
+    os << std::fixed << std::setprecision(0) << " " << std::setw(5) << nsat                             // nsat
+       << std::fixed << std::setprecision(1) << std::fixed << std::setprecision(2) << " " << std::setw(5) << pdop // pdop
+       << std::fixed << std::setprecision(2) << " " << std::setw(8) << _sig_unit                        // m0
+       << " " << std::setw(8) << amb;
     if (_fix_mode != FIX_MODE::NO)
     {
-        os << setprecision(2) << " " << fixed << setw(10) << _ambfix->get_ratio();
+        os << std::setprecision(2) << " " << std::fixed << std::setw(10) << _ambfix->get_ratio();
     }
     if (_isBase)
     {
-        os << " " << fixed << setprecision(3) << setw(10) << bl;
+        os << " " << std::fixed << std::setprecision(3) << std::setw(10) << bl;
     }
-    os << " " << setw(8) << _quality_grade(posdata);
+    os << " " << std::setw(8) << _quality_grade(posdata);
     if (_observ == OBSCOMBIN::RAW_MIX)
     {
-        map<string, int> satsnum = _param.freq_sats_num(2);
-        os << setw(8) << satsnum["Single"] << setw(8) << satsnum["Double"];
+        std::map<std::string, int> satsnum = _param.freq_sats_num(2);
+        os << std::setw(8) << satsnum["Single"] << std::setw(8) << satsnum["Double"];
     }
-    os << endl;
+    os << std::endl;
 
     return;
 }
 
-void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMatrix& Q, vector<t_gsatdata>& data)
+void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMatrix& Q, std::vector<t_gsatdata>& data)
 {
-    ostringstream os;
+    std::ostringstream os;
     // get CRD params
     t_gtriple xyz, ell;
     X.getCrdParam(_site, xyz);
     if (_crd_est == CONSTRPAR::FIX)
     {
-        shared_ptr<t_gobj> grec = _gallobj->obj(_site);
+        std::shared_ptr<t_gobj> grec = _gallobj->obj(_site);
         xyz = grec->crd_arp(epoch);
     }
     xyz2ell(xyz, ell, false);
@@ -3201,7 +3202,7 @@ void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMa
         vRec = t_gtriple(0.0, 0.0, 0.0);
     }
 
-    set<string> sat_list;
+    std::set<GSAT> sat_list;
     for (auto it = _data.begin(); it != _data.end(); it++)
     {
         sat_list.insert(it->sat());
@@ -3213,11 +3214,11 @@ void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMa
         pdop = _dop.pdop();
     }
 
-    set<string> ambs = X.amb_prns();
+    std::set<GSAT> ambs = X.amb_prns();
     int nsat = ambs.size();
 
     // get amb status
-    string amb = "Float";
+    std::string amb = "Float";
     if (_amb_state)
     {
         amb = "Fixed";
@@ -3226,7 +3227,7 @@ void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMa
     t_gtriple blh;
     xyz2ell(xyz_ecc, blh, true);
 
-    string str_dsec = dbl2str(epoch.dsec());
+    std::string str_dsec = dbl2str(epoch.dsec());
 
     if (_isBase)
     {
@@ -3237,100 +3238,100 @@ void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMa
         xyz2neu(tmpell, tmpdxyz, tmpneu);
     }
 
-    os << fixed << setprecision(4) << " "
-       << " " << epoch.sow() + epoch.dsec() << fixed << setprecision(4) << " " << setw(15) << xyz_ecc[0] // [m]
-       << " " << setw(15) << xyz_ecc[1]                                                                  // [m]
-       << " " << setw(15) << xyz_ecc[2]                                                                  // [m]
-       << " " << setw(10) << vRec[0]                                                                     // [m/s]
-       << " " << setw(10) << vRec[1]                                                                     // [m/s]
-       << " " << setw(10) << vRec[2]                                                                     // [m/s]
-       << fixed << setprecision(0) << " " << setw(5) << nsat                                             // nsat
-       << fixed << setprecision(2) << " " << setw(5) << pdop                                             // pdop
-       << fixed << setprecision(2) << " " << setw(8) << amb << setw(10) << (_amb_state ? _ambfix->get_ratio() : 0.0) << endl;
+    os << std::fixed << std::setprecision(4) << " "
+       << " " << epoch.sow() + epoch.dsec() << std::fixed << std::setprecision(4) << " " << std::setw(15) << xyz_ecc[0] // [m]
+       << " " << std::setw(15) << xyz_ecc[1]                                                                  // [m]
+       << " " << std::setw(15) << xyz_ecc[2]                                                                  // [m]
+       << " " << std::setw(10) << vRec[0]                                                                     // [m/s]
+       << " " << std::setw(10) << vRec[1]                                                                     // [m/s]
+       << " " << std::setw(10) << vRec[2]                                                                     // [m/s]
+       << std::fixed << std::setprecision(0) << " " << std::setw(5) << nsat                                             // nsat
+       << std::fixed << std::setprecision(2) << " " << std::setw(5) << pdop                                             // pdop
+       << std::fixed << std::setprecision(2) << " " << std::setw(8) << amb << std::setw(10) << (_amb_state ? _ambfix->get_ratio() : 0.0) << std::endl;
 }
 
 void great::t_gpvtflt::_prtOutHeader()
 {
-    ostringstream os;
+    std::ostringstream os;
 
     if (_isBase)
     {
         auto beg = dynamic_cast<t_gsetgen*>(_set)->beg();
         auto crd_base = _gallobj->obj(_site_base)->crd(beg);
-        os << "# base -" << _site_base << " Pos(XYZ): " << fixed << setprecision(4) << crd_base[0] << setw(15) << crd_base[1] << setw(15)
-           << crd_base[2] << endl;
+        os << "# base -" << _site_base << " Pos(XYZ): " << std::fixed << std::setprecision(4) << crd_base[0] << std::setw(15) << crd_base[1] << std::setw(15)
+           << crd_base[2] << std::endl;
         if (_crd_est == CONSTRPAR::FIX)
         {
             auto crd = _gallobj->obj(_site)->crd(beg);
-            os << "# rover-" << _site << " Pos(XYZ): " << fixed << setprecision(4) << crd[0] << setw(15) << crd[1] << setw(15) << crd[2]
-               << endl;
+            os << "# rover-" << _site << " Pos(XYZ): " << std::fixed << std::setprecision(4) << crd[0] << std::setw(15) << crd[1] << std::setw(15) << crd[2]
+               << std::endl;
         }
     }
 
     // first line
-    os << "#" << setw(15) << "Seconds of Week";
+    os << "#" << std::setw(15) << "Seconds of Week";
     if (_crd_est != CONSTRPAR::FIX)
     {
-        os << " " << setw(12) << "X-ECEF " << // [m]
-            " " << setw(15) << "Y-ECEF" <<    // [m]
-            " " << setw(15) << "Z-ECEF" <<    // [m]
-            " " << setw(10) << "Vx-ECEF" <<   // [m/s]
-            " " << setw(10) << "Vy-ECEF" <<   // [m/s]
-            " " << setw(10) << "Vz-ECEF" <<   // [m/s]
-            " " << setw(9) << "X-RMS"
-           << " " << setw(9) << "Y-RMS"
-           << " " << setw(9) << "Z-RMS"
-           << " " << setw(9) << "Vx-RMS"
-           << " " << setw(9) << "Vy-RMS"
-           << " " << setw(9) << "Vz-RMS";
+        os << " " << std::setw(12) << "X-ECEF " << // [m]
+            " " << std::setw(15) << "Y-ECEF" <<    // [m]
+            " " << std::setw(15) << "Z-ECEF" <<    // [m]
+            " " << std::setw(10) << "Vx-ECEF" <<   // [m/s]
+            " " << std::setw(10) << "Vy-ECEF" <<   // [m/s]
+            " " << std::setw(10) << "Vz-ECEF" <<   // [m/s]
+            " " << std::setw(9) << "X-RMS"
+           << " " << std::setw(9) << "Y-RMS"
+           << " " << std::setw(9) << "Z-RMS"
+           << " " << std::setw(9) << "Vx-RMS"
+           << " " << std::setw(9) << "Vy-RMS"
+           << " " << std::setw(9) << "Vz-RMS";
     }
-    os << " " << setw(5) << "NSat"
-       << " " << setw(5) << "PDOP"
-       << " " << setw(8) << "sigma0"
-       << " " << setw(10) << "AmbStatus";
+    os << " " << std::setw(5) << "NSat"
+       << " " << std::setw(5) << "PDOP"
+       << " " << std::setw(8) << "sigma0"
+       << " " << std::setw(10) << "AmbStatus";
     if (_fix_mode != FIX_MODE::NO)
     {
-        os << " " << setw(10) << "Ratio";
+        os << " " << std::setw(10) << "Ratio";
     }
     if (_isBase)
     {
-        os << " " << setw(10) << "BL";
+        os << " " << std::setw(10) << "BL";
     }
-    os << " " << setw(8) << "Quality";
-    os << endl;
+    os << " " << std::setw(8) << "Quality";
+    os << std::endl;
 
     // second line
-    os << "#" << setw(15) << "(s)";
+    os << "#" << std::setw(15) << "(s)";
     if (_crd_est != CONSTRPAR::FIX)
     {
-        os << " " << setw(12) << "(m)" << // [m]
-            " " << setw(15) << "(m)" <<   // [m]
-            " " << setw(15) << "(m)" <<   // [m]
-            " " << setw(10) << "(m/s)" << // [m/s]
-            " " << setw(10) << "(m/s)" << // [m/s]
-            " " << setw(10) << "(m/s)" << // [m/s]
-            " " << setw(9) << "(m)" <<    // [m]
-            " " << setw(9) << "(m)" <<    // [m]
-            " " << setw(9) << "(m)" <<    // [m]
-            " " << setw(9) << "(m/s)" <<  // [m/s]
-            " " << setw(9) << "(m/s)" <<  // [m/s]
-            " " << setw(9) << "(m/s)"     // [m/s]
+        os << " " << std::setw(12) << "(m)" << // [m]
+            " " << std::setw(15) << "(m)" <<   // [m]
+            " " << std::setw(15) << "(m)" <<   // [m]
+            " " << std::setw(10) << "(m/s)" << // [m/s]
+            " " << std::setw(10) << "(m/s)" << // [m/s]
+            " " << std::setw(10) << "(m/s)" << // [m/s]
+            " " << std::setw(9) << "(m)" <<    // [m]
+            " " << std::setw(9) << "(m)" <<    // [m]
+            " " << std::setw(9) << "(m)" <<    // [m]
+            " " << std::setw(9) << "(m/s)" <<  // [m/s]
+            " " << std::setw(9) << "(m/s)" <<  // [m/s]
+            " " << std::setw(9) << "(m/s)"     // [m/s]
             ;
     }
-    os << " " << setw(5) << "(#)"
-       << " " << setw(5) << "(#)"
-       << " " << setw(8) << "(m)"
-       << " " << setw(10) << " ";
+    os << " " << std::setw(5) << "(#)"
+       << " " << std::setw(5) << "(#)"
+       << " " << std::setw(8) << "(m)"
+       << " " << std::setw(10) << " ";
     if (_fix_mode != FIX_MODE::NO)
     {
-        os << setw(10) << " ";
+        os << std::setw(10) << " ";
     }
     if (_isBase)
     {
-        os << " " << setw(10) << "(m)";
+        os << " " << std::setw(10) << "(m)";
     }
-    os << setw(8) << " ";
-    os << endl;
+    os << std::setw(8) << " ";
+    os << std::endl;
 
     // Print flt results
     if (_flt)
@@ -3346,38 +3347,15 @@ void great::t_gpvtflt::_generateObsIndex(t_gfltEquationMatrix& equ)
     auto freq_index = dynamic_cast<t_gcombmodel*>(&(*_base_model))->get_freq_index();
     for (int i = 0; i < equ.num_equ(); i++)
     {
-        char sys_char = equ.get_satname(i)[0];
-        GSYS sys;
-        bool sys_valid = true;
-        switch (sys_char)
+        GSYS sys = gsat2gsys(equ.get_sat(i));
+        if (sys == GSYS::GNS)
         {
-            case 'G':
-                sys = GSYS::GPS;
-                break;
-            case 'R':
-                sys = GSYS::GLO;
-                break;
-            case 'E':
-                sys = GSYS::GAL;
-                break;
-            case 'C':
-                sys = GSYS::BDS;
-                break;
-            case 'J':
-                sys = GSYS::QZS;
-                break;
-            default:
-                sys_valid = false;
-                break;
-        }
-        if (!sys_valid)
-        {
-            throw exception();
+            throw std::exception();
         }
         GOBSBAND b = equ.get_obscombtype(i).getBand_1();
         FREQ_SEQ f = freq_index[sys][b];
-        GOBSTYPE obstype = equ.get_obscombtype(i).is_code() ? TYPE_C : GOBSTYPE::TYPE_L;
-        _obs_index.push_back(make_pair(equ.get_satname(i), make_pair(f, obstype)));
+        GOBSTYPE obstype = equ.get_obscombtype(i).is_code() ? gnut::GOBSTYPE::TYPE_C : GOBSTYPE::TYPE_L;
+        _obs_index.push_back(std::make_pair(equ.get_sat(i), std::make_pair(f, obstype)));
     }
 }
 
@@ -3391,7 +3369,7 @@ bool great::t_gpvtflt::_slip_detect(const t_gtime& now)
     return true;
 }
 
-int great::t_gpvtflt::_getData(const t_gtime& now, vector<t_gsatdata>* data, bool isBase)
+int great::t_gpvtflt::_getData(const t_gtime& now, std::vector<t_gsatdata>* data, bool isBase)
 {
     // clean/collect/filter epoch data
     if (data != NULL)
@@ -3440,16 +3418,16 @@ bool great::t_gpvtflt::_crd_xml_valid()
     return _valid_crd_xml;
 }
 
-void great::t_gpvtflt::_remove_sat(const string& satid)
+void great::t_gpvtflt::_remove_sat(GSAT sat)
 {
-    vector<t_gsatdata>::iterator it;
+    std::vector<t_gsatdata>::iterator it;
     // erase sat satellite because of outliers
     it = _data.begin();
-    if (!satid.empty())
+    if (sat != GSAT::NONE)
     {
         while (it != _data.end())
         {
-            if (it->sat() == satid)
+            if (it->sat() == sat)
             {
                 it = _data.erase(it);
                 continue;
@@ -3461,13 +3439,13 @@ void great::t_gpvtflt::_remove_sat(const string& satid)
     return;
 }
 
-bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, Matrix& BB, int& iobs)
+bool great::t_gpvtflt::_check_sat(const std::string& ssite, t_gsatdata* const iter, Matrix& BB, int& iobs)
 {
     GSYS gs = iter->gsys();
 
     // GOBSBAND b1, b2;
-    GOBSBAND b1 = _band_index[gs][FREQ_1];
-    GOBSBAND b2 = _band_index[gs][FREQ_2];
+    GOBSBAND b1 = _band_index[gs][gnut::FREQ_SEQ::FREQ_1];
+    GOBSBAND b2 = _band_index[gs][gnut::FREQ_SEQ::FREQ_2];
     // check data availability
     auto l1 = iter->select_phase(b1);
     auto l2 = iter->select_phase(b2);
@@ -3476,27 +3454,27 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
     auto p2 = iter->select_range(b2);
 
     // check data availability
-    if (p1 == X || l1 == X)
+    if (p1 == gnut::GOBS::X || l1 == gnut::GOBS::X)
     {
         return false;
     }
 
-    string strGOBS = gobs2str(p1);
+    std::string strGOBS = gobs2str(p1);
     strGOBS.replace(0, 1, "S");
     double obs_snr1 = iter->getobs(str2gobs(strGOBS));
     double obs_snr2 = iter->getobs(pha2snr(l1));
-    _crt_SNR[iter->sat()][FREQ_1] = double_eq(obs_snr2, 0.0) ? obs_snr1 : obs_snr2;
+    _crt_SNR[iter->sat()][gnut::FREQ_SEQ::FREQ_1] = double_eq(obs_snr2, 0.0) ? obs_snr1 : obs_snr2;
 
     strGOBS = gobs2str(p2);
     strGOBS.replace(0, 1, "S");
     obs_snr1 = iter->getobs(str2gobs(strGOBS));
     obs_snr2 = iter->getobs(pha2snr(l2));
-    _crt_SNR[iter->sat()][FREQ_2] = double_eq(obs_snr2, 0.0) ? obs_snr1 : obs_snr2;
+    _crt_SNR[iter->sat()][gnut::FREQ_SEQ::FREQ_2] = double_eq(obs_snr2, 0.0) ? obs_snr1 : obs_snr2;
 
     double P3, L3;
     if (_observ == OBSCOMBIN::RAW_MIX)
     {
-        if (p2 == X || l2 == X)
+        if (p2 == gnut::GOBS::X || l2 == gnut::GOBS::X)
         {
             P3 = iter->obs_C(p1);
             L3 = iter->obs_L(l1);
@@ -3509,7 +3487,7 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
     }
     else
     {
-        if (p2 == X || l2 == X)
+        if (p2 == gnut::GOBS::X || l2 == gnut::GOBS::X)
         {
             return false;
         }
@@ -3519,7 +3497,7 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
 
     if (double_eq(L3, 0.0) && _phase)
     {
-        ostringstream str;
+        std::ostringstream str;
         str << "prepareData: erasing data due to no phase double bands observation, "
             << "epo: " << _epoch.str_hms() << ", "
             << "prn: " << iter->sat() << " (" << iter->channel() << ")";
@@ -3529,7 +3507,7 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
 
     if (double_eq(P3, 0.0))
     {
-        ostringstream str;
+        std::ostringstream str;
         str << "prepareData: erasing data due to no code double bands observation, "
             << "epo: " << _epoch.str_hms() << ", "
             << "prn: " << iter->sat();
@@ -3539,7 +3517,7 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
 
     if (_satPos(_epoch, *iter) < 0)
     {
-        ostringstream str;
+        std::ostringstream str;
         str << "prepareData: erasing data since _satPos failed, "
             << "epo: " << _epoch.str_hms() << ", "
             << "prn: " << iter->sat();
@@ -3557,7 +3535,7 @@ bool great::t_gpvtflt::_check_sat(const string& ssite, t_gsatdata* const iter, M
     return true;
 }
 
-bool great::t_gpvtflt::_cmp_rec_crd(const string& ssite, Matrix& BB)
+bool great::t_gpvtflt::_cmp_rec_crd(const std::string& ssite, Matrix& BB)
 {
     _vBanc = 0.0;
 
@@ -3565,7 +3543,7 @@ bool great::t_gpvtflt::_cmp_rec_crd(const string& ssite, Matrix& BB)
     {
         gbancroft(BB, _vBanc);
     }
-    shared_ptr<t_gobj> grec = _gallobj->obj(ssite);
+    std::shared_ptr<t_gobj> grec = _gallobj->obj(ssite);
     if (grec == nullptr)
     {
         return false;
@@ -3604,7 +3582,7 @@ bool great::t_gpvtflt::_cmp_rec_crd(const string& ssite, Matrix& BB)
     double radius = test_xyz.norm();
     if (radius < B_WGS - 500)
     {
-        string warning =
+        std::string warning =
             "WARNING: Unexpected site (" + ssite + ") coordinates from Bancroft. Orbits/clocks or code observations should be checked.";
         GREAT_INFO(warning + _epoch.str_ymdhms(" Epoch "));
         GREAT_INFO(warning + _epoch.str_ymdhms(" Epoch "));
@@ -3618,20 +3596,20 @@ bool great::t_gpvtflt::_cmp_rec_crd(const string& ssite, Matrix& BB)
     return true;
 }
 
-bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter)
+bool great::t_gpvtflt::_cmp_sat_info(const std::string& ssite, t_gsatdata* const iter)
 {
     t_gtriple xyz_r, xyz_s;
     xyz_s = iter->satcrd();
 
-    shared_ptr<t_gobj> grec = _gallobj->obj(ssite);
+    std::shared_ptr<t_gobj> grec = _gallobj->obj(ssite);
 
     if (_isBase && ssite == _site_base)
     {
         xyz_r = grec->crd_arp(_epoch);
         if (xyz_r.norm() == 0)
         {
-            cerr << endl;
-            cerr << xyz_r[0] << " " << xyz_r[1] << " " << xyz_r[2] << endl;
+            std::cerr << std::endl;
+            std::cerr << xyz_r[0] << " " << xyz_r[1] << " " << xyz_r[2] << std::endl;
         }
         _vBanc(1) = xyz_r[0];
         _vBanc(2) = xyz_r[1];
@@ -3675,8 +3653,8 @@ bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter
     // check elevation cut-off
     if (iter->ele_deg() < _minElev)
     {
-        ostringstream os;
-        os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << fixed << setprecision(1) << iter->ele_deg() << ") "
+        std::ostringstream os;
+        os << "Erasing " << iter->sat() << " data due to low elevation angle (ele = " << std::fixed << std::setprecision(1) << iter->ele_deg() << ") "
            << iter->epoch().str_ymdhms();
         GREAT_INFO(os.str());
         return false;
@@ -3687,10 +3665,10 @@ bool great::t_gpvtflt::_cmp_sat_info(const string& ssite, t_gsatdata* const iter
     // check satellite eclipsing
     if (iter->ecl())
     {
-        ostringstream os;
-        os << "Erasing " << iter->sat() << " data due to satellite eclipsing (beta = " << fixed << setprecision(1) << iter->beta()
+        std::ostringstream os;
+        os << "Erasing " << iter->sat() << " data due to satellite eclipsing (beta = " << std::fixed << std::setprecision(1) << iter->beta()
            << " ,orbit angle = " << iter->orb_angle() << ") " << iter->epoch().str_ymdhms();
-        GREAT_INFO(string("gpvtflt:  ") + os.str());
+        GREAT_INFO(std::string("gpvtflt:  ") + os.str());
         return false;
     }
     else
@@ -4027,7 +4005,7 @@ void great::t_gpvtflt::_predictIono(const double& bl, const t_gtime& runEpoch)
     // predict ionosphere delay
     if (_iono_est)
     {
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
         for (it = _data.begin(); it != _data.end(); ++it)
         {
             i = _param.getParam(_site, par_type::VION, it->sat());
@@ -4203,7 +4181,7 @@ void great::t_gpvtflt::_predictAmb()
 
 unsigned int great::t_gpvtflt::_cmp_equ(t_gfltEquationMatrix& equ)
 {
-    vector<t_gsatdata>::iterator it = _data.begin();
+    std::vector<t_gsatdata>::iterator it = _data.begin();
     for (it = _data.begin(); it != _data.end();)
     {
         if (!_base_model->cmb_equ(_epoch, _param, *it, equ))

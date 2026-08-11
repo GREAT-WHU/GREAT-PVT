@@ -35,7 +35,6 @@
 #include "gmodels/ggmf.h"
 #include "gutils/gnss.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -44,7 +43,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gsppmodel(string site, t_gsetbase* settings);
+        t_gsppmodel(std::string site, t_gsetbase* settings);
 
         /** @brief default constructor. */
         t_gsppmodel();
@@ -53,7 +52,7 @@ namespace gnut
         virtual ~t_gsppmodel();
 
         /** @brief Outliers detection. */
-        virtual int outlierDetect(vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&);
+        virtual int outlierDetect(std::vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&);
 
         /** @brief model for computed range value. */
         virtual double cmpObs(t_gtime& epoch, t_gallpar& param, t_gsatdata&, t_gobs& gobs, bool com = false);
@@ -66,48 +65,48 @@ namespace gnut
 
         // jdhuang add
         /** @brief is Correction. */
-        double isbCorrection(t_gallpar& param, string& sat, string& rec, t_gobs& gobs);
+        double isbCorrection(t_gallpar& param, GSAT sat, std::string& rec, t_gobs& gobs);
 
         /** @brief is reset observation */
         virtual void reset_observ(OBSCOMBIN observ) override;
 
         /** @brief is set rec */
-        virtual void setrec(shared_ptr<t_gobj> rec);
+        virtual void setrec(std::shared_ptr<t_gobj> rec);
 
         /** @brief get outlier satellite */
-        vector<string> get_outlier_sat()
+        std::vector<GSAT> get_outlier_sat()
         {
             return _outlier_sat;
         }
 
     protected:
         /** @brief Find maximal residual */
-        double _maxres(bool phase, vector<t_gsatdata>& data, vector<t_gsatdata>::iterator& itDATA, RESIDTYPE res_type, GSYS gs = GNS);
+        double _maxres(bool phase, std::vector<t_gsatdata>& data, std::vector<t_gsatdata>::iterator& itDATA, RESIDTYPE res_type, GSYS gs = GSYS::GNS);
 
         /** @brief check maximal residual */
         bool _check_outl(bool phase,
                          double& maxresNORM,
-                         vector<t_gsatdata>::iterator& itDataNORM,
+                         std::vector<t_gsatdata>::iterator& itDataNORM,
                          double& maxresORIG,
-                         vector<t_gsatdata>::iterator& itDataORIG,
-                         vector<t_gsatdata>::iterator& itDataErase,
-                         vector<t_gsatdata>& data);
+                         std::vector<t_gsatdata>::iterator& itDataORIG,
+                         std::vector<t_gsatdata>::iterator& itDataErase,
+                         std::vector<t_gsatdata>& data);
 
         /** @brief logging outlier */
-        void _logOutl(bool phase, string prn, int data_size, double maxres, double ele, t_gtime epo, RESIDTYPE resid_type);
+        void _logOutl(bool phase, GSAT sat, int data_size, double maxres, double ele, t_gtime epo, RESIDTYPE resid_type);
 
-        map<GSYS, double> _maxres_C;                    ///< code maximal residual
-        map<GSYS, double> _maxres_L;                    ///< phase maximal residual
+        std::map<GSYS, double> _maxres_C;                    ///< code maximal residual
+        std::map<GSYS, double> _maxres_L;                    ///< phase maximal residual
         double _maxres_norm;                            ///< normal maximal residual
-        shared_ptr<t_gobj> _grec;                       ///< grec
+        std::shared_ptr<t_gobj> _grec;                       ///< grec
         TROPMODEL _trpModStr;                           ///< trop mod(str)
         ZTDMPFUNC _tropo_mf;                            ///< trop mf
         RESIDTYPE _resid_type;                          ///< residual type
         OBSCOMBIN _observ;                              ///< observation
         CBIASCHAR _cbiaschar;                           ///< bias(char)
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band
-        map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq
-        vector<string> _outlier_sat;                    ///< outlier satellite
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band
+        std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq
+        std::vector<GSAT> _outlier_sat;                      ///< outlier satellite
     };
 
 } // namespace gnut

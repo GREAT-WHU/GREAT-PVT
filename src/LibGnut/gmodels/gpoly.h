@@ -27,7 +27,6 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
 
 namespace gnut
 {
@@ -81,13 +80,13 @@ namespace gnut
         }
 
         /** @brief get polynomials. */
-        vector<double> polynomials() const
+        std::vector<double> polynomials() const
         {
             return _coef;
         }
 
-        int interpolate(const vector<double>& X, const vector<double>& Y, const double& x, double& y, double& dy);
-        int polynomials(const vector<double>& X, const vector<double>& Y);
+        int interpolate(const std::vector<double>& X, const std::vector<double>& Y, const double& x, double& y, double& dy);
+        int polynomials(const std::vector<double>& X, const std::vector<double>& Y);
         void evaluate(double x, int I, double& y);
 
         /**
@@ -99,7 +98,7 @@ namespace gnut
          * @param[in]  t            reference time.
          * @return      int
          */
-        int fitpolynom(const vector<double>& X, const vector<double>& Y, int N, double tunit, const t_gtime& t);
+        int fitpolynom(const std::vector<double>& X, const std::vector<double>& Y, int N, double tunit, const t_gtime& t);
 
     private:
         bool _valid;          ///< are coefficients valid
@@ -107,11 +106,11 @@ namespace gnut
         double _rms;          ///< RMS of fitted coefficients  [meters]
         double _xref;         ///< x reference value is always 0.0 !!!!!!
         double _span;         ///< x span
-        vector<double> _coef; ///< coefficients
+        std::vector<double> _coef; ///< coefficients
     };
 
-    double LibGnut_LIBRARY_EXPORT lagrange_interpolate(const vector<double>& X,
-                                                       const vector<double>& Y,
+    double LibGnut_LIBRARY_EXPORT lagrange_interpolate(const std::vector<double>& X,
+                                                       const std::vector<double>& Y,
                                                        double x,
                                                        const bool& lvel = false);
 

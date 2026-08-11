@@ -14,7 +14,6 @@
 #include "gutils/gconst.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -56,17 +55,17 @@ namespace gnut
     {
     }
 
-    double& t_gtriple::operator[](const size_t idx)
+    double& t_gtriple::operator[](const std::size_t idx)
     {
         if (idx > 2)
         {
-            cerr << "Not valid triple index [used 0]\n";
+            std::cerr << "Not valid triple index [used 0]\n";
             return _crd[0];
         }
         return _crd[idx];
     }
 
-    double t_gtriple::operator[](const size_t idx) const
+    double t_gtriple::operator[](const std::size_t idx) const
     {
         if (idx < 3)
         {
@@ -273,9 +272,9 @@ namespace gnut
         return t_gpair(_crd[0], _crd[1]);
     }
 
-    ostream& operator<<(ostream& os, const t_gtriple& x)
+    std::ostream& operator<<(std::ostream& os, const t_gtriple& x)
     {
-        os << fixed << setprecision(5) << dbl2str(x[0]) + " " + dbl2str(x[1]) + " " + dbl2str(x[2]);
+        os << std::fixed << std::setprecision(5) << dbl2str(x[0]) + " " + dbl2str(x[1]) + " " + dbl2str(x[2]);
         return os;
     }
 

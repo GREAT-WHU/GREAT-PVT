@@ -27,7 +27,6 @@ History
 #include "gprod/gprod.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -48,24 +47,24 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_gallprod();
 
-        typedef map<t_gtime, shared_ptr<t_gprod>> t_map_epo; ///< time + t_gprod
-        typedef map<ID_TYPE, t_map_epo> t_map_id;            ///< ID_TYPE + t_map_id
-        typedef map<string, t_map_id> t_map_prd;             ///< string + t_map_prd
+        typedef std::map<t_gtime, std::shared_ptr<t_gprod>> t_map_epo; ///< time + t_gprod
+        typedef std::map<ID_TYPE, t_map_epo> t_map_id;            ///< ID_TYPE + t_map_id
+        typedef std::map<std::string, t_map_id> t_map_prd;             ///< string + t_map_prd
 
         /** @brief add product. */
-        int add(shared_ptr<t_gprod> prod, string site = "");
+        int add(std::shared_ptr<t_gprod> prod, std::string site = "");
 
         /** @brief get product. */
-        shared_ptr<t_gprod> get(const string& site, ID_TYPE type, const t_gtime& t);
+        std::shared_ptr<t_gprod> get(const std::string& site, ID_TYPE type, const t_gtime& t);
 
         /** @brief remove appropriate element t_gprod*. */
-        void rem(const string& site, ID_TYPE type, const t_gtime& t);
+        void rem(const std::string& site, ID_TYPE type, const t_gtime& t);
 
         /** @brief get the list of sites*. */
-        set<string> prod_sites();
+        std::set<std::string> prod_sites();
 
         /** @brief get the list of product types. */
-        set<t_gtime> prod_epochs(const string& site, ID_TYPE type);
+        std::set<t_gtime> prod_epochs(const std::string& site, ID_TYPE type);
 
         /** @brief clean. */
         void clear();
@@ -75,7 +74,7 @@ namespace gnut
 
     protected:
         /** @brief find appropriate element t_gprod*. */
-        shared_ptr<t_gprod> _find(const string& site, ID_TYPE type,
+        std::shared_ptr<t_gprod> _find(const std::string& site, ID_TYPE type,
                                   const t_gtime& t); // find element
 
         t_map_prd _map_prod; ///< t_map_prd

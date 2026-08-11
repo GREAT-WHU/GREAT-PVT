@@ -13,7 +13,6 @@
 #include <string>
 #include <stdio.h>
 #include <iostream>
-using namespace std;
 
 namespace great
 {
@@ -160,7 +159,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::bdeci throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::bdeci throw exception" << std::endl;
         }
     }
 
@@ -178,7 +177,7 @@ namespace great
             {
                 if (dX < 0)
                 {
-                    std::cout << "***ERROR: x < 0 " << endl;
+                    std::cout << "***ERROR: x < 0 " << std::endl;
                 }
                 dGamser = 0.0;
                 return;
@@ -201,7 +200,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::_gser throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::_gser throw exception" << std::endl;
         }
     }
 
@@ -231,7 +230,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::_gammln throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::_gammln throw exception" << std::endl;
         }
     }
 
@@ -277,7 +276,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::_gcf throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::_gcf throw exception" << std::endl;
         }
     }
 
@@ -302,7 +301,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::_gammq throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::_gammq throw exception" << std::endl;
             return 0.0;
         }
     }
@@ -328,7 +327,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::_gammp throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::_gammp throw exception" << std::endl;
             return 0.0;
         }
     }
@@ -351,7 +350,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR : t_gbdeci::_erf throw exception" << endl;
+            std::cout << "ERROR : t_gbdeci::_erf throw exception" << std::endl;
             return 0.0;
         }
     }

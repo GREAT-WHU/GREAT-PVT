@@ -15,7 +15,6 @@
 #include "gutils/gsys.h"
 #include "gutils/gcommon.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -24,8 +23,8 @@ namespace gnut
     {
     }
 
-    t_gsys::t_gsys(const string& sys) :
-        _gsys(GNS)
+    t_gsys::t_gsys(const std::string& sys) :
+        _gsys(GSYS::GNS)
     {
         if (sys.size() > 0)
         {
@@ -40,9 +39,9 @@ namespace gnut
 
     GOBSBAND t_gsys::gfrq2band(const GSYS& gs, const GFRQ& gfreq)
     {
-        if (gs == GNS || gfreq == LAST_GFRQ)
+        if (gs == GSYS::GNS || gfreq == gnut::GFRQ::LAST_GFRQ)
         {
-            return BAND;
+            return gnut::GOBSBAND::BAND;
         }
         try
         {
@@ -55,19 +54,19 @@ namespace gnut
                     return band_priority(gs, FREQ_SEQ(i));
                 }
             }
-            return BAND;
+            return gnut::GOBSBAND::BAND;
         }
         catch (...)
         {
-            return BAND;
+            return gnut::GOBSBAND::BAND;
         }
     }
 
     GFRQ t_gsys::band2gfrq(const GSYS& gs, const GOBSBAND& gband)
     {
-        if (gs == GNS || gband == BAND)
+        if (gs == GSYS::GNS || gband == gnut::GOBSBAND::BAND)
         {
-            return LAST_GFRQ;
+            return gnut::GFRQ::LAST_GFRQ;
         }
         try
         {
@@ -80,19 +79,19 @@ namespace gnut
                     return freq_priority(gs, FREQ_SEQ(i));
                 }
             }
-            return LAST_GFRQ;
+            return gnut::GFRQ::LAST_GFRQ;
         }
         catch (...)
         {
-            return LAST_GFRQ;
+            return gnut::GFRQ::LAST_GFRQ;
         }
     }
 
     FREQ_SEQ t_gsys::gfrq2freq(const GSYS& gs, const GFRQ& gfreq)
     {
-        if (gs == GNS || gfreq == LAST_GFRQ)
+        if (gs == GSYS::GNS || gfreq == gnut::GFRQ::LAST_GFRQ)
         {
-            return FREQ_X;
+            return gnut::FREQ_SEQ::FREQ_X;
         }
         try
         {
@@ -105,21 +104,21 @@ namespace gnut
                     return FREQ_SEQ(i);
                 }
             }
-            return FREQ_X;
+            return gnut::FREQ_SEQ::FREQ_X;
         }
         catch (...)
         {
-            return FREQ_X;
+            return gnut::FREQ_SEQ::FREQ_X;
         }
     }
 
     GSYS t_gsys::gfrq2gsys(const GFRQ& freq)
     {
-        string s = t_gfreq::gfreq2str(freq);
+        std::string s = t_gfreq::gfreq2str(freq);
         return t_gsys::char2gsys(s[0]);
     }
 
-    FREQ_SEQ t_gsys::str2freq(const string& freq)
+    FREQ_SEQ t_gsys::str2freq(const std::string& freq)
     {
         if (freq.empty())
         {
@@ -150,37 +149,37 @@ namespace gnut
         }
     }
 
-    string t_gsys::freq2str(const FREQ_SEQ& freq)
+    std::string t_gsys::freq2str(const FREQ_SEQ& freq)
     {
         switch (freq)
         {
             case FREQ_SEQ::FREQ_X:
-                return string("0");
+                return std::string("0");
             case FREQ_SEQ::FREQ_1:
-                return string("1");
+                return std::string("1");
             case FREQ_SEQ::FREQ_2:
-                return string("2");
+                return std::string("2");
             case FREQ_SEQ::FREQ_3:
-                return string("3");
+                return std::string("3");
             case FREQ_SEQ::FREQ_4:
-                return string("4");
+                return std::string("4");
             case FREQ_SEQ::FREQ_5:
-                return string("5");
+                return std::string("5");
             case FREQ_SEQ::FREQ_6:
-                return string("6");
+                return std::string("6");
             case FREQ_SEQ::FREQ_7:
-                return string("7");
+                return std::string("7");
 
             default:
-                return string("0");
+                return std::string("0");
         }
     }
 
     FREQ_SEQ t_gsys::band2freq(const GSYS& gs, const GOBSBAND& gband)
     {
-        if (gs == GNS || gband == BAND)
+        if (gs == GSYS::GNS || gband == gnut::GOBSBAND::BAND)
         {
-            return FREQ_X;
+            return gnut::FREQ_SEQ::FREQ_X;
         }
         try
         {
@@ -193,11 +192,11 @@ namespace gnut
                     return FREQ_SEQ(i);
                 }
             }
-            return FREQ_X;
+            return gnut::FREQ_SEQ::FREQ_X;
         }
         catch (...)
         {
-            return FREQ_X;
+            return gnut::FREQ_SEQ::FREQ_X;
         }
     }
 
@@ -206,57 +205,58 @@ namespace gnut
     {
         try
         {
-            if (gs == GNS || iseq >= GNSS_BAND_PRIORITY.at(gs).size())
+            const std::size_t index = static_cast<std::size_t>(iseq);
+            if (gs == GSYS::GNS || index >= GNSS_BAND_PRIORITY.at(gs).size())
             {
-                return BAND;
+                return gnut::GOBSBAND::BAND;
             }
-            return GNSS_BAND_PRIORITY.at(gs).at(iseq);
+            return GNSS_BAND_PRIORITY.at(gs).at(index);
         }
         catch (...)
         {
-            return BAND;
+            return gnut::GOBSBAND::BAND;
         }
     }
 
     GOBS t_gsys::gobs_priority(const GSYS& gs, const GOBS& gobs)
     {
-        if (gs == GPS)
+        if (gs == GSYS::GPS)
         {
             switch (gobs)
             {
-                case C1C:
-                case C1P:
-                case C1W:
+                case gnut::GOBS::C1C:
+                case gnut::GOBS::C1P:
+                case gnut::GOBS::C1W:
                 {
-                    return C1W;
+                    return gnut::GOBS::C1W;
                 }
-                case C2C:
-                case C2L:
-                case C2X:
-                case C2P:
-                case C2W:
+                case gnut::GOBS::C2C:
+                case gnut::GOBS::C2L:
+                case gnut::GOBS::C2X:
+                case gnut::GOBS::C2P:
+                case gnut::GOBS::C2W:
                 {
-                    return C2W;
+                    return gnut::GOBS::C2W;
                 }
-                case C5Q:
-                case C5X:
+                case gnut::GOBS::C5Q:
+                case gnut::GOBS::C5X:
                 {
-                    return C5X;
+                    return gnut::GOBS::C5X;
                 }
                 default:
                     return GOBS::X;
             }
         }
-        else if (gs == GLO)
+        else if (gs == GSYS::GLO)
         {
             switch (gobs)
             {
-                case C1C:
-                case C1P:
-                    return C1P;
-                case C2C:
-                case C2P:
-                    return C2P;
+                case gnut::GOBS::C1C:
+                case gnut::GOBS::C1P:
+                    return gnut::GOBS::C1P;
+                case gnut::GOBS::C2C:
+                case gnut::GOBS::C2P:
+                    return gnut::GOBS::C2P;
                 default:
                     return GOBS::X;
             }
@@ -269,48 +269,48 @@ namespace gnut
 
     GOBS t_gsys::gobs_priority(const GSYS& gs, const GOBSBAND& band)
     {
-        if (gs == GPS)
+        if (gs == GSYS::GPS)
         {
             switch (band)
             {
-                case BAND_1:
+                case gnut::GOBSBAND::BAND_1:
                 {
-                    return C1W;
+                    return gnut::GOBS::C1W;
                 }
-                case BAND_2:
+                case gnut::GOBSBAND::BAND_2:
                 {
-                    return C2W;
+                    return gnut::GOBS::C2W;
                 }
-                case BAND_5:
+                case gnut::GOBSBAND::BAND_5:
                 {
-                    return C5X;
+                    return gnut::GOBS::C5X;
                 }
                 default:
                     return GOBS::X;
             }
         }
-        else if (gs == GLO)
+        else if (gs == GSYS::GLO)
         {
             switch (band)
             {
-                case BAND_1:
-                    return C1P;
-                case BAND_2:
-                    return C2P;
+                case gnut::GOBSBAND::BAND_1:
+                    return gnut::GOBS::C1P;
+                case gnut::GOBSBAND::BAND_2:
+                    return gnut::GOBS::C2P;
                 default:
                     return GOBS::X;
             }
         }
-        else if (gs == GAL)
+        else if (gs == GSYS::GAL)
         {
             switch (band)
             {
-                case BAND_1:
-                    return C1X;
-                case BAND_5:
-                    return C5X;
-                case BAND_7:
-                    return C7X;
+                case gnut::GOBSBAND::BAND_1:
+                    return gnut::GOBS::C1X;
+                case gnut::GOBSBAND::BAND_5:
+                    return gnut::GOBS::C5X;
+                case gnut::GOBSBAND::BAND_7:
+                    return gnut::GOBS::C7X;
                 default:
                     return GOBS::X;
             }
@@ -323,74 +323,74 @@ namespace gnut
 
     GOBS t_gsys::gobs_defaults(const GSYS& gs, const GOBS& gobs1, const GOBSBAND& band)
     {
-        if (gs == GPS)
+        if (gs == GSYS::GPS)
         {
             switch (band)
             {
-                case BAND_1:
+                case gnut::GOBSBAND::BAND_1:
                 {
-                    return C1W;
+                    return gnut::GOBS::C1W;
                 }
-                case BAND_2:
+                case gnut::GOBSBAND::BAND_2:
                 {
-                    return C2W;
+                    return gnut::GOBS::C2W;
                 }
-                case BAND_5:
+                case gnut::GOBSBAND::BAND_5:
                 {
-                    return C5X;
+                    return gnut::GOBS::C5X;
                 }
                 default:
                     return GOBS::X;
             }
         }
-        else if (gs == GLO)
+        else if (gs == GSYS::GLO)
         {
             switch (band)
             {
-                case BAND_1:
-                    return C1P;
-                case BAND_2:
-                    return C2P;
+                case gnut::GOBSBAND::BAND_1:
+                    return gnut::GOBS::C1P;
+                case gnut::GOBSBAND::BAND_2:
+                    return gnut::GOBS::C2P;
                 default:
                     return GOBS::X;
             }
         }
-        else if (gs == GAL)
+        else if (gs == GSYS::GAL)
         {
-            string strGOBS = gobs2str(gobs1);
+            std::string strGOBS = gobs2str(gobs1);
             switch (band)
             {
-                case BAND_1:
+                case gnut::GOBSBAND::BAND_1:
                 {
                     if (strGOBS[strGOBS.size() - 1] == 'X')
                     {
-                        return C1X;
+                        return gnut::GOBS::C1X;
                     }
                     else
                     {
-                        return C1C;
+                        return gnut::GOBS::C1C;
                     }
                 }
-                case BAND_5:
+                case gnut::GOBSBAND::BAND_5:
                 {
                     if (strGOBS[strGOBS.size() - 1] == 'X')
                     {
-                        return C5X;
+                        return gnut::GOBS::C5X;
                     }
                     else
                     {
-                        return C5Q;
+                        return gnut::GOBS::C5Q;
                     }
                 }
-                case BAND_7:
+                case gnut::GOBSBAND::BAND_7:
                 {
                     if (strGOBS[strGOBS.size() - 1] == 'X')
                     {
-                        return C7X;
+                        return gnut::GOBS::C7X;
                     }
                     else
                     {
-                        return C7Q;
+                        return gnut::GOBS::C7Q;
                     }
                 }
                 default:
@@ -408,16 +408,17 @@ namespace gnut
     {
         try
         {
-            if (gs == GNS || iseq >= GNSS_FREQ_PRIORITY.at(gs).size())
+            const std::size_t index = static_cast<std::size_t>(iseq);
+            if (gs == GSYS::GNS || index >= GNSS_FREQ_PRIORITY.at(gs).size())
             {
-                return LAST_GFRQ;
+                return gnut::GFRQ::LAST_GFRQ;
             }
 
-            return GNSS_FREQ_PRIORITY.at(gs).at(iseq);
+            return GNSS_FREQ_PRIORITY.at(gs).at(index);
         }
         catch (...)
         {
-            return LAST_GFRQ;
+            return gnut::GFRQ::LAST_GFRQ;
         }
     }
 
@@ -428,39 +429,39 @@ namespace gnut
     {
         t_map_gnss m = GNSS_DATA_PRIORITY();
 
-        if (gs == GNS || gt == TYPE || gb == BAND || iseq > m[gs][gb][gt].size())
+        if (gs == GSYS::GNS || gt == gnut::GOBSTYPE::TYPE || gb == gnut::GOBSBAND::BAND || iseq > m[gs][gb][gt].size())
         {
-            return ATTR;
+            return gnut::GOBSATTR::ATTR;
         }
 
         return m[gs][gb][gt][iseq];
     }
 
-    string t_gsys::gsys2str(const GSYS& sys)
+    std::string t_gsys::gsys2str(const GSYS& sys)
     {
         switch (sys)
         {
-            case GPS:
+            case GSYS::GPS:
                 return "GPS";
-            case GLO:
+            case GSYS::GLO:
                 return "GLO";
-            case GAL:
+            case GSYS::GAL:
                 return "GAL";
-            case BDS:
+            case GSYS::BDS:
                 return "BDS";
-            case SBS:
+            case GSYS::SBS:
                 return "SBS";
-            case QZS:
+            case GSYS::QZS:
                 return "QZS";
-            case IRN:
+            case GSYS::IRN:
                 return "IRN";
-            case GNS:
+            case GSYS::GNS:
                 return "GNS";
 
             default:
             {
-                cout << "*** warning: unknown GNSS system!\n";
-                cout.flush();
+                std::cout << "*** warning: unknown GNSS system!\n";
+                std::cout.flush();
             }
         }
 
@@ -471,40 +472,40 @@ namespace gnut
     {
         switch (sys)
         {
-            case GPS:
+            case GSYS::GPS:
                 return 'G';
-            case GLO:
+            case GSYS::GLO:
                 return 'R';
-            case GAL:
+            case GSYS::GAL:
                 return 'E';
-            case BDS:
+            case GSYS::BDS:
                 return 'C';
-            case SBS:
+            case GSYS::SBS:
                 return 'S';
-            case QZS:
+            case GSYS::QZS:
                 return 'J';
-            case IRN:
+            case GSYS::IRN:
                 return 'I';
-            case GNS:
+            case GSYS::GNS:
                 return 'X';
 
             default:
             {
-                cout << "*** warning: unknown GNSS system \n";
-                cout.flush();
+                std::cout << "*** warning: unknown GNSS system \n";
+                std::cout.flush();
             }
         }
 
         return 'X';
     }
 
-    string t_gsys::str2strfirst(const string& tmp)
+    std::string t_gsys::str2strfirst(const std::string& tmp)
     {
-        string s(tmp);
+        std::string s(tmp);
         if (s.size() == 0)
         {
-            cout << "*** warning: not defined GNSS system code [NULL]\n";
-            cout.flush();
+            std::cout << "*** warning: not defined GNSS system code [NULL]\n";
+            std::cout.flush();
             return "X";
         }
 
@@ -552,92 +553,92 @@ namespace gnut
         }
         else
         {
-            cout << "*** warning: not defined GNSS system code [" << s[0] << "]\n";
-            cout.flush();
+            std::cout << "*** warning: not defined GNSS system code [" << s[0] << "]\n";
+            std::cout.flush();
         }
 
         return "X";
     }
 
-    GSYS t_gsys::str2gsys(const string& tmp)
+    GSYS t_gsys::str2gsys(const std::string& tmp)
     {
-        string s(tmp);
+        std::string s(tmp);
         if (s.size() == 0)
         {
-            cout << "*** warning: not defined GNSS system code [NULL]\n";
-            cout.flush();
-            return GNS;
+            std::cout << "*** warning: not defined GNSS system code [NULL]\n";
+            std::cout.flush();
+            return GSYS::GNS;
         }
 
         transform(s.begin(), s.end(), s.begin(), ::toupper);
 
         if (s == "G" || s == "GPS" || s == "NAVSTAR")
         {
-            return GPS;
+            return GSYS::GPS;
         }
         else if (s.substr(0, 1) == "2" || s.substr(0, 1) == "3" || s.substr(0, 1) == "4" || s.substr(0, 1) == "5")
         {
-            return GPS;
+            return GSYS::GPS;
         }
         else if (s == "R" || s == "GLO" || s == "GLONASS")
         {
-            return GLO;
+            return GSYS::GLO;
         }
         else if (s == "E" || s == "GAL" || s == "GALILEO")
         {
-            return GAL;
+            return GSYS::GAL;
         }
         else if (s == "C" || s == "COMP" || s == "COMPASS")
         {
-            return BDS;
+            return GSYS::BDS;
         }
         else if (s == "C" || s == "BDS" || s == "BEIDOU")
         {
-            return BDS;
+            return GSYS::BDS;
         }
         else if (s == "S" || s == "SBS" || s == "EGNOS")
         {
-            return SBS;
+            return GSYS::SBS;
         }
         else if (s == "S" || s == "SBAS")
         {
-            return SBS;
+            return GSYS::SBS;
         }
         else if (s == "J" || s == "QZS" || s == "JAXA")
         {
-            return QZS;
+            return GSYS::QZS;
         }
         else if (s == "J" || s == "QZSS")
         {
-            return QZS;
+            return GSYS::QZS;
         }
         else if (s == "I" || s == "IRN" || s == "IRNSS")
         {
-            return IRN;
+            return GSYS::IRN;
         }
         else if (s == "X" || s == "GNS" || s == "GNSS")
         {
-            return GNS;
+            return GSYS::GNS;
         }
         else if (s == "M")
         {
-            return GNS;
+            return GSYS::GNS;
         }
         else
         {
-            cout << "*** warning: not defined GNSS system code [" << s[0] << "]\n";
-            cout.flush();
+            std::cout << "*** warning: not defined GNSS system code [" << s[0] << "]\n";
+            std::cout.flush();
         }
 
-        return GNS;
+        return GSYS::GNS;
     }
 
-    GSYS t_gsys::sat2gsys(const string& s)
+    GSYS t_gsys::sat2gsys(const std::string& s)
     {
-        string tmp = s.substr(0, 1);
+        std::string tmp = s.substr(0, 1);
         if (s.empty())
         {
-            return GNS;
+            return GSYS::GNS;
         }
         else
         {
@@ -645,7 +646,7 @@ namespace gnut
         }
     }
 
-    char t_gsys::str2char(const string& s)
+    char t_gsys::str2char(const std::string& s)
     {
         if (s.size() > 0)
         {
@@ -658,61 +659,61 @@ namespace gnut
     {
         if (c == 'G')
         {
-            return GPS;
+            return GSYS::GPS;
         }
         else if (c == 'R')
         {
-            return GLO;
+            return GSYS::GLO;
         }
         else if (c == 'E')
         {
-            return GAL;
+            return GSYS::GAL;
         }
         else if (c == 'C')
         {
-            return BDS;
+            return GSYS::BDS;
         }
         else if (c == 'S')
         {
-            return SBS;
+            return GSYS::SBS;
         }
         else if (c == 'J')
         {
-            return QZS;
+            return GSYS::QZS;
         }
         else if (c == 'I')
         {
-            return IRN;
+            return GSYS::IRN;
         }
         else if (c == 'M')
         {
-            return GNS;
+            return GSYS::GNS;
         }
         else if (c == 'X')
         {
-            return GNS;
+            return GSYS::GNS;
         }
         else
         {
-            cout << "*** warning: not defined GNSS system char [" << c << "]\n";
-            cout.flush();
+            std::cout << "*** warning: not defined GNSS system char [" << c << "]\n";
+            std::cout.flush();
         }
 
-        return GNS;
+        return GSYS::GNS;
     }
 
-    string t_gsys::char2str(char c)
+    std::string t_gsys::char2str(char c)
     {
         return gsys2str(char2gsys(c));
     }
 
-    string t_gsys::eval_sat(const string& sat, const GSYS& sys)
+    std::string t_gsys::eval_sat(const std::string& sat, const GSYS& sys)
     {
-        istringstream is(sat); // .substr(0,3) NE!
+        std::istringstream is(sat); // .substr(0,3) NE!
         GSYS gnss = sys;
         int svn = 0;
         char chr = 'G'; // if empty, use GPS
-        size_t l = is.str().length();
+        std::size_t l = is.str().length();
 
         if (l == 0)
         {
@@ -739,28 +740,28 @@ namespace gnut
 
         switch (gnss)
         {
-            case GPS:
+            case GSYS::GPS:
                 chr = 'G';
                 break;
-            case GLO:
+            case GSYS::GLO:
                 chr = 'R';
                 break;
-            case GAL:
+            case GSYS::GAL:
                 chr = 'E';
                 break;
-            case BDS:
+            case GSYS::BDS:
                 chr = 'C';
                 break;
-            case SBS:
+            case GSYS::SBS:
                 chr = 'S';
                 break;
-            case QZS:
+            case GSYS::QZS:
                 chr = 'J';
                 break;
-            case IRN:
+            case GSYS::IRN:
                 chr = 'I';
                 break;
-            case GNS:
+            case GSYS::GNS:
                 chr = 'X';
                 break;
             default:
@@ -780,37 +781,37 @@ namespace gnut
         char tmp[4];
         sprintf(tmp, "%c%02d", chr, svn);
 
-        string tmp_svn(tmp);
+        std::string tmp_svn(tmp);
         return tmp_svn;
     }
 
-    string t_gsys::eval_sat(const int& svn, const GSYS& sys)
+    std::string t_gsys::eval_sat(const int& svn, const GSYS& sys)
     {
         char chr;
         switch (sys)
         {
-            case GPS:
+            case GSYS::GPS:
                 chr = 'G';
                 break;
-            case GLO:
+            case GSYS::GLO:
                 chr = 'R';
                 break;
-            case GAL:
+            case GSYS::GAL:
                 chr = 'E';
                 break;
-            case BDS:
+            case GSYS::BDS:
                 chr = 'C';
                 break;
-            case SBS:
+            case GSYS::SBS:
                 chr = 'S';
                 break;
-            case QZS:
+            case GSYS::QZS:
                 chr = 'J';
                 break;
-            case IRN:
+            case GSYS::IRN:
                 chr = 'I';
                 break;
-            case GNS:
+            case GSYS::GNS:
                 chr = 'X';
                 break;
             default:
@@ -828,13 +829,13 @@ namespace gnut
             num -= SBS_OFFSET;
         }
 
-        ostringstream os;
-        os << setw(1) << chr << setfill('0') << setw(2) << num;
+        std::ostringstream os;
+        os << std::setw(1) << chr << std::setfill('0') << std::setw(2) << num;
 
         return os.str();
     }
 
-    void t_gsys::from_string(const string& sys)
+    void t_gsys::from_string(const std::string& sys)
     {
         _gsys = str2gsys(sys);
     }
@@ -844,7 +845,7 @@ namespace gnut
         _gsys = sys;
     }
 
-    bool t_gsys::operator==(const string& sys) const
+    bool t_gsys::operator==(const std::string& sys) const
     {
         if (_gsys == str2gsys(sys))
         {
@@ -858,263 +859,238 @@ namespace gnut
         return false;
     }
 
-    GFRQ t_gfreq::str2gfreq(const string& freq_const)
+    GFRQ t_gfreq::str2gfreq(const std::string& freq_const)
     {
-        string freq(freq_const);
+        std::string freq(freq_const);
         transform(freq.begin(), freq.end(), freq.begin(), ::toupper);
 
         if (freq == "G01")
         {
-            return G01;
+            return GFRQ::G01;
         }
         else if (freq == "G02")
         {
-            return G02;
+            return GFRQ::G02;
         }
         else if (freq == "G05")
         {
-            return G05;
+            return GFRQ::G05;
         }
         else if (freq == "R01")
         {
-            return R01;
+            return GFRQ::R01;
         }
         else if (freq == "R02")
         {
-            return R02;
+            return GFRQ::R02;
         }
         else if (freq == "R03")
         {
-            return R03_CDMA;
+            return gnut::GFRQ::R03_CDMA;
         }
         else if (freq == "R05")
         {
-            return R05_CDMA;
+            return gnut::GFRQ::R05_CDMA;
         }
         else if (freq == "E01")
         {
-            return E01;
+            return GFRQ::E01;
         }
         else if (freq == "E05")
         {
-            return E05;
+            return GFRQ::E05;
         }
         else if (freq == "E07")
         {
-            return E07;
+            return GFRQ::E07;
         }
         else if (freq == "E08")
         {
-            return E08;
+            return GFRQ::E08;
         }
         else if (freq == "E06")
         {
-            return E06;
+            return GFRQ::E06;
         }
         else if (freq == "C02")
         {
-            return C02;
+            return GFRQ::C02;
         }
         else if (freq == "C07")
         {
-            return C07;
+            return GFRQ::C07;
         }
         else if (freq == "C06")
         {
-            return C06;
+            return GFRQ::C06;
         }
         else if (freq == "C01")
         {
-            return C01;
+            return GFRQ::C01;
         }
         else if (freq == "C08")
         {
-            return C08;
+            return GFRQ::C08;
         }
         else if (freq == "C05")
         {
-            return C05;
+            return GFRQ::C05;
         }
         else if (freq == "C09")
         {
-            return C09;
+            return GFRQ::C09;
         }
         else if (freq == "J01")
         {
-            return J01;
+            return GFRQ::J01;
         }
         else if (freq == "J02")
         {
-            return J02;
+            return GFRQ::J02;
         }
         else if (freq == "J05")
         {
-            return J05;
+            return GFRQ::J05;
         }
         else if (freq == "J06")
         {
-            return J06;
+            return GFRQ::J06;
         }
         else if (freq == "S01")
         {
-            return S01;
+            return gnut::GFRQ::S01;
         }
         else if (freq == "S05")
         {
-            return S05;
+            return gnut::GFRQ::S05;
         }
         else if (freq == "I05")
         {
-            return I05;
+            return GFRQ::I05;
         }
         else if (freq == "LAST_GFRQ")
         {
-            return LAST_GFRQ;
+            return gnut::GFRQ::LAST_GFRQ;
         }
 
-        return LAST_GFRQ;
+        return gnut::GFRQ::LAST_GFRQ;
     }
 
-    string t_gfreq::gfreq2str(const GFRQ& freq)
+    std::string t_gfreq::gfreq2str(const GFRQ& freq)
     {
         switch (freq)
         {
-            case G01:
+            case GFRQ::G01:
                 return "G01";
-            case G02:
+            case GFRQ::G02:
                 return "G02";
-            case G05:
+            case GFRQ::G05:
                 return "G05";
-            case R01:
+            case GFRQ::R01:
                 return "R01";
-            case R02:
+            case GFRQ::R02:
                 return "R02";
-            case R01_CDMA:
+            case gnut::GFRQ::R01_CDMA:
                 return "R01";
-            case R02_CDMA:
+            case gnut::GFRQ::R02_CDMA:
                 return "R02";
-            case R03_CDMA:
+            case gnut::GFRQ::R03_CDMA:
                 return "R03";
-            case R05_CDMA:
+            case gnut::GFRQ::R05_CDMA:
                 return "R05";
-            case E01:
+            case GFRQ::E01:
                 return "E01";
-            case E05:
+            case GFRQ::E05:
                 return "E05";
-            case E07:
+            case GFRQ::E07:
                 return "E07";
-            case E08:
+            case GFRQ::E08:
                 return "E08";
-            case E06:
+            case GFRQ::E06:
                 return "E06";
-            case C02:
+            case GFRQ::C02:
                 return "C02";
-            case C06:
+            case GFRQ::C06:
                 return "C06";
-            case C07:
+            case GFRQ::C07:
                 return "C07";
-            case C01:
+            case GFRQ::C01:
                 return "C01";
-            case C08:
+            case GFRQ::C08:
                 return "C08";
-            case C05:
+            case GFRQ::C05:
                 return "C05";
-            case C09:
+            case GFRQ::C09:
                 return "C09";
-            case J01:
+            case GFRQ::J01:
                 return "J01";
-            case J02:
+            case GFRQ::J02:
                 return "J02";
-            case J05:
+            case GFRQ::J05:
                 return "J05";
-            case J06:
+            case GFRQ::J06:
                 return "J06";
-            case S01:
+            case gnut::GFRQ::S01:
                 return "S01";
-            case S05:
+            case gnut::GFRQ::S05:
                 return "S05";
-            case I05:
+            case GFRQ::I05:
                 return "I05";
-            case LAST_GFRQ:
+            case gnut::GFRQ::LAST_GFRQ:
                 return "LAST_GFRQ";
 
             default:
             {
-                cout << "*** warning: unknown frequency code \n";
-                cout.flush();
+                std::cout << "*** warning: unknown frequency code \n";
+                std::cout.flush();
             }
         }
 
         return "LAST_GFRQ";
     }
 
-    bool t_gsys::bds_geo(const string& sat)
+    bool t_gsys::bds_geo(GSAT sat)
     {
-        set<string> geo; // prns of geost. satellites
-        geo.insert("C01");
-        geo.insert("C02");
-        geo.insert("C03");
-        geo.insert("C04");
-        geo.insert("C05");
-        geo.insert("C59");
-        geo.insert("C60");
-        if (geo.find(sat) != geo.end())
-        {
-            return true;
-        }
-
-        return false;
+        return sat == GSAT::C01 || sat == GSAT::C02 || sat == GSAT::C03 || sat == GSAT::C04 || sat == GSAT::C05 ||
+               sat == GSAT::C59 || sat == GSAT::C60;
     }
 
-    bool t_gsys::bds_cast(const string& sat)
+    bool t_gsys::bds_geo(const std::string& sat)
     {
-        set<string> cys;
-        cys.insert("C13"); // BDS-2 IGSO-6b C-017
-        cys.insert("C14"); // BDS-2 MEO-6   C015
-        cys.insert("C06"); // BDS-2 IGSO-1  C005
-        cys.insert("C16"); // BDS-2 IGSO-7  C019
-        cys.insert("C19"); // BDS-3 MEO by CAST; 14 satellites
-        cys.insert("C20");
-        cys.insert("C21");
-        cys.insert("C22");
-        cys.insert("C23");
-        cys.insert("C24");
-        cys.insert("C32");
-        cys.insert("C33");
-        cys.insert("C36");
-        cys.insert("C37");
-        cys.insert("C41");
-        cys.insert("C42");
-        cys.insert("C45");
-        cys.insert("C46");
-        cys.insert("C38"); // all BDS-3 IGSO by CAST; 3 satellites
-        cys.insert("C39");
-        cys.insert("C40");
-        if (cys.find(sat) != cys.end())
-        {
-            return true;
-        }
-        return false;
+        return bds_geo(str2gsat(sat, GSYS::BDS));
     }
 
-    bool t_gsys::bds_secm(const string& sat)
+    bool t_gsys::bds_cast(GSAT sat)
     {
-        set<string> cys;
-        cys.insert("C25"); // BDS-3 MEO by SECM; 10 satellites
-        cys.insert("C26");
-        cys.insert("C27");
-        cys.insert("C28");
-        cys.insert("C29");
-        cys.insert("C30");
-        cys.insert("C34");
-        cys.insert("C35");
-        cys.insert("C43");
-        cys.insert("C44");
-        if (cys.find(sat) != cys.end())
+        switch (sat)
         {
-            return true;
+            case GSAT::C06: case GSAT::C13: case GSAT::C14: case GSAT::C16:
+            case GSAT::C19: case GSAT::C20: case GSAT::C21: case GSAT::C22:
+            case GSAT::C23: case GSAT::C24: case GSAT::C32: case GSAT::C33:
+            case GSAT::C36: case GSAT::C37: case GSAT::C38: case GSAT::C39:
+            case GSAT::C40: case GSAT::C41: case GSAT::C42: case GSAT::C45:
+            case GSAT::C46: return true;
+            default: return false;
         }
+    }
 
-        return false;
+    bool t_gsys::bds_cast(const std::string& sat)
+    {
+        return bds_cast(str2gsat(sat, GSYS::BDS));
+    }
+
+    bool t_gsys::bds_secm(GSAT sat)
+    {
+        switch (sat)
+        {
+            case GSAT::C25: case GSAT::C26: case GSAT::C27: case GSAT::C28: case GSAT::C29:
+            case GSAT::C30: case GSAT::C34: case GSAT::C35: case GSAT::C43: case GSAT::C44: return true;
+            default: return false;
+        }
+    }
+
+    bool t_gsys::bds_secm(const std::string& sat)
+    {
+        return bds_secm(str2gsat(sat, GSYS::BDS));
     }
 } // namespace gnut

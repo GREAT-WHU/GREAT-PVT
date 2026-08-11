@@ -19,7 +19,7 @@ namespace gnut
 
     void t_rxnhdr::clear()
     {
-        _gtime = t_gtime::current_time(t_gtime::GPS);
+        _gtime = t_gtime::current_time(t_gtime::t_tsys::GPS);
 
         _path = "";
         _rxnsys = 'G';
@@ -31,161 +31,161 @@ namespace gnut
         _comment.clear();
     }
 
-    string tsys_corr2str(TSYS_CORR c)
+    std::string tsys_corr2str(TSYS_CORR c)
     {
         switch (c)
         {
-            case TS_GAUT:
+            case TSYS_CORR::TS_GAUT:
                 return "GAUT";
-            case TS_GPUT:
+            case TSYS_CORR::TS_GPUT:
                 return "GPUT";
-            case TS_SBUT:
+            case TSYS_CORR::TS_SBUT:
                 return "SBUT";
-            case TS_GLUT:
+            case TSYS_CORR::TS_GLUT:
                 return "GLUT";
-            case TS_GPGA:
+            case TSYS_CORR::TS_GPGA:
                 return "GPGA";
-            case TS_GLGP:
+            case TSYS_CORR::TS_GLGP:
                 return "GLGP";
-            case TS_QZGP:
+            case TSYS_CORR::TS_QZGP:
                 return "QZGP";
-            case TS_QZUT:
+            case TSYS_CORR::TS_QZUT:
                 return "QZUT";
-            case TS_BDUT:
+            case TSYS_CORR::TS_BDUT:
                 return "BDUT";
-            case TS_IRUT:
+            case TSYS_CORR::TS_IRUT:
                 return "IRUT";
-            case TS_IRGP:
+            case TSYS_CORR::TS_IRGP:
                 return "IRGP";
-            case TS_NONE:
+            case TSYS_CORR::TS_NONE:
                 return "XXXX";
         }
         return "XXXX";
     }
 
-    string iono_corr2str(IONO_CORR c)
+    std::string iono_corr2str(IONO_CORR c)
     {
         switch (c)
         {
-            case IO_GAL:
+            case IONO_CORR::IO_GAL:
                 return "GAL ";
-            case IO_GPSA:
+            case IONO_CORR::IO_GPSA:
                 return "GPSA";
-            case IO_GPSB:
+            case IONO_CORR::IO_GPSB:
                 return "GPSB";
-            case IO_QZSA:
+            case IONO_CORR::IO_QZSA:
                 return "QZSA";
-            case IO_QZSB:
+            case IONO_CORR::IO_QZSB:
                 return "QZSB";
-            case IO_BDSA:
+            case IONO_CORR::IO_BDSA:
                 return "BDSA";
-            case IO_BDSB:
+            case IONO_CORR::IO_BDSB:
                 return "BDSB";
-            case IO_IRNA:
+            case IONO_CORR::IO_IRNA:
                 return "IRNA";
-            case IO_IRNB:
+            case IONO_CORR::IO_IRNB:
                 return "IRNB";
-            case IO_NONE:
+            case IONO_CORR::IO_NONE:
                 return "XXXX";
         }
         return "XXXX";
     }
 
-    TSYS_CORR str2tsys_corr(string s)
+    TSYS_CORR str2tsys_corr(std::string s)
     {
         if (s.compare("GAUT") == 0)
         {
-            return TS_GAUT;
+            return TSYS_CORR::TS_GAUT;
         }
         else if (s.compare("GPUT") == 0)
         {
-            return TS_GPUT;
+            return TSYS_CORR::TS_GPUT;
         }
         else if (s.compare("SBUT") == 0)
         {
-            return TS_SBUT;
+            return TSYS_CORR::TS_SBUT;
         }
         else if (s.compare("GLUT") == 0)
         {
-            return TS_GLUT;
+            return TSYS_CORR::TS_GLUT;
         }
         else if (s.compare("GPGA") == 0)
         {
-            return TS_GPGA;
+            return TSYS_CORR::TS_GPGA;
         }
         else if (s.compare("GLGP") == 0)
         {
-            return TS_GLGP;
+            return TSYS_CORR::TS_GLGP;
         }
         else if (s.compare("QZGP") == 0)
         {
-            return TS_QZGP;
+            return TSYS_CORR::TS_QZGP;
         }
         else if (s.compare("QZUT") == 0)
         {
-            return TS_QZUT;
+            return TSYS_CORR::TS_QZUT;
         }
         else if (s.compare("BDUT") == 0)
         {
-            return TS_BDUT;
+            return TSYS_CORR::TS_BDUT;
         }
         else if (s.compare("IRUT") == 0)
         {
-            return TS_IRUT;
+            return TSYS_CORR::TS_IRUT;
         }
         else if (s.compare("IRGP") == 0)
         {
-            return TS_IRGP;
+            return TSYS_CORR::TS_IRGP;
         }
 
-        return TS_NONE;
+        return TSYS_CORR::TS_NONE;
     }
 
-    IONO_CORR str2iono_corr(string s)
+    IONO_CORR str2iono_corr(std::string s)
     {
         if (s.compare("GAL ") == 0)
         {
-            return IO_GAL;
+            return IONO_CORR::IO_GAL;
         }
         else if (s.compare("GPSA") == 0)
         {
-            return IO_GPSA;
+            return IONO_CORR::IO_GPSA;
         }
         else if (s.compare("GPSB") == 0)
         {
-            return IO_GPSB;
+            return IONO_CORR::IO_GPSB;
         }
         else if (s.compare("QZSA") == 0)
         {
-            return IO_QZSA;
+            return IONO_CORR::IO_QZSA;
         }
         else if (s.compare("QZSB") == 0)
         {
-            return IO_QZSB;
+            return IONO_CORR::IO_QZSB;
         }
         else if (s.compare("BDSA") == 0)
         {
-            return IO_BDSA;
+            return IONO_CORR::IO_BDSA;
         }
         else if (s.compare("BDSB") == 0)
         {
-            return IO_BDSB;
+            return IONO_CORR::IO_BDSB;
         }
         else if (s.compare("IRNA") == 0)
         {
-            return IO_IRNA;
+            return IONO_CORR::IO_IRNA;
         }
         else if (s.compare("IRNB") == 0)
         {
-            return IO_IRNB;
+            return IONO_CORR::IO_IRNB;
         }
 
-        return IO_NONE;
+        return IONO_CORR::IO_NONE;
     }
 
-    set<TSYS_CORR> t_rxnhdr::tsys_corr() const
+    std::set<TSYS_CORR> t_rxnhdr::tsys_corr() const
     {
-        set<TSYS_CORR> set_ts;
+        std::set<TSYS_CORR> set_ts;
         for (auto it = _ts_corr.begin(); it != _ts_corr.end(); ++it)
         {
             set_ts.insert(it->first);
@@ -212,9 +212,9 @@ namespace gnut
         }
     }
 
-    set<IONO_CORR> t_rxnhdr::iono_corr() const
+    std::set<IONO_CORR> t_rxnhdr::iono_corr() const
     {
-        set<IONO_CORR> set_io;
+        std::set<IONO_CORR> set_io;
         for (auto it = _io_corr.begin(); it != _io_corr.end(); ++it)
         {
             set_io.insert(it->first);
@@ -241,12 +241,12 @@ namespace gnut
         }
     }
 
-    ostream& operator<<(ostream& os, const t_rxnhdr& x)
+    std::ostream& operator<<(std::ostream& os, const t_rxnhdr& x)
     {
-        os << "program: " << x.program() << endl;
-        os << "runby: " << x.runby() << endl;
-        os << "gtime: " << x.gtime().str_hms() << endl;
-        os << "leapsec: " << x.leapsec() << endl;
+        os << "program: " << x.program() << std::endl;
+        os << "runby: " << x.runby() << std::endl;
+        os << "gtime: " << x.gtime().str_hms() << std::endl;
+        os << "leapsec: " << x.leapsec() << std::endl;
         return os;
     }
 

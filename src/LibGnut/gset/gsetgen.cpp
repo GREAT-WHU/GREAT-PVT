@@ -22,11 +22,16 @@
 #include "gutils/gsys.h"
 #include "gutils/gtypeconv.h"
 
+#ifndef XMLKEY_GEN
 #define XMLKEY_GEN "gen"   ///< The defination of gen node
+#endif
+#ifndef DEF_RECEIVER
 #define DEF_RECEIVER "   " ///< Default receiver : all !
+#endif
+#ifndef DEF_SAMPLING
 #define DEF_SAMPLING 30    ///< Default sampling : 30s !
+#endif
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -56,11 +61,11 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string str = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("beg");
+        std::string str = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("beg");
         substitute(str, "\n", "");
         substitute(str, "\"", "");
 
-        t_gtime gt(t_gtime::GPS);
+        t_gtime gt(t_gtime::t_tsys::GPS);
 
         if (str.empty())
         {
@@ -78,11 +83,11 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string str = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("end");
+        std::string str = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("end");
         substitute(str, "\n", "");
         substitute(str, "\"", "");
 
-        t_gtime gt(t_gtime::GPS);
+        t_gtime gt(t_gtime::t_tsys::GPS);
 
         if (str.empty())
         {
@@ -100,14 +105,14 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string str = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("int");
+        std::string str = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("int");
 
         // delete spaces
         str.erase(remove(str.begin(), str.end(), ' '), str.end());
 
         double tmp = str2dbl(str);
 
-        if (str.find(".") != string::npos)
+        if (str.find(".") != std::string::npos)
         {
             _dec = str.substr(str.find(".") + 1).length(); // decimal digits resolution
         }
@@ -121,12 +126,12 @@ namespace gnut
         return DEF_SAMPLING;
     }
 
-    set<string> t_gsetgen::sys()
+    std::set<std::string> t_gsetgen::sys()
     {
         _gmutex.lock();
 
-        set<string> xcl, tmp = t_gsetbase::_setval(XMLKEY_GEN, "sys");
-        set<string>::iterator itSYS, itTMP;
+        std::set<std::string> xcl, tmp = t_gsetbase::_setval(XMLKEY_GEN, "sys");
+        std::set<std::string>::iterator itSYS, itTMP;
         for (itTMP = tmp.begin(); itTMP != tmp.end();)
         {
             if ((*itTMP)[0] == '-')
@@ -150,7 +155,7 @@ namespace gnut
             // loop over all systems
             for (itGNS = gnss_sats.begin(); itGNS != gnss_sats.end(); ++itGNS)
             {
-                string gs = t_gsys::gsys2str(itGNS->first);
+                std::string gs = t_gsys::gsys2str(itGNS->first);
                 if (xcl.find("-" + gs) == xcl.end())
                 {
                     tmp.insert(gs);
@@ -161,7 +166,7 @@ namespace gnut
         return tmp;
     }
 
-    void t_gsetgen::sys(string str)
+    void t_gsetgen::sys(std::string str)
     {
         _gmutex.lock();
         xml_node proc = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN);
@@ -171,30 +176,30 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    set<string> t_gsetgen::recs()
+    std::set<std::string> t_gsetgen::recs()
     {
         _gmutex.lock();
-        set<string> tmp = t_gsetbase::_setvals(XMLKEY_GEN, "rec");
+        std::set<std::string> tmp = t_gsetbase::_setvals(XMLKEY_GEN, "rec");
         _gmutex.unlock();
         return tmp;
     }
 
-    set<string> t_gsetgen::rec_all()
+    std::set<std::string> t_gsetgen::rec_all()
     {
         _gmutex.lock();
 
-        set<string> tmp = t_gsetbase::_setvals(XMLKEY_GEN, "rec");
+        std::set<std::string> tmp = t_gsetbase::_setvals(XMLKEY_GEN, "rec");
 
         _gmutex.unlock();
         return tmp;
     }
 
-    vector<string> t_gsetgen::list_base()
+    std::vector<std::string> t_gsetgen::list_base()
     {
         _gmutex.lock();
-        vector<string> vals;
-        string word;
-        istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("base"));
+        std::vector<std::string> vals;
+        std::string word;
+        std::istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("base"));
         _gmutex.unlock();
 
         while (is >> word)
@@ -205,12 +210,12 @@ namespace gnut
         return vals;
     }
 
-    vector<string> t_gsetgen::list_rover()
+    std::vector<std::string> t_gsetgen::list_rover()
     {
         _gmutex.lock();
-        vector<string> vals;
-        string word;
-        istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("rover"));
+        std::vector<std::string> vals;
+        std::string word;
+        std::istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_GEN).child_value("rover"));
 
         while (is >> word)
         {
@@ -221,16 +226,16 @@ namespace gnut
         return vals;
     }
 
-    string t_gsetgen::estimator()
+    std::string t_gsetgen::estimator()
     {
         _gmutex.lock();
 
-        set<string> src = t_gsetbase::_setval(XMLKEY_GEN, "est");
+        std::set<std::string> src = t_gsetbase::_setval(XMLKEY_GEN, "est");
         _gmutex.unlock();
 
         if (src.empty() || *src.begin() != "FLT")
         {
-            string tmp("FLT");
+            std::string tmp("FLT");
             return tmp;
         }
         else
@@ -239,16 +244,25 @@ namespace gnut
         }
     }
 
-    set<string> t_gsetgen::sat_rm()
+    std::set<GSAT> t_gsetgen::sat_rm()
     {
         _gmutex.lock();
 
-        set<string> tmp = t_gsetbase::_setval(XMLKEY_GEN, "sat_rm");
+        std::set<std::string> text = t_gsetbase::_setval(XMLKEY_GEN, "sat_rm");
         _gmutex.unlock();
-        return tmp;
+        std::set<GSAT> sats;
+        for (const std::string& sat : text)
+        {
+            GSAT parsed = str2gsat(sat);
+            if (parsed != GSAT::NONE)
+            {
+                sats.insert(parsed);
+            }
+        }
+        return sats;
     }
 
-    void t_gsetgen::sat_rm(string str)
+    void t_gsetgen::sat_rm(std::string str)
     {
         _gmutex.lock();
         xml_node proc = _doc.child(XMLKEY_ROOT).child(XMLKEY_GEN);
@@ -280,11 +294,11 @@ namespace gnut
             {
                 _default_node(node, "INT", "0.0", true); // reset!
 
-                cout << "Warning: sampling rate settings negative: reset to 0" << endl;
+                std::cout << "Warning: sampling rate settings negative: reset to 0" << std::endl;
             }
             else
             {
-                cout << "gsetgen: sampling rate settings above 1Hz recognized" << endl;
+                std::cout << "gsetgen: sampling rate settings above 1Hz recognized" << std::endl;
             }
         }
 
@@ -294,35 +308,35 @@ namespace gnut
     void t_gsetgen::help()
     {
         _gmutex.lock();
-        t_gtime beg(t_gtime::GPS);
+        t_gtime beg(t_gtime::t_tsys::GPS);
         beg = beg - beg.sod();
-        t_gtime end(t_gtime::GPS);
+        t_gtime end(t_gtime::t_tsys::GPS);
         end = beg + 86399;
 
-        cerr << "\n <gen>\n"
+        std::cerr << "\n <gen>\n"
              << "   <beg> \"" << beg.str_ymdhms() << "\" </beg>\n"  // FIRST_TIME.str("\"%Y-%m-%d %H:%M:%S\"")
              << "   <end> \"" << end.str_ymdhms() << "\" </end>\n"; // LAST_TIME.str("\"%Y-%m-%d %H:%M:%S\"")
 
         if (_gnss)
         {
-            cerr << "   <sys> " << _sys << " </sys>\n"; // GNSS systems
+            std::cerr << "   <sys> " << _sys << " </sys>\n"; // GNSS systems
         }
 
-        cerr << "   <rec> GOPE WTZR POTS                </rec>\n" // list of site identificators
+        std::cerr << "   <rec> GOPE WTZR POTS                </rec>\n" // list of site identificators
              << "   <int>" + int2str(DEF_SAMPLING) + "</int>\n"
              << " </gen>\n";
 
-        cerr << "\t<!-- general description:\n"
+        std::cerr << "\t<!-- general description:\n"
              << "\t beg    .. beg time          (default: all)\n"
              << "\t end    .. end time          (default: all)\n"
              << "\t int    .. data sampling     (default: 30s)\n";
 
         if (_gnss)
         {
-            cerr << "\t sys    .. GNSS system(s)    (default: all)\n";
+            std::cerr << "\t sys    .. GNSS system(s)    (default: all)\n";
         }
 
-        cerr << "\t rec    .. GNSS receiver(s)  (rec active list, e.g.: GOPE ONSA WTZR ... )\n"
+        std::cerr << "\t rec    .. GNSS receiver(s)  (rec active list, e.g.: GOPE ONSA WTZR ... )\n"
              << "\t -->\n\n";
 
         _gmutex.unlock();

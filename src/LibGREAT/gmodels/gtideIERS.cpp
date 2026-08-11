@@ -44,7 +44,7 @@ namespace great
         const double l3 = 0.015e0;
 
         t_gtime epo_tt = epo;
-        epo_tt.tsys(t_gtime::TT);
+        epo_tt.tsys(t_gtime::t_tsys::TT);
         const double tt_mjd = epo_tt.dmjd();
         const double ut1_mjd = tt_mjd + (ut1_tai - 32.184) / 86400.0;
 
@@ -436,7 +436,7 @@ namespace great
         return dx;
     }
 
-    t_gtriple t_gtideIERS::load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec)
+    t_gtriple t_gtideIERS::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
         // calcute angular argument
         const double dtr = 0.174532925199e-1;
@@ -547,7 +547,7 @@ namespace great
         return dxyz;
     }
 
-    t_gtriple t_gtideIERS::tide_freq(const string& site, const t_gtriple& xRec, double gast)
+    t_gtriple t_gtideIERS::tide_freq(const std::string& site, const t_gtriple& xRec, double gast)
     {
         t_gtriple blh;
         xyz2ell(xRec, blh, false);

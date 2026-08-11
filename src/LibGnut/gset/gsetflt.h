@@ -24,9 +24,10 @@
 #include "gutils/gtypeconv.h"
 #include "gset/gsetbase.h"
 
+#ifndef XMLKEY_FLT
 #define XMLKEY_FLT "filter" ///< The defination of filter node
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -56,7 +57,7 @@ namespace gnut
          * @brief get the flt method
          * @return string : the method of flt
          */
-        string method_flt();
+        std::string method_flt();
 
         /**
          * @brief get the noise of clk in flt
@@ -160,7 +161,7 @@ namespace gnut
         int reset_par(double d);
 
     protected:
-        string _method_flt; ///< type of filtering method (kalman, SRCF)
+        std::string _method_flt; ///< type of filtering method (kalman, SRCF)
         double _noise_clk;  ///< white noise for receiver clock [m]
         double _noise_crd;  ///< white noise for coordinates [m]
         double _noise_dclk; ///< white noise for receiver clock speed [m/s]

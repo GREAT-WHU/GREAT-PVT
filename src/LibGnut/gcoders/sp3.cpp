@@ -29,8 +29,8 @@ namespace gnut
     t_sp3::t_sp3(t_gsetbase* s, string version, int sz) :
         t_gcoder(s, version, sz)
     {
-        _start.tsys(t_gtime::GPS);
-        _lastepo.tsys(t_gtime::GPS);
+        _start.tsys(t_gtime::t_tsys::GPS);
+        _lastepo.tsys(t_gtime::t_tsys::GPS);
         _nrecord = -1;
         _nrecmax = -1;
     }
@@ -110,7 +110,7 @@ namespace gnut
                     {
                         ssat = "G" + ssat.substr(1, 2);
                     }
-                    _prn.push_back(ssat);
+                    _prn.push_back(str2gsat(ssat));
                     ltmp << " " << tmp.substr(i, 3);
                 }
                 GREAT_DEBUG(std::string("decoder for ") + ltmp.str() + " ");
@@ -272,10 +272,10 @@ namespace gnut
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::ALLPREC)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLPREC)
                         {
-                            ((t_gallprec*)it->second)->addpos(prn, _lastepo, xyz, t, dxyz, dt);
-                            ((t_gallprec*)it->second)->add_interval(prn, _orbintv);
+                            ((t_gallprec*)it->second)->addpos(str2gsat(prn), _lastepo, xyz, t, dxyz, dt);
+                            ((t_gallprec*)it->second)->add_interval(str2gsat(prn), _orbintv);
                             ((t_gallprec*)it->second)->add_agency(_agency);
                         }
 
@@ -319,9 +319,9 @@ namespace gnut
                     }
                     else
                     {
-                        if (it->second->id_type() == t_gdata::ALLPREC)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLPREC)
                         {
-                            ((t_gallprec*)it->second)->addvel(prn, _lastepo, vel, var);
+                            ((t_gallprec*)it->second)->addvel(str2gsat(prn), _lastepo, vel, var);
                         }
                         it++;
                         //     }

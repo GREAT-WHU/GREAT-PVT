@@ -16,7 +16,6 @@
 #include "gproc/gflt.h"
 #include "gutils/gmatrixconv.h"
 
-using namespace std;
 using namespace std::chrono;
 
 namespace gnut

@@ -28,7 +28,6 @@
 #include "gutils/gpair.h"
 #include "gdata/gdata.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -44,14 +43,14 @@ namespace gnut
         virtual ~t_ginterp();
 
         /** @brief 1D type. */
-        enum INTERP_1D
+        enum class INTERP_1D
         {
             LINEAR,
             SPLINE
         };
 
         /** @brief 2D type. */
-        enum INTERP_2D
+        enum class INTERP_2D
         {
             BILINEAR,
             IDW,
@@ -59,39 +58,39 @@ namespace gnut
         };
 
         /** @brief 3D type. */
-        enum INTERP_3D
+        enum class INTERP_3D
         {
             VER2HOR,
             HOR2VER
         };
 
         /** @brief HT type. */
-        enum INTERP_HT
+        enum class INTERP_HT
         {
             INTERPOLATE,
             SCALE
         };
 
         /** @brief convert str to interp 1d/2d/3d/ht. */
-        INTERP_1D str_to_interp_1d(const string& str);
-        INTERP_2D str_to_interp_2d(const string& str);
-        INTERP_3D str_to_interp_3d(const string& str);
-        INTERP_HT str_to_interp_ht(const string& str);
+        INTERP_1D str_to_interp_1d(const std::string& str);
+        INTERP_2D str_to_interp_2d(const std::string& str);
+        INTERP_3D str_to_interp_3d(const std::string& str);
+        INTERP_HT str_to_interp_ht(const std::string& str);
 
         /** @brief convert interp to str 1d/2d/3d/ht. */
-        string interp_1d_to_str(const INTERP_1D& typ);
-        string interp_2d_to_str(const INTERP_2D& typ);
-        string interp_3d_to_str(const INTERP_3D& typ);
-        string interp_ht_to_str(const INTERP_HT& typ);
+        std::string interp_1d_to_str(const INTERP_1D& typ);
+        std::string interp_2d_to_str(const INTERP_2D& typ);
+        std::string interp_3d_to_str(const INTERP_3D& typ);
+        std::string interp_ht_to_str(const INTERP_HT& typ);
 
         /** @brief Linear Interpolation (double). */
-        int linear(map<double, double>& data, double val, double& fval);
+        int linear(std::map<double, double>& data, double val, double& fval);
 
         /** @brief Spline Interpolation (double). */
-        int spline(map<double, double>& data, double val, double& fval);
+        int spline(std::map<double, double>& data, double val, double& fval);
 
         /** @brief Linear Interpolation (time). */
-        int linear(const map<t_gtime, double>& data, const t_gtime& epo, double& fval);
+        int linear(const std::map<t_gtime, double>& data, const t_gtime& epo, double& fval);
 
         /**
          *@brief bilinear interpolation
@@ -101,7 +100,7 @@ namespace gnut
          * 2 .. 21 (top-left)               |         |
          * 3 .. 22 (top-right)           11 *---------* 12
          */
-        int bilinear(const map<t_gpair, double>& data, const t_gpair& req_pos, double& fval);
+        int bilinear(const std::map<t_gpair, double>& data, const t_gpair& req_pos, double& fval);
 
     protected:
         INTERP_1D _interp_1d; ///< 1d Interpolation

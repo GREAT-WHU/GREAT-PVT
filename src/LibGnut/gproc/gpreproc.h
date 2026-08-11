@@ -50,18 +50,18 @@ namespace gnut
 
         /** @brief set/get glog pointer. */
         /** @brief for Cycle slip detection. */
-        int ProcessBatch(string site, const t_gtime& beg, const t_gtime& end, double sampl, bool sync, bool save = false);
+        int ProcessBatch(std::string site, const t_gtime& beg, const t_gtime& end, double sampl, bool sync, bool save = false);
 
         /** @brief for set the priviate values. */
         void setNav(t_gallnav* nav);
 
-        typedef map<int, map<t_gobs_pair, double>> t_map_slp;
-        typedef map<int, vector<t_gobs_pair>> t_vec_slp;
+        typedef std::map<int, std::map<t_gobs_pair, double>> t_map_slp;
+        typedef std::map<int, std::vector<t_gobs_pair>> t_vec_slp;
 
     protected:
         t_gallobs* _obs;      ///< observation
         t_gallnav* _nav;      ///< navigation
-        string _site;         ///< site
+        std::string _site;         ///< site
         t_gsetbase* _set;     ///< setting
         double _sigCode;      ///< sigma of code observation
         double _sigPhase;     ///< sigma of phase observation
@@ -78,29 +78,28 @@ namespace gnut
         double _sumS;         ///< sumS
         double _scl;          ///< scl
         t_gtriple _pos;       ///< position
-        set<string> _sys;     ///< system
-        set<string> _sat;     ///< satellite
+        std::set<std::string> _sys;     ///< system
+        std::set<GSAT> _sat;       ///< satellite
 
         bool _beg_end;
 
-        map<string, map<string, double>> _dI; ///< ionospheric delay (site sys value)
+        std::map<std::string, std::map<GSAT, double>> _dI; ///< ionospheric delay (site/satellite)
         // map<string, int>     _msoffset;
-        map<string, map<t_gtime, int>> _mbreaks; ///< for logging (site time CJ)
+        std::map<std::string, std::map<t_gtime, int>> _mbreaks; ///< for logging (site time CJ)
 
         // --- global settings
-        map<string, bool> _firstEpo;                 ///< fisrt epoch
-        map<string, vector<t_gobsgnss>> _epoDataPre; ///< epoch data prepare
+        std::map<std::string, bool> _firstEpo;                 ///< fisrt epoch
+        std::map<std::string, std::vector<t_gobsgnss>> _epoDataPre; ///< epoch data prepare
 
         t_map_slp _m_lcslp; ///< m_lcslp
         t_vec_slp _v_lcslp; ///< v_lcslp
 
-        map<string, map<t_gtime, map<string, map<GOBS, double>>>> _mslips; ///< for logging - slip due to true CS  (site ....)
-        map<string, map<t_gtime, map<string, map<GOBS, int>>>>
+        std::map<std::string, std::map<t_gtime, std::map<GSAT, std::map<GOBS, double>>>> _mslips; ///< for logging - slip due to true CS
+        std::map<std::string, std::map<t_gtime, std::map<GSAT, std::map<GOBS, int>>>>
             _mslipsGap; ///  for logging - slip due to data gap => 1 (epoch gap), 2(sat gap), 3(GOBS gap) (site ...)
 
         // for npp
-        vector<shared_ptr<t_gobsgnss>> _inputEpoData;   ///< input epoch data
-        map<string, map<string, int>> _map_nppdata_idx; ///< site sat idx
+        std::vector<std::shared_ptr<t_gobsgnss>> _inputEpoData;   ///< input epoch data
 
         /** @brief check phase cycl slips. */
         int _slip(t_gobsgnss* gobs1, t_spt_gobs gobs2);
@@ -109,20 +108,20 @@ namespace gnut
         int _jumps(t_gobsgnss* gobs1, t_spt_gobs gobs2);
 
         /** @brief Repair phase due to clk jump. */
-        void _repair(vector<t_spt_gobs> epoData, double dL);
+        void _repair(std::vector<t_spt_gobs> epoData, double dL);
 
         /** @brief Transform dN to slips on individual band. */
         int _transform(t_spt_gobs gobs, bool save);
 
         /** @brief Save estimated cycle slips. */
-        void _save(t_spt_gobs gobs, const map<GOBS, double>& slips);
+        void _save(t_spt_gobs gobs, const std::map<GOBS, double>& slips);
 
         /** @brief remove slips from gobsgnss* and _mslips. */
-        void _remove_slip(vector<t_spt_gobs> gobs);
+        void _remove_slip(std::vector<t_spt_gobs> gobs);
 
         /** @brief only common items remain. */
-        void _common(set<GOBSBAND>& set1, set<GOBSBAND>& set2);
-        void _common(set<GOBS>& set1, set<GOBS>& set2);
+        void _common(std::set<GOBSBAND>& set1, std::set<GOBSBAND>& set2);
+        void _common(std::set<GOBS>& set1, std::set<GOBS>& set2);
 
         /** @brief ionosphere scale factor: wl - nl. */
         double _disf(t_gobsgnss* gobs1, t_spt_gobs gobs2, t_gobs& s1, t_gobs& s2);
@@ -134,11 +133,11 @@ namespace gnut
         double _findSlp(int& i, t_gobs_pair& gpair);
 
         /** @brief report epo data as slips due to epoch data gap. */
-        void _gapReport(vector<shared_ptr<t_gobsgnss>> epoData);
-        void _gapReport(shared_ptr<t_gobsgnss> data);
+        void _gapReport(std::vector<std::shared_ptr<t_gobsgnss>> epoData);
+        void _gapReport(std::shared_ptr<t_gobsgnss> data);
 
         /** @brief compare two epoch data. */
-        void _compare(vector<t_gobsgnss> data1, vector<shared_ptr<t_gobsgnss>> data2);
+        void _compare(std::vector<t_gobsgnss> data1, std::vector<std::shared_ptr<t_gobsgnss>> data2);
     };
 
     /** @brief class for t_gobs_pair. */

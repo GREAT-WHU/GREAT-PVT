@@ -11,28 +11,28 @@ namespace gnut
 {
     t_gsppmodel::t_gsppmodel()
     {
-        _tropoModel = make_shared<t_gtropo>();
+        _tropoModel = std::make_shared<t_gtropo>();
         _gallbias = 0;
     }
 
-    t_gsppmodel::t_gsppmodel(string site, t_gsetbase* settings) :
+    t_gsppmodel::t_gsppmodel(std::string site, t_gsetbase* settings) :
         _observ(gnut::OBSCOMBIN::IONO_FREE)
     {
         if (nullptr == settings)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
-            throw logic_error("");
+            throw std::logic_error("");
         }
 
-        _tropoModel = make_shared<t_gtropo>();
+        _tropoModel = std::make_shared<t_gtropo>();
         _gallbias = 0;
 
         _settings = settings;
         _site = site;
         _phase = false;
 
-        set<GSYS> systems = GNSS_SUPPORTED();
-        for (set<GSYS>::iterator it = systems.begin(); it != systems.end(); it++)
+        std::set<GSYS> systems = GNSS_SUPPORTED();
+        for (std::set<GSYS>::iterator it = systems.begin(); it != systems.end(); it++)
         {
             _maxres_C[*it] = dynamic_cast<t_gsetgnss*>(_settings)->maxres_C(*it);
             _maxres_L[*it] = dynamic_cast<t_gsetgnss*>(_settings)->maxres_L(*it);
@@ -45,44 +45,44 @@ namespace gnut
         _observ = dynamic_cast<t_gsetproc*>(_settings)->obs_combin();
         _cbiaschar = dynamic_cast<t_gsetproc*>(_settings)->cbiaschar();
 
-        _band_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GPS);
-        _band_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GAL);
-        _band_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GLO);
-        _band_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::BDS);
-        _band_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::QZS);
+        _band_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GSYS::GPS);
+        _band_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GSYS::GAL);
+        _band_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GSYS::GLO);
+        _band_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GSYS::BDS);
+        _band_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_settings)->band_index(gnut::GSYS::QZS);
 
-        _freq_index[gnut::GPS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GPS);
-        _freq_index[gnut::GAL] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GAL);
-        _freq_index[gnut::GLO] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GLO);
-        _freq_index[gnut::BDS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::BDS);
-        _freq_index[gnut::QZS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::QZS);
+        _freq_index[gnut::GSYS::GPS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GSYS::GPS);
+        _freq_index[gnut::GSYS::GAL] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GSYS::GAL);
+        _freq_index[gnut::GSYS::GLO] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GSYS::GLO);
+        _freq_index[gnut::GSYS::BDS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GSYS::BDS);
+        _freq_index[gnut::GSYS::QZS] = dynamic_cast<t_gsetgnss*>(_settings)->freq_index(gnut::GSYS::QZS);
 
         if (_trpModStr == gnut::TROPMODEL::SAASTAMOINEN)
         {
-            _tropoModel = make_shared<t_saast>();
+            _tropoModel = std::make_shared<t_saast>();
         }
         else if (_trpModStr == gnut::TROPMODEL::DAVIS)
         {
-            _tropoModel = make_shared<t_davis>();
+            _tropoModel = std::make_shared<t_davis>();
         }
         else if (_trpModStr == gnut::TROPMODEL::HOPFIELD)
         {
-            _tropoModel = make_shared<t_hopf>();
+            _tropoModel = std::make_shared<t_hopf>();
         }
     }
     t_gsppmodel::~t_gsppmodel()
     {
     }
 
-    int t_gsppmodel::outlierDetect(vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix& Qsav)
+    int t_gsppmodel::outlierDetect(std::vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix& Qsav)
     {
-        vector<t_gsatdata>::iterator itMaxVcodeNORM = data.end();
-        vector<t_gsatdata>::iterator itMaxVphaseNORM = data.end();
+        std::vector<t_gsatdata>::iterator itMaxVcodeNORM = data.end();
+        std::vector<t_gsatdata>::iterator itMaxVphaseNORM = data.end();
 
-        vector<t_gsatdata>::iterator itMaxVcodeORIG = data.end();
-        vector<t_gsatdata>::iterator itMaxVphaseORIG = data.end();
+        std::vector<t_gsatdata>::iterator itMaxVcodeORIG = data.end();
+        std::vector<t_gsatdata>::iterator itMaxVphaseORIG = data.end();
 
-        vector<t_gsatdata>::iterator itDataErase = data.end();
+        std::vector<t_gsatdata>::iterator itDataErase = data.end();
 
         double maxVcodeNORM = 0.0;
         double maxVphaseNORM = 0.0;
@@ -127,7 +127,7 @@ namespace gnut
     {
         // Cartesian coordinates to ellipsodial coordinates
         t_gtriple xyz, ell;
-        string strEst = dynamic_cast<t_gsetgen*>(_settings)->estimator();
+        std::string strEst = dynamic_cast<t_gsetgen*>(_settings)->estimator();
         bool isFLT = (strEst == "FLT");
         if (isFLT)
         {
@@ -150,8 +150,8 @@ namespace gnut
         t_gtriple satcrd = gsatdata.satcrd();
         ColumnVector cSat = satcrd.crd_cvect();
 
-        string sat = gsatdata.sat();
-        string rec = gsatdata.site();
+        GSAT sat = gsatdata.sat();
+        std::string rec = gsatdata.site();
         t_gtime epo = gsatdata.epoch();
 
         // Tropospheric wet delay correction
@@ -184,23 +184,23 @@ namespace gnut
         // Inter frequency code bias FREQ_3
         double ifb = 0.0;
         i = param.getParam(_site, par_type::IFB_GPS, "");
-        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == FREQ_3)
+        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
         {
             ifb = param[i].value();
         }
 
         i = param.getParam(_site, par_type::IFB_GAL, "");
-        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == FREQ_3)
+        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
         {
             ifb = param[i].value();
         }
         i = param.getParam(_site, par_type::IFB_BDS, "");
-        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == FREQ_3)
+        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
         {
             ifb = param[i].value();
         }
         i = param.getParam(_site, par_type::IFB_QZS, "");
-        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == FREQ_3)
+        if (i >= 0 && gobs.is_code() && _freq_index[gsatdata.gsys()][gobs.band()] == gnut::FREQ_SEQ::FREQ_3)
         {
             ifb = param[i].value();
         }
@@ -252,7 +252,7 @@ namespace gnut
         if (_tropoModel == 0)
         {
             GREAT_INFO("Tropo Model setting is not correct. Default used! Check config.");
-            _tropoModel = make_shared<t_saast>();
+            _tropoModel = std::make_shared<t_saast>();
         }
 
         double ele = satdata.ele();
@@ -298,20 +298,20 @@ namespace gnut
         return delay;
     }
 
-    double t_gsppmodel::isbCorrection(t_gallpar& param, string& sat, string& rec, t_gobs& gobs)
+    double t_gsppmodel::isbCorrection(t_gallpar& param, GSAT sat, std::string& rec, t_gobs& gobs)
     {
         double isb_offset = 0.0;
 
-        auto gsys = t_gsys::sat2gsys(sat);
+        auto gsys = gsat2gsys(sat);
 
         switch (gsys)
         {
-            case GPS:
+            case GSYS::GPS:
             {
                 break;
             }
             // GLONASS system time offset
-            case GLO:
+            case GSYS::GLO:
             {
                 int idx_isb = param.getParam(rec, par_type::GLO_ISB, "");
                 if (idx_isb >= 0)
@@ -327,7 +327,7 @@ namespace gnut
 
                 break;
             }
-            case GAL:
+            case GSYS::GAL:
             {
                 // Galileo system time offset
                 int i = param.getParam(rec, par_type::GAL_ISB, "");
@@ -337,7 +337,7 @@ namespace gnut
                 }
                 break;
             }
-            case BDS:
+            case GSYS::BDS:
             {
                 // BaiDou system time offset
                 int i = param.getParam(rec, par_type::BDS_ISB, "");
@@ -348,7 +348,7 @@ namespace gnut
                 break;
             }
             // QZSS system time offset
-            case QZS:
+            case GSYS::QZS:
             {
                 int i = param.getParam(_site, par_type::QZS_ISB, "");
                 if (i >= 0)
@@ -358,7 +358,7 @@ namespace gnut
                 break;
             }
             default:
-                throw logic_error("can not support such sys " + t_gsys::gsys2str(gsys));
+                throw std::logic_error("can not support such sys " + t_gsys::gsys2str(gsys));
         }
 
         return isb_offset;
@@ -369,32 +369,32 @@ namespace gnut
         _observ = observ;
     }
 
-    void t_gsppmodel::setrec(shared_ptr<t_gobj> rec)
+    void t_gsppmodel::setrec(std::shared_ptr<t_gobj> rec)
     {
         _grec = rec;
     }
 
-    double t_gsppmodel::_maxres(bool phase, vector<t_gsatdata>& data, vector<t_gsatdata>::iterator& itDATA, RESIDTYPE res_type, GSYS gs)
+    double t_gsppmodel::_maxres(bool phase, std::vector<t_gsatdata>& data, std::vector<t_gsatdata>::iterator& itDATA, RESIDTYPE res_type, GSYS gs)
     {
-        vector<t_gsatdata>::iterator it;
+        std::vector<t_gsatdata>::iterator it;
 
         double maxres = 0.0;
 
         for (it = data.begin(); it != data.end(); it++)
         {
-            if (it->gsys() != gs && gs != GNS)
+            if (it->gsys() != gs && gs != GSYS::GNS)
             {
                 continue;
             }
 
-            vector<double> res;
+            std::vector<double> res;
             if (phase)
             {
-                res = it->residuals(res_type, TYPE_L);
+                res = it->residuals(res_type, gnut::GOBSTYPE::TYPE_L);
             }
             else
             {
-                res = it->residuals(res_type, TYPE_C);
+                res = it->residuals(res_type, gnut::GOBSTYPE::TYPE_C);
             }
 
             for (auto itRES = res.begin(); itRES != res.end(); itRES++)
@@ -412,13 +412,13 @@ namespace gnut
 
     bool t_gsppmodel::_check_outl(bool phase,
                                   double& maxresNORM,
-                                  vector<t_gsatdata>::iterator& itDataNORM,
+                                  std::vector<t_gsatdata>::iterator& itDataNORM,
                                   double& maxresORIG,
-                                  vector<t_gsatdata>::iterator& itDataORIG,
-                                  vector<t_gsatdata>::iterator& itDataErase,
-                                  vector<t_gsatdata>& data)
+                                  std::vector<t_gsatdata>::iterator& itDataORIG,
+                                  std::vector<t_gsatdata>::iterator& itDataErase,
+                                  std::vector<t_gsatdata>& data)
     {
-        map<GSYS, double> map_res;
+        std::map<GSYS, double> map_res;
         if (phase)
         {
             map_res = _maxres_L;
@@ -560,10 +560,10 @@ namespace gnut
         return false;
     }
 
-    void t_gsppmodel::_logOutl(bool phase, string prn, int data_size, double maxres, double ele, t_gtime epo, RESIDTYPE resid_type)
+    void t_gsppmodel::_logOutl(bool phase, GSAT sat, int data_size, double maxres, double ele, t_gtime epo, RESIDTYPE resid_type)
     {
-        string obsType = "";
-        string resType = "";
+        std::string obsType = "";
+        std::string resType = "";
         if (phase)
         {
             obsType = "phase";
@@ -586,9 +586,9 @@ namespace gnut
             resType = "All residual";
         }
 
-        ostringstream os;
-        os << _site << " outlier (" << resType << ": " << obsType << ") " << prn << " size:" << fixed << setw(2) << data_size
-           << " v: " << fixed << setw(16) << right << setprecision(3) << maxres << " ele: " << fixed << setw(6) << setprecision(2) << ele
+        std::ostringstream os;
+        os << _site << " outlier (" << resType << ": " << obsType << ") " << sat << " size:" << std::fixed << std::setw(2) << data_size
+           << " v: " << std::fixed << std::setw(16) << std::right << std::setprecision(3) << maxres << " ele: " << std::fixed << std::setw(6) << std::setprecision(2) << ele
            << " " << epo.str_hms();
         GREAT_DEBUG(os.str());
     }

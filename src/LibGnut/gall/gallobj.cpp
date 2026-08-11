@@ -11,7 +11,6 @@
 
 #include "gall/gallobj.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -21,8 +20,8 @@ namespace gnut
         _gpcv(0),
         _gotl(0)
     {
-        id_type(t_gdata::ALLOBJ);
-        id_group(t_gdata::GRP_OBJECT);
+        id_type(t_gdata::ID_TYPE::ALLOBJ);
+        id_group(t_gdata::ID_GROUP::GRP_OBJECT);
         _aloctrn();
     }
     t_gallobj::t_gallobj(t_gallpcv* pcv, t_gallotl* otl) :
@@ -30,8 +29,8 @@ namespace gnut
         _gpcv(pcv),
         _gotl(otl)
     {
-        id_type(t_gdata::ALLOBJ);
-        id_group(t_gdata::GRP_OBJECT);
+        id_type(t_gdata::ID_TYPE::ALLOBJ);
+        id_group(t_gdata::ID_GROUP::GRP_OBJECT);
         _aloctrn();
     }
 
@@ -43,11 +42,11 @@ namespace gnut
         return;
     }
 
-    int t_gallobj::add(shared_ptr<t_gobj> obj)
+    int t_gallobj::add(std::shared_ptr<t_gobj> obj)
     {
         _gmutex.lock();
 
-        string s = obj->id();
+        std::string s = obj->id();
 
         // object empty
         if (obj->id().empty())
@@ -74,11 +73,11 @@ namespace gnut
         return 0;
     }
 
-    shared_ptr<t_gobj> t_gallobj::obj(const string& s)
+    std::shared_ptr<t_gobj> t_gallobj::obj(const std::string& s)
     {
         _gmutex.lock();
 
-        shared_ptr<t_gobj> p_obj;
+        std::shared_ptr<t_gobj> p_obj;
 
         t_map_obj::iterator it = _mapobj.find(s);
         if (it == _mapobj.end())
@@ -95,21 +94,21 @@ namespace gnut
         return p_obj;
     }
 
-    map<string, shared_ptr<t_gobj>> t_gallobj::objects(const t_gdata::ID_TYPE& id)
+    std::map<std::string, std::shared_ptr<t_gobj>> t_gallobj::objects(const t_gdata::ID_TYPE& id)
     {
         _gmutex.lock();
 
-        map<string, shared_ptr<t_gobj>> all_obj;
+        std::map<std::string, std::shared_ptr<t_gobj>> all_obj;
         t_map_obj::const_iterator itOBJ = _mapobj.begin();
 
         while (itOBJ != _mapobj.end())
         {
-            if (id != NONE && id != itOBJ->second->id_type())
+            if (id != t_gdata::ID_TYPE::NONE && id != itOBJ->second->id_type())
             {
                 ++itOBJ;
                 continue;
             }
-            string site = itOBJ->second->id();
+            std::string site = itOBJ->second->id();
             all_obj[site] = itOBJ->second;
             ++itOBJ;
         }
@@ -135,14 +134,12 @@ namespace gnut
 
     void t_gallobj::_aloctrn()
     {
-        for (int i = 0; i != GNS; ++i)
+        for (const auto& system : GNSS_SATS())
         {
-            GSYS sys = static_cast<GSYS>(i);
-            set<string> sats = GNSS_SATS()[sys];
-            for (auto iter = sats.begin(); iter != sats.end(); ++iter)
+            for (GSAT sat : system.second)
             {
-                string satID = *iter;
-                shared_ptr<t_gtrn> trn_new = make_shared<t_gtrn>();
+                std::string satID = gsat2str(sat);
+                std::shared_ptr<t_gtrn> trn_new = std::make_shared<t_gtrn>();
                 trn_new->id(satID);
                 _mapobj[satID] = trn_new;
             }
@@ -151,13 +148,13 @@ namespace gnut
 
     void t_gallobj::read_satinfo(t_gtime& epo)
     {
-        cout << _mapobj["G01"]->name();
+        std::cout << _mapobj["G01"]->name();
         t_map_obj::iterator it;
         for (it = _mapobj.begin(); it != _mapobj.end(); ++it)
         {
-            if (it->second->id_type() == TRN)
+            if (it->second->id_type() == t_gdata::ID_TYPE::TRN)
             {
-                string ID = it->first;
+                std::string ID = it->first;
                 it->second->ant(ID, epo);
             }
         }

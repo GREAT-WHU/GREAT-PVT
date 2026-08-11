@@ -14,19 +14,18 @@
 #include "gutils/gcommon.h"
 #include "gutils/gfileconv.h"
 
-using namespace std;
 
 namespace gnut
 {
-    string base_name(const string& path)
+    std::string base_name(const std::string& path)
     {
-        string base_name = path.substr(path.find_last_of(PATH_SEPARATOR) + 1);
+        std::string base_name = path.substr(path.find_last_of(PATH_SEPARATOR) + 1);
         return base_name;
     }
 
-    string dir_name(const string& path)
+    std::string dir_name(const std::string& path)
     {
-        string dir_name = path.substr(0, path.find_last_of(PATH_SEPARATOR));
+        std::string dir_name = path.substr(0, path.find_last_of(PATH_SEPARATOR));
 
         if (dir_name == path || dir_name.empty())
         {
@@ -36,7 +35,7 @@ namespace gnut
         return dir_name;
     }
 
-    bool dir_exists(const string& path)
+    bool dir_exists(const std::string& path)
     {
         struct stat info;
 
@@ -52,9 +51,9 @@ namespace gnut
         return false;
     }
 
-    int make_dir(const string& path)
+    int make_dir(const std::string& path)
     {
-        string dir = dir_name(path);
+        std::string dir = dir_name(path);
 
         if (dir.empty())
         {
@@ -74,10 +73,10 @@ namespace gnut
         return 1;
     }
 
-    int make_path(const string& path)
+    int make_path(const std::string& path)
     {
-        string dir = path;
-        vector<string> xxx;
+        std::string dir = path;
+        std::vector<std::string> xxx;
 
         while ((dir = dir_name(dir)) != "")
         {

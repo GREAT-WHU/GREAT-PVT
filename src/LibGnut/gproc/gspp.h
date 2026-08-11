@@ -46,9 +46,9 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gspp(string mark, t_gsetbase* set);
+        t_gspp(std::string mark, t_gsetbase* set);
 
-        t_gspp(string mark, t_gsetbase* set, string mode);
+        t_gspp(std::string mark, t_gsetbase* set, std::string mode);
         /** @brief default destructor. */
         virtual ~t_gspp();
 
@@ -83,13 +83,13 @@ namespace gnut
         void setgnss(GSYS sys);
 
         /** @brief get site. */
-        string site()
+        std::string site()
         {
             return _site;
         }
 
     protected:
-        shared_ptr<t_gobj> _grec; ///< Transmitter/receiver object.
+        std::shared_ptr<t_gobj> _grec; ///< Transmitter/receiver object.
         t_gallobj* _gallobj;      ///< Objects transmitter/receiver.
         t_gallbias* _gallbias;    ///< Differential code biases.
         t_gallbias* _gallfcb;     ///< Phase fractional cycle bias.
@@ -115,7 +115,7 @@ namespace gnut
         bool _valid_crd_xml;
         bool _valid_ztd_xml;
         t_gmodel* _gModel;    ///< models.
-        string _site;         ///< Site internal ID.
+        std::string _site;         ///< Site internal ID.
         t_gsetbase* _set;     ///< Base setting.
         t_gallobs* _gobs;     ///< Observation data.
         t_gallnav* _gnav;     ///< Objects for ephemerides.
@@ -176,7 +176,7 @@ namespace gnut
         t_gmutex _gmutex; ///< gmutex
 
         // signals used for processing
-        map<string, map<GOBSBAND, GOBSATTR>> _signals; ///< signal
+        std::map<GSAT, std::map<GOBSBAND, GOBSATTR>> _signals; ///< signal
     };
 } // namespace gnut
 

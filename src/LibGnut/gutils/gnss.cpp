@@ -10,6 +10,8 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <cstdlib>
+#include <cctype>
 
 #include "gutils/gnss.h"
 #include "gutils/gtypeconv.h"
@@ -19,66 +21,206 @@
 namespace gnut
 {
 
+    GSAT str2gsat(const std::string& sat, GSYS sys)
+    {
+        if (sat.empty())
+        {
+            return GSAT::NONE;
+        }
+
+        const char* first = sat.c_str();
+        while (isspace(static_cast<unsigned char>(*first)))
+        {
+            ++first;
+        }
+
+        if (*first == '\0')
+        {
+            return GSAT::NONE;
+        }
+
+        if (isalpha(static_cast<unsigned char>(*first)))
+        {
+            switch (toupper(static_cast<unsigned char>(*first++)))
+            {
+                case 'G':
+                    sys = GSYS::GPS;
+                    break;
+                case 'E':
+                    sys = GSYS::GAL;
+                    break;
+                case 'R':
+                    sys = GSYS::GLO;
+                    break;
+                case 'C':
+                    sys = GSYS::BDS;
+                    break;
+                case 'J':
+                    sys = GSYS::QZS;
+                    break;
+                case 'S':
+                    sys = GSYS::SBS;
+                    break;
+                case 'I':
+                    sys = GSYS::IRN;
+                    break;
+                default:
+                    return GSAT::NONE;
+            }
+        }
+
+        char* end = nullptr;
+        long prn = strtol(first, &end, 10);
+        while (end && isspace(static_cast<unsigned char>(*end)))
+        {
+            ++end;
+        }
+        if (end == first || (end && *end != '\0'))
+        {
+            return GSAT::NONE;
+        }
+
+        if (sys == GSYS::QZS && prn > 192) // RINEX QZSS offset
+        {
+            prn -= 192;
+        }
+        if (sys == GSYS::SBS && prn > 100) // RINEX SBAS offset
+        {
+            prn -= 100;
+        }
+        if (prn < 1 || prn > 99 || sys < GSYS::GPS || sys > GSYS::IRN)
+        {
+            return GSAT::NONE;
+        }
+
+        GSAT result = static_cast<GSAT>(static_cast<unsigned short>(sys) * 100 + prn);
+        return valid_gsat(result) ? result : GSAT::NONE;
+    }
+
+    bool valid_gsat(GSAT sat)
+    {
+        int value = static_cast<unsigned short>(sat);
+        int prn = value % 100;
+        switch (static_cast<GSYS>(value / 100))
+        {
+            case GSYS::GPS:
+                return prn >= 1 && prn <= 32;
+            case GSYS::GAL:
+                return prn >= 1 && prn <= 36;
+            case GSYS::GLO:
+                return prn >= 1 && prn <= 24;
+            case GSYS::BDS:
+                return prn >= 1 && prn <= 63;
+            case GSYS::QZS:
+                return prn >= 1 && prn <= 10;
+            case GSYS::SBS:
+                return (prn >= 20 && prn <= 58) || prn == 83;
+            case GSYS::IRN:
+                return prn >= 1 && prn <= 14;
+            default:
+                return false;
+        }
+    }
+
+    GSYS gsat2gsys(GSAT sat)
+    {
+        int sys = static_cast<unsigned short>(sat) / 100;
+        return valid_gsat(sat) ? static_cast<GSYS>(sys) : GSYS::GNS;
+    }
+
+    int gsat2prn(GSAT sat)
+    {
+        return gsat2gsys(sat) == GSYS::GNS ? 0 : static_cast<unsigned short>(sat) % 100;
+    }
+
+    std::string gsat2str(GSAT sat)
+    {
+        char system = 'X';
+        switch (gsat2gsys(sat))
+        {
+            case GSYS::GPS:
+                system = 'G';
+                break;
+            case GSYS::GAL:
+                system = 'E';
+                break;
+            case GSYS::GLO:
+                system = 'R';
+                break;
+            case GSYS::BDS:
+                system = 'C';
+                break;
+            case GSYS::QZS:
+                system = 'J';
+                break;
+            case GSYS::SBS:
+                system = 'S';
+                break;
+            case GSYS::IRN:
+                system = 'I';
+                break;
+            default:
+                return "X00";
+        }
+
+        std::ostringstream out;
+        out << system << std::setfill('0') << std::setw(2) << gsat2prn(sat);
+        return out.str();
+    }
+
+    std::ostream& operator<<(std::ostream& os, GSAT sat)
+    {
+        return os << gsat2str(sat);
+    }
+
+    std::string operator+(const std::string& text, GSAT sat)
+    {
+        return text + gsat2str(sat);
+    }
+
+    std::string operator+(GSAT sat, const std::string& text)
+    {
+        return gsat2str(sat) + text;
+    }
+
     t_map_sats GNSS_SATS()
     {
         t_map_sats m;
-        // (string) necessary for VS2013
-        m[GPS] = {(string) "G01", (string) "G02", (string) "G03", (string) "G04", (string) "G05", (string) "G06", (string) "G07",
-                  (string) "G08", (string) "G09", (string) "G10", (string) "G11", (string) "G12", (string) "G13", (string) "G14",
-                  (string) "G15", (string) "G16", (string) "G17", (string) "G18", (string) "G19", (string) "G20", (string) "G21",
-                  (string) "G22", (string) "G23", (string) "G24", (string) "G25", (string) "G26", (string) "G27", (string) "G28",
-                  (string) "G29", (string) "G30", (string) "G31", (string) "G32"};
+        const std::pair<GSYS, int> ranges[] =
+            {{GSYS::GPS, 32}, {GSYS::GLO, 24}, {GSYS::GAL, 36}, {GSYS::BDS, 46}, {GSYS::QZS, 7}, {GSYS::IRN, 14}};
+        for (const auto& range : ranges)
+        {
+            for (int prn = 1; prn <= range.second; ++prn)
+            {
+                m[range.first].insert(str2gsat(std::to_string(prn), range.first));
+            }
+        }
+        m[GSYS::BDS].insert(str2gsat("C59"));
+        m[GSYS::BDS].insert(str2gsat("C60"));
 
-        m[GLO] = {(string) "R01", (string) "R02", (string) "R03", (string) "R04", (string) "R05", (string) "R06",
-                  (string) "R07", (string) "R08", (string) "R09", (string) "R10", (string) "R11", (string) "R12",
-                  (string) "R13", (string) "R14", (string) "R15", (string) "R16", (string) "R17", (string) "R18",
-                  (string) "R19", (string) "R20", (string) "R21", (string) "R22", (string) "R23", (string) "R24"};
-
-        m[GAL] = {(string) "E01", (string) "E02", (string) "E03", (string) "E04", (string) "E05", (string) "E06",
-                  (string) "E07", (string) "E08", (string) "E09", (string) "E10", (string) "E11", (string) "E12",
-                  (string) "E13", (string) "E14", (string) "E15", (string) "E16", (string) "E17", (string) "E18",
-                  (string) "E19", (string) "E20", (string) "E21", (string) "E22", (string) "E23", (string) "E24",
-                  (string) "E25", (string) "E26", (string) "E27", (string) "E28", (string) "E29", (string) "E30",
-                  (string) "E31", (string) "E32", (string) "E33", (string) "E34", (string) "E35", (string) "E36"};
-
-        m[BDS] = {(string) "C01", (string) "C02", (string) "C03", (string) "C04", (string) "C05", (string) "C06", (string) "C07",
-                  (string) "C08", (string) "C09", (string) "C10", (string) "C11", (string) "C12", (string) "C13", (string) "C14",
-                  (string) "C15", (string) "C16", (string) "C17", (string) "C18", (string) "C19", (string) "C20", (string) "C21",
-                  (string) "C22", (string) "C23", (string) "C24", (string) "C25", (string) "C26", (string) "C27", (string) "C28",
-                  (string) "C29", (string) "C30", (string) "C31", (string) "C32", (string) "C33", (string) "C34", (string) "C35",
-                  (string) "C36", (string) "C37", (string) "C38", (string) "C39", (string) "C40", (string) "C41", (string) "C42",
-                  (string) "C43", (string) "C44", (string) "C45", (string) "C46", (string) "C59", (string) "C60"};
-
-        m[SBS] = {(string) "S20",
-                  (string) "S24",
-                  (string) "S25",
-                  (string) "S26",
-                  (string) "S27",
-                  (string) "S28",
-                  (string) "S29",
-                  (string) "S33",
-                  (string) "S35",
-                  (string) "S36",
-                  (string) "S37",
-                  (string) "S38",
-                  (string) "S40",
-                  (string) "S83"};
-
-        m[QZS] = {(string) "J01", (string) "J02", (string) "J03", (string) "J04", (string) "J05", (string) "J06", (string) "J07"};
+        const int sbas_prns[] = {20, 24, 25, 26, 27, 28, 29, 33, 35, 36, 37, 38, 40, 83};
+        for (int prn : sbas_prns)
+        {
+            m[GSYS::SBS].insert(str2gsat(std::to_string(prn), GSYS::SBS));
+        }
 
         return m;
     }
 
-    t_map_sats GNSS_GNAV()
+    t_map_gnav GNSS_GNAV()
     {
-        t_map_sats m;
+        t_map_gnav m;
         // (string) necessary for VS2013
-        m[GPS] = {(string) "NAV", (string) "CNAV"};
-        m[GLO] = {(string) "NAV"};
-        m[GAL] = {(string) "NAV", (string) "INAV_E01", (string) "INAV_E01", (string) "INAV", (string) "FNAV"};
-        m[BDS] = {(string) "NAV"};
-        m[SBS] = {(string) "NAV"};
-        m[QZS] = {(string) "NAV"};
+        m[GSYS::GPS] = {(std::string) "NAV", (std::string) "CNAV"};
+        m[GSYS::GLO] = {(std::string) "NAV"};
+        m[GSYS::GAL] = {(std::string) "NAV",
+                        (std::string) "INAV_E01",
+                        (std::string) "INAV_E01",
+                        (std::string) "INAV",
+                        (std::string) "FNAV"};
+        m[GSYS::BDS] = {(std::string) "NAV"};
+        m[GSYS::SBS] = {(std::string) "NAV"};
+        m[GSYS::QZS] = {(std::string) "NAV"};
 
         return m;
     }
@@ -87,22 +229,42 @@ namespace gnut
     {
         t_map_band m;
         // order is important!
-        m[GPS] = {BAND, BAND_1, BAND_2, BAND_5};
-        m[GLO] = {BAND, BAND_1, BAND_2, BAND_3, BAND_5};
-        m[GAL] = {BAND, BAND_1, BAND_5, BAND_7, BAND_8, BAND_6};
+        m[GSYS::GPS] = {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_2, gnut::GOBSBAND::BAND_5};
+        m[GSYS::GLO] = {gnut::GOBSBAND::BAND,
+                        gnut::GOBSBAND::BAND_1,
+                        gnut::GOBSBAND::BAND_2,
+                        gnut::GOBSBAND::BAND_3,
+                        gnut::GOBSBAND::BAND_5};
+        m[GSYS::GAL] = {gnut::GOBSBAND::BAND,
+                        gnut::GOBSBAND::BAND_1,
+                        gnut::GOBSBAND::BAND_5,
+                        gnut::GOBSBAND::BAND_7,
+                        gnut::GOBSBAND::BAND_8,
+                        gnut::GOBSBAND::BAND_6};
         // BDS bands: B1I, B2I(BDS-2), B3I, B2a(BDS-3), B2b(BDS-3), B2(BDS-3), B1C(BDS-3)
-        m[BDS] = {BAND, BAND_2, BAND_7, BAND_6, BAND_5, BAND_9, BAND_8, BAND_1};
-        m[QZS] = {BAND, BAND_1, BAND_2, BAND_5, BAND_6};
-        m[SBS] = {BAND, BAND_1, BAND_2, BAND_5};
-        m[GNS] = {};
+        m[GSYS::BDS] = {gnut::GOBSBAND::BAND,
+                        gnut::GOBSBAND::BAND_2,
+                        gnut::GOBSBAND::BAND_7,
+                        gnut::GOBSBAND::BAND_6,
+                        gnut::GOBSBAND::BAND_5,
+                        gnut::GOBSBAND::BAND_9,
+                        gnut::GOBSBAND::BAND_8,
+                        gnut::GOBSBAND::BAND_1};
+        m[GSYS::QZS] = {gnut::GOBSBAND::BAND,
+                        gnut::GOBSBAND::BAND_1,
+                        gnut::GOBSBAND::BAND_2,
+                        gnut::GOBSBAND::BAND_5,
+                        gnut::GOBSBAND::BAND_6};
+        m[GSYS::SBS] = {gnut::GOBSBAND::BAND, gnut::GOBSBAND::BAND_1, gnut::GOBSBAND::BAND_2, gnut::GOBSBAND::BAND_5};
+        m[GSYS::GNS] = {};
 
         return m;
     }
 
     // sort set of bands w.r.t. wavelength
-    vector<GOBSBAND> sort_band(GSYS gs, set<GOBSBAND>& bands)
+    std::vector<GOBSBAND> sort_band(GSYS gs, std::set<GOBSBAND>& bands)
     {
-        vector<GOBSBAND> vec;
+        std::vector<GOBSBAND> vec;
 
         t_map_band bands_sorted = GNSS_BAND_SORTED();
 
@@ -131,60 +293,60 @@ namespace gnut
         t_gtriple gpsIIR(0, 0, 1000);   //    0,00,   0.00,    681.10 - 1506.40
         t_gtriple gpsIIF(394, 0, 1500); //  394.00,   0.00,   1561.30 - 1600.00
         t_gtriple gpsGEN(200, 0, 1500); // aprox. mean
-        m[GPS][BAND_1] = {gpsGEN};
-        m[GPS][BAND_2] = {gpsGEN};
-        m[GPS][BAND_5] = {gpsGEN};
-        m[GPS][BAND_A] = {gpsGEN};
-        m[GPS][BAND_B] = {gpsGEN};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_1] = {gpsGEN};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_2] = {gpsGEN};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_5] = {gpsGEN};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_A] = {gpsGEN};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_B] = {gpsGEN};
 
         t_gtriple gloI(0, 0, 2000);      //     0.00, 0.00,    1962.00 - 2222.30
         t_gtriple gloII(-545, 0, 2000);  //  -545.00, 0.00,    2179.40 - 2743.60
         t_gtriple gloGEN(-545, 0, 2000); // approx. mean
-        m[GLO][BAND_1] = {gloGEN};
-        m[GLO][BAND_2] = {gloGEN};
-        m[GLO][BAND_3] = {gloGEN};
-        m[GLO][BAND_A] = {gloGEN};
-        m[GLO][BAND_B] = {gloGEN};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_1] = {gloGEN};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_2] = {gloGEN};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_3] = {gloGEN};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_A] = {gloGEN};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_B] = {gloGEN};
 
         t_gtriple galGEN(-170, 30, 950);
-        m[GAL][BAND_1] = {galGEN};
-        m[GAL][BAND_5] = {galGEN};
-        m[GAL][BAND_6] = {galGEN};
-        m[GAL][BAND_7] = {galGEN};
-        m[GAL][BAND_8] = {galGEN};
-        m[GAL][BAND_A] = {galGEN};
-        m[GAL][BAND_B] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_1] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_5] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_6] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_7] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_8] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_A] = {galGEN};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_B] = {galGEN};
 
         t_gtriple bdsGEN(634, 3, 1075);
         // m[BDS][BAND_1] = { bdsGEN };
-        m[BDS][BAND_2] = {bdsGEN};
-        m[BDS][BAND_6] = {bdsGEN};
-        m[BDS][BAND_7] = {bdsGEN};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_2] = {bdsGEN};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_6] = {bdsGEN};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_7] = {bdsGEN};
 
         // TODO ... 5 9 8 1 glfeng, do not know default value
 
         t_gtriple sbsGEN(0, 0, 0); // UNKNOWN!
-        m[SBS][BAND_1] = {sbsGEN};
-        m[SBS][BAND_5] = {sbsGEN};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_1] = {sbsGEN};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_5] = {sbsGEN};
 
-        m[QZS][BAND_1] = {t_gtriple(-0.9, 2.9, 3197.9)};
-        m[QZS][BAND_2] = {t_gtriple(-0.9, 2.9, 2992.9)};
-        m[QZS][BAND_5] = {t_gtriple(-0.9, 2.9, 3077.9)};
-        m[QZS][BAND_6] = {t_gtriple(-0.9, 2.9, 3147.9)};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_1] = {t_gtriple(-0.9, 2.9, 3197.9)};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_2] = {t_gtriple(-0.9, 2.9, 2992.9)};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_5] = {t_gtriple(-0.9, 2.9, 3077.9)};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_6] = {t_gtriple(-0.9, 2.9, 3147.9)};
 
         return m;
     }
 
-    set<GSYS> GNSS_SUPPORTED()
+    std::set<GSYS> GNSS_SUPPORTED()
     {
-        set<GSYS> systems;
+        std::set<GSYS> systems;
 
-        systems.insert(GPS);
-        systems.insert(GLO);
-        systems.insert(GAL);
-        systems.insert(BDS);
-        systems.insert(QZS);
-        systems.insert(IRN);
+        systems.insert(GSYS::GPS);
+        systems.insert(GSYS::GLO);
+        systems.insert(GSYS::GAL);
+        systems.insert(GSYS::BDS);
+        systems.insert(GSYS::QZS);
+        systems.insert(GSYS::IRN);
 
         return systems;
     }
@@ -193,161 +355,483 @@ namespace gnut
     {
         t_map_gnss m;
 
-        m[GPS][BAND_1][TYPE_C] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_NULL};
-        m[GPS][BAND_1][TYPE_L] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_N, ATTR_NULL};
-        m[GPS][BAND_1][TYPE_D] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_N, ATTR_NULL};
-        m[GPS][BAND_1][TYPE_S] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_N, ATTR_NULL};
-        m[GPS][BAND_1][TYPE_P] = {ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_N,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_N,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_N,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_P] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GPS][BAND_2][TYPE_C] = {ATTR_C, ATTR_D, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_NULL};
-        m[GPS][BAND_2][TYPE_L] = {ATTR_C, ATTR_D, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_N, ATTR_NULL};
-        m[GPS][BAND_2][TYPE_D] = {ATTR_C, ATTR_D, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_N, ATTR_NULL};
-        m[GPS][BAND_2][TYPE_S] = {ATTR_C, ATTR_D, ATTR_S, ATTR_L, ATTR_X, ATTR_P, ATTR_W, ATTR_Y, ATTR_M, ATTR_N, ATTR_NULL};
-        m[GPS][BAND_2][TYPE_P] = {ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_N,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_N,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_W,
+                                                                        gnut::GOBSATTR::ATTR_Y,
+                                                                        gnut::GOBSATTR::ATTR_M,
+                                                                        gnut::GOBSATTR::ATTR_N,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_P] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GPS][BAND_5][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GPS][BAND_5][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GPS][BAND_5][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GPS][BAND_5][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GPS][BAND_A][TYPE_C] = {ATTR_NULL};
-        m[GPS][BAND_A][TYPE_L] = {ATTR_NULL};
-        m[GPS][BAND_A][TYPE_D] = {ATTR_NULL};
-        m[GPS][BAND_A][TYPE_S] = {ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GPS][BAND_B][TYPE_C] = {ATTR_NULL};
-        m[GPS][BAND_B][TYPE_L] = {ATTR_NULL};
-        m[GPS][BAND_B][TYPE_D] = {ATTR_NULL};
-        m[GPS][BAND_B][TYPE_S] = {ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GPS][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GLO][BAND_1][TYPE_C] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_1][TYPE_L] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_1][TYPE_D] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_1][TYPE_S] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_1][TYPE_P] = {ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_P] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GLO][BAND_2][TYPE_C] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_2][TYPE_L] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_2][TYPE_D] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_2][TYPE_S] = {ATTR_C, ATTR_P, ATTR_NULL};
-        m[GLO][BAND_2][TYPE_P] = {ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_P] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GLO][BAND_3][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GLO][BAND_3][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GLO][BAND_3][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GLO][BAND_3][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_3][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_3][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_3][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_3][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GLO][BAND_A][TYPE_C] = {ATTR_NULL};
-        m[GLO][BAND_A][TYPE_L] = {ATTR_NULL};
-        m[GLO][BAND_A][TYPE_D] = {ATTR_NULL};
-        m[GLO][BAND_A][TYPE_S] = {ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GLO][BAND_B][TYPE_C] = {ATTR_NULL};
-        m[GLO][BAND_B][TYPE_L] = {ATTR_NULL};
-        m[GLO][BAND_B][TYPE_D] = {ATTR_NULL};
-        m[GLO][BAND_B][TYPE_S] = {ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GLO][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_1][TYPE_C] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
-        m[GAL][BAND_1][TYPE_L] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
-        m[GAL][BAND_1][TYPE_D] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
-        m[GAL][BAND_1][TYPE_S] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_5][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_5][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_5][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_5][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_6][TYPE_C] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
-        m[GAL][BAND_6][TYPE_L] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
-        m[GAL][BAND_6][TYPE_D] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
-        m[GAL][BAND_6][TYPE_S] = {ATTR_A, ATTR_B, ATTR_C, ATTR_X, ATTR_Z, ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_A,
+                                                                        gnut::GOBSATTR::ATTR_B,
+                                                                        gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_7][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_7][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_7][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_7][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_8][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_8][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_8][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[GAL][BAND_8][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_A][TYPE_C] = {ATTR_NULL};
-        m[GAL][BAND_A][TYPE_L] = {ATTR_NULL};
-        m[GAL][BAND_A][TYPE_D] = {ATTR_NULL};
-        m[GAL][BAND_A][TYPE_S] = {ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_A][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[GAL][BAND_B][TYPE_C] = {ATTR_NULL};
-        m[GAL][BAND_B][TYPE_L] = {ATTR_NULL};
-        m[GAL][BAND_B][TYPE_D] = {ATTR_NULL};
-        m[GAL][BAND_B][TYPE_S] = {ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::GAL][gnut::GOBSBAND::BAND_B][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[BDS][BAND_2][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_2][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_2][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_2][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[BDS][BAND_6][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_6][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_6][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_6][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[BDS][BAND_7][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_7][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_7][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_7][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_7][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[BDS][BAND_5][TYPE_C] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_5][TYPE_L] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_5][TYPE_D] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_5][TYPE_S] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
         // bds-3 B2b
-        m[BDS][BAND_9][TYPE_C] = {ATTR_D, ATTR_P, ATTR_Z, ATTR_NULL};
-        m[BDS][BAND_9][TYPE_L] = {ATTR_D, ATTR_P, ATTR_Z, ATTR_NULL};
-        m[BDS][BAND_9][TYPE_D] = {ATTR_D, ATTR_P, ATTR_Z, ATTR_NULL};
-        m[BDS][BAND_9][TYPE_S] = {ATTR_D, ATTR_P, ATTR_Z, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_9][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_9][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_9][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_9][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_Z,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[BDS][BAND_8][TYPE_C] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_8][TYPE_L] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_8][TYPE_D] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_8][TYPE_S] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_8][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[BDS][BAND_1][TYPE_C] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_1][TYPE_L] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_1][TYPE_D] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
-        m[BDS][BAND_1][TYPE_S] = {ATTR_D, ATTR_P, ATTR_X, ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
+        m[GSYS::BDS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_D,
+                                                                        gnut::GOBSATTR::ATTR_P,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_NULL};
 
-        m[SBS][BAND_1][TYPE_C] = {ATTR_C};
-        m[SBS][BAND_1][TYPE_L] = {ATTR_C};
-        m[SBS][BAND_1][TYPE_D] = {ATTR_C};
-        m[SBS][BAND_1][TYPE_S] = {ATTR_C};
-        m[SBS][BAND_1][TYPE_P] = {ATTR_NULL};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_C};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_C};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_C};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_C};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_P] = {gnut::GOBSATTR::ATTR_NULL};
 
-        m[SBS][BAND_5][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X};
-        m[SBS][BAND_5][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X};
-        m[SBS][BAND_5][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X};
-        m[SBS][BAND_5][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::SBS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
 
-        m[QZS][BAND_1][TYPE_C] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_Z};
-        m[QZS][BAND_1][TYPE_L] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_Z};
-        m[QZS][BAND_1][TYPE_D] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_Z};
-        m[QZS][BAND_1][TYPE_S] = {ATTR_C, ATTR_S, ATTR_L, ATTR_X, ATTR_Z};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_1][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_C,
+                                                                        gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X,
+                                                                        gnut::GOBSATTR::ATTR_Z};
 
-        m[QZS][BAND_2][TYPE_C] = {ATTR_S, ATTR_L, ATTR_X};
-        m[QZS][BAND_2][TYPE_L] = {ATTR_S, ATTR_L, ATTR_X};
-        m[QZS][BAND_2][TYPE_D] = {ATTR_S, ATTR_L, ATTR_X};
-        m[QZS][BAND_2][TYPE_S] = {ATTR_S, ATTR_L, ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_2][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
 
-        m[QZS][BAND_5][TYPE_C] = {ATTR_I, ATTR_Q, ATTR_X};
-        m[QZS][BAND_5][TYPE_L] = {ATTR_I, ATTR_Q, ATTR_X};
-        m[QZS][BAND_5][TYPE_D] = {ATTR_I, ATTR_Q, ATTR_X};
-        m[QZS][BAND_5][TYPE_S] = {ATTR_I, ATTR_Q, ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_5][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_I,
+                                                                        gnut::GOBSATTR::ATTR_Q,
+                                                                        gnut::GOBSATTR::ATTR_X};
 
-        m[QZS][BAND_6][TYPE_C] = {ATTR_S, ATTR_L, ATTR_X};
-        m[QZS][BAND_6][TYPE_L] = {ATTR_S, ATTR_L, ATTR_X};
-        m[QZS][BAND_6][TYPE_D] = {ATTR_S, ATTR_L, ATTR_X};
-        m[QZS][BAND_6][TYPE_S] = {ATTR_S, ATTR_L, ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_C] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_L] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_D] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
+        m[GSYS::QZS][gnut::GOBSBAND::BAND_6][gnut::GOBSTYPE::TYPE_S] = {gnut::GOBSATTR::ATTR_S,
+                                                                        gnut::GOBSATTR::ATTR_L,
+                                                                        gnut::GOBSATTR::ATTR_X};
 
         return m;
     }
@@ -356,30 +840,30 @@ namespace gnut
     {
         if (c == 'C')
         {
-            return TYPE_C;
+            return gnut::GOBSTYPE::TYPE_C;
         }
         else if (c == 'L')
         {
-            return TYPE_L;
+            return gnut::GOBSTYPE::TYPE_L;
         }
         else if (c == 'D')
         {
-            return TYPE_D;
+            return gnut::GOBSTYPE::TYPE_D;
         }
         else if (c == 'S')
         {
-            return TYPE_S;
+            return gnut::GOBSTYPE::TYPE_S;
         }
         else if (c == 'R')
         {
-            return TYPE_SLR;
+            return gnut::GOBSTYPE::TYPE_SLR;
         }
         else if (c == 'P')
         {
-            return TYPE_P; // P-code only
+            return gnut::GOBSTYPE::TYPE_P; // P-code only
         }
 
-        return TYPE;
+        return gnut::GOBSTYPE::TYPE;
     }
 
     LibGnut_LIBRARY_EXPORT FREQ_SEQ char2gnssfreq(char c)
@@ -420,29 +904,29 @@ namespace gnut
     {
         if (c == 1)
         {
-            return LC_L1;
+            return gnut::GOBS_LC::LC_L1;
         }
         else if (c == 2)
         {
-            return LC_L2;
+            return gnut::GOBS_LC::LC_L2;
         }
         else if (c == 3)
         {
-            return LC_L3;
+            return gnut::GOBS_LC::LC_L3;
         }
         else if (c == 4)
         {
-            return LC_L4;
+            return gnut::GOBS_LC::LC_L4;
         }
         else if (c == 5)
         {
-            return LC_L5;
+            return gnut::GOBS_LC::LC_L5;
         }
 
-        return LC_UNDEF;
+        return gnut::GOBS_LC::LC_UNDEF;
     }
 
-    GOBSTYPE str2gobstype(string s)
+    GOBSTYPE str2gobstype(std::string s)
     {
         return char2gobstype(s[0]);
     }
@@ -451,99 +935,99 @@ namespace gnut
     {
         if (c == '1')
         {
-            return BAND_1;
+            return gnut::GOBSBAND::BAND_1;
         }
         else if (c == '2')
         {
-            return BAND_2;
+            return gnut::GOBSBAND::BAND_2;
         }
         else if (c == '3')
         {
-            return BAND_3;
+            return gnut::GOBSBAND::BAND_3;
         }
         else if (c == '5')
         {
-            return BAND_5;
+            return gnut::GOBSBAND::BAND_5;
         }
         else if (c == '6')
         {
-            return BAND_6;
+            return gnut::GOBSBAND::BAND_6;
         }
         else if (c == '7')
         {
-            return BAND_7;
+            return gnut::GOBSBAND::BAND_7;
         }
         else if (c == '8')
         {
-            return BAND_8;
+            return gnut::GOBSBAND::BAND_8;
         }
         else if (c == '9')
         {
-            return BAND_9; // BDS-3 B2b
+            return gnut::GOBSBAND::BAND_9; // BDS-3 B2b
         }
         else if (c == 'A')
         {
-            return BAND_A;
+            return gnut::GOBSBAND::BAND_A;
         }
         else if (c == 'B')
         {
-            return BAND_B;
+            return gnut::GOBSBAND::BAND_B;
         }
         else if (c == 'C')
         {
-            return BAND_C;
+            return gnut::GOBSBAND::BAND_C;
         }
         else if (c == 'D')
         {
-            return BAND_D;
+            return gnut::GOBSBAND::BAND_D;
         }
         else if (c == 'R')
         {
-            return BAND_SLR;
+            return gnut::GOBSBAND::BAND_SLR;
         }
 
-        return BAND;
+        return gnut::GOBSBAND::BAND;
     }
 
     GOBSBAND int2gobsband(int c)
     {
         if (c == 1)
         {
-            return BAND_1;
+            return gnut::GOBSBAND::BAND_1;
         }
         else if (c == 2)
         {
-            return BAND_2;
+            return gnut::GOBSBAND::BAND_2;
         }
         else if (c == 3)
         {
-            return BAND_3;
+            return gnut::GOBSBAND::BAND_3;
         }
         else if (c == 5)
         {
-            return BAND_5;
+            return gnut::GOBSBAND::BAND_5;
         }
         else if (c == 6)
         {
-            return BAND_6;
+            return gnut::GOBSBAND::BAND_6;
         }
         else if (c == 7)
         {
-            return BAND_7;
+            return gnut::GOBSBAND::BAND_7;
         }
         else if (c == 8)
         {
-            return BAND_8;
+            return gnut::GOBSBAND::BAND_8;
         }
         else if (c == 9)
         {
-            return BAND_9; // BDS-3 B2b
+            return gnut::GOBSBAND::BAND_9; // BDS-3 B2b
         }
 
-        return BAND;
+        return gnut::GOBSBAND::BAND;
     }
 
-    GOBSBAND str2gobsband(string s)
+    GOBSBAND str2gobsband(std::string s)
     {
         // jdhuang : fix
         if (s.size() == 1)
@@ -557,145 +1041,145 @@ namespace gnut
         // return char2gobsband(s[0]);
     }
 
-    FREQ_SEQ str2sysfreq(string s)
+    FREQ_SEQ str2sysfreq(std::string s)
     {
         if (s == "1")
         {
-            return FREQ_1;
+            return gnut::FREQ_SEQ::FREQ_1;
         }
         else if (s == "2")
         {
-            return FREQ_2;
+            return gnut::FREQ_SEQ::FREQ_2;
         }
         else if (s == "3")
         {
-            return FREQ_3;
+            return gnut::FREQ_SEQ::FREQ_3;
         }
         else if (s == "4")
         {
-            return FREQ_4;
+            return gnut::FREQ_SEQ::FREQ_4;
         }
         else if (s == "5")
         {
-            return FREQ_5;
+            return gnut::FREQ_SEQ::FREQ_5;
         }
         else if (s == "6")
         {
-            return FREQ_6;
+            return gnut::FREQ_SEQ::FREQ_6;
         }
         else if (s == "7")
         {
-            return FREQ_7;
+            return gnut::FREQ_SEQ::FREQ_7;
         }
 
-        return FREQ_X;
+        return gnut::FREQ_SEQ::FREQ_X;
     }
 
     GOBSATTR char2gobsattr(char c)
     {
         if (c == 'A')
         {
-            return ATTR_A;
+            return gnut::GOBSATTR::ATTR_A;
         }
         else if (c == 'B')
         {
-            return ATTR_B;
+            return gnut::GOBSATTR::ATTR_B;
         }
         else if (c == 'C')
         {
-            return ATTR_C;
+            return gnut::GOBSATTR::ATTR_C;
         }
         else if (c == 'D')
         {
-            return ATTR_D;
+            return gnut::GOBSATTR::ATTR_D;
         }
         else if (c == 'I')
         {
-            return ATTR_I;
+            return gnut::GOBSATTR::ATTR_I;
         }
         else if (c == 'L')
         {
-            return ATTR_L;
+            return gnut::GOBSATTR::ATTR_L;
         }
         else if (c == 'M')
         {
-            return ATTR_M;
+            return gnut::GOBSATTR::ATTR_M;
         }
         else if (c == 'N')
         {
-            return ATTR_N;
+            return gnut::GOBSATTR::ATTR_N;
         }
         else if (c == 'P')
         {
-            return ATTR_P;
+            return gnut::GOBSATTR::ATTR_P;
         }
         else if (c == 'Q')
         {
-            return ATTR_Q;
+            return gnut::GOBSATTR::ATTR_Q;
         }
         else if (c == 'S')
         {
-            return ATTR_S;
+            return gnut::GOBSATTR::ATTR_S;
         }
         else if (c == 'W')
         {
-            return ATTR_W;
+            return gnut::GOBSATTR::ATTR_W;
         }
         else if (c == 'X')
         {
-            return ATTR_X;
+            return gnut::GOBSATTR::ATTR_X;
         }
         else if (c == 'Y')
         {
-            return ATTR_Y;
+            return gnut::GOBSATTR::ATTR_Y;
         }
         else if (c == 'Z')
         {
-            return ATTR_Z;
+            return gnut::GOBSATTR::ATTR_Z;
         }
         else if (c == ' ')
         {
-            return ATTR_NULL; // 3CH conversion
+            return gnut::GOBSATTR::ATTR_NULL; // 3CH conversion
         }
         else if (c == '\0')
         {
-            return ATTR_NULL; // 2CH conversion
+            return gnut::GOBSATTR::ATTR_NULL; // 2CH conversion
         }
 
-        return ATTR; // undefined
+        return gnut::GOBSATTR::ATTR; // undefined
     }
 
-    GOBSATTR str2gobsattr(string s)
+    GOBSATTR str2gobsattr(std::string s)
     {
         return char2gobsattr(s[2]); // can still handle 2-char or 3-char string (see char2gobsattr)
     }
 
-    string gobstype2str(GOBSTYPE e)
+    std::string gobstype2str(GOBSTYPE e)
     {
         switch (e)
         {
-            case TYPE_C:
+            case gnut::GOBSTYPE::TYPE_C:
                 return "C";
-            case TYPE_L:
+            case gnut::GOBSTYPE::TYPE_L:
                 return "L";
-            case TYPE_D:
+            case gnut::GOBSTYPE::TYPE_D:
                 return "D";
-            case TYPE_S:
+            case gnut::GOBSTYPE::TYPE_S:
                 return "S";
-            case TYPE_P:
+            case gnut::GOBSTYPE::TYPE_P:
                 return "P";
-            case TYPE_SLR:
+            case gnut::GOBSTYPE::TYPE_SLR:
                 return "SLR";
-            case TYPE_KBRRANGE:
+            case gnut::GOBSTYPE::TYPE_KBRRANGE:
                 return "KRANGE";
-            case TYPE_LRIRANGE:
+            case gnut::GOBSTYPE::TYPE_LRIRANGE:
                 return "LRANGE";
-            case TYPE_KBRRATE:
+            case gnut::GOBSTYPE::TYPE_KBRRATE:
                 return "KRATE";
-            case TYPE_LRIRATE:
+            case gnut::GOBSTYPE::TYPE_LRIRATE:
                 return "LRATE";
 
-            case TYPE:
+            case gnut::GOBSTYPE::TYPE:
                 return "X";
             default:
                 return "X";
@@ -703,43 +1187,43 @@ namespace gnut
         return "X";
     }
 
-    string gobsband2str(GOBSBAND e)
+    std::string gobsband2str(GOBSBAND e)
     {
         switch (e)
         {
-            case BAND_1:
+            case gnut::GOBSBAND::BAND_1:
                 return "1";
-            case BAND_2:
+            case gnut::GOBSBAND::BAND_2:
                 return "2";
-            case BAND_3:
+            case gnut::GOBSBAND::BAND_3:
                 return "3";
-            case BAND_5:
+            case gnut::GOBSBAND::BAND_5:
                 return "5";
-            case BAND_6:
+            case gnut::GOBSBAND::BAND_6:
                 return "6";
-            case BAND_7:
+            case gnut::GOBSBAND::BAND_7:
                 return "7";
-            case BAND_8:
+            case gnut::GOBSBAND::BAND_8:
                 return "8";
-            case BAND_9:
+            case gnut::GOBSBAND::BAND_9:
                 return "9"; // BDS-3 B2b
 
-            case BAND_A:
+            case gnut::GOBSBAND::BAND_A:
                 return "A";
-            case BAND_B:
+            case gnut::GOBSBAND::BAND_B:
                 return "B";
-            case BAND_C:
+            case gnut::GOBSBAND::BAND_C:
                 return "C";
-            case BAND_D:
+            case gnut::GOBSBAND::BAND_D:
                 return "D";
-            case BAND_SLR:
+            case gnut::GOBSBAND::BAND_SLR:
                 return "";
-            case BAND_KBR:
+            case gnut::GOBSBAND::BAND_KBR:
                 return "";
-            case BAND_LRI:
+            case gnut::GOBSBAND::BAND_LRI:
                 return "";
 
-            case BAND:
+            case gnut::GOBSBAND::BAND:
                 return "X";
             default:
                 return "X";
@@ -747,45 +1231,45 @@ namespace gnut
         return "X";
     }
 
-    string gobsattr2str(GOBSATTR e)
+    std::string gobsattr2str(GOBSATTR e)
     {
         switch (e)
         {
-            case ATTR_A:
+            case gnut::GOBSATTR::ATTR_A:
                 return "A";
-            case ATTR_B:
+            case gnut::GOBSATTR::ATTR_B:
                 return "B";
-            case ATTR_C:
+            case gnut::GOBSATTR::ATTR_C:
                 return "C";
-            case ATTR_D:
+            case gnut::GOBSATTR::ATTR_D:
                 return "D";
-            case ATTR_I:
+            case gnut::GOBSATTR::ATTR_I:
                 return "I";
-            case ATTR_L:
+            case gnut::GOBSATTR::ATTR_L:
                 return "L";
-            case ATTR_M:
+            case gnut::GOBSATTR::ATTR_M:
                 return "M";
-            case ATTR_N:
+            case gnut::GOBSATTR::ATTR_N:
                 return "N";
-            case ATTR_P:
+            case gnut::GOBSATTR::ATTR_P:
                 return "P";
-            case ATTR_Q:
+            case gnut::GOBSATTR::ATTR_Q:
                 return "Q";
-            case ATTR_S:
+            case gnut::GOBSATTR::ATTR_S:
                 return "S";
-            case ATTR_W:
+            case gnut::GOBSATTR::ATTR_W:
                 return "W";
-            case ATTR_X:
+            case gnut::GOBSATTR::ATTR_X:
                 return "X";
-            case ATTR_Y:
+            case gnut::GOBSATTR::ATTR_Y:
                 return "Y";
-            case ATTR_Z:
+            case gnut::GOBSATTR::ATTR_Z:
                 return "Z";
 
-            case ATTR_NULL:
+            case gnut::GOBSATTR::ATTR_NULL:
                 return " ";
 
-            case ATTR:
+            case gnut::GOBSATTR::ATTR:
                 return "";
             default:
                 return "";
@@ -793,7 +1277,7 @@ namespace gnut
         return "";
     }
 
-    string gobs2str(GOBS o)
+    std::string gobs2str(GOBS o)
     {
         // PROBLEM WITH STATIC FUNCTION
         //  boost::mutex::scoped_lock lock(_mutex);
@@ -801,629 +1285,629 @@ namespace gnut
         switch (o)
         {
             // CODE
-            case C1A:
+            case gnut::GOBS::C1A:
                 return "C1A";
-            case C1B:
+            case gnut::GOBS::C1B:
                 return "C1B";
-            case C1C:
+            case gnut::GOBS::C1C:
                 return "C1C";
-            case C1D:
+            case gnut::GOBS::C1D:
                 return "C1D";
-            case C1I:
+            case gnut::GOBS::C1I:
                 return "C1I";
-            case C1L:
+            case gnut::GOBS::C1L:
                 return "C1L";
-            case C1M:
+            case gnut::GOBS::C1M:
                 return "C1M";
-            case C1P:
+            case gnut::GOBS::C1P:
                 return "C1P";
-            case C1Q:
+            case gnut::GOBS::C1Q:
                 return "C1Q";
-            case C1S:
+            case gnut::GOBS::C1S:
                 return "C1S";
-            case C1W:
+            case gnut::GOBS::C1W:
                 return "C1W";
-            case C1X:
+            case gnut::GOBS::C1X:
                 return "C1X";
-            case C1Y:
+            case gnut::GOBS::C1Y:
                 return "C1Y";
-            case C1Z:
+            case gnut::GOBS::C1Z:
                 return "C1Z";
 
-            case C2C:
+            case gnut::GOBS::C2C:
                 return "C2C";
-            case C2D:
+            case gnut::GOBS::C2D:
                 return "C2D";
-            case C2I:
+            case gnut::GOBS::C2I:
                 return "C2I";
-            case C2L:
+            case gnut::GOBS::C2L:
                 return "C2L";
-            case C2M:
+            case gnut::GOBS::C2M:
                 return "C2M";
-            case C2P:
+            case gnut::GOBS::C2P:
                 return "C2P";
-            case C2Q:
+            case gnut::GOBS::C2Q:
                 return "C2Q";
-            case C2S:
+            case gnut::GOBS::C2S:
                 return "C2S";
-            case C2W:
+            case gnut::GOBS::C2W:
                 return "C2W";
-            case C2X:
+            case gnut::GOBS::C2X:
                 return "C2X";
-            case C2Y:
+            case gnut::GOBS::C2Y:
                 return "C2Y";
 
-            case C3I:
+            case gnut::GOBS::C3I:
                 return "C3I";
-            case C3Q:
+            case gnut::GOBS::C3Q:
                 return "C3Q";
-            case C3X:
+            case gnut::GOBS::C3X:
                 return "C3X";
 
-            case C5A:
+            case gnut::GOBS::C5A:
                 return "C5A";
-            case C5B:
+            case gnut::GOBS::C5B:
                 return "C5B";
-            case C5C:
+            case gnut::GOBS::C5C:
                 return "C5C";
-            case C5D:
+            case gnut::GOBS::C5D:
                 return "C5D";
-            case C5I:
+            case gnut::GOBS::C5I:
                 return "C5I";
-            case C5P:
+            case gnut::GOBS::C5P:
                 return "C5P";
-            case C5Q:
+            case gnut::GOBS::C5Q:
                 return "C5Q";
-            case C5X:
+            case gnut::GOBS::C5X:
                 return "C5X";
 
-            case C6A:
+            case gnut::GOBS::C6A:
                 return "C6A";
-            case C6B:
+            case gnut::GOBS::C6B:
                 return "C6B";
-            case C6C:
+            case gnut::GOBS::C6C:
                 return "C6C";
-            case C6I:
+            case gnut::GOBS::C6I:
                 return "C6I";
-            case C6L:
+            case gnut::GOBS::C6L:
                 return "C6L";
-            case C6S:
+            case gnut::GOBS::C6S:
                 return "C6S";
-            case C6Q:
+            case gnut::GOBS::C6Q:
                 return "C6Q";
-            case C6X:
+            case gnut::GOBS::C6X:
                 return "C6X";
-            case C6Z:
+            case gnut::GOBS::C6Z:
                 return "C6Z";
 
-            case C7I:
+            case gnut::GOBS::C7I:
                 return "C7I";
-            case C7Q:
+            case gnut::GOBS::C7Q:
                 return "C7Q";
-            case C7X:
+            case gnut::GOBS::C7X:
                 return "C7X";
 
-            case C8D:
+            case gnut::GOBS::C8D:
                 return "C8D";
-            case C8I:
+            case gnut::GOBS::C8I:
                 return "C8I";
-            case C8P:
+            case gnut::GOBS::C8P:
                 return "C8P";
-            case C8Q:
+            case gnut::GOBS::C8Q:
                 return "C8Q";
-            case C8X:
+            case gnut::GOBS::C8X:
                 return "C8X";
 
-            case C9D:
+            case gnut::GOBS::C9D:
                 return "C9D"; // BDS-3 B2b
-            case C9P:
+            case gnut::GOBS::C9P:
                 return "C9P";
-            case C9Z:
+            case gnut::GOBS::C9Z:
                 return "C9Z";
 
             // CARRIER-PHASE
-            case L1A:
+            case gnut::GOBS::L1A:
                 return "L1A";
-            case L1B:
+            case gnut::GOBS::L1B:
                 return "L1B";
-            case L1C:
+            case gnut::GOBS::L1C:
                 return "L1C";
-            case L1D:
+            case gnut::GOBS::L1D:
                 return "L1D";
-            case L1I:
+            case gnut::GOBS::L1I:
                 return "L1I";
-            case L1L:
+            case gnut::GOBS::L1L:
                 return "L1L";
-            case L1M:
+            case gnut::GOBS::L1M:
                 return "L1M";
-            case L1N:
+            case gnut::GOBS::L1N:
                 return "L1N";
-            case L1P:
+            case gnut::GOBS::L1P:
                 return "L1P";
-            case L1Q:
+            case gnut::GOBS::L1Q:
                 return "L1Q";
-            case L1S:
+            case gnut::GOBS::L1S:
                 return "L1S";
-            case L1W:
+            case gnut::GOBS::L1W:
                 return "L1W";
-            case L1X:
+            case gnut::GOBS::L1X:
                 return "L1X";
-            case L1Y:
+            case gnut::GOBS::L1Y:
                 return "L1Y";
-            case L1Z:
+            case gnut::GOBS::L1Z:
                 return "L1Z";
 
-            case L2C:
+            case gnut::GOBS::L2C:
                 return "L2C";
-            case L2D:
+            case gnut::GOBS::L2D:
                 return "L2D";
-            case L2I:
+            case gnut::GOBS::L2I:
                 return "L2I";
-            case L2L:
+            case gnut::GOBS::L2L:
                 return "L2L";
-            case L2M:
+            case gnut::GOBS::L2M:
                 return "L2M";
-            case L2N:
+            case gnut::GOBS::L2N:
                 return "L2N";
-            case L2P:
+            case gnut::GOBS::L2P:
                 return "L2P";
-            case L2Q:
+            case gnut::GOBS::L2Q:
                 return "L2Q";
-            case L2S:
+            case gnut::GOBS::L2S:
                 return "L2S";
-            case L2W:
+            case gnut::GOBS::L2W:
                 return "L2W";
-            case L2X:
+            case gnut::GOBS::L2X:
                 return "L2X";
-            case L2Y:
+            case gnut::GOBS::L2Y:
                 return "L2Y";
 
-            case L3I:
+            case gnut::GOBS::L3I:
                 return "L3I";
-            case L3Q:
+            case gnut::GOBS::L3Q:
                 return "L3Q";
-            case L3X:
+            case gnut::GOBS::L3X:
                 return "L3X";
 
-            case L5A:
+            case gnut::GOBS::L5A:
                 return "L5A";
-            case L5B:
+            case gnut::GOBS::L5B:
                 return "L5B";
-            case L5C:
+            case gnut::GOBS::L5C:
                 return "L5C";
-            case L5D:
+            case gnut::GOBS::L5D:
                 return "L5D";
-            case L5I:
+            case gnut::GOBS::L5I:
                 return "L5I";
-            case L5P:
+            case gnut::GOBS::L5P:
                 return "L5P";
-            case L5Q:
+            case gnut::GOBS::L5Q:
                 return "L5Q";
-            case L5X:
+            case gnut::GOBS::L5X:
                 return "L5X";
 
-            case L6A:
+            case gnut::GOBS::L6A:
                 return "L6A";
-            case L6B:
+            case gnut::GOBS::L6B:
                 return "L6B";
-            case L6C:
+            case gnut::GOBS::L6C:
                 return "L6C";
-            case L6L:
+            case gnut::GOBS::L6L:
                 return "L6L";
-            case L6S:
+            case gnut::GOBS::L6S:
                 return "L6S";
-            case L6I:
+            case gnut::GOBS::L6I:
                 return "L6I";
-            case L6Q:
+            case gnut::GOBS::L6Q:
                 return "L6Q";
-            case L6X:
+            case gnut::GOBS::L6X:
                 return "L6X";
-            case L6Z:
+            case gnut::GOBS::L6Z:
                 return "L6Z";
 
-            case L7I:
+            case gnut::GOBS::L7I:
                 return "L7I";
-            case L7Q:
+            case gnut::GOBS::L7Q:
                 return "L7Q";
-            case L7X:
+            case gnut::GOBS::L7X:
                 return "L7X";
 
-            case L8D:
+            case gnut::GOBS::L8D:
                 return "L8D";
-            case L8I:
+            case gnut::GOBS::L8I:
                 return "L8I";
-            case L8P:
+            case gnut::GOBS::L8P:
                 return "L8P";
-            case L8Q:
+            case gnut::GOBS::L8Q:
                 return "L8Q";
-            case L8X:
+            case gnut::GOBS::L8X:
                 return "L8X";
 
-            case L9D:
+            case gnut::GOBS::L9D:
                 return "L9D"; // BDS-3 B2b
-            case L9P:
+            case gnut::GOBS::L9P:
                 return "L9P";
-            case L9Z:
+            case gnut::GOBS::L9Z:
                 return "L9Z";
 
             // DOPLER
-            case D1A:
+            case gnut::GOBS::D1A:
                 return "D1A";
-            case D1B:
+            case gnut::GOBS::D1B:
                 return "D1B";
-            case D1C:
+            case gnut::GOBS::D1C:
                 return "D1C";
-            case D1D:
+            case gnut::GOBS::D1D:
                 return "D1D";
-            case D1I:
+            case gnut::GOBS::D1I:
                 return "D1I";
-            case D1L:
+            case gnut::GOBS::D1L:
                 return "D1L";
-            case D1M:
+            case gnut::GOBS::D1M:
                 return "D1M";
-            case D1N:
+            case gnut::GOBS::D1N:
                 return "D1N";
-            case D1P:
+            case gnut::GOBS::D1P:
                 return "D1P";
-            case D1Q:
+            case gnut::GOBS::D1Q:
                 return "D1Q";
-            case D1S:
+            case gnut::GOBS::D1S:
                 return "D1S";
-            case D1W:
+            case gnut::GOBS::D1W:
                 return "D1W";
-            case D1X:
+            case gnut::GOBS::D1X:
                 return "D1X";
-            case D1Y:
+            case gnut::GOBS::D1Y:
                 return "D1Y";
-            case D1Z:
+            case gnut::GOBS::D1Z:
                 return "D1Z";
 
-            case D2C:
+            case gnut::GOBS::D2C:
                 return "D2C";
-            case D2D:
+            case gnut::GOBS::D2D:
                 return "D2D";
-            case D2I:
+            case gnut::GOBS::D2I:
                 return "D2I";
-            case D2L:
+            case gnut::GOBS::D2L:
                 return "D2L";
-            case D2M:
+            case gnut::GOBS::D2M:
                 return "D2M";
-            case D2N:
+            case gnut::GOBS::D2N:
                 return "D2N";
-            case D2P:
+            case gnut::GOBS::D2P:
                 return "D2P";
-            case D2Q:
+            case gnut::GOBS::D2Q:
                 return "D2Q";
-            case D2S:
+            case gnut::GOBS::D2S:
                 return "D2S";
-            case D2W:
+            case gnut::GOBS::D2W:
                 return "D2W";
-            case D2X:
+            case gnut::GOBS::D2X:
                 return "D2X";
-            case D2Y:
+            case gnut::GOBS::D2Y:
                 return "D2Y";
 
-            case D3I:
+            case gnut::GOBS::D3I:
                 return "D3I";
-            case D3Q:
+            case gnut::GOBS::D3Q:
                 return "D3Q";
-            case D3X:
+            case gnut::GOBS::D3X:
                 return "D3X";
 
-            case D5A:
+            case gnut::GOBS::D5A:
                 return "D5A";
-            case D5B:
+            case gnut::GOBS::D5B:
                 return "D5B";
-            case D5C:
+            case gnut::GOBS::D5C:
                 return "D5C";
-            case D5D:
+            case gnut::GOBS::D5D:
                 return "D5D";
-            case D5I:
+            case gnut::GOBS::D5I:
                 return "D5I";
-            case D5P:
+            case gnut::GOBS::D5P:
                 return "D5P";
-            case D5Q:
+            case gnut::GOBS::D5Q:
                 return "D5Q";
-            case D5X:
+            case gnut::GOBS::D5X:
                 return "D5X";
 
-            case D6A:
+            case gnut::GOBS::D6A:
                 return "D6A";
-            case D6B:
+            case gnut::GOBS::D6B:
                 return "D6B";
-            case D6C:
+            case gnut::GOBS::D6C:
                 return "D6C";
-            case D6I:
+            case gnut::GOBS::D6I:
                 return "D6I";
-            case D6L:
+            case gnut::GOBS::D6L:
                 return "D6L";
-            case D6S:
+            case gnut::GOBS::D6S:
                 return "D6S";
-            case D6Q:
+            case gnut::GOBS::D6Q:
                 return "D6Q";
-            case D6X:
+            case gnut::GOBS::D6X:
                 return "D6X";
-            case D6Z:
+            case gnut::GOBS::D6Z:
                 return "D6Z";
 
-            case D7I:
+            case gnut::GOBS::D7I:
                 return "D7I";
-            case D7Q:
+            case gnut::GOBS::D7Q:
                 return "D7Q";
-            case D7X:
+            case gnut::GOBS::D7X:
                 return "D7X";
 
-            case D8D:
+            case gnut::GOBS::D8D:
                 return "D8D";
-            case D8I:
+            case gnut::GOBS::D8I:
                 return "D8I";
-            case D8P:
+            case gnut::GOBS::D8P:
                 return "D8P";
-            case D8Q:
+            case gnut::GOBS::D8Q:
                 return "D8Q";
-            case D8X:
+            case gnut::GOBS::D8X:
                 return "D8X";
 
-            case D9D:
+            case gnut::GOBS::D9D:
                 return "D9D"; // BDS-3 B2b
-            case D9P:
+            case gnut::GOBS::D9P:
                 return "D9P";
-            case D9Z:
+            case gnut::GOBS::D9Z:
                 return "D9Z";
 
             // SNR
-            case S1A:
+            case gnut::GOBS::S1A:
                 return "S1A";
-            case S1B:
+            case gnut::GOBS::S1B:
                 return "S1B";
-            case S1C:
+            case gnut::GOBS::S1C:
                 return "S1C";
-            case S1D:
+            case gnut::GOBS::S1D:
                 return "S1D";
-            case S1I:
+            case gnut::GOBS::S1I:
                 return "S1I";
-            case S1L:
+            case gnut::GOBS::S1L:
                 return "S1L";
-            case S1M:
+            case gnut::GOBS::S1M:
                 return "S1M";
-            case S1N:
+            case gnut::GOBS::S1N:
                 return "S1N";
-            case S1P:
+            case gnut::GOBS::S1P:
                 return "S1P";
-            case S1Q:
+            case gnut::GOBS::S1Q:
                 return "S1Q";
-            case S1S:
+            case gnut::GOBS::S1S:
                 return "S1S";
-            case S1W:
+            case gnut::GOBS::S1W:
                 return "S1W";
-            case S1X:
+            case gnut::GOBS::S1X:
                 return "S1X";
-            case S1Y:
+            case gnut::GOBS::S1Y:
                 return "S1Y";
-            case S1Z:
+            case gnut::GOBS::S1Z:
                 return "S1Z";
 
-            case S2C:
+            case gnut::GOBS::S2C:
                 return "S2C";
-            case S2D:
+            case gnut::GOBS::S2D:
                 return "S2D";
-            case S2I:
+            case gnut::GOBS::S2I:
                 return "S2I";
-            case S2L:
+            case gnut::GOBS::S2L:
                 return "S2L";
-            case S2M:
+            case gnut::GOBS::S2M:
                 return "S2M";
-            case S2N:
+            case gnut::GOBS::S2N:
                 return "S2N";
-            case S2P:
+            case gnut::GOBS::S2P:
                 return "S2P";
-            case S2Q:
+            case gnut::GOBS::S2Q:
                 return "S2Q";
-            case S2S:
+            case gnut::GOBS::S2S:
                 return "S2S";
-            case S2W:
+            case gnut::GOBS::S2W:
                 return "S2W";
-            case S2X:
+            case gnut::GOBS::S2X:
                 return "S2X";
-            case S2Y:
+            case gnut::GOBS::S2Y:
                 return "S2Y";
 
-            case S3I:
+            case gnut::GOBS::S3I:
                 return "S3I";
-            case S3Q:
+            case gnut::GOBS::S3Q:
                 return "S3Q";
-            case S3X:
+            case gnut::GOBS::S3X:
                 return "S3X";
 
-            case S5A:
+            case gnut::GOBS::S5A:
                 return "S5A";
-            case S5B:
+            case gnut::GOBS::S5B:
                 return "S5B";
-            case S5C:
+            case gnut::GOBS::S5C:
                 return "S5C";
-            case S5D:
+            case gnut::GOBS::S5D:
                 return "S5D";
-            case S5I:
+            case gnut::GOBS::S5I:
                 return "S5I";
-            case S5P:
+            case gnut::GOBS::S5P:
                 return "S5P";
-            case S5Q:
+            case gnut::GOBS::S5Q:
                 return "S5Q";
-            case S5X:
+            case gnut::GOBS::S5X:
                 return "S5X";
 
-            case S6A:
+            case gnut::GOBS::S6A:
                 return "S6A";
-            case S6B:
+            case gnut::GOBS::S6B:
                 return "S6B";
-            case S6C:
+            case gnut::GOBS::S6C:
                 return "S6C";
-            case S6I:
+            case gnut::GOBS::S6I:
                 return "S6I";
-            case S6L:
+            case gnut::GOBS::S6L:
                 return "S6L";
-            case S6S:
+            case gnut::GOBS::S6S:
                 return "S6S";
-            case S6Q:
+            case gnut::GOBS::S6Q:
                 return "S6Q";
-            case S6X:
+            case gnut::GOBS::S6X:
                 return "S6X";
-            case S6Z:
+            case gnut::GOBS::S6Z:
                 return "S6Z";
 
-            case S7I:
+            case gnut::GOBS::S7I:
                 return "S7I";
-            case S7Q:
+            case gnut::GOBS::S7Q:
                 return "S7Q";
-            case S7X:
+            case gnut::GOBS::S7X:
                 return "S7X";
 
-            case S8D:
+            case gnut::GOBS::S8D:
                 return "S8D";
-            case S8I:
+            case gnut::GOBS::S8I:
                 return "S8I";
-            case S8P:
+            case gnut::GOBS::S8P:
                 return "S8P";
-            case S8Q:
+            case gnut::GOBS::S8Q:
                 return "S8Q";
-            case S8X:
+            case gnut::GOBS::S8X:
                 return "S8X";
 
-            case S9D:
+            case gnut::GOBS::S9D:
                 return "S9D"; // BDS-3 B2b
-            case S9P:
+            case gnut::GOBS::S9P:
                 return "S9P";
-            case S9Z:
+            case gnut::GOBS::S9Z:
                 return "S9Z";
 
             // special cases: v2.x or unknown tracking mode
-            case C1:
+            case gnut::GOBS::C1:
                 return "C1 "; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
-            case C2:
+            case gnut::GOBS::C2:
                 return "C2 "; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
-            case C5:
+            case gnut::GOBS::C5:
                 return "C5 "; // unknown mode                      Galileo E5a I/Q
-            case C6:
+            case gnut::GOBS::C6:
                 return "C6 "; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
-            case C7:
+            case gnut::GOBS::C7:
                 return "C7 "; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
-            case C8:
+            case gnut::GOBS::C8:
                 return "C8 "; // unknown mode                      Galileo E5  I/Q
-            case CA:
+            case gnut::GOBS::CA:
                 return "CA "; // unknown mode GPS C/A  GLONASS SA
-            case CB:
+            case gnut::GOBS::CB:
                 return "CB "; // unknown mode GPS C1C
-            case CC:
+            case gnut::GOBS::CC:
                 return "CC "; // unknown mode GPS C2C
-            case CD:
+            case gnut::GOBS::CD:
                 return "CD "; // unknown mode          GLONASS SA
 
-            case P1:
+            case gnut::GOBS::P1:
                 return "P1 "; // unknown mode GPS P,Y  GLONASS HA
-            case P2:
+            case gnut::GOBS::P2:
                 return "P2 "; // unknown mode GPS P,Y  GLONASS HA
-            case P5:
+            case gnut::GOBS::P5:
                 return "P5 "; // unknown mode GPS P,Y
 
-            case L1:
+            case gnut::GOBS::L1:
                 return "L1 "; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
-            case L2:
+            case gnut::GOBS::L2:
                 return "L2 "; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
-            case L5:
+            case gnut::GOBS::L5:
                 return "L5 "; // unknown mode                      Galileo E5a I/Q
-            case L6:
+            case gnut::GOBS::L6:
                 return "L6 "; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
-            case L7:
+            case gnut::GOBS::L7:
                 return "L7 "; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
-            case L8:
+            case gnut::GOBS::L8:
                 return "L8 "; // unknown mode                      Galileo E5  I/Q
-            case LA:
+            case gnut::GOBS::LA:
                 return "LA "; // unknown mode GPS C/A  GLONASS SA
-            case LB:
+            case gnut::GOBS::LB:
                 return "LB "; // unknown mode GPS C1C
-            case LC:
+            case gnut::GOBS::LC:
                 return "LC "; // unknown mode GPS C2C
-            case LD:
+            case gnut::GOBS::LD:
                 return "LD "; // unknown mode          GLONASS SA
 
-            case D1:
+            case gnut::GOBS::D1:
                 return "D1 "; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
-            case D2:
+            case gnut::GOBS::D2:
                 return "D2 "; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
-            case D5:
+            case gnut::GOBS::D5:
                 return "D5 "; // unknown mode                      Galileo E5a I/Q
-            case D6:
+            case gnut::GOBS::D6:
                 return "D6 "; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
-            case D7:
+            case gnut::GOBS::D7:
                 return "D7 "; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
-            case D8:
+            case gnut::GOBS::D8:
                 return "D8 "; // unknown mode                      Galileo E5  I/Q
-            case DA:
+            case gnut::GOBS::DA:
                 return "DA "; // unknown mode GPS C/A  GLONASS SA
-            case DB:
+            case gnut::GOBS::DB:
                 return "DB "; // unknown mode GPS C1C
-            case DC:
+            case gnut::GOBS::DC:
                 return "DC "; // unknown mode GPS C2C
-            case DD:
+            case gnut::GOBS::DD:
                 return "DD "; // unknown mode          GLONASS SA
 
-            case S1:
+            case gnut::GOBS::S1:
                 return "S1 "; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
-            case S2:
+            case gnut::GOBS::S2:
                 return "S2 "; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
-            case S5:
+            case gnut::GOBS::S5:
                 return "S5 "; // unknown mode                      Galileo E5a I/Q
-            case S6:
+            case gnut::GOBS::S6:
                 return "S6 "; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
-            case S7:
+            case gnut::GOBS::S7:
                 return "S7 "; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
-            case S8:
+            case gnut::GOBS::S8:
                 return "S8 "; // unknown mode                      Galileo E5  I/Q
-            case SA:
+            case gnut::GOBS::SA:
                 return "SA "; // unknown mode GPS C/A  GLONASS SA
-            case SB:
+            case gnut::GOBS::SB:
                 return "SB "; // unknown mode GPS C1C
-            case SC:
+            case gnut::GOBS::SC:
                 return "SC "; // unknown mode GPS C2C
-            case SD:
+            case gnut::GOBS::SD:
                 return "SD "; // unknown mode          GLONASS SA
 
                 //    case LAST_GOBS: return "XXX";
-            case X:
+            case gnut::GOBS::X:
                 return "XXX";
 
             default:
-                cerr << "*** Warning - unknown observation code " << o << "\n";
+                std::cerr << "*** Warning - unknown observation code " << static_cast<int>(o) << "\n";
         }
 
         return "XXX";
     }
 
-    string gfreqseq2str(FREQ_SEQ f)
+    std::string gfreqseq2str(FREQ_SEQ f)
     {
         switch (f)
         {
-            case FREQ_1:
+            case gnut::FREQ_SEQ::FREQ_1:
                 return "1";
-            case FREQ_2:
+            case gnut::FREQ_SEQ::FREQ_2:
                 return "2";
-            case FREQ_3:
+            case gnut::FREQ_SEQ::FREQ_3:
                 return "3";
-            case FREQ_4:
+            case gnut::FREQ_SEQ::FREQ_4:
                 return "4";
-            case FREQ_5:
+            case gnut::FREQ_SEQ::FREQ_5:
                 return "5";
-            case FREQ_6:
+            case gnut::FREQ_SEQ::FREQ_6:
                 return "6";
-            case FREQ_7:
+            case gnut::FREQ_SEQ::FREQ_7:
                 return "7";
-            case FREQ_X:
+            case gnut::FREQ_SEQ::FREQ_X:
                 return "X";
         }
         return "X";
     }
 
-    GOBS str2gobs(string s)
+    GOBS str2gobs(std::string s)
     {
         if (s.length() > 2 && s[2] == ' ')
         {
@@ -1439,260 +1923,260 @@ namespace gnut
                 { // band
                     if (s[2] == 'A')
                     {
-                        return C1A;
+                        return gnut::GOBS::C1A;
                     }
                     if (s[2] == 'B')
                     {
-                        return C1B;
+                        return gnut::GOBS::C1B;
                     }
                     if (s[2] == 'C')
                     {
-                        return C1C;
+                        return gnut::GOBS::C1C;
                     }
                     if (s[2] == 'D')
                     {
-                        return C1D;
+                        return gnut::GOBS::C1D;
                     }
                     if (s[2] == 'I')
                     {
-                        return C1I;
+                        return gnut::GOBS::C1I;
                     }
                     if (s[2] == 'L')
                     {
-                        return C1L;
+                        return gnut::GOBS::C1L;
                     }
                     if (s[2] == 'M')
                     {
-                        return C1M;
+                        return gnut::GOBS::C1M;
                     }
                     if (s[2] == 'P')
                     {
-                        return C1P;
+                        return gnut::GOBS::C1P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C1Q;
+                        return gnut::GOBS::C1Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return C1S;
+                        return gnut::GOBS::C1S;
                     }
                     if (s[2] == 'W')
                     {
-                        return C1W;
+                        return gnut::GOBS::C1W;
                     }
                     if (s[2] == 'X')
                     {
-                        return C1X;
+                        return gnut::GOBS::C1X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return C1Y;
+                        return gnut::GOBS::C1Y;
                     }
                     if (s[2] == 'Z')
                     {
-                        return C1Z;
+                        return gnut::GOBS::C1Z;
                     }
                 }
                 if (s[1] == '2')
                 { // band
                     if (s[2] == 'C')
                     {
-                        return C2C;
+                        return gnut::GOBS::C2C;
                     }
                     if (s[2] == 'D')
                     {
-                        return C2D;
+                        return gnut::GOBS::C2D;
                     }
                     if (s[2] == 'I')
                     {
-                        return C2I;
+                        return gnut::GOBS::C2I;
                     }
                     if (s[2] == 'L')
                     {
-                        return C2L;
+                        return gnut::GOBS::C2L;
                     }
                     if (s[2] == 'M')
                     {
-                        return C2M;
+                        return gnut::GOBS::C2M;
                     }
                     if (s[2] == 'P')
                     {
-                        return C2P;
+                        return gnut::GOBS::C2P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C2Q;
+                        return gnut::GOBS::C2Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return C2S;
+                        return gnut::GOBS::C2S;
                     }
                     if (s[2] == 'W')
                     {
-                        return C2W;
+                        return gnut::GOBS::C2W;
                     }
                     if (s[2] == 'X')
                     {
-                        return C2X;
+                        return gnut::GOBS::C2X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return C2Y;
+                        return gnut::GOBS::C2Y;
                     }
                 }
                 if (s[1] == '3')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return C3I;
+                        return gnut::GOBS::C3I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C3Q;
+                        return gnut::GOBS::C3Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return C3X;
+                        return gnut::GOBS::C3X;
                     }
                 }
                 if (s[1] == '5')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return C5A;
+                        return gnut::GOBS::C5A;
                     }
                     if (s[2] == 'B')
                     {
-                        return C5B;
+                        return gnut::GOBS::C5B;
                     }
                     if (s[2] == 'C')
                     {
-                        return C5C;
+                        return gnut::GOBS::C5C;
                     }
                     if (s[2] == 'D')
                     {
-                        return C5D;
+                        return gnut::GOBS::C5D;
                     }
                     if (s[2] == 'I')
                     {
-                        return C5I;
+                        return gnut::GOBS::C5I;
                     }
                     if (s[2] == 'P')
                     {
-                        return C5P;
+                        return gnut::GOBS::C5P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C5Q;
+                        return gnut::GOBS::C5Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return C5X;
+                        return gnut::GOBS::C5X;
                     }
                 }
                 if (s[1] == '6')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return C6A;
+                        return gnut::GOBS::C6A;
                     }
                     if (s[2] == 'B')
                     {
-                        return C6B;
+                        return gnut::GOBS::C6B;
                     }
                     if (s[2] == 'C')
                     {
-                        return C6C;
+                        return gnut::GOBS::C6C;
                     }
                     if (s[2] == 'I')
                     {
-                        return C6I;
+                        return gnut::GOBS::C6I;
                     }
                     if (s[2] == 'L')
                     {
-                        return C6L;
+                        return gnut::GOBS::C6L;
                     }
                     if (s[2] == 'S')
                     {
-                        return C6S;
+                        return gnut::GOBS::C6S;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C6Q;
+                        return gnut::GOBS::C6Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return C6X;
+                        return gnut::GOBS::C6X;
                     }
                     if (s[2] == 'Z')
                     {
-                        return C6Z;
+                        return gnut::GOBS::C6Z;
                     }
                 }
                 if (s[1] == '7')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return C7I;
+                        return gnut::GOBS::C7I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C7Q;
+                        return gnut::GOBS::C7Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return C7X;
+                        return gnut::GOBS::C7X;
                     }
                     if (s[2] == 'D')
                     {
-                        return C9D;
+                        return gnut::GOBS::C9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return C9P;
+                        return gnut::GOBS::C9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return C9Z;
+                        return gnut::GOBS::C9Z;
                     }
                 }
                 if (s[1] == '8')
                 { // band
                     if (s[2] == 'D')
                     {
-                        return C8D;
+                        return gnut::GOBS::C8D;
                     }
                     if (s[2] == 'I')
                     {
-                        return C8I;
+                        return gnut::GOBS::C8I;
                     }
                     if (s[2] == 'P')
                     {
-                        return C8P;
+                        return gnut::GOBS::C8P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return C8Q;
+                        return gnut::GOBS::C8Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return C8X;
+                        return gnut::GOBS::C8X;
                     }
                 }
                 if (s[1] == '9')
                 { // band  for bds3 B2b
                     if (s[2] == 'D')
                     {
-                        return C9D;
+                        return gnut::GOBS::C9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return C9P;
+                        return gnut::GOBS::C9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return C9Z;
+                        return gnut::GOBS::C9Z;
                     }
                 }
             }
@@ -1703,268 +2187,268 @@ namespace gnut
                 { // band
                     if (s[2] == 'A')
                     {
-                        return L1A;
+                        return gnut::GOBS::L1A;
                     }
                     if (s[2] == 'B')
                     {
-                        return L1B;
+                        return gnut::GOBS::L1B;
                     }
                     if (s[2] == 'C')
                     {
-                        return L1C;
+                        return gnut::GOBS::L1C;
                     }
                     if (s[2] == 'D')
                     {
-                        return L1D;
+                        return gnut::GOBS::L1D;
                     }
                     if (s[2] == 'I')
                     {
-                        return L1I;
+                        return gnut::GOBS::L1I;
                     }
                     if (s[2] == 'L')
                     {
-                        return L1L;
+                        return gnut::GOBS::L1L;
                     }
                     if (s[2] == 'M')
                     {
-                        return L1M;
+                        return gnut::GOBS::L1M;
                     }
                     if (s[2] == 'N')
                     {
-                        return L1N;
+                        return gnut::GOBS::L1N;
                     }
                     if (s[2] == 'P')
                     {
-                        return L1P;
+                        return gnut::GOBS::L1P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L1Q;
+                        return gnut::GOBS::L1Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return L1S;
+                        return gnut::GOBS::L1S;
                     }
                     if (s[2] == 'W')
                     {
-                        return L1W;
+                        return gnut::GOBS::L1W;
                     }
                     if (s[2] == 'X')
                     {
-                        return L1X;
+                        return gnut::GOBS::L1X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return L1Y;
+                        return gnut::GOBS::L1Y;
                     }
                     if (s[2] == 'Z')
                     {
-                        return L1Z;
+                        return gnut::GOBS::L1Z;
                     }
                 }
                 if (s[1] == '2')
                 { // band
                     if (s[2] == 'C')
                     {
-                        return L2C;
+                        return gnut::GOBS::L2C;
                     }
                     if (s[2] == 'D')
                     {
-                        return L2D;
+                        return gnut::GOBS::L2D;
                     }
                     if (s[2] == 'I')
                     {
-                        return L2I;
+                        return gnut::GOBS::L2I;
                     }
                     if (s[2] == 'L')
                     {
-                        return L2L;
+                        return gnut::GOBS::L2L;
                     }
                     if (s[2] == 'M')
                     {
-                        return L2M;
+                        return gnut::GOBS::L2M;
                     }
                     if (s[2] == 'N')
                     {
-                        return L2N;
+                        return gnut::GOBS::L2N;
                     }
                     if (s[2] == 'P')
                     {
-                        return L2P;
+                        return gnut::GOBS::L2P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L2Q;
+                        return gnut::GOBS::L2Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return L2S;
+                        return gnut::GOBS::L2S;
                     }
                     if (s[2] == 'W')
                     {
-                        return L2W;
+                        return gnut::GOBS::L2W;
                     }
                     if (s[2] == 'X')
                     {
-                        return L2X;
+                        return gnut::GOBS::L2X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return L2Y;
+                        return gnut::GOBS::L2Y;
                     }
                 }
                 if (s[1] == '3')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return L3I;
+                        return gnut::GOBS::L3I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L3Q;
+                        return gnut::GOBS::L3Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return L3X;
+                        return gnut::GOBS::L3X;
                     }
                 }
                 if (s[1] == '5')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return L5A;
+                        return gnut::GOBS::L5A;
                     }
                     if (s[2] == 'B')
                     {
-                        return L5B;
+                        return gnut::GOBS::L5B;
                     }
                     if (s[2] == 'C')
                     {
-                        return L5C;
+                        return gnut::GOBS::L5C;
                     }
                     if (s[2] == 'D')
                     {
-                        return L5D;
+                        return gnut::GOBS::L5D;
                     }
                     if (s[2] == 'I')
                     {
-                        return L5I;
+                        return gnut::GOBS::L5I;
                     }
                     if (s[2] == 'P')
                     {
-                        return L5P;
+                        return gnut::GOBS::L5P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L5Q;
+                        return gnut::GOBS::L5Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return L5X;
+                        return gnut::GOBS::L5X;
                     }
                 }
                 if (s[1] == '6')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return L6A;
+                        return gnut::GOBS::L6A;
                     }
                     if (s[2] == 'B')
                     {
-                        return L6B;
+                        return gnut::GOBS::L6B;
                     }
                     if (s[2] == 'C')
                     {
-                        return L6C;
+                        return gnut::GOBS::L6C;
                     }
                     if (s[2] == 'I')
                     {
-                        return L6I;
+                        return gnut::GOBS::L6I;
                     }
                     if (s[2] == 'L')
                     {
-                        return L6L;
+                        return gnut::GOBS::L6L;
                     }
                     if (s[2] == 'S')
                     {
-                        return L6S;
+                        return gnut::GOBS::L6S;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L6Q;
+                        return gnut::GOBS::L6Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return L6X;
+                        return gnut::GOBS::L6X;
                     }
                     if (s[2] == 'Z')
                     {
-                        return L6Z;
+                        return gnut::GOBS::L6Z;
                     }
                 }
                 if (s[1] == '7')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return L7I;
+                        return gnut::GOBS::L7I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L7Q;
+                        return gnut::GOBS::L7Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return L7X;
+                        return gnut::GOBS::L7X;
                     }
                     if (s[2] == 'D')
                     {
-                        return L9D;
+                        return gnut::GOBS::L9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return L9P;
+                        return gnut::GOBS::L9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return L9Z;
+                        return gnut::GOBS::L9Z;
                     }
                 }
                 if (s[1] == '8')
                 { // band
                     if (s[2] == 'D')
                     {
-                        return L8D;
+                        return gnut::GOBS::L8D;
                     }
                     if (s[2] == 'I')
                     {
-                        return L8I;
+                        return gnut::GOBS::L8I;
                     }
                     if (s[2] == 'P')
                     {
-                        return L8P;
+                        return gnut::GOBS::L8P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return L8Q;
+                        return gnut::GOBS::L8Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return L8X;
+                        return gnut::GOBS::L8X;
                     }
                 }
                 if (s[1] == '9')
                 { // band  for bds3 B2b
                     if (s[2] == 'D')
                     {
-                        return L9D;
+                        return gnut::GOBS::L9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return L9P;
+                        return gnut::GOBS::L9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return L9Z;
+                        return gnut::GOBS::L9Z;
                     }
                 }
             }
@@ -1975,253 +2459,253 @@ namespace gnut
                 { // band
                     if (s[2] == 'A')
                     {
-                        return D1A;
+                        return gnut::GOBS::D1A;
                     }
                     if (s[2] == 'B')
                     {
-                        return D1B;
+                        return gnut::GOBS::D1B;
                     }
                     if (s[2] == 'C')
                     {
-                        return D1C;
+                        return gnut::GOBS::D1C;
                     }
                     if (s[2] == 'D')
                     {
-                        return D1D;
+                        return gnut::GOBS::D1D;
                     }
                     if (s[2] == 'I')
                     {
-                        return D1I;
+                        return gnut::GOBS::D1I;
                     }
                     if (s[2] == 'L')
                     {
-                        return D1L;
+                        return gnut::GOBS::D1L;
                     }
                     if (s[2] == 'M')
                     {
-                        return D1M;
+                        return gnut::GOBS::D1M;
                     }
                     if (s[2] == 'N')
                     {
-                        return D1N;
+                        return gnut::GOBS::D1N;
                     }
                     if (s[2] == 'P')
                     {
-                        return D1P;
+                        return gnut::GOBS::D1P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D1Q;
+                        return gnut::GOBS::D1Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return D1S;
+                        return gnut::GOBS::D1S;
                     }
                     if (s[2] == 'W')
                     {
-                        return D1W;
+                        return gnut::GOBS::D1W;
                     }
                     if (s[2] == 'X')
                     {
-                        return D1X;
+                        return gnut::GOBS::D1X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return D1Y;
+                        return gnut::GOBS::D1Y;
                     }
                     if (s[2] == 'Z')
                     {
-                        return D1Z;
+                        return gnut::GOBS::D1Z;
                     }
                 }
                 if (s[1] == '2')
                 { // band
                     if (s[2] == 'C')
                     {
-                        return D2C;
+                        return gnut::GOBS::D2C;
                     }
                     if (s[2] == 'D')
                     {
-                        return D2D;
+                        return gnut::GOBS::D2D;
                     }
                     if (s[2] == 'I')
                     {
-                        return D2I;
+                        return gnut::GOBS::D2I;
                     }
                     if (s[2] == 'L')
                     {
-                        return D2L;
+                        return gnut::GOBS::D2L;
                     }
                     if (s[2] == 'M')
                     {
-                        return D2M;
+                        return gnut::GOBS::D2M;
                     }
                     if (s[2] == 'N')
                     {
-                        return D2N;
+                        return gnut::GOBS::D2N;
                     }
                     if (s[2] == 'P')
                     {
-                        return D2P;
+                        return gnut::GOBS::D2P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D2Q;
+                        return gnut::GOBS::D2Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return D2S;
+                        return gnut::GOBS::D2S;
                     }
                     if (s[2] == 'W')
                     {
-                        return D2W;
+                        return gnut::GOBS::D2W;
                     }
                     if (s[2] == 'X')
                     {
-                        return D2X;
+                        return gnut::GOBS::D2X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return D2Y;
+                        return gnut::GOBS::D2Y;
                     }
                 }
                 if (s[1] == '3')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return D3I;
+                        return gnut::GOBS::D3I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D3Q;
+                        return gnut::GOBS::D3Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return D3X;
+                        return gnut::GOBS::D3X;
                     }
                 }
                 if (s[1] == '5')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return D5A;
+                        return gnut::GOBS::D5A;
                     }
                     if (s[2] == 'B')
                     {
-                        return D5B;
+                        return gnut::GOBS::D5B;
                     }
                     if (s[2] == 'C')
                     {
-                        return D5C;
+                        return gnut::GOBS::D5C;
                     }
                     if (s[2] == 'D')
                     {
-                        return D5D;
+                        return gnut::GOBS::D5D;
                     }
                     if (s[2] == 'I')
                     {
-                        return D5I;
+                        return gnut::GOBS::D5I;
                     }
                     if (s[2] == 'P')
                     {
-                        return D5P;
+                        return gnut::GOBS::D5P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D5Q;
+                        return gnut::GOBS::D5Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return D5X;
+                        return gnut::GOBS::D5X;
                     }
                 }
                 if (s[1] == '6')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return D6A;
+                        return gnut::GOBS::D6A;
                     }
                     if (s[2] == 'B')
                     {
-                        return D6B;
+                        return gnut::GOBS::D6B;
                     }
                     if (s[2] == 'C')
                     {
-                        return D6C;
+                        return gnut::GOBS::D6C;
                     }
                     if (s[2] == 'I')
                     {
-                        return D6I;
+                        return gnut::GOBS::D6I;
                     }
                     if (s[2] == 'L')
                     {
-                        return D6L;
+                        return gnut::GOBS::D6L;
                     }
                     if (s[2] == 'S')
                     {
-                        return D6S;
+                        return gnut::GOBS::D6S;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D6Q;
+                        return gnut::GOBS::D6Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return D6X;
+                        return gnut::GOBS::D6X;
                     }
                     if (s[2] == 'Z')
                     {
-                        return D6Z;
+                        return gnut::GOBS::D6Z;
                     }
                 }
                 if (s[1] == '7')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return D7I;
+                        return gnut::GOBS::D7I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D7Q;
+                        return gnut::GOBS::D7Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return D7X;
+                        return gnut::GOBS::D7X;
                     }
                     if (s[2] == 'D')
                     {
-                        return D9D;
+                        return gnut::GOBS::D9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return D9P;
+                        return gnut::GOBS::D9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return D9Z;
+                        return gnut::GOBS::D9Z;
                     }
                 }
                 if (s[1] == '8')
                 { // band
                     if (s[2] == 'D')
                     {
-                        return D8D;
+                        return gnut::GOBS::D8D;
                     }
                     if (s[2] == 'I')
                     {
-                        return D8I;
+                        return gnut::GOBS::D8I;
                     }
                     if (s[2] == 'P')
                     {
-                        return D8P;
+                        return gnut::GOBS::D8P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return D8Q;
+                        return gnut::GOBS::D8Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return D8X;
+                        return gnut::GOBS::D8X;
                     }
                 }
 
@@ -2229,15 +2713,15 @@ namespace gnut
                 { // band  for bds3 B2b
                     if (s[2] == 'D')
                     {
-                        return D9D;
+                        return gnut::GOBS::D9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return D9P;
+                        return gnut::GOBS::D9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return D9Z;
+                        return gnut::GOBS::D9Z;
                     }
                 }
             }
@@ -2248,268 +2732,268 @@ namespace gnut
                 { // band
                     if (s[2] == 'A')
                     {
-                        return S1A;
+                        return gnut::GOBS::S1A;
                     }
                     if (s[2] == 'B')
                     {
-                        return S1B;
+                        return gnut::GOBS::S1B;
                     }
                     if (s[2] == 'C')
                     {
-                        return S1C;
+                        return gnut::GOBS::S1C;
                     }
                     if (s[2] == 'D')
                     {
-                        return S1D;
+                        return gnut::GOBS::S1D;
                     }
                     if (s[2] == 'I')
                     {
-                        return S1I;
+                        return gnut::GOBS::S1I;
                     }
                     if (s[2] == 'L')
                     {
-                        return S1L;
+                        return gnut::GOBS::S1L;
                     }
                     if (s[2] == 'M')
                     {
-                        return S1M;
+                        return gnut::GOBS::S1M;
                     }
                     if (s[2] == 'N')
                     {
-                        return S1N;
+                        return gnut::GOBS::S1N;
                     }
                     if (s[2] == 'P')
                     {
-                        return S1P;
+                        return gnut::GOBS::S1P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S1Q;
+                        return gnut::GOBS::S1Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return S1S;
+                        return gnut::GOBS::S1S;
                     }
                     if (s[2] == 'W')
                     {
-                        return S1W;
+                        return gnut::GOBS::S1W;
                     }
                     if (s[2] == 'X')
                     {
-                        return S1X;
+                        return gnut::GOBS::S1X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return S1Y;
+                        return gnut::GOBS::S1Y;
                     }
                     if (s[2] == 'Z')
                     {
-                        return S1Z;
+                        return gnut::GOBS::S1Z;
                     }
                 }
                 if (s[1] == '2')
                 { // band
                     if (s[2] == 'C')
                     {
-                        return S2C;
+                        return gnut::GOBS::S2C;
                     }
                     if (s[2] == 'D')
                     {
-                        return S2D;
+                        return gnut::GOBS::S2D;
                     }
                     if (s[2] == 'I')
                     {
-                        return S2I;
+                        return gnut::GOBS::S2I;
                     }
                     if (s[2] == 'L')
                     {
-                        return S2L;
+                        return gnut::GOBS::S2L;
                     }
                     if (s[2] == 'M')
                     {
-                        return S2M;
+                        return gnut::GOBS::S2M;
                     }
                     if (s[2] == 'N')
                     {
-                        return S2N;
+                        return gnut::GOBS::S2N;
                     }
                     if (s[2] == 'P')
                     {
-                        return S2P;
+                        return gnut::GOBS::S2P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S2Q;
+                        return gnut::GOBS::S2Q;
                     }
                     if (s[2] == 'S')
                     {
-                        return S2S;
+                        return gnut::GOBS::S2S;
                     }
                     if (s[2] == 'W')
                     {
-                        return S2W;
+                        return gnut::GOBS::S2W;
                     }
                     if (s[2] == 'X')
                     {
-                        return S2X;
+                        return gnut::GOBS::S2X;
                     }
                     if (s[2] == 'Y')
                     {
-                        return S2Y;
+                        return gnut::GOBS::S2Y;
                     }
                 }
                 if (s[1] == '3')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return S3I;
+                        return gnut::GOBS::S3I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S3Q;
+                        return gnut::GOBS::S3Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return S3X;
+                        return gnut::GOBS::S3X;
                     }
                 }
                 if (s[1] == '5')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return S5A;
+                        return gnut::GOBS::S5A;
                     }
                     if (s[2] == 'B')
                     {
-                        return S5B;
+                        return gnut::GOBS::S5B;
                     }
                     if (s[2] == 'C')
                     {
-                        return S5C;
+                        return gnut::GOBS::S5C;
                     }
                     if (s[2] == 'D')
                     {
-                        return S5D;
+                        return gnut::GOBS::S5D;
                     }
                     if (s[2] == 'I')
                     {
-                        return S5I;
+                        return gnut::GOBS::S5I;
                     }
                     if (s[2] == 'P')
                     {
-                        return S5P;
+                        return gnut::GOBS::S5P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S5Q;
+                        return gnut::GOBS::S5Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return S5X;
+                        return gnut::GOBS::S5X;
                     }
                 }
                 if (s[1] == '6')
                 { // band
                     if (s[2] == 'A')
                     {
-                        return S6A;
+                        return gnut::GOBS::S6A;
                     }
                     if (s[2] == 'B')
                     {
-                        return S6B;
+                        return gnut::GOBS::S6B;
                     }
                     if (s[2] == 'C')
                     {
-                        return S6C;
+                        return gnut::GOBS::S6C;
                     }
                     if (s[2] == 'I')
                     {
-                        return S6I;
+                        return gnut::GOBS::S6I;
                     }
                     if (s[2] == 'L')
                     {
-                        return S6L;
+                        return gnut::GOBS::S6L;
                     }
                     if (s[2] == 'S')
                     {
-                        return S6S;
+                        return gnut::GOBS::S6S;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S6Q;
+                        return gnut::GOBS::S6Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return S6X;
+                        return gnut::GOBS::S6X;
                     }
                     if (s[2] == 'Z')
                     {
-                        return S6Z;
+                        return gnut::GOBS::S6Z;
                     }
                 }
                 if (s[1] == '7')
                 { // band
                     if (s[2] == 'I')
                     {
-                        return S7I;
+                        return gnut::GOBS::S7I;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S7Q;
+                        return gnut::GOBS::S7Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return S7X;
+                        return gnut::GOBS::S7X;
                     }
                     if (s[2] == 'D')
                     {
-                        return S9D;
+                        return gnut::GOBS::S9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return S9P;
+                        return gnut::GOBS::S9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return S9Z;
+                        return gnut::GOBS::S9Z;
                     }
                 }
                 if (s[1] == '8')
                 { // band
                     if (s[2] == 'D')
                     {
-                        return S8D;
+                        return gnut::GOBS::S8D;
                     }
                     if (s[2] == 'I')
                     {
-                        return S8I;
+                        return gnut::GOBS::S8I;
                     }
                     if (s[2] == 'P')
                     {
-                        return S8P;
+                        return gnut::GOBS::S8P;
                     }
                     if (s[2] == 'Q')
                     {
-                        return S8Q;
+                        return gnut::GOBS::S8Q;
                     }
                     if (s[2] == 'X')
                     {
-                        return S8X;
+                        return gnut::GOBS::S8X;
                     }
                 }
                 if (s[1] == '9')
                 { // band  for bds3 B2b
                     if (s[2] == 'D')
                     {
-                        return S9D;
+                        return gnut::GOBS::S9D;
                     }
                     if (s[2] == 'P')
                     {
-                        return S9P;
+                        return gnut::GOBS::S9P;
                     }
                     if (s[2] == 'Z')
                     {
-                        return S9Z;
+                        return gnut::GOBS::S9Z;
                     }
                 }
             }
@@ -2521,58 +3005,58 @@ namespace gnut
             { // code
                 if (s[1] == '1')
                 {
-                    return C1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
+                    return gnut::GOBS::C1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
                 }
                 if (s[1] == '2')
                 {
-                    return C2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
+                    return gnut::GOBS::C2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
                 }
                 if (s[1] == '5')
                 {
-                    return C5; // unknown mode                      Galileo E5a I/Q
+                    return gnut::GOBS::C5; // unknown mode                      Galileo E5a I/Q
                 }
                 if (s[1] == '6')
                 {
-                    return C6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
+                    return gnut::GOBS::C6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
                 }
                 if (s[1] == '7')
                 {
-                    return C7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
+                    return gnut::GOBS::C7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
                 }
                 if (s[1] == '8')
                 {
-                    return C8; // unknown mode                      Galileo E5  I/Q
+                    return gnut::GOBS::C8; // unknown mode                      Galileo E5  I/Q
                 }
                 if (s[1] == 'A')
                 {
-                    return CA; // unknown mode GPS C/A  GLONASS SA
+                    return gnut::GOBS::CA; // unknown mode GPS C/A  GLONASS SA
                 }
                 if (s[1] == 'B')
                 {
-                    return CB; // unknown mode GPS C1C
+                    return gnut::GOBS::CB; // unknown mode GPS C1C
                 }
                 if (s[1] == 'C')
                 {
-                    return CC; // unknown mode GPS C2C
+                    return gnut::GOBS::CC; // unknown mode GPS C2C
                 }
                 if (s[1] == 'D')
                 {
-                    return CD; // unknown mode          GLONASS SA
+                    return gnut::GOBS::CD; // unknown mode          GLONASS SA
                 }
             }
             if (s[0] == 'P')
             { // code
                 if (s[1] == '1')
                 {
-                    return P1; // unknown mode GPS P,Y  GLONASS HA
+                    return gnut::GOBS::P1; // unknown mode GPS P,Y  GLONASS HA
                 }
                 if (s[1] == '2')
                 {
-                    return P2; // unknown mode GPS P,Y  GLONASS HA
+                    return gnut::GOBS::P2; // unknown mode GPS P,Y  GLONASS HA
                 }
                 if (s[1] == '5')
                 {
-                    return P5; // unknown mode GPS P,Y
+                    return gnut::GOBS::P5; // unknown mode GPS P,Y
                 }
             }
 
@@ -2580,43 +3064,43 @@ namespace gnut
             { // phase
                 if (s[1] == '1')
                 {
-                    return L1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
+                    return gnut::GOBS::L1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
                 }
                 if (s[1] == '2')
                 {
-                    return L2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
+                    return gnut::GOBS::L2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
                 }
                 if (s[1] == '5')
                 {
-                    return L5; // unknown mode                      Galileo E5a I/Q
+                    return gnut::GOBS::L5; // unknown mode                      Galileo E5a I/Q
                 }
                 if (s[1] == '6')
                 {
-                    return L6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
+                    return gnut::GOBS::L6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
                 }
                 if (s[1] == '7')
                 {
-                    return L7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
+                    return gnut::GOBS::L7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
                 }
                 if (s[1] == '8')
                 {
-                    return L8; // unknown mode                      Galileo E5  I/Q
+                    return gnut::GOBS::L8; // unknown mode                      Galileo E5  I/Q
                 }
                 if (s[1] == 'A')
                 {
-                    return LA; // unknown mode GPS C/A  GLONASS SA
+                    return gnut::GOBS::LA; // unknown mode GPS C/A  GLONASS SA
                 }
                 if (s[1] == 'B')
                 {
-                    return LB; // unknown mode GPS C1C
+                    return gnut::GOBS::LB; // unknown mode GPS C1C
                 }
                 if (s[1] == 'C')
                 {
-                    return LC; // unknown mode GPS C2C
+                    return gnut::GOBS::LC; // unknown mode GPS C2C
                 }
                 if (s[1] == 'D')
                 {
-                    return LD; // unknown mode          GLONASS SA
+                    return gnut::GOBS::LD; // unknown mode          GLONASS SA
                 }
             }
 
@@ -2624,43 +3108,43 @@ namespace gnut
             { // doppler
                 if (s[1] == '1')
                 {
-                    return D1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
+                    return gnut::GOBS::D1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
                 }
                 if (s[1] == '2')
                 {
-                    return D2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
+                    return gnut::GOBS::D2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
                 }
                 if (s[1] == '5')
                 {
-                    return D5; // unknown mode                      Galileo E5a I/Q
+                    return gnut::GOBS::D5; // unknown mode                      Galileo E5a I/Q
                 }
                 if (s[1] == '6')
                 {
-                    return D6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
+                    return gnut::GOBS::D6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
                 }
                 if (s[1] == '7')
                 {
-                    return D7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
+                    return gnut::GOBS::D7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
                 }
                 if (s[1] == '8')
                 {
-                    return D8; // unknown mode                      Galileo E5  I/Q
+                    return gnut::GOBS::D8; // unknown mode                      Galileo E5  I/Q
                 }
                 if (s[1] == 'A')
                 {
-                    return DA; // unknown mode GPS C/A  GLONASS SA
+                    return gnut::GOBS::DA; // unknown mode GPS C/A  GLONASS SA
                 }
                 if (s[1] == 'B')
                 {
-                    return DB; // unknown mode GPS C1C
+                    return gnut::GOBS::DB; // unknown mode GPS C1C
                 }
                 if (s[1] == 'C')
                 {
-                    return DC; // unknown mode GPS C2C
+                    return gnut::GOBS::DC; // unknown mode GPS C2C
                 }
                 if (s[1] == 'D')
                 {
-                    return DD; // unknown mode          GLONASS SA
+                    return gnut::GOBS::DD; // unknown mode          GLONASS SA
                 }
             }
 
@@ -2668,71 +3152,71 @@ namespace gnut
             { // signal-to-noise ratio
                 if (s[1] == '1')
                 {
-                    return S1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
+                    return gnut::GOBS::S1; // unknown mode GPS P,Y              Galileo E2-L1-E2 I/Q
                 }
                 if (s[1] == '2')
                 {
-                    return S2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
+                    return gnut::GOBS::S2; // unknown mode GPS P,Y                                     COMPASS E2 I/Q
                 }
                 if (s[1] == '5')
                 {
-                    return S5; // unknown mode                      Galileo E5a I/Q
+                    return gnut::GOBS::S5; // unknown mode                      Galileo E5a I/Q
                 }
                 if (s[1] == '6')
                 {
-                    return S6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
+                    return gnut::GOBS::S6; // unknown mode                      Galileo E6  I/Q        COMPASS E6 I/Q
                 }
                 if (s[1] == '7')
                 {
-                    return S7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
+                    return gnut::GOBS::S7; // unknown mode                      Galielo E5b I/Q        COMPASS E5b I/Q
                 }
                 if (s[1] == '8')
                 {
-                    return S8; // unknown mode                      Galileo E5  I/Q
+                    return gnut::GOBS::S8; // unknown mode                      Galileo E5  I/Q
                 }
                 if (s[1] == 'A')
                 {
-                    return SA; // unknown mode GPS C/A  GLONASS SA
+                    return gnut::GOBS::SA; // unknown mode GPS C/A  GLONASS SA
                 }
                 if (s[1] == 'B')
                 {
-                    return SB; // unknown mode GPS C1C
+                    return gnut::GOBS::SB; // unknown mode GPS C1C
                 }
                 if (s[1] == 'C')
                 {
-                    return SC; // unknown mode GPS C2C
+                    return gnut::GOBS::SC; // unknown mode GPS C2C
                 }
                 if (s[1] == 'D')
                 {
-                    return SD; // unknown mode          GLONASS SA
+                    return gnut::GOBS::SD; // unknown mode          GLONASS SA
                 }
             }
         }
 
-        return X; // LAST_GOBS;
+        return gnut::GOBS::X; // LAST_GOBS;
     }
 
     GOBS tba2gobs(GOBSTYPE type, GOBSBAND band, GOBSATTR attr)
     {
-        string s = gobstype2str(type) + gobsband2str(band) + gobsattr2str(attr);
+        std::string s = gobstype2str(type) + gobsband2str(band) + gobsattr2str(attr);
         return str2gobs(s);
     }
 
-    string gnavtype2str(GNAVTYPE e)
+    std::string gnavtype2str(GNAVTYPE e)
     {
         switch (e)
         {
-            case NAV:
+            case gnut::GNAVTYPE::NAV:
                 return "NAV";
-            case FNAV:
+            case gnut::GNAVTYPE::FNAV:
                 return "FNAV";
-            case CNAV:
+            case gnut::GNAVTYPE::CNAV:
                 return "CNAV";
-            case INAV:
+            case gnut::GNAVTYPE::INAV:
                 return "INAV"; // combined E01+E07 (or could represent any-source INAV)
-            case INAV_E01:
+            case gnut::GNAVTYPE::INAV_E01:
                 return "INAV_E01";
-            case INAV_E07:
+            case gnut::GNAVTYPE::INAV_E07:
                 return "INAV_E07";
             default:
                 return "NAV";
@@ -2740,37 +3224,37 @@ namespace gnut
         return "NAV";
     }
 
-    GNAVTYPE str2gnavtype(string s)
+    GNAVTYPE str2gnavtype(std::string s)
     {
         if (s.compare("NAV") == 0)
         {
-            return NAV;
+            return gnut::GNAVTYPE::NAV;
         }
         else if (s.compare("FNAV") == 0)
         {
-            return FNAV;
+            return gnut::GNAVTYPE::FNAV;
         }
         else if (s.compare("CNAV") == 0)
         {
-            return CNAV;
+            return gnut::GNAVTYPE::CNAV;
         }
         else if (s.compare("INAV") == 0)
         {
-            return INAV; // combined E01+E07, or any-source INAV
+            return gnut::GNAVTYPE::INAV; // combined E01+E07, or any-source INAV
         }
         else if (s.compare("INAV_E01") == 0)
         {
-            return INAV_E01;
+            return gnut::GNAVTYPE::INAV_E01;
         }
         else if (s.compare("INAV_E07") == 0)
         {
-            return INAV_E07;
+            return gnut::GNAVTYPE::INAV_E07;
         }
 
-        return NAV;
+        return gnut::GNAVTYPE::NAV;
     }
 
-    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2gnssfreq(string s)
+    LibGnut_LIBRARY_EXPORT FREQ_SEQ str2gnssfreq(std::string s)
     {
         // jdhuang : fix
         s = trim(s);
@@ -2786,12 +3270,12 @@ namespace gnut
 
     int gobs2band(GOBS gobs)
     {
-        if (gobs == X)
+        if (gobs == gnut::GOBS::X)
         {
             return 0;
         }
 
-        string go = gobs2str(gobs);
+        std::string go = gobs2str(gobs);
         if (go.length() < 2)
         {
             return 0; // DO NOT SUPPORT ANY SHORTER GOBS!!!
@@ -2832,64 +3316,53 @@ namespace gnut
 
     GOBS pha2snr(GOBS o)
     {
-        return GOBS(o + 200);
+        return static_cast<GOBS>(static_cast<int>(o) + 200);
     }
 
     GOBS pl2snr(GOBS o)
     {
-        if (o >= 1000)
+        int value = static_cast<int>(o);
+        if (value >= 1000)
         {
-            o = GOBS(o - 1000);
+            value -= 1000;
         }
-        if (o < 100)
+        if (value < 100)
         {
-            o = GOBS(o + 300);
+            value += 300;
         }
-        else if (o < 200)
+        else if (value < 200)
         {
-            o = GOBS(o + 200);
+            value += 200;
         }
-        else if (o < 300)
+        else if (value < 300)
         {
-            o = GOBS(o + 100);
+            value += 100;
         }
-        return o;
+        return static_cast<GOBS>(value);
     }
 
     bool gobs_code(GOBS o)
     {
-        if (o >= 1000)
-        {
-            o = GOBS(o - 1000);
-        }
-        return (o < 100);
+        const int value = static_cast<int>(o) % 1000;
+        return value < 100;
     }
 
     bool gobs_phase(GOBS o)
     {
-        if (o >= 1000)
-        {
-            o = GOBS(o - 1000);
-        }
-        return (o >= 100 && o < 200);
+        const int value = static_cast<int>(o) % 1000;
+        return value >= 100 && value < 200;
     }
 
     bool gobs_doppler(GOBS o)
     {
-        if (o >= 1000)
-        {
-            o = GOBS(o - 1000);
-        }
-        return (o >= 200 && o < 300);
+        const int value = static_cast<int>(o) % 1000;
+        return value >= 200 && value < 300;
     }
 
     bool gobs_snr(GOBS o)
     {
-        if (o >= 1000)
-        {
-            o = GOBS(o - 1000);
-        }
-        return (o >= 300 && o < 400);
+        const int value = static_cast<int>(o) % 1000;
+        return value >= 300 && value < 400;
     }
 
 } // namespace gnut

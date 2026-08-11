@@ -25,13 +25,12 @@
 #include "gutils/gsys.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 
 namespace gnut
 {
 
     /** @brief navigation data. */
-    enum NAVDATA
+    enum class NAVDATA
     {
         NAV_UNDEF,  ///< undefined
         NAV_A,      ///< nav a
@@ -70,7 +69,7 @@ namespace gnut
     };
 
     /** @brief time + double. */
-    typedef pair<t_gtime, double> t_timdbl;
+    typedef std::pair<t_gtime, double> t_timdbl;
 
     /** @brief class for navigation data. */
     class LibGnut_LIBRARY_EXPORT t_geph : public t_gdata
@@ -131,7 +130,7 @@ namespace gnut
         }
 
         /** @brief get the heath of satellite. (string) */
-        virtual string health_str() const
+        virtual std::string health_str() const
         {
             return "";
         }
@@ -145,7 +144,7 @@ namespace gnut
         /** @brief get the nav type. */
         virtual GNAVTYPE gnavtype(bool full = true) const
         {
-            return NAV;
+            return gnut::GNAVTYPE::NAV;
         }
 
         /** @brief get the src. */
@@ -155,13 +154,13 @@ namespace gnut
         }
 
         /** @brief get the line format. */
-        virtual string linefmt() const
+        virtual std::string linefmt() const
         {
             return "";
         }
 
         /** @brief get the line. */
-        virtual string line() const
+        virtual std::string line() const
         {
             return "";
         }
@@ -169,7 +168,7 @@ namespace gnut
         /** @brief print line format. */
         virtual void print() const
         {
-            cout << linefmt();
+            std::cout << linefmt();
         }
 
         /** @brief get the parameter of nav. */
@@ -182,13 +181,13 @@ namespace gnut
         virtual bool param_cyclic(const NAVDATA& n);
 
         /** @brief set the value of gio. */
-        virtual void gio(shared_ptr<t_gio> p)
+        virtual void gio(std::shared_ptr<t_gio> p)
         {
             _gio_ptr = p;
         }
 
         /** @brief get the value of gio. */
-        shared_ptr<t_gio> gio()
+        std::shared_ptr<t_gio> gio()
         {
             return _gio_ptr;
         }
@@ -209,11 +208,11 @@ namespace gnut
         GSYS gsys() const;
 
         /** @brief get the name of satellite. */
-        string gsat() const;
+        std::string gsat() const;
 
         // POZDEJI JEN GSAT a vse pres MUTEX !!!
         /** @brief get the value of _sat. */
-        string sat() const
+        GSAT sat() const
         {
             return _sat;
         }
@@ -255,12 +254,12 @@ namespace gnut
         /** @brief valid. */
         virtual bool _valid() const;
 
-        string _sat;      ///< satellite number
+        GSAT _sat;        ///< satellite PRN
         t_gtime _epoch;   ///< reference epoch
         double _interval; ///< validity interval
         bool _validity;   ///< validity
 
-        shared_ptr<t_gio> _gio_ptr; ///< gio pointer
+        std::shared_ptr<t_gio> _gio_ptr; ///< gio pointer
 
     private:
     };

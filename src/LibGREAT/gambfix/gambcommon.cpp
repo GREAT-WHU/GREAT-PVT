@@ -9,7 +9,6 @@
  *
  */
 #include "gambfix/gambcommon.h"
-using namespace std;
 
 namespace great
 {
@@ -44,7 +43,7 @@ namespace great
     {
     }
 
-    void getMeanFract(list<pair<double, double>>& values, double& mean, double& sigma, double& sigx)
+    void getMeanFract(std::list<std::pair<double, double>>& values, double& mean, double& sigma, double& sigx)
     {
         try
         {
@@ -56,7 +55,7 @@ namespace great
             // local variables
             double temp_fract;
             double mean2, sigma2;
-            list<pair<double, double>> fracts[3];
+            std::list<std::pair<double, double>> fracts[3];
 
             // fraction range is (0,1)
             for (auto it_val = values.begin(); it_val != values.end(); it_val++)
@@ -66,7 +65,7 @@ namespace great
                 {
                     temp_fract += 1.0;
                 }
-                fracts[0].push_back(make_pair(temp_fract, it_val->second));
+                fracts[0].push_back(std::make_pair(temp_fract, it_val->second));
             }
 
             getMeanWgt(true, fracts[0], mean, sigma, sigx);
@@ -75,7 +74,7 @@ namespace great
             for (auto it_val = values.begin(); it_val != values.end(); it_val++)
             {
                 temp_fract = getFraction(it_val->first, -0.50);
-                fracts[1].push_back(make_pair(temp_fract, it_val->second));
+                fracts[1].push_back(std::make_pair(temp_fract, it_val->second));
             }
 
             getMeanWgt(true, fracts[1], mean2, sigma2, sigx);
@@ -91,7 +90,7 @@ namespace great
             {
                 temp_fract = it_val->first - mean;
                 temp_fract -= round(temp_fract);
-                fracts[2].push_back(make_pair(temp_fract, it_val->second));
+                fracts[2].push_back(std::make_pair(temp_fract, it_val->second));
             }
 
             getMeanWgt(true, fracts[2], mean2, sigma, sigx);
@@ -101,12 +100,12 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR: t_gmath::get_mean_fract , unknown mistake";
+            std::cout << "ERROR: t_gmath::get_mean_fract , unknown mistake";
             throw(-1);
         }
     }
 
-    void getMeanWgt(bool is_edit, list<pair<double, double>>& wx, double& mean, double& sigma, double& mean_sig)
+    void getMeanWgt(bool is_edit, std::list<std::pair<double, double>>& wx, double& mean, double& sigma, double& mean_sig)
     {
         try
         {
@@ -175,7 +174,7 @@ namespace great
         }
         catch (...)
         {
-            cout << "ERROR: t_gmath::get_wgt_mean , unknown mistake";
+            std::cout << "ERROR: t_gmath::get_wgt_mean , unknown mistake";
             throw(-1);
         }
     }

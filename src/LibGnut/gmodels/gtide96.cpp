@@ -16,7 +16,6 @@
 #include "gmodels/gtide.h"
 #include "gmodels/gtide96.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -98,7 +97,7 @@ namespace gnut
         return dxyz;
     }
 
-    t_gtriple t_gtide96::load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec)
+    t_gtriple t_gtide96::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
         _mutex.lock();
 

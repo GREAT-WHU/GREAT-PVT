@@ -20,10 +20,11 @@
 #include "gset/gsetproc.h"
 #include "gutils/gmutex.h"
 
-using namespace std;
 using namespace pugi;
 
+#ifndef XMLKEY_PROC_IFCB
 #define XMLKEY_PROC_IFCB "ifcb_model"
+#endif
 
 namespace gnut
 {
@@ -64,7 +65,7 @@ namespace gnut
         _frequency = 2;
         _sd_sat = false;
         _basepos = BASEPOS::SPP;
-        _minsat = static_cast<size_t>(6);
+        _minsat = static_cast<std::size_t>(6);
 
         _meanpolemodel = modeofmeanpole::cubic;
     }
@@ -72,7 +73,7 @@ namespace gnut
     modeofmeanpole t_gsetproc::mean_pole_model()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("mean_pole_model");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("mean_pole_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         modeofmeanpole TM = str2meanpolemodel(tmp);
@@ -80,7 +81,7 @@ namespace gnut
         return TM;
     }
 
-    modeofmeanpole t_gsetproc::str2meanpolemodel(const string& tm)
+    modeofmeanpole t_gsetproc::str2meanpolemodel(const std::string& tm)
     {
         if (tm == "linear" || tm == "LINEAR")
         {
@@ -101,7 +102,7 @@ namespace gnut
     bool t_gsetproc::tropo()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "FALSE" ? false : true);
@@ -112,7 +113,7 @@ namespace gnut
     bool t_gsetproc::iono()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("iono");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("iono");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = tmp == "FALSE" ? false : true;
@@ -123,7 +124,7 @@ namespace gnut
     bool t_gsetproc::tropo_slant()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_slant");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_slant");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = tmp == "TRUE" ? true : false;
@@ -134,7 +135,7 @@ namespace gnut
     bool t_gsetproc::tropo_grad()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("gradient");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("gradient");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
@@ -145,7 +146,7 @@ namespace gnut
     bool t_gsetproc::phase()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("phase");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("phase");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
@@ -156,7 +157,7 @@ namespace gnut
     bool t_gsetproc::doppler()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("doppler");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("doppler");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
@@ -167,7 +168,7 @@ namespace gnut
     bool t_gsetproc::pos_kin()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("pos_kin");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("pos_kin");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
@@ -178,7 +179,7 @@ namespace gnut
     BASEPOS t_gsetproc::basepos()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("basepos");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("basepos");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         BASEPOS type = str2basepos(tmp);
@@ -186,7 +187,7 @@ namespace gnut
         return type;
     }
 
-    BASEPOS t_gsetproc::str2basepos(const string& str)
+    BASEPOS t_gsetproc::str2basepos(const std::string& str)
     {
         if (str == "CFILE")
         {
@@ -201,7 +202,7 @@ namespace gnut
     double t_gsetproc::sig_init_ztd()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_ztd");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_ztd");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -220,7 +221,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_vion");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_vion");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -240,7 +241,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_grd");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_grd");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -259,7 +260,7 @@ namespace gnut
     double t_gsetproc::sig_init_crd()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_crd");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_crd");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -278,7 +279,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_vel");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_vel");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -297,7 +298,7 @@ namespace gnut
     double t_gsetproc::sig_init_amb()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_amb");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_amb");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -315,7 +316,7 @@ namespace gnut
     double t_gsetproc::sig_init_glo()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_glo");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_glo");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -333,7 +334,7 @@ namespace gnut
     double t_gsetproc::sig_init_gal()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_gal");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_gal");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -351,7 +352,7 @@ namespace gnut
     double t_gsetproc::sig_init_bds()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_bds");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_bds");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -369,7 +370,7 @@ namespace gnut
     double t_gsetproc::sig_init_qzs()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_qzs");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("sig_init_qzs");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -387,7 +388,7 @@ namespace gnut
     double t_gsetproc::minimum_elev()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("minimum_elev");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("minimum_elev");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -405,7 +406,7 @@ namespace gnut
     double t_gsetproc::max_res_norm()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("max_res_norm");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("max_res_norm");
         str_erase(tmp);
         double tmp_double;
         if (tmp != "")
@@ -423,7 +424,7 @@ namespace gnut
     int t_gsetproc::minsat()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("min_sat");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("min_sat");
         str_erase(tmp);
         int tmp_int;
         if (tmp != "")
@@ -438,10 +439,10 @@ namespace gnut
         return tmp_int;
     }
 
-    string t_gsetproc::ref_clk()
+    std::string t_gsetproc::ref_clk()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("ref_clk");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("ref_clk");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -451,7 +452,7 @@ namespace gnut
     SLIPMODEL t_gsetproc::slip_model()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("slip_model");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("slip_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -468,7 +469,7 @@ namespace gnut
     IONMODEL t_gsetproc::ion_model()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("ion_model");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("ion_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -489,7 +490,7 @@ namespace gnut
     TROPMODEL t_gsetproc::tropo_model()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_model");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_model");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         TROPMODEL TM = str2tropmodel(tmp);
@@ -508,7 +509,7 @@ namespace gnut
     ATTITUDES t_gsetproc::attitudes()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("attitudes");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("attitudes");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -518,7 +519,7 @@ namespace gnut
     CBIASCHAR t_gsetproc::cbiaschar()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("cbiaschar");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("cbiaschar");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -528,7 +529,7 @@ namespace gnut
     GRDMPFUNC t_gsetproc::grad_mf()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("grad_mf");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("grad_mf");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 
@@ -550,7 +551,7 @@ namespace gnut
     OBSWEIGHT t_gsetproc::weighting()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("obs_weight");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("obs_weight");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 
@@ -571,7 +572,7 @@ namespace gnut
     RESIDTYPE t_gsetproc::residuals()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("residuals");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("residuals");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 
@@ -592,7 +593,7 @@ namespace gnut
     OBSCOMBIN t_gsetproc::obs_combin()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("obs_combination");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("obs_combination");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 
@@ -613,7 +614,7 @@ namespace gnut
     ZTDMPFUNC t_gsetproc::tropo_mf()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_mf");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("tropo_mf");
         str_erase(tmp);
         _gmutex.unlock();
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
@@ -634,7 +635,7 @@ namespace gnut
     CONSTRPAR t_gsetproc::crd_est()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("crd_constr");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("crd_constr");
         str_erase(tmp);
         _gmutex.unlock();
 
@@ -670,22 +671,22 @@ namespace gnut
         _default_node(node, "gradient", _tropo_grad == true ? "true" : "false");
         _default_node(node, "tropo_model", (tropmodel2str(_tropo_model)).c_str());
         _default_node(node, "tropo_slant", _tropo_slant == true ? "true" : "false");
-        _default_node(node, "sig_init_crd", (to_string(_sig_init_crd)).c_str());
-        _default_node(node, "sig_init_vel", (to_string(_sig_init_vel)).c_str());
-        _default_node(node, "sig_init_ztd", (to_string(_sig_init_ztd)).c_str());
-        _default_node(node, "sig_init_grd", (to_string(_sig_init_grd)).c_str());
-        _default_node(node, "sig_init_vion", (to_string(_sig_init_vion)).c_str());
-        _default_node(node, "sig_init_amb", (to_string(_sig_init_amb)).c_str());
-        _default_node(node, "sig_init_glo", (to_string(_sig_init_glo)).c_str());
-        _default_node(node, "sig_init_gal", (to_string(_sig_init_gal)).c_str());
-        _default_node(node, "sig_init_bds", (to_string(_sig_init_bds)).c_str());
-        _default_node(node, "sig_init_qzs", (to_string(_sig_init_qzs)).c_str());
-        _default_node(node, "minimum_elev", (to_string(_minimum_elev)).c_str());
-        _default_node(node, "max_res_norm", (to_string(_max_res_norm)).c_str());
+        _default_node(node, "sig_init_crd", (std::to_string(_sig_init_crd)).c_str());
+        _default_node(node, "sig_init_vel", (std::to_string(_sig_init_vel)).c_str());
+        _default_node(node, "sig_init_ztd", (std::to_string(_sig_init_ztd)).c_str());
+        _default_node(node, "sig_init_grd", (std::to_string(_sig_init_grd)).c_str());
+        _default_node(node, "sig_init_vion", (std::to_string(_sig_init_vion)).c_str());
+        _default_node(node, "sig_init_amb", (std::to_string(_sig_init_amb)).c_str());
+        _default_node(node, "sig_init_glo", (std::to_string(_sig_init_glo)).c_str());
+        _default_node(node, "sig_init_gal", (std::to_string(_sig_init_gal)).c_str());
+        _default_node(node, "sig_init_bds", (std::to_string(_sig_init_bds)).c_str());
+        _default_node(node, "sig_init_qzs", (std::to_string(_sig_init_qzs)).c_str());
+        _default_node(node, "minimum_elev", (std::to_string(_minimum_elev)).c_str());
+        _default_node(node, "max_res_norm", (std::to_string(_max_res_norm)).c_str());
         _default_node(node, "crd_constr", _crd_est.c_str());
         _default_node(node, "pos_kin", _pos_kin == true ? "true" : "false");
         _default_node(node, "sd_sat", _sd_sat == true ? "true" : "false");
-        _default_node(node, "min_sat", (to_string(_minsat)).c_str());
+        _default_node(node, "min_sat", (std::to_string(_minsat)).c_str());
         _default_node(node, "basepos", basepos2str(_basepos).c_str());
 
         _gmutex.unlock();
@@ -695,7 +696,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        cerr << " <process \n"
+        std::cerr << " <process \n"
              << "   phase=\"" << _phase << "\" \n"
              << "   tropo=\"" << _tropo << "\" \n"
              << "   iono=\"" << _iono << "\" \n"
@@ -716,7 +717,7 @@ namespace gnut
              << "   basepos=\"" << basepos2str(_basepos) << "\" \n"
              << " />\n";
 
-        cerr << "\t<!-- process description:\n"
+        std::cerr << "\t<!-- process description:\n"
              << "\t phase [0,1]   .. use carrier phase data\n"
              << "\t tropo [0,1]   .. estimate troposphere\n"
              << "\t tropo_grad    .. tropospheric horizontal gradient models\n"
@@ -738,7 +739,7 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    ATTITUDES t_gsetproc::str2attitudes(const string& ati)
+    ATTITUDES t_gsetproc::str2attitudes(const std::string& ati)
     {
         if (ati == "NOMINAL")
         {
@@ -750,14 +751,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported attitude model (" << attitude2str(_attitudes) << ")! Used default value ( YAW_MODEL )";
             _add_log("gsetproc", ostr.str());
             return ATTITUDES::DEF_YAWMODEL;
         }
     }
 
-    GRDMPFUNC t_gsetproc::str2grdmpfunc(const string& mf)
+    GRDMPFUNC t_gsetproc::str2grdmpfunc(const std::string& mf)
     {
         if (mf == "TILTING")
         {
@@ -773,7 +774,7 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported GRD mapping function (" << grdmpfunc2str(_grad_mf) << ")! Used default value (" << grdmpfunc2str(_grad_mf)
                  << ")";
             _add_log("gsetproc", ostr.str());
@@ -781,7 +782,7 @@ namespace gnut
         }
     }
 
-    CBIASCHAR t_gsetproc::str2cbiaschar(const string& cb)
+    CBIASCHAR t_gsetproc::str2cbiaschar(const std::string& cb)
     {
         if (cb == "2CHAR")
         {
@@ -797,14 +798,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported forcing code bias signals! Used default value (" << cbiaschar2str(_cbiaschar) << ")";
             _add_log("gsetproc", ostr.str());
             return CBIASCHAR::DEF_CBIASCHAR;
         }
     }
 
-    ZTDMPFUNC t_gsetproc::str2ztdmpfunc(const string& mf)
+    ZTDMPFUNC t_gsetproc::str2ztdmpfunc(const std::string& mf)
     {
         if (mf == "COSZ")
         {
@@ -820,14 +821,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported ZTD mapping function (" << mf << ")! Used default value (" << ztdmpfunc2str(_tropo_mf) << ")";
             _add_log("gsetproc", ostr.str());
             return ZTDMPFUNC::DEF_ZTDMPFUNC;
         }
     }
 
-    IONMPFUNC t_gsetproc::str2ionmpfunc(const string& mf)
+    IONMPFUNC t_gsetproc::str2ionmpfunc(const std::string& mf)
     {
         if (mf == "COSZ")
         {
@@ -843,14 +844,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported ION mapping function (" << mf << ")! Used default value (" << ionmpfunc2str(_iono_mf) << ")";
             _add_log("gsetproc", ostr.str());
             return IONMPFUNC::DEF_IONMPFUNC;
         }
     }
 
-    OBSWEIGHT t_gsetproc::str2obsweight(const string& wg)
+    OBSWEIGHT t_gsetproc::str2obsweight(const std::string& wg)
     {
         if (wg == "EQUAL")
         {
@@ -878,14 +879,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported observation weighting model (" << wg << ")! Used default value (" << obsweight2str(_obs_weight) << ")";
             _add_log("gsetproc", ostr.str());
             return OBSWEIGHT::DEF_OBSWEIGHT;
         }
     }
 
-    TROPMODEL t_gsetproc::str2tropmodel(const string& tm)
+    TROPMODEL t_gsetproc::str2tropmodel(const std::string& tm)
     {
         if (tm == "SAASTAMOINEN")
         {
@@ -905,14 +906,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported tropospheric model (" << tm << ")! Used default value (" << tropmodel2str(_tropo_model) << ")";
             _add_log("gsetproc", ostr.str());
             return TROPMODEL::DEF_TROPMODEL;
         }
     }
 
-    RESIDTYPE t_gsetproc::str2residtype(const string& rs)
+    RESIDTYPE t_gsetproc::str2residtype(const std::string& rs)
     {
         if (rs == "RES_ORIG")
         {
@@ -928,14 +929,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported type of residuals (" << rs << ")! Used default value (" << residtype2str(_res_type) << ")";
             _add_log("gsetproc", ostr.str());
             return RESIDTYPE::DEF_RESIDTYPE;
         }
     }
 
-    OBSCOMBIN t_gsetproc::str2obscombin(const string& oc)
+    OBSCOMBIN t_gsetproc::str2obscombin(const std::string& oc)
     {
         if (oc == "IONO_FREE")
         {
@@ -951,14 +952,14 @@ namespace gnut
         }
         else
         {
-            stringstream ostr;
+            std::stringstream ostr;
             ostr << "Unsupported observations combination (" << oc << ")! Used default value (" << obscombin2str(_obs_combin) << ")";
             _add_log("gsetproc", ostr.str());
             return OBSCOMBIN::DEF_OBSCOMBIN;
         }
     }
 
-    string t_gsetproc::grdmpfunc2str(GRDMPFUNC MF)
+    std::string t_gsetproc::grdmpfunc2str(GRDMPFUNC MF)
     {
         switch (MF)
         {
@@ -975,7 +976,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::ztdmpfunc2str(ZTDMPFUNC MF)
+    std::string t_gsetproc::ztdmpfunc2str(ZTDMPFUNC MF)
     {
         switch (MF)
         {
@@ -992,7 +993,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::ionmpfunc2str(IONMPFUNC MF)
+    std::string t_gsetproc::ionmpfunc2str(IONMPFUNC MF)
     {
         switch (MF)
         {
@@ -1009,7 +1010,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::obsweight2str(OBSWEIGHT WG)
+    std::string t_gsetproc::obsweight2str(OBSWEIGHT WG)
     {
         switch (WG)
         {
@@ -1032,7 +1033,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::tropmodel2str(TROPMODEL TM)
+    std::string t_gsetproc::tropmodel2str(TROPMODEL TM)
     {
         switch (TM)
         {
@@ -1051,7 +1052,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::residtype2str(RESIDTYPE RS)
+    std::string t_gsetproc::residtype2str(RESIDTYPE RS)
     {
         switch (RS)
         {
@@ -1068,7 +1069,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::attitude2str(ATTITUDES AT)
+    std::string t_gsetproc::attitude2str(ATTITUDES AT)
     {
         switch (AT)
         {
@@ -1083,7 +1084,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::obscombin2str(OBSCOMBIN OC)
+    std::string t_gsetproc::obscombin2str(OBSCOMBIN OC)
     {
         switch (OC)
         {
@@ -1100,7 +1101,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::cbiaschar2str(CBIASCHAR CB)
+    std::string t_gsetproc::cbiaschar2str(CBIASCHAR CB)
     {
         switch (CB)
         {
@@ -1117,7 +1118,7 @@ namespace gnut
         }
     }
 
-    string t_gsetproc::basepos2str(BASEPOS BP)
+    std::string t_gsetproc::basepos2str(BASEPOS BP)
     {
         switch (BP)
         {
@@ -1147,7 +1148,7 @@ namespace gnut
     {
     }
 
-    t_gobscombtype::t_gobscombtype(const string& obscombtype) :
+    t_gobscombtype::t_gobscombtype(const std::string& obscombtype) :
         _obs_type(GOBSTYPE::TYPE),
         _obs_band_1(GOBSBAND::BAND),
         _obs_combine(OBSCOMBIN::DEF_OBSCOMBIN)
@@ -1156,14 +1157,14 @@ namespace gnut
         {
             return;
         }
-        string str_type = obscombtype.substr(0, 1);
+        std::string str_type = obscombtype.substr(0, 1);
         if (str_type == "P")
         {
             str_type = "C";
         }
         _obs_type = str2gobstype(str_type);
 
-        string str_band = obscombtype.substr(1);
+        std::string str_band = obscombtype.substr(1);
         if (str_band.substr(0, 1) == "C")
         {
             _obs_combine = OBSCOMBIN::IONO_FREE;
@@ -1208,24 +1209,24 @@ namespace gnut
     {
     }
 
-    string t_gobscombtype::convert2str() const
+    std::string t_gobscombtype::convert2str() const
     {
-        string ans(gobstype2str(_obs_type == TYPE_C ? TYPE_P : _obs_type));
+        std::string ans(gobstype2str(_obs_type == gnut::GOBSTYPE::TYPE_C ? gnut::GOBSTYPE::TYPE_P : _obs_type));
         if (_obs_combine == OBSCOMBIN::IONO_FREE)
         {
             ans += "C";
-            if (_obs_freq_1 != FREQ_X)
+            if (_obs_freq_1 != gnut::FREQ_SEQ::FREQ_X)
             {
                 ans += gfreqseq2str(_obs_freq_1);
             }
-            if (_obs_freq_2 != FREQ_X)
+            if (_obs_freq_2 != gnut::FREQ_SEQ::FREQ_X)
             {
                 ans += gfreqseq2str(_obs_freq_2);
             }
         }
         else
         {
-            if (_obs_freq_1 != FREQ_X)
+            if (_obs_freq_1 != gnut::FREQ_SEQ::FREQ_X)
             {
                 ans += gfreqseq2str(_obs_freq_1);
             }
@@ -1245,13 +1246,13 @@ namespace gnut
 
     bool t_gobscombtype::is_code() const
     {
-        return (_obs_type == TYPE_C || _obs_type == TYPE_P);
+        return (_obs_type == gnut::GOBSTYPE::TYPE_C || _obs_type == gnut::GOBSTYPE::TYPE_P);
     }
 
     IFCB_MODEL t_gsetproc::ifcb_model()
     {
         // get rkf model node
-        string ifcb = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value(XMLKEY_PROC_IFCB);
+        std::string ifcb = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value(XMLKEY_PROC_IFCB);
 
         if (ifcb.empty())
         {
@@ -1276,7 +1277,7 @@ namespace gnut
     bool t_gsetproc::bds_code_bias_correction()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("bds_code_bias_corr");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("bds_code_bias_corr");
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         bool tmp_bool = (tmp == "TRUE" ? true : false);
@@ -1287,7 +1288,7 @@ namespace gnut
     int t_gsetproc::frequency()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("frequency");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("frequency");
         str_erase(tmp);
         int tmp_int = 2;
         if (tmp != "")
@@ -1302,7 +1303,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string recType = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("receiverType");
+        std::string recType = _doc.child(XMLKEY_ROOT).child(XMLKEY_PROC).child_value("receiverType");
         str_erase(recType);
         transform(recType.begin(), recType.end(), recType.begin(), ::toupper);
 

@@ -114,8 +114,8 @@ namespace gnut
                     return consume;
                 }
 
-                GFRQ freq1(LAST_GFRQ); // freq1 = XXX;
-                GFRQ freq2(LAST_GFRQ); // freq2 = XXX;
+                GFRQ freq1(gnut::GFRQ::LAST_GFRQ); // freq1 = XXX;
+                GFRQ freq2(gnut::GFRQ::LAST_GFRQ); // freq2 = XXX;
 
                 t_gtriple neu;
                 t_gpcv::t_map_Z mapZ;
@@ -123,7 +123,7 @@ namespace gnut
                 shared_ptr<t_gpcv> pcv = make_shared<t_gpcv>();
                 pcv->beg(FIRST_TIME);
                 pcv->end(LAST_TIME);
-                t_gtime beg(t_gtime::GPS), end(t_gtime::GPS);
+                t_gtime beg(t_gtime::t_tsys::GPS), end(t_gtime::t_tsys::GPS);
 
                 // loop over a single record (keeping unfinished record in buffer)
                 // begin from START OF ANTENNA
@@ -139,7 +139,7 @@ namespace gnut
                         map<string, t_gdata*>::iterator it = _data.begin();
                         while (it != _data.end())
                         {
-                            if (it->second->id_type() == t_gdata::ALLPCV)
+                            if (it->second->id_type() == t_gdata::ID_TYPE::ALLPCV)
                             {
                                 dynamic_cast<t_gallpcv*>(it->second)->addpcv(pcv);
                             }
@@ -261,7 +261,7 @@ namespace gnut
                         freq2 = t_gfreq::str2gfreq(freqstr);
                         if (freq1 == freq2)
                         {
-                            if (freq1 == LAST_GFRQ)
+                            if (freq1 == gnut::GFRQ::LAST_GFRQ)
                             {
                                 GREAT_DEBUG("Not defined frequency code " + line.substr(3, 3));
                             }
@@ -275,7 +275,8 @@ namespace gnut
                         }
                         else
                         {
-                            cout << "WARNING: INCOMPLETE FREQUENCY END " << freq1 << " x " << freq2 << " skipped" << endl;
+                            cout << "WARNING: INCOMPLETE FREQUENCY END " << t_gfreq::gfreq2str(freq1) << " x "
+                                 << t_gfreq::gfreq2str(freq2) << " skipped" << endl;
                             consume += t_gcoder::_consume(recsize);
                             _mutex.unlock();
                             return consume;

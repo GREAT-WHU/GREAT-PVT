@@ -37,15 +37,15 @@ namespace gnut
         /** @brief default destructor. */
         ~t_rnxhdr();
 
-        typedef vector<pair<GOBS, double>> t_vobstypes;
-        typedef map<string, t_vobstypes> t_obstypes;
+        typedef std::vector<std::pair<GOBS, double>> t_vobstypes;
+        typedef std::map<std::string, t_vobstypes> t_obstypes;
 
         /**
          * @brief get path
          *
          * @return string
          */
-        string path() const
+        std::string path() const
         {
             return _path;
         }
@@ -55,7 +55,7 @@ namespace gnut
          *
          * @param s
          */
-        void path(const string& s)
+        void path(const std::string& s)
         {
             _path = s;
         }
@@ -85,7 +85,7 @@ namespace gnut
          *
          * @return const string&
          */
-        const string& rnxver() const
+        const std::string& rnxver() const
         {
             return _rnxver;
         }
@@ -95,7 +95,7 @@ namespace gnut
          *
          * @param s
          */
-        void rnxver(const string& s)
+        void rnxver(const std::string& s)
         {
             _rnxver = s;
         }
@@ -105,7 +105,7 @@ namespace gnut
          *
          * @return string
          */
-        string program() const
+        std::string program() const
         {
             return _program;
         }
@@ -115,7 +115,7 @@ namespace gnut
          *
          * @param pgm
          */
-        void program(const string& pgm)
+        void program(const std::string& pgm)
         {
             _program = pgm;
         }
@@ -125,7 +125,7 @@ namespace gnut
          *
          * @return string
          */
-        string runby() const
+        std::string runby() const
         {
             return _runby;
         }
@@ -135,7 +135,7 @@ namespace gnut
          *
          * @param rnb
          */
-        void runby(const string& rnb)
+        void runby(const std::string& rnb)
         {
             _runby = rnb;
         }
@@ -165,7 +165,7 @@ namespace gnut
          *
          * @return vector<string>
          */
-        vector<string> comment()
+        std::vector<std::string> comment()
         {
             return _comment;
         }
@@ -175,7 +175,7 @@ namespace gnut
          *
          * @param cmt
          */
-        void comment(const vector<string>& cmt)
+        void comment(const std::vector<std::string>& cmt)
         {
             _comment = cmt;
         }
@@ -185,7 +185,7 @@ namespace gnut
          *
          * @return string
          */
-        string markname() const
+        std::string markname() const
         {
             return _markname;
         }
@@ -195,7 +195,7 @@ namespace gnut
          *
          * @param mrk
          */
-        void markname(const string& mrk)
+        void markname(const std::string& mrk)
         {
             _markname = mrk;
         }
@@ -205,7 +205,7 @@ namespace gnut
          *
          * @return string
          */
-        string marknumb() const
+        std::string marknumb() const
         {
             return _marknumb;
         }
@@ -215,7 +215,7 @@ namespace gnut
          *
          * @param mnb
          */
-        void marknumb(const string& mnb)
+        void marknumb(const std::string& mnb)
         {
             _marknumb = mnb;
         }
@@ -225,7 +225,7 @@ namespace gnut
          *
          * @return string
          */
-        string marktype() const
+        std::string marktype() const
         {
             return _marktype;
         }
@@ -235,7 +235,7 @@ namespace gnut
          *
          * @param mtp
          */
-        void marktype(const string& mtp)
+        void marktype(const std::string& mtp)
         {
             _marktype = mtp;
         }
@@ -245,7 +245,7 @@ namespace gnut
          *
          * @return string
          */
-        string observer() const
+        std::string observer() const
         {
             return _observer;
         }
@@ -255,7 +255,7 @@ namespace gnut
          *
          * @param obsrv
          */
-        void observer(const string& obsrv)
+        void observer(const std::string& obsrv)
         {
             _observer = obsrv;
         }
@@ -265,7 +265,7 @@ namespace gnut
          *
          * @return string
          */
-        string agency() const
+        std::string agency() const
         {
             return _agency;
         }
@@ -275,7 +275,7 @@ namespace gnut
          *
          * @param agn
          */
-        void agency(const string& agn)
+        void agency(const std::string& agn)
         {
             _agency = agn;
         }
@@ -285,7 +285,7 @@ namespace gnut
          *
          * @return string
          */
-        string recnumb() const
+        std::string recnumb() const
         {
             return _recnumb;
         }
@@ -295,7 +295,7 @@ namespace gnut
          *
          * @param rnb
          */
-        void recnumb(const string& rnb)
+        void recnumb(const std::string& rnb)
         {
             _recnumb = rnb;
         }
@@ -305,7 +305,7 @@ namespace gnut
          *
          * @return string
          */
-        string rectype() const
+        std::string rectype() const
         {
             return _rectype;
         }
@@ -315,7 +315,7 @@ namespace gnut
          *
          * @param rtp
          */
-        void rectype(const string& rtp)
+        void rectype(const std::string& rtp)
         {
             _rectype = rtp;
         }
@@ -325,7 +325,7 @@ namespace gnut
          *
          * @return string
          */
-        string recvers() const
+        std::string recvers() const
         {
             return _recvers;
         }
@@ -335,7 +335,7 @@ namespace gnut
          *
          * @param rvs
          */
-        void recvers(const string& rvs)
+        void recvers(const std::string& rvs)
         {
             _recvers = rvs;
         }
@@ -345,7 +345,7 @@ namespace gnut
          *
          * @return string
          */
-        string antnumb() const
+        std::string antnumb() const
         {
             return _antnumb;
         }
@@ -355,7 +355,7 @@ namespace gnut
          *
          * @param ant
          */
-        void antnumb(const string& ant)
+        void antnumb(const std::string& ant)
         {
             _antnumb = ant;
         }
@@ -365,7 +365,7 @@ namespace gnut
          *
          * @return string
          */
-        string anttype() const
+        std::string anttype() const
         {
             return _anttype;
         }
@@ -375,7 +375,7 @@ namespace gnut
          *
          * @param ant
          */
-        void anttype(const string& ant)
+        void anttype(const std::string& ant)
         {
             _anttype = ant;
         }
@@ -439,7 +439,7 @@ namespace gnut
          *
          * @return string
          */
-        string strength() const
+        std::string strength() const
         {
             return _strength;
         }
@@ -449,7 +449,7 @@ namespace gnut
          *
          * @param s
          */
-        void strength(const string& s)
+        void strength(const std::string& s)
         {
             _strength = s;
         }
@@ -647,30 +647,30 @@ namespace gnut
          * @param x
          * @return ostream&
          */
-        friend ostream& operator<<(ostream& os, const t_rnxhdr& x);
+        friend std::ostream& operator<<(std::ostream& os, const t_rnxhdr& x);
 
     private:
         char _rnxsys;            ///< G=GPS, R=GLO, E=GAL, S=SBAS, M=Mix
-        string _path;            ///< rinex file path
-        string _rnxver;          ///< rinex version
-        string _program;         ///< name of program creating RINEX file
-        string _runby;           ///< name of agency  creating RINEX file
+        std::string _path;            ///< rinex file path
+        std::string _rnxver;          ///< rinex version
+        std::string _program;         ///< name of program creating RINEX file
+        std::string _runby;           ///< name of agency  creating RINEX file
         t_gtime _gtime;          ///< name of date and file of RINEX creation
-        vector<string> _comment; ///< vector of comments
-        string _markname;        ///< marker name
-        string _marknumb;        ///< marker number
-        string _marktype;        ///< marker type
-        string _observer;        ///< name of observer
-        string _agency;          ///< name of agency
-        string _recnumb;         ///< receiver number
-        string _rectype;         ///< receiver type
-        string _recvers;         ///< receiver version
-        string _antnumb;         ///< antenna number
-        string _anttype;         ///< antenna type
+        std::vector<std::string> _comment; ///< vector of comments
+        std::string _markname;        ///< marker name
+        std::string _marknumb;        ///< marker number
+        std::string _marktype;        ///< marker type
+        std::string _observer;        ///< name of observer
+        std::string _agency;          ///< name of agency
+        std::string _recnumb;         ///< receiver number
+        std::string _rectype;         ///< receiver type
+        std::string _recvers;         ///< receiver version
+        std::string _antnumb;         ///< antenna number
+        std::string _anttype;         ///< antenna type
         t_gtriple _aprxyz;       ///< approximate xyz position [m]
         t_gtriple _antxyz;       ///< antenna xyx eccentricities [m]
         t_gtriple _antneu;       ///< antenna north/east/up eccentricities [m]
-        string _strength;        ///< signal strength [DBHZ/...]
+        std::string _strength;        ///< signal strength [DBHZ/...]
         double _interval;        ///< interval [sec]
         t_gtime _first;          ///< time of first observation
         t_gtime _last;           ///< time of last observation

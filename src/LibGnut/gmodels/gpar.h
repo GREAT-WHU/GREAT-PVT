@@ -26,7 +26,6 @@
 #include "gutils/gtriple.h"
 #include "gset/gsetproc.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -130,8 +129,8 @@ namespace gnut
     class LibGnut_LIBRARY_EXPORT t_gpar
     {
     public:
-        const static string PAR_STR_SEP;
-        const static vector<string> PAR_STR;
+        const static std::string PAR_STR_SEP;
+        const static std::vector<std::string> PAR_STR;
 
         /** @brief is amb?. */
         static bool is_amb(par_type tp)
@@ -148,7 +147,8 @@ namespace gnut
         }
 
         /** @brief constructor 1. */
-        t_gpar(const string& site, par_type t, unsigned i, const string& p, bool remove = true);
+        t_gpar(const std::string& site, par_type t, unsigned i, GSAT sat = GSAT::NONE, bool remove = true);
+        t_gpar(const std::string& site, par_type t, unsigned i, const std::string& sat, bool remove = true);
 
         /** @brief default constructor. */
         t_gpar();
@@ -194,8 +194,8 @@ namespace gnut
 
         par_type parType; ///< par type
         int index;        ///< index
-        string prn;       ///< satellite name
-        string site;      ///< site name
+        GSAT prn;         ///< satellite
+        std::string site;      ///< site name
         t_gtime beg;      ///< begin time
         t_gtime end;      ///< end time
         t_gtime stime;    ///< s time
@@ -217,8 +217,8 @@ namespace gnut
         double zen2;
         double azi1;
         double azi2;
-        vector<GFRQ> fq; ///< single frequency: G01/G02/C02/R01..., LC combination: G01+G02/C02+C07...
-        string str_type() const;
+        std::vector<GFRQ> fq; ///< single frequency: G01/G02/C02/R01..., LC combination: G01+G02/C02+C07...
+        std::string str_type() const;
         t_gparhead get_head() const;
         t_gtimearc get_timearc() const;
 
@@ -238,7 +238,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gparhead(par_type type, string site, string sat);
+        t_gparhead(par_type type, std::string site, GSAT sat);
 
         /** @brief constructor 2. */
         t_gparhead(const t_gparhead& Other);
@@ -254,18 +254,18 @@ namespace gnut
         bool operator>=(const t_gparhead& Other) const;
 
         par_type type; ///< par type
-        string site;   ///< site name
-        string sat;    ///< satellite name
+        std::string site;   ///< site name
+        GSAT sat;      ///< satellite
     };
 
     /** @brief convert par to string. */
-    string LibGnut_LIBRARY_EXPORT gpar2str(const t_gpar& par);
+    std::string LibGnut_LIBRARY_EXPORT gpar2str(const t_gpar& par);
 
     /** @brief convert partype to string. */
-    string LibGnut_LIBRARY_EXPORT ptype2str(const par_type& par);
+    std::string LibGnut_LIBRARY_EXPORT ptype2str(const par_type& par);
 
     /** @brief convert string to par. */
-    t_gpar LibGnut_LIBRARY_EXPORT str2gpar(const string& str_par);
+    t_gpar LibGnut_LIBRARY_EXPORT str2gpar(const std::string& str_par);
 
 } // namespace gnut
 

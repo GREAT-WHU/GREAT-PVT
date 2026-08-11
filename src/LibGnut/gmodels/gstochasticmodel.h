@@ -23,7 +23,6 @@
 #include "gutils/gtime.h"
 #include "newmat/newmat.h"
 
-using namespace std;
 
 namespace gnut
 {

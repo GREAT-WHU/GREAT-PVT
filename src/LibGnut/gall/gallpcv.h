@@ -26,7 +26,6 @@
 #include "gutils/gtime.h"
 #include "gmodels/gpcv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -49,31 +48,35 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_gallpcv();
 
-        typedef map<t_gtime, shared_ptr<t_gpcv>> t_map_epo; ///< map of 1-ant/1-sn/N-epochs
-        typedef map<string, t_map_epo> t_map_num;           ///< map of 1-ant/N-sn/N-epochs
-        typedef map<string, t_map_num> t_map_pcv;           ///< map of N-ant/N-sn/N-epochs
+        typedef std::map<t_gtime, std::shared_ptr<t_gpcv>> t_map_epo; ///< map of 1-ant/1-sn/N-epochs
+        typedef std::map<std::string, t_map_epo> t_map_num;           ///< map of 1-ant/N-sn/N-epochs
+        typedef std::map<std::string, t_map_num> t_map_pcv;           ///< map of N-ant/N-sn/N-epochs
+        typedef std::map<GSAT, t_map_epo> t_map_sat_pcv;         ///< satellite PCV by PRN
 
         /**
          *@brief add single antenn pattern (PCV)
          */
-        int addpcv(shared_ptr<t_gpcv> pcv);
+        int addpcv(std::shared_ptr<t_gpcv> pcv);
 
         /**
          *@brief get single antenn pattern (PCV)
          */
-        shared_ptr<t_gpcv> gpcv(const string& ant, const string& num, const t_gtime& t);
+        std::shared_ptr<t_gpcv> gpcv(const std::string& ant, const std::string& num, const t_gtime& t);
+        std::shared_ptr<t_gpcv> gpcv(GSAT sat, const t_gtime& t);
 
     protected:
         /**
          *@brief find appropriate t_gpcv element
          */
-        virtual shared_ptr<t_gpcv> _find(const string& ant, const string& ser, const t_gtime& t);
+        virtual std::shared_ptr<t_gpcv> _find(const std::string& ant, const std::string& ser, const t_gtime& t);
+        std::shared_ptr<t_gpcv> _find(GSAT sat, const t_gtime& t);
 
     private:
         t_map_pcv _mappcv; ///< complete PCV-map
+        t_map_sat_pcv _mapsatpcv; ///< satellite PCV-map
         bool _overwrite;   ///< rewrite/add only mode
 
-        shared_ptr<t_gpcv> _pcvnull; ///< pcvnull
+        std::shared_ptr<t_gpcv> _pcvnull; ///< pcvnull
     };
 
 } // namespace gnut

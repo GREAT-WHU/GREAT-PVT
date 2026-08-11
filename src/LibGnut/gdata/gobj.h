@@ -25,7 +25,7 @@
 #include <memory>
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gdata/gdata.h"
@@ -34,7 +34,6 @@
 #include "gmodels/gpcv.h"
 #include "gutils/gtriple.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -51,39 +50,39 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_gobj();
 
-        typedef map<t_gtime, shared_ptr<t_gpcv>> t_mappcv;
-        typedef map<t_gtime, t_gtriple> t_mapecc_xyz;
-        typedef map<t_gtime, t_gtriple> t_mapecc_neu;
-        typedef map<t_gtime, pair<t_gtriple, t_gtriple>> t_mapcrd;
-        typedef map<t_gtime, string> t_mapant;
+        typedef std::map<t_gtime, std::shared_ptr<t_gpcv>> t_mappcv;
+        typedef std::map<t_gtime, t_gtriple> t_mapecc_xyz;
+        typedef std::map<t_gtime, t_gtriple> t_mapecc_neu;
+        typedef std::map<t_gtime, std::pair<t_gtriple, t_gtriple>> t_mapcrd;
+        typedef std::map<t_gtime, std::string> t_mapant;
 
         /** @brief set/get id (uniq internal id). */
-        virtual void id(string str);
+        virtual void id(std::string str);
         /**
          * @brief
          *
          * @return string
          */
-        virtual string id() const;
+        virtual std::string id() const;
 
         /** @brief set/get name (name). */
-        virtual void name(string str);
+        virtual void name(std::string str);
         /**
          * @brief
          *
          * @return string
          */
-        virtual string name() const;
+        virtual std::string name() const;
 
         /** @brief set/get name (domes). */
-        virtual void domes(string str);
-        virtual string domes() const;
+        virtual void domes(std::string str);
+        virtual std::string domes() const;
 
         /** @brief set/get description (full name). */
-        virtual void desc(string str);
+        virtual void desc(std::string str);
 
         /** @brief get description. */
-        virtual string desc() const;
+        virtual std::string desc() const;
 
         /** @set ecc offsets w.r.t.center of mass / reference point. */
         virtual void eccxyz(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end = LAST_TIME);
@@ -128,10 +127,10 @@ namespace gnut
          * @param beg
          * @param end
          */
-        virtual void pcv(shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end = LAST_TIME);
+        virtual void pcv(std::shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end = LAST_TIME);
 
         /** @brief set/get external pointer to pcv element (>=t). */
-        virtual shared_ptr<t_gpcv> pcv(const t_gtime& t) const;
+        virtual std::shared_ptr<t_gpcv> pcv(const t_gtime& t) const;
 
         /**
          * @brief set antenna name
@@ -140,10 +139,10 @@ namespace gnut
          * @param beg
          * @param end
          */
-        virtual void ant(string ant, const t_gtime& beg, const t_gtime& end = LAST_TIME);
+        virtual void ant(std::string ant, const t_gtime& beg, const t_gtime& end = LAST_TIME);
 
         /** @brief set/get antenna. */
-        virtual string ant(const t_gtime& t) const;
+        virtual std::string ant(const t_gtime& t) const;
 
         /**
          * @brief return validity for antenna at epoch t
@@ -213,21 +212,21 @@ namespace gnut
         virtual bool get_adjacent_crd(const t_gtime& t, const double& ref_std, t_gtriple& crd, t_gtriple& std);
 
         /** @brief get time tags. */
-        virtual vector<t_gtime> pcv_id() const;
+        virtual std::vector<t_gtime> pcv_id() const;
 
         /**
          * @brief get time tags
          *
          * @return vector<t_gtime>
          */
-        virtual vector<t_gtime> ant_id() const;
+        virtual std::vector<t_gtime> ant_id() const;
 
         /**
          * @brief get time tags
          *
          * @return vector<t_gtime>
          */
-        virtual vector<t_gtime> crd_id() const;
+        virtual std::vector<t_gtime> crd_id() const;
 
         /**
          * @brief check consistency
@@ -236,7 +235,7 @@ namespace gnut
          * @param tt
          * @param source
          */
-        virtual void compare(shared_ptr<t_gobj> gobj, const t_gtime& tt, string source);
+        virtual void compare(std::shared_ptr<t_gobj> gobj, const t_gtime& tt, std::string source);
 
         /** @brief get the value of isrec. */
         virtual bool isrec() = 0;
@@ -279,10 +278,10 @@ namespace gnut
         virtual bool operator==(const t_gobj& t) const;
 
     protected:
-        string _id;              ///< object id (internal)
-        string _name;            ///< object name
-        string _domes;           ///< object domes
-        string _desc;            ///< object description (full name)
+        std::string _id;              ///< object id (internal)
+        std::string _name;            ///< object name
+        std::string _domes;           ///< object domes
+        std::string _desc;            ///< object description (full name)
         t_mapcrd _mapcrd;        ///< object position
         t_mappcv _mappcv;        ///< map of pco+pcv
         t_mapecc_xyz _mapeccxyz; ///< map of xyz eccentricities (to center of mass or reference point)
@@ -292,11 +291,11 @@ namespace gnut
         bool _overwrite;
 
         // source for public (mutexed) interfaces
-        shared_ptr<t_gpcv> _pcv(const t_gtime& t) const;
-        void _pcv(shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end = LAST_TIME);
-        void _ant(string ant, const t_gtime& beg, const t_gtime& end = LAST_TIME);
-        string _ant(const t_gtime& t) const;
-        vector<t_gtime> _ant_id() const;
+        std::shared_ptr<t_gpcv> _pcv(const t_gtime& t) const;
+        void _pcv(std::shared_ptr<t_gpcv> pcv, const t_gtime& beg, const t_gtime& end = LAST_TIME);
+        void _ant(std::string ant, const t_gtime& beg, const t_gtime& end = LAST_TIME);
+        std::string _ant(const t_gtime& t) const;
+        std::vector<t_gtime> _ant_id() const;
         void _crd(const t_gtriple& crd,
                   const t_gtriple& std,
                   const t_gtime& beg,
@@ -308,7 +307,7 @@ namespace gnut
         t_gtriple _eccxyz(const t_gtime& t) const;
         void _eccneu(const t_gtriple& ecc, const t_gtime& beg, const t_gtime& end = LAST_TIME);
         t_gtriple _eccneu(const t_gtime& t) const;
-        shared_ptr<t_gpcv> _pcvnull;
+        std::shared_ptr<t_gpcv> _pcvnull;
 
     private:
     };

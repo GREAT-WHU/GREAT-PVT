@@ -14,14 +14,13 @@
 #include "gmodels/gpar.h"
 #include "gmodels/ggmf.h"
 
-using namespace std;
 
 namespace gnut
 {
 
-    const string t_gpar::PAR_STR_SEP = "_";
+    const std::string t_gpar::PAR_STR_SEP = "_";
 
-    const vector<string> t_gpar::PAR_STR = {
+    const std::vector<std::string> t_gpar::PAR_STR = {
         "CRD_X",
         "CRD_Y",
         "CRD_Z", // coordinates
@@ -130,7 +129,7 @@ namespace gnut
         "IFB_BDS_3",
     };
 
-    t_gparhead::t_gparhead(par_type type, string site, string sat) :
+    t_gparhead::t_gparhead(par_type type, std::string site, GSAT sat) :
         type(type),
         site(site),
         sat(sat)
@@ -251,7 +250,7 @@ namespace gnut
         return (this->begin >= Other.begin && this->end <= Other.end);
     }
 
-    t_gpar::t_gpar(const string& site, par_type t, unsigned i, const string& p, bool remove)
+    t_gpar::t_gpar(const std::string& site, par_type t, unsigned i, GSAT sat, bool remove)
     {
         beg = FIRST_TIME;
         end = LAST_TIME;
@@ -259,7 +258,7 @@ namespace gnut
         this->site = site;
         parType = t;
         index = i;
-        prn = p;
+        prn = sat;
         amb_ini = false;
         value(0.0);
         apriori(0.0);
@@ -274,10 +273,16 @@ namespace gnut
         nazi = 0;
     }
 
+    t_gpar::t_gpar(const std::string& site, par_type t, unsigned i, const std::string& sat, bool remove) :
+        t_gpar(site, t, i, str2gsat(sat), remove)
+    {
+    }
+
     t_gpar::t_gpar()
     {
         beg = FIRST_TIME;
         end = LAST_TIME;
+        prn = GSAT::NONE;
     }
 
     t_gpar::~t_gpar()
@@ -350,7 +355,7 @@ namespace gnut
                 }
             }
             case par_type::IFCB_F3:
-                if (t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_3 && prn == satData.sat())
+                if (t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_3 && prn == satData.sat())
                 {
                     return -1.0;
                 }
@@ -359,7 +364,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::IFCB_F4:
-                if (t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_4 && prn == satData.sat())
+                if (t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_4 && prn == satData.sat())
                 {
                     return -1.0;
                 }
@@ -368,7 +373,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::IFCB_F5:
-                if (t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_5 && prn == satData.sat())
+                if (t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_5 && prn == satData.sat())
                 {
                     return -1.0;
                 }
@@ -391,7 +396,7 @@ namespace gnut
             {
                 if (satData.site() == this->site)
                 {
-                    double f1 = satData.frequency(t_gsys::band_priority(satData.gsys(), FREQ_1));
+                    double f1 = satData.frequency(t_gsys::band_priority(satData.gsys(), gnut::FREQ_SEQ::FREQ_1));
                     double fk = satData.frequency(gobs.band());
                     double alfa = 0.0;
                     if (gobs.is_phase() && prn == satData.sat())
@@ -413,7 +418,7 @@ namespace gnut
             {
                 if (satData.site() == this->site)
                 {
-                    double f1 = satData.frequency(t_gsys::band_priority(satData.gsys(), FREQ_1));
+                    double f1 = satData.frequency(t_gsys::band_priority(satData.gsys(), gnut::FREQ_SEQ::FREQ_1));
                     double fk = satData.frequency(gobs.band());
                     double mf = 1.0 / sqrt(1.0 - pow(R_SPHERE / (R_SPHERE + 450000.0) * sin(G_PI / 2.0 - satData.ele()), 2));
                     double alfa = 0.0;
@@ -456,7 +461,7 @@ namespace gnut
                     }
                     else
                     {
-                        cerr << "Grad N mapping function is not set up correctly!!!" << endl;
+                        std::cerr << "Grad N mapping function is not set up correctly!!!" << std::endl;
                     }
                 }
                 else
@@ -487,7 +492,7 @@ namespace gnut
                     }
                     else
                     {
-                        cerr << "Grad E mapping function is not set up correctly!!!" << endl;
+                        std::cerr << "Grad E mapping function is not set up correctly!!!" << std::endl;
                     }
                 }
                 else
@@ -505,7 +510,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::AMB_L1:
-                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_1 &&
+                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_1 &&
                     prn == satData.sat())
                 {
                     return 1.0;
@@ -515,7 +520,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::AMB_L2:
-                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_2 &&
+                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_2 &&
                     prn == satData.sat())
                 {
                     return 1.0;
@@ -525,7 +530,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::AMB_L3:
-                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_3 &&
+                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_3 &&
                     prn == satData.sat())
                 {
                     return 1.0;
@@ -535,7 +540,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::AMB_L4:
-                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_4 &&
+                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_4 &&
                     prn == satData.sat())
                 {
                     return 1.0;
@@ -545,7 +550,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::AMB_L5:
-                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == FREQ_5 &&
+                if (satData.site() == this->site && gobs.is_phase() && t_gsys::band2freq(satData.gsys(), gobs.band()) == gnut::FREQ_SEQ::FREQ_5 &&
                     prn == satData.sat())
                 {
                     return 1.0;
@@ -555,7 +560,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::GLO_ISB:
-                if (satData.site() == this->site && satData.gsys() == GLO)
+                if (satData.site() == this->site && satData.gsys() == GSYS::GLO)
                 {
                     return 1.0;
                 }
@@ -564,7 +569,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::GLO_IFCB:
-                if (satData.site() == this->site && !gobs.is_phase() && satData.gsys() == GLO && prn == satData.sat())
+                if (satData.site() == this->site && !gobs.is_phase() && satData.gsys() == GSYS::GLO && prn == satData.sat())
                 {
                     return 1.0;
                 }
@@ -573,7 +578,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::GLO_IFPB:
-                if (satData.site() == this->site && gobs.is_phase() && satData.gsys() == GLO && prn == satData.sat())
+                if (satData.site() == this->site && gobs.is_phase() && satData.gsys() == GSYS::GLO && prn == satData.sat())
                 {
                     return 1.0;
                 }
@@ -582,7 +587,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::GLO_IFB:
-                if (satData.site() == this->site && satData.gsys() == GLO && prn == satData.sat())
+                if (satData.site() == this->site && satData.gsys() == GSYS::GLO && prn == satData.sat())
                 {
                     return 1.0;
                 }
@@ -591,7 +596,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::GAL_ISB:
-                if (satData.site() == this->site && satData.gsys() == GAL)
+                if (satData.site() == this->site && satData.gsys() == GSYS::GAL)
                 {
                     return 1.0;
                 }
@@ -600,7 +605,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::BDS_ISB:
-                if (satData.site() == this->site && satData.gsys() == BDS)
+                if (satData.site() == this->site && satData.gsys() == GSYS::BDS)
                 {
                     return 1.0;
                 }
@@ -609,7 +614,7 @@ namespace gnut
                     return 0.0;
                 }
             case par_type::QZS_ISB:
-                if (satData.site() == this->site && satData.gsys() == QZS)
+                if (satData.site() == this->site && satData.gsys() == GSYS::QZS)
                 {
                     return 1.0;
                 }
@@ -715,9 +720,9 @@ namespace gnut
         this->end = t2;
     }
 
-    string t_gpar::str_type() const
+    std::string t_gpar::str_type() const
     {
-        string type;
+        std::string type;
         switch (parType)
         {
             case par_type::CRD_X:
@@ -925,24 +930,24 @@ namespace gnut
         }
         else
         {
-            cerr << "ZTD mapping function is not set up correctly!!!" << endl;
+            std::cerr << "ZTD mapping function is not set up correctly!!!" << std::endl;
         }
     }
 
-    string gpar2str(const t_gpar& par)
+    std::string gpar2str(const t_gpar& par)
     {
-        string partype = par.str_type();
+        std::string partype = par.str_type();
         partype = par.site + t_gpar::PAR_STR_SEP + partype;
-        if (par.prn == "")
+        if (par.prn == GSAT::NONE)
         {
             partype += t_gpar::PAR_STR_SEP;
         }
         return partype;
     }
 
-    string LibGnut_LIBRARY_EXPORT ptype2str(const par_type& parType)
+    std::string LibGnut_LIBRARY_EXPORT ptype2str(const par_type& parType)
     {
-        string type;
+        std::string type;
         switch (parType)
         {
             case par_type::CRD_X:
@@ -1101,10 +1106,10 @@ namespace gnut
         return type;
     }
 
-    t_gpar str2gpar(const string& str_par)
+    t_gpar str2gpar(const std::string& str_par)
     {
         int sep_first, sep_last = 0;
-        string site, sat, str_type;
+        std::string site, sat, str_type;
         sep_first = str_par.find(t_gpar::PAR_STR_SEP);
         site = str_par.substr(0, sep_first);
 
@@ -1124,7 +1129,7 @@ namespace gnut
             }
         }
 
-        return t_gpar(site, par_tp, 0, sat);
+        return t_gpar(site, par_tp, 0, str2gsat(sat));
     }
 
 } // namespace gnut

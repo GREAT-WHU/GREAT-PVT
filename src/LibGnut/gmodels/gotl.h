@@ -27,7 +27,6 @@
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -43,7 +42,7 @@ namespace gnut
         ~t_gotl();
 
         /** @brief get the site. */
-        string site();
+        std::string site();
 
         /** @brief get the latitude. */
         double lat();
@@ -55,10 +54,10 @@ namespace gnut
         Matrix data();
 
         /** @brief set the data. */
-        void setdata(const string& site, const double& lon, const double& lat, const Matrix& data);
+        void setdata(const std::string& site, const double& lon, const double& lat, const Matrix& data);
 
     private:
-        string _site; ///< site
+        std::string _site; ///< site
         Matrix _data; ///< data
         double _lat;  ///< latitude
         double _lon;  ///< lontitude

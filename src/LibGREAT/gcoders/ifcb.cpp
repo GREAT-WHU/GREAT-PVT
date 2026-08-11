@@ -78,9 +78,9 @@ namespace great
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::IFCB)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::IFCB)
                         {
-                            ((t_gifcb*)it->second)->add_sat_ifcb(_epoch, prn, ifcb);
+                            ((t_gifcb*)it->second)->add_sat_ifcb(_epoch, str2gsat(prn), ifcb);
                         }
                         it++;
                     }

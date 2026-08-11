@@ -27,14 +27,17 @@
 #include "gutils/gcommon.h"
 #include "gutils/gtriple.h"
 
+#ifndef MAX_RINEXN_REC_BDS
 #define MAX_RINEXN_REC_BDS 29
+#endif
 
-using namespace std;
 
 namespace gnut
 {
 ///< ICD BeiDou v2
+#ifndef SC2R
 #define SC2R 3.1415926535898 ///< semi-circle to radian
+#endif
 
     /** @brief Class for bds navigation data storing. */
     class LibGnut_LIBRARY_EXPORT t_gnavbds : public t_gnav
@@ -78,7 +81,7 @@ namespace gnut
          * @param msg
          * @return int
          */
-        int chk(set<string>& msg) override;
+        int chk(std::set<std::string>& msg) override;
 
         /**
          * @brief
@@ -87,7 +90,7 @@ namespace gnut
          * @param data
          * @return int
          */
-        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
+        int data2nav(std::string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /**
          * @brief
@@ -145,14 +148,14 @@ namespace gnut
          *
          * @return string
          */
-        string line() const override;
+        std::string line() const override;
 
         /**
          * @brief
          *
          * @return string
          */
-        string linefmt() const override;
+        std::string linefmt() const override;
 
     private:
         /**

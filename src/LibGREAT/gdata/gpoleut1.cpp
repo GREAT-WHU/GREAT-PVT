@@ -11,13 +11,12 @@
 #include "gdata/gpoleut1.h"
 #include "math.h"
 #include "gutils/gtypeconv.h"
-using namespace std;
 namespace great
 {
     t_gpoleut1::t_gpoleut1() :
         t_gdata()
     {
-        id_type(t_gdata::ALLPOLEUT1);
+        id_type(t_gdata::ID_TYPE::ALLPOLEUT1);
     }
     void t_gpoleut1::setBegEndTime(int beg, int end)
     {
@@ -25,20 +24,20 @@ namespace great
         _end_end = end;
     }
 
-    void t_gpoleut1::setEopData(t_gtime mjdtime, map<string, double> data, string mode, double intv)
+    void t_gpoleut1::setEopData(t_gtime mjdtime, std::map<std::string, double> data, std::string mode, double intv)
     {
         _poleut1_data[mjdtime] = data;
         _UT1_mode = mode;
         _intv = intv;
     }
 
-    void t_gpoleut1::getEopData(t_gtime mjdtime, map<string, double>& data)
+    void t_gpoleut1::getEopData(t_gtime mjdtime, std::map<std::string, double>& data)
     {
-        lock_guard<t_gmutex> lock(_gmutex);
+        std::lock_guard<t_gmutex> lock(_gmutex);
         auto right = _poleut1_data.upper_bound(mjdtime);
         if (right == _poleut1_data.begin())
         {
-            throw runtime_error("interpolation poleut1 wrong");
+            throw std::runtime_error("interpolation poleut1 wrong");
         }
 
         auto left = right;
@@ -47,7 +46,7 @@ namespace great
         {
             if (left->first != mjdtime)
             {
-                throw runtime_error("interpolation poleut1 wrong");
+                throw std::runtime_error("interpolation poleut1 wrong");
             }
             data = left->second;
             return;
@@ -56,7 +55,7 @@ namespace great
         const double span = right->first - left->first;
         if (_intv > 0.0 && span > _intv * 86400.0 + 1.0)
         {
-            throw runtime_error("poleut1 data gap exceeds declared interval");
+            throw std::runtime_error("poleut1 data gap exceeds declared interval");
         }
 
         const double alpha = (mjdtime - left->first) / span;

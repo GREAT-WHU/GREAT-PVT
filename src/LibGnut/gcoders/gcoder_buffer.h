@@ -24,7 +24,6 @@
 #include <deque>
 #include <queue>
 
-using namespace std;
 
 namespace great
 {
@@ -52,13 +51,13 @@ namespace great
          * @param[in]  from_pos    the position in the buffer
          * @return      int
          */
-        int getline(string& str, int from_pos);
+        int getline(std::string& str, int from_pos);
 
         /** @brief tostring. */
-        void toString(string& str);
+        void toString(std::string& str);
 
     private:
-        deque<char> _buffer; ///< buffer
+        std::deque<char> _buffer; ///< buffer
     };
 
     /**
@@ -85,7 +84,7 @@ namespace great
          * @param[in]  from_pos    the position in the buffer
          * @return      int
          */
-        int getline(string& str, int from_pos);
+        int getline(std::string& str, int from_pos);
 
         /**
          * @brief get the buffer.
@@ -98,7 +97,7 @@ namespace great
         int consume(int bytes_to_eat);
 
         /** @brief to string. */
-        void toString(string& str);
+        void toString(std::string& str);
 
     private:
         int _begpos;   ///< begin position in the buffer

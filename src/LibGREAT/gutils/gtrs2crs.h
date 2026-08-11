@@ -19,7 +19,6 @@
 #include "gutils/gtriple.h"
 #include "newmat/newmat.h"
 
-using namespace std;
 
 namespace great
 {
@@ -67,7 +66,7 @@ namespace great
         t_gtrs2crs();
 
         /** @brief constructor. */
-        t_gtrs2crs(string cver);
+        t_gtrs2crs(std::string cver);
 
         /** @brief constructor. */
         t_gtrs2crs(bool erptab, t_gpoleut1* poleut1);
@@ -78,7 +77,7 @@ namespace great
          * @param[in]  poleut1   Earth orientation parameters
          * @param[in]  cver      IAU version: 00(default) or 06
          */
-        t_gtrs2crs(bool erptab, t_gpoleut1* poleut1, string cver);
+        t_gtrs2crs(bool erptab, t_gpoleut1* poleut1, std::string cver);
 
         /**
          * @brief define = for t_gtrs2crs
@@ -187,7 +186,7 @@ namespace great
         const double rmjd0 = 51544.5;
 
         // IAU2000A or IAU2006/2000A; added by yqyuan 2021.05.10
-        string _cver; ///< IAU version: 00(default) or 06
+        std::string _cver; ///< IAU version: 00(default) or 06
     };
 } // namespace great
 

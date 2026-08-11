@@ -19,7 +19,7 @@ namespace gnut
 {
     t_gallopl::t_gallopl()
     {
-        id_type(t_gdata::ALLOPL);
+        id_type(t_gdata::ID_TYPE::ALLOPL);
     }
 
     t_gallopl::~t_gallopl()

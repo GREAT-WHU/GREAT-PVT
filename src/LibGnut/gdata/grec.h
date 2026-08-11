@@ -24,14 +24,13 @@
 #include <string>
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gdata/gobj.h"
 #include "gdata/gdata.h"
 #include "gdata/grnxhdr.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -48,16 +47,16 @@ namespace gnut
         virtual ~t_grec();
 
         /** @brief map rec. */
-        typedef map<t_gtime, string> t_maprec;
+        typedef std::map<t_gtime, std::string> t_maprec;
 
         /** @brief map header. */
-        typedef map<t_gtime, t_rnxhdr> t_maphdr;
+        typedef std::map<t_gtime, t_rnxhdr> t_maphdr;
 
         /** @brief add rinex header. */
-        virtual void addhdr(const t_rnxhdr& hdr, const t_gtime& epo, string path);
+        virtual void addhdr(const t_rnxhdr& hdr, const t_gtime& epo, std::string path);
 
         /** @brief change rinex header. */
-        void changehdr(const t_rnxhdr& hdr, const t_gtime& epo, string path);
+        void changehdr(const t_rnxhdr& hdr, const t_gtime& epo, std::string path);
 
         /** @brief get all rinex headr. */
         t_maphdr gethdr();
@@ -72,10 +71,10 @@ namespace gnut
         }
 
         /** @brief set receiver name. */
-        void rec(string rec, const t_gtime& beg, const t_gtime& end = LAST_TIME);
+        void rec(std::string rec, const t_gtime& beg, const t_gtime& end = LAST_TIME);
 
         /** @brief get receiver name. */
-        string rec(const t_gtime& t) const; // set/get receiver
+        std::string rec(const t_gtime& t) const; // set/get receiver
 
         /** @brief return validity for receiver at epoch t. */
         void rec_validity(const t_gtime& t, t_gtime& beg, t_gtime& end) const;
@@ -93,10 +92,10 @@ namespace gnut
         }
 
         /** @brief check consistency. */
-        virtual void compare(shared_ptr<t_grec> grec, const t_gtime& tt, string source);
+        virtual void compare(std::shared_ptr<t_grec> grec, const t_gtime& tt, std::string source);
 
         /** @brief get time tags. */
-        virtual vector<t_gtime> rec_id() const;
+        virtual std::vector<t_gtime> rec_id() const;
 
         /** @brief get time tags. */
         void fill_rnxhdr(const t_rnxhdr& rnxhdr);
@@ -109,10 +108,10 @@ namespace gnut
         t_rnxhdr _gethdr(const t_gtime& epo);
 
         /** @brief set receiver name. */
-        void _rec(string rec, const t_gtime& beg, const t_gtime& end = LAST_TIME);
+        void _rec(std::string rec, const t_gtime& beg, const t_gtime& end = LAST_TIME);
 
         /** @brief get receiver name (>=t). */
-        string _rec(const t_gtime& t) const;
+        std::string _rec(const t_gtime& t) const;
 
         t_maprec _maprec; ///< map of receviers
         t_maphdr _maphdr; ///< map of rinex header information

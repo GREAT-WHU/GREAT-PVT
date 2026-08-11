@@ -11,7 +11,6 @@
 
 #include "gall/gallpcv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -20,23 +19,33 @@ namespace gnut
         t_gdata(),
         _overwrite(false)
     {
-        id_type(t_gdata::ALLPCV);
+        id_type(t_gdata::ID_TYPE::ALLPCV);
     }
 
     t_gallpcv::~t_gallpcv()
     {
     }
 
-    int t_gallpcv::addpcv(shared_ptr<t_gpcv> pcv)
+    int t_gallpcv::addpcv(std::shared_ptr<t_gpcv> pcv)
     {
         _gmutex.lock();
 
-        string key = pcv->pcvkey();
-        string typ = pcv->pcvtyp();
+        std::string key = pcv->pcvkey();
+        std::string typ = pcv->pcvtyp();
         t_gtime beg = pcv->beg();
         t_gtime end = pcv->end();
 
-        if (_mappcv.find(key) == _mappcv.end() || _mappcv[key].find(typ) == _mappcv[key].end() ||
+        if (pcv->is_transmitter())
+        {
+            GSAT sat = pcv->sat();
+            if (sat == GSAT::NONE)
+            {
+                _gmutex.unlock();
+                return -1;
+            }
+            if (_overwrite || _mapsatpcv[sat].find(beg) == _mapsatpcv[sat].end()) _mapsatpcv[sat][beg] = pcv;
+        }
+        else if (_mappcv.find(key) == _mappcv.end() || _mappcv[key].find(typ) == _mappcv[key].end() ||
             _mappcv[key][typ].find(beg) == _mappcv[key][typ].end())
         {
             // new instance
@@ -59,20 +68,39 @@ namespace gnut
         return 1;
     }
 
-    shared_ptr<t_gpcv> t_gallpcv::gpcv(const string& ant, const string& ser, const t_gtime& t)
+    std::shared_ptr<t_gpcv> t_gallpcv::gpcv(const std::string& ant, const std::string& ser, const t_gtime& t)
     {
         _gmutex.lock();
-        shared_ptr<t_gpcv> gpcv = _find(ant, ser, t);
+        GSAT sat = str2gsat(ant);
+        std::shared_ptr<t_gpcv> gpcv = sat == GSAT::NONE ? _find(ant, ser, t) : _find(sat, t);
         _gmutex.unlock();
         return gpcv;
     }
 
-    shared_ptr<t_gpcv> t_gallpcv::_find(const string& ant_name, const string& ser_num, const t_gtime& t)
+    std::shared_ptr<t_gpcv> t_gallpcv::gpcv(GSAT sat, const t_gtime& t)
     {
-        string ant(ant_name);
-        string ser(ser_num);
-        string ant0 = ant; // DEFAULT (ANTENNA + RADOME)
-        string ser0 = "";  // DEFAULT (TYPE CALLIBRATION)
+        _gmutex.lock();
+        std::shared_ptr<t_gpcv> gpcv = _find(sat, t);
+        _gmutex.unlock();
+        return gpcv;
+    }
+
+    std::shared_ptr<t_gpcv> t_gallpcv::_find(GSAT sat, const t_gtime& t)
+    {
+        auto found = _mapsatpcv.find(sat);
+        if (found == _mapsatpcv.end()) return _pcvnull;
+        auto it = found->second.upper_bound(t);
+        if (it == found->second.begin()) return _pcvnull;
+        --it;
+        return (it->second->beg() <= t && t <= it->second->end()) ? it->second : _pcvnull;
+    }
+
+    std::shared_ptr<t_gpcv> t_gallpcv::_find(const std::string& ant_name, const std::string& ser_num, const t_gtime& t)
+    {
+        std::string ant(ant_name);
+        std::string ser(ser_num);
+        std::string ant0 = ant; // DEFAULT (ANTENNA + RADOME)
+        std::string ser0 = "";  // DEFAULT (TYPE CALLIBRATION)
 
         // antenna not found in the list
         if (_mappcv.find(ant) == _mappcv.end())
@@ -90,8 +118,8 @@ namespace gnut
         }
 
         // individual antenna (serial number used, '*'=ANY!)
-        map<string, t_map_epo>::iterator itser;
-        if (ser.find("*") == string::npos)
+        std::map<std::string, t_map_epo>::iterator itser;
+        if (ser.find("*") == std::string::npos)
         { // SPECIAL SERIAL DEFINED (OR TYPE CALLIBRATION "")
             for (itser = _mappcv[ant0].begin(); itser != _mappcv[ant0].end(); ++itser)
             {

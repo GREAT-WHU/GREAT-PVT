@@ -13,7 +13,6 @@
 #include "gall/gallobs.h"
 #include "gio/great_log.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -24,8 +23,8 @@ namespace gnut
         _nepoch(0),
         _overwrite(false)
     {
-        id_type(t_gdata::ALLOBS);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::ALLOBS);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
     t_gallobs::t_gallobs(t_gsetbase* set) :
         t_gdata(),
@@ -37,8 +36,8 @@ namespace gnut
         {
             throw_logical_error("your set ptr is nullptr");
         }
-        id_type(t_gdata::ALLOBS);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::ALLOBS);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
 
     t_gallobs::~t_gallobs()
@@ -57,11 +56,11 @@ namespace gnut
         return;
     }
 
-    set<string> t_gallobs::stations()
+    std::set<std::string> t_gallobs::stations()
     {
         _gmutex.lock();
 
-        set<string> all_sites;
+        std::set<std::string> all_sites;
         t_map_oobj::const_iterator itSITE = _mapobj.begin();
 
         while (itSITE != _mapobj.end())
@@ -73,18 +72,18 @@ namespace gnut
         return all_sites;
     }
 
-    set<string> t_gallobs::sats(const string& site, const t_gtime& t, GSYS gnss)
+    std::set<GSAT> t_gallobs::sats(const std::string& site, const t_gtime& t, GSYS gnss)
     {
         _gmutex.lock();
 
-        set<string> all_sats = _sats(site, t, gnss);
+        std::set<GSAT> all_sats = _sats(site, t, gnss);
         _gmutex.unlock();
         return all_sats;
     }
 
-    set<string> t_gallobs::_sats(const string& site, const t_gtime& t, GSYS gnss)
+    std::set<GSAT> t_gallobs::_sats(const std::string& site, const t_gtime& t, GSYS gnss)
     {
-        set<string> all_sats;
+        std::set<GSAT> all_sats;
 
         if (_mapobj.find(site) == _mapobj.end() || _mapobj[site].find(t) == _mapobj[site].end())
         {
@@ -95,31 +94,31 @@ namespace gnut
         while (itSAT != _mapobj[site][t].end())
         {
             GSYS sys = itSAT->second->gsys();
-            if (gnss == GNS)
+            if (gnss == GSYS::GNS)
             {
                 all_sats.insert(itSAT->first);
             }
-            else if (gnss == GPS && sys == GPS)
+            else if (gnss == GSYS::GPS && sys == GSYS::GPS)
             {
                 all_sats.insert(itSAT->first);
             }
-            else if (gnss == GLO && sys == GLO)
+            else if (gnss == GSYS::GLO && sys == GSYS::GLO)
             {
                 all_sats.insert(itSAT->first);
             }
-            else if (gnss == GAL && sys == GAL)
+            else if (gnss == GSYS::GAL && sys == GSYS::GAL)
             {
                 all_sats.insert(itSAT->first);
             }
-            else if (gnss == BDS && sys == BDS)
+            else if (gnss == GSYS::BDS && sys == GSYS::BDS)
             {
                 all_sats.insert(itSAT->first);
             }
-            else if (gnss == QZS && sys == QZS)
+            else if (gnss == GSYS::QZS && sys == GSYS::QZS)
             {
                 all_sats.insert(itSAT->first);
             }
-            else if (gnss == SBS && sys == SBS)
+            else if (gnss == GSYS::SBS && sys == GSYS::SBS)
             {
                 all_sats.insert(itSAT->first);
             }
@@ -128,20 +127,20 @@ namespace gnut
         return all_sats;
     }
 
-    vector<t_gsatdata> t_gallobs::obs(const string& site, const t_gtime& t)
+    std::vector<t_gsatdata> t_gallobs::obs(const std::string& site, const t_gtime& t)
     {
         _gmutex.lock();
 
-        vector<t_gsatdata> all_obs = _gobs(site, t);
+        std::vector<t_gsatdata> all_obs = _gobs(site, t);
 
         _gmutex.unlock();
         return all_obs;
     }
 
-    vector<t_gsatdata> t_gallobs::_gobs(const string& site, const t_gtime& t)
+    std::vector<t_gsatdata> t_gallobs::_gobs(const std::string& site, const t_gtime& t)
     {
-        vector<t_gsatdata> all_obs;
-        t_gtime tt(t_gtime::GPS);
+        std::vector<t_gsatdata> all_obs;
+        t_gtime tt(t_gtime::t_tsys::GPS);
 
         if (_find_epo(site, t, tt) < 0)
         {
@@ -159,12 +158,12 @@ namespace gnut
         return all_obs;
     }
 
-    vector<t_spt_gobs> t_gallobs::obs_pt(const string& site, const t_gtime& t)
+    std::vector<t_spt_gobs> t_gallobs::obs_pt(const std::string& site, const t_gtime& t)
     {
         _gmutex.lock();
 
-        vector<t_spt_gobs> all_obs;
-        t_gtime tt(t_gtime::GPS);
+        std::vector<t_spt_gobs> all_obs;
+        t_gtime tt(t_gtime::t_tsys::GPS);
 
         if (_find_epo(site, t, tt) < 0)
         {
@@ -175,10 +174,10 @@ namespace gnut
         t_map_osat::iterator itSAT = _mapobj[site][tt].begin();
         while (itSAT != _mapobj[site][tt].end())
         {
-            string sat = itSAT->first;
+            GSAT sat = itSAT->first;
 
             // TESTING NEW METHOD
-            all_obs.push_back(dynamic_pointer_cast<t_gobsgnss>(itSAT->second));
+            all_obs.push_back(std::dynamic_pointer_cast<t_gobsgnss>(itSAT->second));
 
             itSAT++;
         }
@@ -187,11 +186,11 @@ namespace gnut
         return all_obs;
     }
 
-    vector<t_gtime> t_gallobs::epochs(const string& site)
+    std::vector<t_gtime> t_gallobs::epochs(const std::string& site)
     {
         _gmutex.lock();
 
-        vector<t_gtime> all_epochs;
+        std::vector<t_gtime> all_epochs;
 
         if (_mapobj.find(site) == _mapobj.end())
         {
@@ -211,7 +210,7 @@ namespace gnut
         return all_epochs;
     }
 
-    t_gtime t_gallobs::beg_obs(const string& site, double smpl)
+    t_gtime t_gallobs::beg_obs(const std::string& site, double smpl)
     {
         _gmutex.lock();
 
@@ -242,7 +241,7 @@ namespace gnut
         return tmp;
     }
 
-    t_gtime t_gallobs::end_obs(const string& site)
+    t_gtime t_gallobs::end_obs(const std::string& site)
     {
         _gmutex.lock();
 
@@ -265,20 +264,20 @@ namespace gnut
         if (fabs(outsync) < 0.014 && fabs(outsync) > 1e-6)
         {
             obs->epo(obs->epoch() - outsync);
-            vector<GOBS> v_obs = obs->obs();
-            vector<GOBS>::iterator itOBS = v_obs.begin();
+            std::vector<GOBS> v_obs = obs->obs();
+            std::vector<GOBS>::iterator itOBS = v_obs.begin();
             for (; itOBS != v_obs.end(); ++itOBS)
             {
                 GOBSTYPE obstype = str2gobstype(gobs2str(*itOBS));
-                if (obstype == TYPE_P || obstype == TYPE_C)
+                if (obstype == gnut::GOBSTYPE::TYPE_P || obstype == gnut::GOBSTYPE::TYPE_C)
                 {
                     obs->resetobs(*itOBS, obs->getobs(*itOBS) - CLIGHT * outsync);
                 }
-                else if (obstype == TYPE_L)
+                else if (obstype == gnut::GOBSTYPE::TYPE_L)
                 {
                     obs->resetobs(*itOBS, obs->getobs(*itOBS) - CLIGHT * outsync / obs->wavelength(str2gobsband(gobs2str(*itOBS))));
                 }
-                else if (obstype == TYPE_S)
+                else if (obstype == gnut::GOBSTYPE::TYPE_S)
                 { // add wh
                     obs->resetobs(*itOBS, obs->getobs(*itOBS));
                 }
@@ -286,8 +285,8 @@ namespace gnut
         }
 
         t_gtime t(obs->epoch()), tt = t;
-        string site = obs->site();
-        string sat = obs->sat();
+        std::string site = obs->site();
+        GSAT sat = obs->sat();
 
         if (_map_sites.find(site) == _map_sites.end())
         {
@@ -321,7 +320,7 @@ namespace gnut
                 }
             }
 
-            if (obs->id_type() == t_gdata::OBSGNSS)
+            if (obs->id_type() == t_gdata::ID_TYPE::OBSGNSS)
             {
                 _mapobj[site][tt][sat] = obs;
             }
@@ -342,11 +341,11 @@ namespace gnut
         return 0;
     }
 
-    t_gallobs::t_map_osat t_gallobs::find(const string& site, const t_gtime& t)
+    t_gallobs::t_map_osat t_gallobs::find(const std::string& site, const t_gtime& t)
     {
         _gmutex.lock();
 
-        t_gtime tt(t_gtime::GPS);
+        t_gtime tt(t_gtime::t_tsys::GPS);
         t_map_osat tmp;
         if (_find_epo(site, t, tt) < 0)
         {
@@ -358,7 +357,7 @@ namespace gnut
         return _mapobj[site][tt];
     }
 
-    t_gallobs::t_map_frq t_gallobs::frqobs(const string& site)
+    t_gallobs::t_map_frq t_gallobs::frqobs(const std::string& site)
     {
         _gmutex.lock();
 
@@ -380,11 +379,11 @@ namespace gnut
             t = itEpo->first;
             for (itSat = _mapobj[site][t].begin(); itSat != _mapobj[site][t].end(); itSat++)
             { // loop over satellites
-                string prn = itSat->first;
+                GSAT prn = itSat->first;
                 t_spt_gobs obs = itSat->second;
 
-                vector<GOBS> vgobs = obs->obs();
-                for (vector<GOBS>::iterator it = vgobs.begin(); it != vgobs.end(); ++it)
+                std::vector<GOBS> vgobs = obs->obs();
+                for (std::vector<GOBS>::iterator it = vgobs.begin(); it != vgobs.end(); ++it)
                 {
                     GOBS gobs = *it;
                     int bnd = gobs2band(gobs);
@@ -399,7 +398,7 @@ namespace gnut
         return mfrq;
     }
 
-    void t_gallobs::xdata(const string& site, const string& file, const t_xfilter& xflt)
+    void t_gallobs::xdata(const std::string& site, const std::string& file, const t_xfilter& xflt)
     {
         _gmutex.lock();
 
@@ -410,7 +409,7 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    unsigned int t_gallobs::nepochs(const string& site)
+    unsigned int t_gallobs::nepochs(const std::string& site)
     {
         _gmutex.lock();
 
@@ -426,7 +425,7 @@ namespace gnut
         return tmp;
     }
 
-    bool t_gallobs::isSite(const string& site)
+    bool t_gallobs::isSite(const std::string& site)
     {
         _gmutex.lock();
 
@@ -440,7 +439,7 @@ namespace gnut
         return tmp;
     }
 
-    int t_gallobs::_find_epo(const string& site, const t_gtime& epo, t_gtime& tt)
+    int t_gallobs::_find_epo(const std::string& site, const t_gtime& epo, t_gtime& tt)
     {
         if (_mapobj.find(site) == _mapobj.end())
         {

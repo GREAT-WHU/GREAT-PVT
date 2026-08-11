@@ -28,7 +28,6 @@
 #include <unordered_map>
 #include <algorithm>
 
-using namespace std;
 
 namespace gnut
 {
@@ -56,14 +55,20 @@ namespace gnut
         /**
          *@brief del amb
          */
-        vector<int> delAmb();
+        std::vector<int> delAmb();
 
         /**
          *@brief get parameter
          */
-        int getParam(const string& site,
+        int getParam(const std::string& site,
                      const par_type& type,
-                     const string& prn,
+                     GSAT sat = GSAT::NONE,
+                     const t_gtime& beg = FIRST_TIME,
+                     const t_gtime& end = LAST_TIME) const;
+
+        int getParam(const std::string& site,
+                     const par_type& type,
+                     const std::string& sat,
                      const t_gtime& beg = FIRST_TIME,
                      const t_gtime& end = LAST_TIME) const;
 
@@ -105,17 +110,18 @@ namespace gnut
         /**
          *@brief get Crd Param
          */
-        int getCrdParam(const string& site, t_gtriple& crd, const t_gtime& beg = FIRST_TIME, const t_gtime& end = LAST_TIME) const;
+        int getCrdParam(const std::string& site, t_gtriple& crd, const t_gtime& beg = FIRST_TIME, const t_gtime& end = LAST_TIME) const;
 
         /**
          *@brief get Vel Param
          */
-        int getVelParam(const string& site, t_gtriple& crd, const t_gtime& beg = FIRST_TIME, const t_gtime& end = LAST_TIME) const;
+        int getVelParam(const std::string& site, t_gtriple& crd, const t_gtime& beg = FIRST_TIME, const t_gtime& end = LAST_TIME) const;
 
         /**
          *@brief get partial Index
          */
-        vector<int> getPartialIndex(const string& site, const string& sat);
+        std::vector<int> getPartialIndex(const std::string& site, GSAT sat);
+        std::vector<int> getPartialIndex(const std::string& site, const std::string& sat);
 
         /**
          * @brief Get the Par object
@@ -128,7 +134,7 @@ namespace gnut
         /**
          *@brief override operator
          */
-        t_gpar& operator[](const size_t idx);
+        t_gpar& operator[](const std::size_t idx);
 
         /**
          * @brief
@@ -157,14 +163,14 @@ namespace gnut
          *
          * @param site
          */
-        void setSite(const string& site);
+        void setSite(const std::string& site);
 
         /**
          * @brief
          *
          * @return set<string>
          */
-        set<string> amb_prns();
+        std::set<GSAT> amb_prns();
 
         /**
          * @brief
@@ -180,7 +186,7 @@ namespace gnut
          *
          * @return vector<t_gpar>
          */
-        vector<t_gpar> getAllPar();
+        std::vector<t_gpar> getAllPar();
 
         /**
          * @brief
@@ -189,7 +195,7 @@ namespace gnut
          * @param x
          * @return ostream&
          */
-        friend ostream& operator<<(ostream& os, t_gallpar& x);
+        friend std::ostream& operator<<(std::ostream& os, t_gallpar& x);
 
         /**
          * @brief
@@ -197,16 +203,16 @@ namespace gnut
          * @param freq
          * @return map<string, int>
          */
-        map<string, int> freq_sats_num(const int& freq);
+        std::map<std::string, int> freq_sats_num(const int& freq);
 
     private:
-        vector<t_gpar> _vParam;
-        map<string, vector<t_gpar>> _vOrbParam;            ///< add for orb param
-        map<t_gparhead, map<t_gtimearc, long>> _index_par; /// index -> point
+        std::vector<t_gpar> _vParam;
+        std::map<GSAT, std::vector<t_gpar>> _vOrbParam;              ///< add for orb param
+        std::map<t_gparhead, std::map<t_gtimearc, long>> _index_par; /// index -> point
         long _max_point = 0;
-        vector<long> _point_par;                                   /// point -> vParam
-        map<pair<string, string>, vector<int>> _index_for_parital; /// index -> param
-        pair<long, int> _last_point;
+        std::vector<long> _point_par;                                   /// point -> vParam
+        std::map<std::pair<std::string, GSAT>, std::vector<int>> _index_for_parital;  /// index -> param
+        std::pair<long, int> _last_point;
 
         /** @brief update partial index. */
         void _update_partial_index();

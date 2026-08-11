@@ -15,7 +15,6 @@
 #include "gutils/gtypeconv.h"
 #include "gutils/gsysconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -34,7 +33,7 @@ namespace gnut
         double pp = 1013.25 * pow(1.0 - 2.26e-5 * ell[2], 5.225);
         double res = (0.002277 * pp) / (1.0 - 0.00266 * cos(2.0 * ell[0]) - 0.00000028 * ell[2]);
 
-        cerr << "t_gtropo:getZHD not available data " << epo.str_ymdhms() << ", using default: 2.3m \n";
+        std::cerr << "t_gtropo:getZHD not available data " << epo.str_ymdhms() << ", using default: 2.3m \n";
 
         return res;
     }

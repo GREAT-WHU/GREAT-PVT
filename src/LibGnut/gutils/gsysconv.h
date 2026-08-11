@@ -27,7 +27,6 @@
 #include "newmat/newmat.h"
 #include "gexport/ExportLibGnut.h"
 
-using namespace std;
 
 namespace gnut
 {

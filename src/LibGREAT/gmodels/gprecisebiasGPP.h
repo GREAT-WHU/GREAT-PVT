@@ -86,12 +86,12 @@ namespace great
          * @param[in]  obj_clk          clock obj
          * @return     bool             update mode
          */
-        bool _update_obj_clk_GPP(const string& obj,
+        bool _update_obj_clk_GPP(const std::string& rec,
+                                 GSAT sat,
                                  const t_gtime& epo,
                                  t_gallnav* nav,
                                  t_gallpar& par,
-                                 double& clk,
-                                 map<string, pair<t_gtime, double>>& obj_clk);
+                                 double& clk);
 
     protected:
         /**
@@ -105,7 +105,7 @@ namespace great
          * @param[in]  gobs             the obs
          * @return     double           the compute value
          */
-        double cmpObs(t_gtime& epoch, string& sat, string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) override;
+        double cmpObs(t_gtime& epoch, GSAT sat, std::string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) override;
 
     private:
         /**
@@ -118,7 +118,7 @@ namespace great
          * @param[in]  coeff            the coeff
          * @return     bool             the prt mode
          */
-        bool _prt_obs_ALL(const t_gtime& crt_epo, t_gsatdata& obsdata, t_gallpar& pars, t_gobs& gobs, vector<pair<int, double>>& coeff);
+        bool _prt_obs_ALL(const t_gtime& crt_epo, t_gsatdata& obsdata, t_gallpar& pars, t_gobs& gobs, std::vector<std::pair<int, double>>& coeff);
 
         bool _ddmode; ///< dd mode
     };

@@ -26,21 +26,21 @@ namespace great
         return false;
     }
 
-    void t_gsppbias::update_obj_clk(const string& obj, const t_gtime& epo, double clk)
+    void t_gsppbias::update_obj_clk(const std::string& obj, const t_gtime& epo, double clk)
     {
     }
 
-    double t_gsppbias::get_rec_clk(const string& obj)
+    double t_gsppbias::get_rec_clk(const std::string& obj)
     {
         return 0.0;
     }
 
-    double t_gsppbias::tropoDelay(t_gtime& epoch, string& rec, t_gallpar& param, t_gtriple ell, t_gsatdata& satdata)
+    double t_gsppbias::tropoDelay(t_gtime& epoch, std::string& rec, t_gallpar& param, t_gtriple ell, t_gsatdata& satdata)
     {
         if (_tropoModel == 0)
         {
             GREAT_ERROR("Tropo Model setting is not correct. Default used! Check config.");
-            throw runtime_error("Can not find _tropoModel !");
+            throw std::runtime_error("Can not find _tropoModel !");
         }
 
         double ele = satdata.ele();
@@ -84,17 +84,17 @@ namespace great
         return delay;
     }
 
-    double t_gsppbias::isbDelay(t_gallpar& param, string& sat, string& rec, t_gobs& gobs)
+    double t_gsppbias::isbDelay(t_gallpar& param, GSAT sat, std::string& rec, t_gobs& gobs)
     {
         return 0.0;
     }
 
-    double t_gsppbias::ifbDelay(t_gallpar& param, string& sat, string& rec, t_gobs& gobs)
+    double t_gsppbias::ifbDelay(t_gallpar& param, GSAT sat, std::string& rec, t_gobs& gobs)
     {
         return 0.0;
     }
 
-    double t_gsppbias::cmpObs(t_gtime& epo, string& sat, string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
+    double t_gsppbias::cmpObs(t_gtime& epo, GSAT sat, std::string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
     {
         // Cartesian coordinates to ellipsodial coordinates
         t_gtriple xyz;
@@ -103,7 +103,7 @@ namespace great
         // give crd initial value modified by glfeng
         if (param.getCrdParam(rec, xyz) < 0)
         {
-            throw runtime_error("Can not find CRD par in t_gallpar !");
+            throw std::runtime_error("Can not find CRD par in t_gallpar !");
         }
         xyz2ell(xyz, ell, false);
 

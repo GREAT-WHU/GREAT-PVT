@@ -24,18 +24,17 @@ History
 #include "gutils/gtriple.h"
 #include "gmodels/gpoly.h"
 
-using namespace std;
 
 namespace gnut
 {
     /** @brief single data for a single satellite. */
-    typedef map<string, double> t_map_dat;
+    typedef std::map<std::string, double> t_map_dat;
 
     /** @brief all data for a single satellite. */
-    typedef map<t_gtime, t_map_dat> t_map_epo;
+    typedef std::map<t_gtime, t_map_dat> t_map_epo;
 
     /** @brief all data for all satellites. */
-    typedef map<string, t_map_epo> t_map_prn;
+    typedef std::map<GSAT, t_map_epo> t_map_prn;
 
     /**
      *@brief Class for t_gallprec derive from t_gallnav
@@ -44,7 +43,7 @@ namespace gnut
     {
     public:
         /** @brief clk type. */
-        enum clk_type
+        enum class clk_type
         {
             AS,   ///< sitellite
             AR,   ///< receiver
@@ -65,7 +64,7 @@ namespace gnut
         virtual ~t_gallprec();
 
         /** @brief map sp3. */
-        typedef map<string, shared_ptr<t_gephprec>> t_map_sp3;
+        typedef std::map<GSAT, std::shared_ptr<t_gephprec>> t_map_sp3;
 
         /**
          * @brief inherited from gallnav to fix healthy
@@ -75,7 +74,7 @@ namespace gnut
          * @return true
          * @return false
          */
-        bool health(const string& sat, const t_gtime& t) override;
+        bool health(GSAT sat, const t_gtime& t) override;
 
         /**
          * @brief pos
@@ -88,7 +87,7 @@ namespace gnut
          * @param chk_mask
          * @return int
          */
-        int pos(const string& sat,
+        int pos(GSAT sat,
                 const t_gtime& t,
                 double xyz[3],
                 double var[3] = NULL,
@@ -106,7 +105,7 @@ namespace gnut
          * @param chk_mask
          * @return int
          */
-        int nav(const string& sat, const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, const bool& chk_mask = true)
+        int nav(GSAT sat, const t_gtime& t, double xyz[3], double var[3] = NULL, double vel[3] = NULL, const bool& chk_mask = true)
             override;
 
         /**
@@ -120,8 +119,11 @@ namespace gnut
          * @param chk_mask
          * @return int
          */
-        int clk(const string& sat, const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, const bool& chk_mask = true)
+        int clk(GSAT sat, const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL, const bool& chk_mask = true)
             override;
+
+        int clk(const std::string& id, const t_gtime& t, double* clk, double* var = NULL, double* dclk = NULL,
+                const bool& chk_mask = true) override;
 
         /**
          * @brief clk_int
@@ -133,7 +135,7 @@ namespace gnut
          * @param dclk
          * @return int
          */
-        int clk_int(const string& sat, const t_gtime& t, double* clk, double* var = NULL,
+        int clk_int(GSAT sat, const t_gtime& t, double* clk, double* var = NULL,
                     double* dclk = NULL); // [s]
 
         /**
@@ -142,14 +144,14 @@ namespace gnut
          * @param sat
          * @param intv
          */
-        void add_interval(const string& sat, int intv);
+        void add_interval(GSAT sat, int intv);
 
         /**
          * @brief add agency
          *
          * @param producer
          */
-        void add_agency(const string& producer);
+        void add_agency(const std::string& producer);
 
         /**
          * @brief add vel
@@ -160,7 +162,7 @@ namespace gnut
          * @param var
          * @return int
          */
-        int addvel(const string& sat, const t_gtime& ep, double xyzt[4], double var[4]);
+        int addvel(GSAT sat, const t_gtime& ep, double xyzt[4], double var[4]);
 
         /**
          * @brief add clk
@@ -171,7 +173,7 @@ namespace gnut
          * @param var
          * @return * int
          */
-        int addclk(const string& sat, const t_gtime& ep, double clk[3], double var[3]);
+        int addclk(const std::string& id, const t_gtime& ep, double clk[3], double var[3]);
 
         /**
          * @brief add clk_tri
@@ -182,7 +184,7 @@ namespace gnut
          * @param var
          * @return * int
          */
-        int addclk_tri(const string& sat, const t_gtime& ep, double clk[3], double var[3]);
+        int addclk_tri(const std::string& id, const t_gtime& ep, double clk[3], double var[3]);
 
         /**
          * @brief add pos
@@ -195,7 +197,7 @@ namespace gnut
          * @param dt
          * @return int
          */
-        int addpos(const string& sat, const t_gtime& ep, const t_gtriple& xyz, const double& t, const t_gtriple& dxyz, const double& dt);
+        int addpos(GSAT sat, const t_gtime& ep, const t_gtriple& xyz, const double& t, const t_gtriple& dxyz, const double& dt);
 
         /**
          * @brief use clksp3
@@ -240,7 +242,7 @@ namespace gnut
          *
          * @return set<string>
          */
-        virtual set<string> satellites() const override;
+        virtual std::set<GSAT> satellites() const override;
 
         /**
          * @brief get number of epochs
@@ -248,7 +250,7 @@ namespace gnut
          * @param prn
          * @return unsigned int
          */
-        virtual unsigned int nepochs(const string& prn) override;
+        virtual unsigned int nepochs(GSAT prn) override;
 
     protected:
         /**
@@ -258,7 +260,7 @@ namespace gnut
          * @param t
          * @return shared_ptr<t_geph>
          */
-        virtual shared_ptr<t_geph> _find(const string& sat, const t_gtime& t);
+        virtual std::shared_ptr<t_geph> _find(GSAT sat, const t_gtime& t);
 
         /**
          * @brief fill PT,X,Y,Z vectors
@@ -267,7 +269,7 @@ namespace gnut
          * @param t
          * @return int
          */
-        virtual int _get_crddata(const string& sat, const t_gtime& t);
+        virtual int _get_crddata(GSAT sat, const t_gtime& t);
 
         /**
          * @brief fill CT,C vectors
@@ -276,7 +278,8 @@ namespace gnut
          * @param t
          * @return int
          */
-        virtual int _get_clkdata(const string& sat, const t_gtime& t);
+        virtual int _get_clkdata(GSAT sat, const t_gtime& t);
+        int _get_clkdata(t_map_epo& clocks, const t_gtime& t);
 
         /**
          * @brief return the ssr position and velocity correction.
@@ -288,7 +291,7 @@ namespace gnut
          * @param orbcorr
          * @return int
          */
-        virtual int _get_delta_pos_vel(const string& sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& orbcorr);
+        virtual int _get_delta_pos_vel(GSAT sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& orbcorr);
 
         /**
          * @brief
@@ -300,11 +303,12 @@ namespace gnut
          * @param clkcorr
          * @return int
          */
-        virtual int _get_delta_clk(const string& sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& clkcorr);
+        virtual int _get_delta_clk(GSAT sat, const t_gtime& t, int iod, t_gtime& tRef, t_map_dat& clkcorr);
 
         t_map_sat _mapprec; // map of sp3 polynomials
         t_map_prn _mapsp3;  // precise orbits&clocks (SP3) - full discrete data sets
         t_map_prn _mapclk;  // precise clocks (CLOCK-RINEX) - full discrete data sets
+        std::map<std::string, t_map_epo> _mapclk_rec; // receiver clocks from CLOCK-RINEX
 
     private:
         t_map_sp3 _prec;          ///< CACHE: single SP3 precise ephemeris for all satellites
@@ -316,29 +320,29 @@ namespace gnut
         bool _clksp3;             ///< true: use alternatively clk from sp3 (~15min!)
         bool _clknav;             ///< true: use alternatively nav (low-precise clocks)
         bool _posnav;             ///< true: use alternatively nav (low-precise orbits)
-        map<string, int> _intvm;
-        string _agency;
+        std::map<GSAT, int> _intvm;
+        std::string _agency;
         t_gtime _tbeg;
         t_gtime _tend, _tend_clk, _tend_sp3;
         // CACHE for approximative solutions
-        map<string, t_gtime> _poly_beg;
-        map<string, t_gtime> _poly_end;
-        map<string, t_gpoly> _poly_x;
-        map<string, t_gpoly> _poly_y;
-        map<string, t_gpoly> _poly_z;
+        std::map<GSAT, t_gtime> _poly_beg;
+        std::map<GSAT, t_gtime> _poly_end;
+        std::map<GSAT, t_gpoly> _poly_x;
+        std::map<GSAT, t_gpoly> _poly_y;
+        std::map<GSAT, t_gpoly> _poly_z;
 
         // BEGIN OF TEMPORARY (ALTERNATIVE for direct interpolation)
-        vector<double> _PT; ///< vector of time-difference (X for polynomials)
-        vector<t_gtime> _T; ///< vector of full time       (X for polynomials)
-        vector<double> _X;  ///< vector of x-coordinate    (Y for polynomials)
-        vector<double> _Y;  ///< vector of y-coordinate    (Y for polynomials)
-        vector<double> _Z;  ///< vector of z-coordinate    (Y for polynomials)
+        std::vector<double> _PT; ///< vector of time-difference (X for polynomials)
+        std::vector<t_gtime> _T; ///< vector of full time       (X for polynomials)
+        std::vector<double> _X;  ///< vector of x-coordinate    (Y for polynomials)
+        std::vector<double> _Y;  ///< vector of y-coordinate    (Y for polynomials)
+        std::vector<double> _Z;  ///< vector of z-coordinate    (Y for polynomials)
 
-        vector<double> _CT;      ///< vector of time-difference (X for polynomials)
-        vector<double> _C;       ///< vector of clk correction  (Y for polynomials)
-        vector<double> _IFCB_F3; ///< vector of ifcb_f3
+        std::vector<double> _CT;      ///< vector of time-difference (X for polynomials)
+        std::vector<double> _C;       ///< vector of clk correction  (Y for polynomials)
+        std::vector<double> _IFCB_F3; ///< vector of ifcb_f3
 
-        set<clk_type> _clk_type_list; ///< CLK TYPE
+        std::set<clk_type> _clk_type_list; ///< CLK TYPE
     };
 
 } // namespace gnut

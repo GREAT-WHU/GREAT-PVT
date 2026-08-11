@@ -145,10 +145,10 @@ namespace gnut
             {
                 _rxnhdr.program(trim(line.substr(0, 20)));
                 _rxnhdr.runby(trim(line.substr(20, 20)));
-                t_gtime gtime(t_gtime::UTC);
+                t_gtime gtime(t_gtime::t_tsys::UTC);
                 if (line.substr(56, 3) != "UTC")
                 {
-                    gtime.tsys(t_gtime::LOC);
+                    gtime.tsys(t_gtime::t_tsys::LOC);
                 }
 
                 if (gtime.from_str("%Y%m%d %H%M%S", line.substr(40, 15)) == 0)
@@ -184,7 +184,7 @@ namespace gnut
                 map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
+                    if (it->second->id_type() == t_gdata::ID_TYPE::ALLNAV || it->second->id_group() == t_gdata::ID_GROUP::GRP_EPHEM)
                     {
                         ((t_gallnav*)it->second)->add_iono_corr(IO, io);
                     }
@@ -198,7 +198,7 @@ namespace gnut
             }
             else if (line.find("ION ALPHA", 60) != string::npos)
             {
-                IONO_CORR IO = IO_GPSA;
+                IONO_CORR IO = IONO_CORR::IO_GPSA;
                 t_iono_corr io;
 
                 io.x0 = strSci2dbl(line.substr(2 + 0, 12));
@@ -210,7 +210,7 @@ namespace gnut
                 map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
+                    if (it->second->id_type() == t_gdata::ID_TYPE::ALLNAV || it->second->id_group() == t_gdata::ID_GROUP::GRP_EPHEM)
                     {
                         ((t_gallnav*)it->second)->add_iono_corr(IO, io);
                     }
@@ -224,7 +224,7 @@ namespace gnut
             }
             else if (line.find("ION BETA", 60) != string::npos)
             {
-                IONO_CORR IO = IO_GPSB;
+                IONO_CORR IO = IONO_CORR::IO_GPSB;
                 t_iono_corr io;
 
                 io.x0 = strSci2dbl(line.substr(2 + 0, 12));
@@ -236,7 +236,7 @@ namespace gnut
                 map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
+                    if (it->second->id_type() == t_gdata::ID_TYPE::ALLNAV || it->second->id_group() == t_gdata::ID_GROUP::GRP_EPHEM)
                     {
                         ((t_gallnav*)it->second)->add_iono_corr(IO, io);
                     }
@@ -271,7 +271,7 @@ namespace gnut
             }
             else if (line.find("DELTA-UTC: A0,A1,T,W", 60) != string::npos)
             {
-                TSYS_CORR TS = TS_GPUT;
+                TSYS_CORR TS = TSYS_CORR::TS_GPUT;
                 t_tsys_corr ts;
 
                 ts.a0 = strSci2dbl(line.substr(3, 19));
@@ -289,7 +289,7 @@ namespace gnut
             else if (line.find("CORR TO SYSTEM", 60) != string::npos)
             { // <= RINEX v2.10
 
-                TSYS_CORR TS = TS_GLUT;
+                TSYS_CORR TS = TSYS_CORR::TS_GLUT;
                 t_tsys_corr ts;
 
                 ts.a0 = strSci2dbl(line.substr(21, 19));
@@ -309,7 +309,7 @@ namespace gnut
             else if (line.find("D-UTC A0,A1,T,W,S,U", 60) != string::npos)
             { // == RINEX v2.11
 
-                TSYS_CORR TS = TS_SBUT;
+                TSYS_CORR TS = TSYS_CORR::TS_SBUT;
                 t_tsys_corr ts;
 
                 ts.a0 = strSci2dbl(line.substr(0, 19));
@@ -490,43 +490,43 @@ namespace gnut
             {
                 maxrec = MAX_RINEXN_REC_GPS;
                 geph = make_shared<t_gnavgps>();
-                epoch.tsys(t_gtime::GPS);
+                epoch.tsys(t_gtime::t_tsys::GPS);
             }
             else if (prn[0] == 'R')
             {
                 maxrec = MAX_RINEXN_REC_GLO;
                 geph = make_shared<t_gnavglo>();
-                epoch.tsys(t_gtime::UTC);
+                epoch.tsys(t_gtime::t_tsys::UTC);
             }
             else if (prn[0] == 'E')
             {
                 maxrec = MAX_RINEXN_REC_GAL;
                 geph = make_shared<t_gnavgal>();
-                epoch.tsys(t_gtime::GAL);
+                epoch.tsys(t_gtime::t_tsys::GAL);
             }
             else if (prn[0] == 'J')
             {
                 maxrec = MAX_RINEXN_REC_QZS;
                 geph = make_shared<t_gnavqzs>();
-                epoch.tsys(t_gtime::GPS); // QZSS is equal to GPS time
+                epoch.tsys(t_gtime::t_tsys::GPS); // QZSS is equal to GPS time
             }
             else if (prn[0] == 'S')
             {
                 maxrec = MAX_RINEXN_REC_SBS;
                 geph = make_shared<t_gnavsbs>();
-                epoch.tsys(t_gtime::GPS); // SBAS is equal to GPS time
+                epoch.tsys(t_gtime::t_tsys::GPS); // SBAS is equal to GPS time
             }
             else if (prn[0] == 'C')
             {
                 maxrec = MAX_RINEXN_REC_BDS;
                 geph = make_shared<t_gnavbds>();
-                epoch.tsys(t_gtime::BDS);
+                epoch.tsys(t_gtime::t_tsys::BDS);
             }
             else if (prn[0] == 'I')
             {
                 maxrec = MAX_RINEXN_REC_IRN;
                 geph = make_shared<t_gnavirn>();
-                epoch.tsys(t_gtime::GPS); // ??
+                epoch.tsys(t_gtime::t_tsys::GPS); // ??
             }
             else
             {
@@ -635,17 +635,17 @@ namespace gnut
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::ALLNAV || it->second->id_group() == t_gdata::GRP_EPHEM)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLNAV || it->second->id_group() == t_gdata::ID_GROUP::GRP_EPHEM)
                         {
                             ((t_gallnav*)it->second)->add(geph);
                         }
-                        else if (it->second->id_type() == t_gdata::ALLOBJ)
+                        else if (it->second->id_type() == t_gdata::ID_TYPE::ALLOBJ)
                         {
                             t_gallobj* all_obj = (t_gallobj*)it->second;
-                            shared_ptr<t_gobj> one_obj = all_obj->obj(geph->sat());
+                            shared_ptr<t_gobj> one_obj = all_obj->obj(gsat2str(geph->sat()));
                             if (one_obj != 0)
                             {
-                                if (geph->id_type() == t_gdata::EPHGLO)
+                                if (geph->id_type() == t_gdata::ID_TYPE::EPHGLO)
                                 {
                                     int ch = dynamic_pointer_cast<t_gnavglo>(geph)->channel();
                                     if (one_obj != 0)
@@ -676,7 +676,7 @@ namespace gnut
 
         for (auto itDAT = _data.begin(); itDAT != _data.end(); ++itDAT)
         {
-            if (itDAT->second->id_type() == t_gdata::ALLOBJ)
+            if (itDAT->second->id_type() == t_gdata::ID_TYPE::ALLOBJ)
             {
                 t_gallobj* all_obj = (t_gallobj*)itDAT->second;
 
@@ -711,10 +711,10 @@ namespace gnut
         GSYS gs = t_gsys::char2gsys(prn[0]);
 
         // currently only GALILEO can be filtered!
-        if (gs == GAL)
+        if (gs == GSYS::GAL)
         {
             GNAVTYPE gnav;
-            if (_nav[gs].find(gnavtype2str(INAV)) != _nav[gs].end())
+            if (_nav[gs].find(gnavtype2str(gnut::GNAVTYPE::INAV)) != _nav[gs].end())
             {
                 gnav = dynamic_pointer_cast<t_gnavgal>(geph)->gnavtype(false);
             } // any-source fit in INAV request

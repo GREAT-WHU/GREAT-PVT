@@ -19,7 +19,9 @@
 #ifndef GSETGNSS_H
 #define GSETGNSS_H
 
+#ifndef XMLKEY_GNSS
 #define XMLKEY_GNSS "gnss" ///< The defination of gnss node
+#endif
 
 #include <map>
 #include <vector>
@@ -31,7 +33,6 @@
 #include "gutils/gtypeconv.h"
 #include "gset/gsetbase.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -52,17 +53,17 @@ namespace gnut
 
         /**
          * @brief get sats of all systems
-         * @return set<string> : sats of all systems
+         * @return set<GSAT> : sats of all systems
          */
-        set<string> sat();
+        std::set<GSAT> sat();
 
         /**
          * @brief get sats of single system def=true (give default values at least)
          * @param[in] gsys system
          * @param[in] def  if empty, return default setting or not. default is true
-         * @return set<string> : sats of single system def=true (give default values at least)
+         * @return set<GSAT> : sats of single system def=true (give default values at least)
          */
-        set<string> sat(GSYS gsys, bool def = true);
+        std::set<GSAT> sat(GSYS gsys, bool def = true);
 
         /**
          * @brief get obs(eg.C1C ..) of single system def=true (give default values at least)
@@ -70,7 +71,7 @@ namespace gnut
          * @param[in] def  if empty, return default setting or not. default is true
          * @return set<string> : obs of single system def=true (give default values at least)
          */
-        set<string> obs(GSYS gsys, bool def = true);
+        std::set<std::string> obs(GSYS gsys, bool def = true);
 
         /**
          * @brief get nav of single system def=true (give default values at least)
@@ -78,56 +79,56 @@ namespace gnut
          * @param[in] def  if empty, return default setting or not. default is true
          * @return set<string> : nav of single system def=true (give default values at least)
          */
-        set<string> nav(GSYS gsys, bool def = true);
+        std::set<std::string> nav(GSYS gsys, bool def = true);
 
         /**
          * @brief get extending gobs list with complete singals
          * @param[in] gsys system
          * @return set<string> : extending gobs list with complete singals
          */
-        set<string> gobs(GSYS gsys);
+        std::set<std::string> gobs(GSYS gsys);
 
         /**
          * @brief get obs type of system:gsys
          * @param[in] gsys system
          * @return vector<GOBSTYPE> : obs type of system:gsys
          */
-        vector<GOBSTYPE> type(GSYS gsys);
+        std::vector<GOBSTYPE> type(GSYS gsys);
 
         /**
          * @brief get obs band of system:gsys
          * @param[in] gsys system
          * @return vector<GOBSBAND> : obs band of system:gsys
          */
-        vector<GOBSBAND> band(GSYS gsys);
+        std::vector<GOBSBAND> band(GSYS gsys);
 
         /**
          * @brief get the freq used in proc
          * @param[in] gsys system
          * @return vector<FREQ_SEQ> : GNSS freq Sequence
          */
-        vector<FREQ_SEQ> freqs(GSYS gsys);
+        std::vector<FREQ_SEQ> freqs(GSYS gsys);
 
         /**
          * @brief get the band order
          * @param[in] gsys system
          * @return map<FREQ_SEQ, GOBSBAND> : band index
          */
-        map<FREQ_SEQ, GOBSBAND> band_index(GSYS gsys);
+        std::map<FREQ_SEQ, GOBSBAND> band_index(GSYS gsys);
 
         /**
          * @brief get the freq order
          * @param[in] gsys system
          * @return map<FREQ_SEQ, GOBSBAND> : freq index
          */
-        map<GOBSBAND, FREQ_SEQ> freq_index(GSYS gsys);
+        std::map<GOBSBAND, FREQ_SEQ> freq_index(GSYS gsys);
 
         /**
          * @brief get obs ATTR of system:gsys
          * @param[in] gsys system
          * @return vector<GOBSATTR> : obs ATTR of system:gsys
          */
-        vector<GOBSATTR> attr(GSYS gsys);
+        std::vector<GOBSATTR> attr(GSYS gsys);
 
         /**
          * @brief get sigma value of L obs for gsys
@@ -177,42 +178,42 @@ namespace gnut
          * @param[in] gsys system
          * @return vector<GOBSTYPE> : obs type of system:gsys form XML
          */
-        vector<GOBSTYPE> _type(GSYS gsys);
+        std::vector<GOBSTYPE> _type(GSYS gsys);
 
         /**
          * @brief get obs band of system:gsys form XML
          * @param[in] gsys system
          * @return vector<GOBSBAND> : obs band of system:gsys form XML
          */
-        vector<GOBSBAND> _band(GSYS gsys);
+        std::vector<GOBSBAND> _band(GSYS gsys);
 
         /**
          * @brief get obs band of system:gsys form XML
          * @param[in] gsys system
          * @return vector<GOBSBAND> : obs band of system:gsys form XML
          */
-        vector<FREQ_SEQ> _sysfreq(GSYS gsys); // add by xiongyun
+        std::vector<FREQ_SEQ> _sysfreq(GSYS gsys); // add by xiongyun
 
         /**
          * @brief get the freq used in proc
          * @param[in] gsys system
          * @return vector<FREQ_SEQ> : GNSS freq Sequence
          */
-        vector<FREQ_SEQ> _freqs(GSYS gsys);
+        std::vector<FREQ_SEQ> _freqs(GSYS gsys);
 
         /**
          * @brief get obs attributes of system:gsys form XML
          * @param[in] gsys system
          * @return vector<GOBSATTR> : obs attributes of system:gsys form XML
          */
-        vector<GOBSATTR> _attr(GSYS gsys);
+        std::vector<GOBSATTR> _attr(GSYS gsys);
 
         /**
          * @brief change GSYS to string::gsys
          * @param[in] gsys system
          * @return string : gsys
          */
-        string _gsys(GSYS gsys);
+        std::string _gsys(GSYS gsys);
 
         /**
          * @brief get the double value of sys.attribute(sigma_L)
@@ -257,14 +258,14 @@ namespace gnut
         double _maxres_D(GSYS gsys);
 
     protected:
-        map<GSYS, vector<string>> _band_str; ///< default set
-        map<GSYS, vector<string>> _type_str; ///< default set
-        map<GSYS, vector<string>> _attr_str; ///< default set
+        std::map<GSYS, std::vector<std::string>> _band_str; ///< default set
+        std::map<GSYS, std::vector<std::string>> _type_str; ///< default set
+        std::map<GSYS, std::vector<std::string>> _attr_str; ///< default set
 
-        map<GSYS, t_gpair> _sigma_def;         ///< default set
-        map<GSYS, t_gpair> _maxres_def;        ///< default set
-        map<GSYS, double> _sigma_def_doppler;  ///< default set for doppler
-        map<GSYS, double> _maxres_def_doppler; ///< default set for doppler
+        std::map<GSYS, t_gpair> _sigma_def;         ///< default set
+        std::map<GSYS, t_gpair> _maxres_def;        ///< default set
+        std::map<GSYS, double> _sigma_def_doppler;  ///< default set for doppler
+        std::map<GSYS, double> _maxres_def_doppler; ///< default set for doppler
 
     private:
     };

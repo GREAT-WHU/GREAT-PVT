@@ -32,16 +32,18 @@
 namespace gnut
 {
 
+#ifndef SPP_MINSAT
 #define SPP_MINSAT (6) ///< minimum number of satellites
+#endif
 
     /** @brief class for t_gsppflt derive from t_gspp. */
     class LibGnut_LIBRARY_EXPORT t_gsppflt : public virtual t_gspp
     {
     public:
         /** @brief constructor 1. */
-        t_gsppflt(string mark, t_gsetbase* set);
+        t_gsppflt(std::string mark, t_gsetbase* set);
 
-        t_gsppflt(string mark, t_gsetbase* set, string mode);
+        t_gsppflt(std::string mark, t_gsetbase* set, std::string mode);
         /** @brief default destructor. */
         virtual ~t_gsppflt();
 
@@ -49,7 +51,7 @@ namespace gnut
         virtual int processBatch(const t_gtime& beg, const t_gtime& end);
 
         /** @brief min sat. */
-        void minsat(size_t minsat)
+        void minsat(std::size_t minsat)
         {
             _minsat = (minsat < 5) ? 5 : minsat;
         }
@@ -58,7 +60,7 @@ namespace gnut
         t_gtriple getCrd(const t_gtime& time);
 
         /** @brief get outlier sat. */
-        vector<string> get_outlier_sat()
+        std::vector<GSAT> get_outlier_sat()
         {
             return _outlier_sat;
         }
@@ -107,14 +109,13 @@ namespace gnut
         void _syncIFB();
 
         /** @brief save observations residuals. */
-        void _save_residuals(ColumnVector& v, vector<t_gsatdata>& satdata, RESIDTYPE restype);
+        void _save_residuals(ColumnVector& v, std::vector<t_gsatdata>& satdata, RESIDTYPE restype);
 
         /** @brief Apply DCB correction. */
         int _applyDCB(t_gsatdata& satdata, double& P, t_gobs* gobs1, t_gobs* gobs2 = 0);
 
-        vector<t_gsatdata> _data; ///< data
-        map<string, int> _newAMB; ///< newAMB
-        set<string> _slips;       ///< slips
+        std::vector<t_gsatdata> _data; ///< data
+        std::map<GSAT, int> _newAMB;   ///< newAMB
         unsigned int _minsat;     ///< minsat
         double _sig_unit;         ///< sig unit
         int _frequency;           ///< frequency
@@ -149,9 +150,9 @@ namespace gnut
         RESIDTYPE _resid_type; ///< res type
 
         /** @brief get obs. */
-        int _getgobs(string prn, GOBSTYPE type, GOBSBAND band, t_gobs& gobs);
-        map<string, int> _frqNum;      ///< frequency number
-        map<string, t_gtime> _lastEcl; ///< last ecl
+        int _getgobs(GSAT sat, GOBSTYPE type, GOBSBAND band, t_gobs& gobs);
+        std::map<GSAT, int> _frqNum;        ///< frequency number
+        std::map<GSAT, t_gtime> _lastEcl; ///< last ecl
 
         bool _ifb3_init; ///< ifb3
         bool _ifb4_init; ///< ifb4
@@ -160,12 +161,12 @@ namespace gnut
         bool _auto_band;      ///< auto band
         CBIASCHAR _cbiaschar; ///< bias(char)
 
-        map<t_gtime, t_gtriple> _map_crd;
+        std::map<t_gtime, t_gtriple> _map_crd;
 
-        vector<string> _outlier_sat; ///< outlier sat
+        std::vector<GSAT> _outlier_sat; ///< outlier sat
 
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band index
-        map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq index
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band index
+        std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq index
     };
 
 } // namespace gnut

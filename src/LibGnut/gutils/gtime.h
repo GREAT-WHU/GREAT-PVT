@@ -32,36 +32,63 @@
 #include <vector>
 #include "gutils/gmutex.h"
 
-using namespace std;
 
 namespace gnut
 {
 
 #if defined GTIME_TAI
-#define DEFAULT_TIME TAI // default gtime TAI
+#ifndef DEFAULT_TIME
+#define DEFAULT_TIME t_gtime::t_tsys::TAI // default gtime TAI
+#endif
 #elif defined GTIME_UTC
-#define DEFAULT_TIME UTC // default gtime UTC
+#ifndef DEFAULT_TIME
+#define DEFAULT_TIME t_gtime::t_tsys::UTC // default gtime UTC
+#endif
 #elif defined GTIME_USER
-#define DEFAULT_TIME USER // default gtime USER
+#ifndef DEFAULT_TIME
+#define DEFAULT_TIME t_gtime::t_tsys::USER // default gtime USER
+#endif
 #elif defined GTIME_LOC
-#define DEFAULT_TIME LOC // default gtime LOCAL
+#ifndef DEFAULT_TIME
+#define DEFAULT_TIME t_gtime::t_tsys::LOC // default gtime LOCAL
+#endif
 #elif defined GTIME_GPS
-#define DEFAULT_TIME GPS // default gtime GPS
+#ifndef DEFAULT_TIME
+#define DEFAULT_TIME t_gtime::t_tsys::GPS // default gtime GPS
+#endif
 #else
-#define DEFAULT_TIME GPS // default gtime GPS
+#ifndef DEFAULT_TIME
+#define DEFAULT_TIME t_gtime::t_tsys::GPS // default gtime GPS
+#endif
 #endif
 
+#ifndef MAX_DT
 #define MAX_DT 21 + 1 /// number of time string identifiers /16 -> 21/
+#endif
+#ifndef MAXLEAP
 #define MAXLEAP 50    ///< maximum number of leap second in table
+#endif
+#ifndef TAI_GPS
 #define TAI_GPS 19    ///< seconds of which GPS is ahead of TAI at 6.1.1980
+#endif
+#ifndef TAI_BDS
 #define TAI_BDS 33    ///< seconds of which BDS is ahead of TAI at 1.1.2006
+#endif
+#ifndef TAI_GAL
 #define TAI_GAL 19    ///< coincide with GPS time
+#endif
+#ifndef TAI_TT
 #define TAI_TT 32     ///< TAI TT
+#endif
+#ifndef TAT_TT_DSEC
 #define TAT_TT_DSEC 0.184
+#endif
+#ifndef CONV_BWK2GWK
 #define CONV_BWK2GWK 1356 ///< convert BDS to GPS week
+#endif
 
     /** @brief month string. */
-    const static string MON[13] = {"   ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    const static std::string MON[13] = {"   ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     /** @brief days in a month. */
     static const int monthdays[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -84,7 +111,7 @@ namespace gnut
         {2011, 06, 30, 35}, {2015, 06, 30, 36}, {2017, 01, 01, 37}};
 
     /** @brief supported io keys of fixed size ! */
-    const static string TD[MAX_DT] = {
+    const static std::string TD[MAX_DT] = {
         "Y", /// [4] year            (1900..2099)
         "y", /// [2] 2-dig year      (80..99,00..79)
         "m", /// [2] month           (1..12+)
@@ -117,7 +144,7 @@ namespace gnut
     {
     public:
         /** @brief time types */
-        enum t_tsys
+        enum class t_tsys
         {
             USER, ///< user time
             TAI,  ///< TAI
@@ -131,10 +158,10 @@ namespace gnut
         };
 
         /** @brief time types to string */
-        static string tsys2str(const t_tsys& ts);
+        static std::string tsys2str(const t_tsys& ts);
 
         /** @brief string to t_tsys*/
-        static t_tsys str2tsys(const string& s);
+        static t_tsys str2tsys(const std::string& s);
 
         /** @brief initiate with current time !*/
         explicit t_gtime(const t_tsys& ts = DEFAULT_TIME);
@@ -214,7 +241,7 @@ namespace gnut
         int from_dmjd(const double& dmjd, const bool& conv = true);
 
         /** @brief set from defined string. */
-        int from_str(const string& ifmt, const string& dat, const bool& conv = true);
+        int from_str(const std::string& ifmt, const std::string& dat, const bool& conv = true);
 
         /** @brief reset dsec only (in TAI)!. */
         int reset_dsec();
@@ -251,39 +278,39 @@ namespace gnut
         int hour() const;                       ///< get integer hour
         int mins() const;                       ///< get integer minute
         int secs() const;                       ///< get integer seconds
-        string sys() const;                     ///< get time system identifier
+        std::string sys() const;                     ///< get time system identifier
 
         void hms(int& h, int& m, int& s,
                  bool conv = true) const; ///< get hour, minute, seconds
         void ymd(int& y, int& m, int& d,
                  bool conv = true) const; ///< get year, month, day
-        string str(const string& ofmt = "%Y-%m-%d %H:%M:%S",
+        std::string str(const std::string& ofmt = "%Y-%m-%d %H:%M:%S",
                    const bool& conv = true) const; ///< get any string
-        string str_ymd(const string& str = "",
+        std::string str_ymd(const std::string& str = "",
                        const bool& conv = true) const; ///< get fixed date string
-        string str_hms(const string& str = "",
+        std::string str_hms(const std::string& str = "",
                        const bool& conv = true) const; ///< get fixed time string
-        string str_ydoysod(const string& str = "",
+        std::string str_ydoysod(const std::string& str = "",
                            const bool& conv = true) const; ///< get year-doy-sod
-        string str_ymdhms(const string& str = "", const bool& ts = true,
+        std::string str_ymdhms(const std::string& str = "", const bool& ts = true,
                           const bool& conv = true) const; ///< get fixed date and time string
-        string str_mjdsod(const string& str = "", const bool& ts = true,
+        std::string str_mjdsod(const std::string& str = "", const bool& ts = true,
                           const bool& conv = true) const; ///< get mjd-sod
 
-        string str_yyyydoy(const bool& conv = true) const; ///< get yyyydoy add by glfeng
-        string str_yyyy(const bool& conv = true) const;    ///< get year-string
-        string str_doy(const bool& conv = true) const;     ///< get doy-string
-        string str_gwkd(const bool& conv = true) const;    ///< get gpsweek and day -string
-        string str_gwk(const bool& conv = true) const;     ///< get gpsweek -string
-        string str_yr(const bool& conv = true) const;      ///< get 2-char year
-        string str_mon(const bool& conv = true) const;     ///< get month -string
-        string str_day(const bool& conv = true) const;     ///< get day -string
-        string str_hour(const bool& conv = true) const;    ///< get hour -string
-        string str_min(const bool& conv = true) const;     ///< get min -string
+        std::string str_yyyydoy(const bool& conv = true) const; ///< get yyyydoy add by glfeng
+        std::string str_yyyy(const bool& conv = true) const;    ///< get year-string
+        std::string str_doy(const bool& conv = true) const;     ///< get doy-string
+        std::string str_gwkd(const bool& conv = true) const;    ///< get gpsweek and day -string
+        std::string str_gwk(const bool& conv = true) const;     ///< get gpsweek -string
+        std::string str_yr(const bool& conv = true) const;      ///< get 2-char year
+        std::string str_mon(const bool& conv = true) const;     ///< get month -string
+        std::string str_day(const bool& conv = true) const;     ///< get day -string
+        std::string str_hour(const bool& conv = true) const;    ///< get hour -string
+        std::string str_min(const bool& conv = true) const;     ///< get min -string
         // general conversion functions
         int yr(const int& y) const;       ///< get integer 2-char year (1980-2079 only)
-        string mon(const int& m) const;   ///< get month string
-        int mon(const string& str) const; ///< get month number
+        std::string mon(const int& m) const;   ///< get month string
+        int mon(const std::string& str) const; ///< get month number
 
         int tzdiff() const;                           ///< get UTC-LOC difference [sec]
         int dstime() const;                           ///< get day-saving time [sec]
@@ -345,7 +372,7 @@ namespace gnut
         int _ymd_mjd(const int& yr, const int& mn, const int& dd) const;
 
         /** @brief ymd type. */
-        enum t_tymd
+        enum class t_tymd
         {
             _ymd = 0,
             _year = 1,
@@ -354,7 +381,7 @@ namespace gnut
         };
 
         /** @brief hms type. */
-        enum t_thms
+        enum class t_thms
         {
             _hms = 0,
             _hour = 1,
@@ -364,15 +391,15 @@ namespace gnut
     };
 
     const static t_gtime FIRST_TIME(44239, 0, 0.0,
-                                    t_gtime::TAI); ///< first valid time  "1980-01-01 00:00:00"
+                                    t_gtime::t_tsys::TAI); ///< first valid time  "1980-01-01 00:00:00"
     const static t_gtime LAST_TIME(80763, 86399, 0.0,
-                                   t_gtime::TAI); ///< last  valid time  "2079-12-31 23:59:59"
+                                   t_gtime::t_tsys::TAI); ///< last  valid time  "2079-12-31 23:59:59"
 
     /** @brief max/min time. */
     LibGnut_LIBRARY_EXPORT t_gtime MAX_TIME(const t_gtime& A, const t_gtime& B);
-    LibGnut_LIBRARY_EXPORT t_gtime MAX_TIME(const vector<t_gtime>& A);
+    LibGnut_LIBRARY_EXPORT t_gtime MAX_TIME(const std::vector<t_gtime>& A);
     LibGnut_LIBRARY_EXPORT t_gtime MIN_TIME(const t_gtime& A, const t_gtime& B);
-    LibGnut_LIBRARY_EXPORT t_gtime MIN_TIME(const vector<t_gtime>& A);
+    LibGnut_LIBRARY_EXPORT t_gtime MIN_TIME(const std::vector<t_gtime>& A);
 
 } // namespace gnut
 

@@ -11,11 +11,12 @@
 
 #include "gmodels/gbias.h"
 
-using namespace std;
 
 namespace gnut
 {
+#ifndef DIFF_DCB
 #define DIFF_DCB (86400 * 31) // 31 days
+#endif
 
     t_gbias::t_gbias() :
         t_gdata()
@@ -23,8 +24,8 @@ namespace gnut
         _beg = FIRST_TIME;
         _end = LAST_TIME;
 
-        id_type(t_gdata::BIAS);
-        id_group(t_gdata::GRP_MODEL);
+        id_type(t_gdata::ID_TYPE::BIAS);
+        id_group(t_gdata::ID_GROUP::GRP_MODEL);
     }
 
     t_gbias::~t_gbias()

@@ -12,7 +12,6 @@
 
 #include "gutils/gconst.h"
 
-using namespace std;
 
 namespace gnut
 {

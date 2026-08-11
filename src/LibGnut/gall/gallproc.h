@@ -49,7 +49,7 @@ namespace great
         void operator=(const t_gallproc& Other);
 
         /** @brief add one process data. */
-        void Add_Data(const string& type, t_gdata* data);
+        void Add_Data(const std::string& type, t_gdata* data);
 
         /**
          * @brief get the data by type of t_gdata.
@@ -66,7 +66,7 @@ namespace great
         t_gdata* operator[](t_gdata::ID_GROUP);
 
     protected:
-        map<t_gdata::ID_TYPE, t_gdata*> _mapData; ///< map of type and data pointer  for all process data
+        std::map<t_gdata::ID_TYPE, t_gdata*> _mapData; ///< map of type and data pointer  for all process data
     };
 } // namespace great
 

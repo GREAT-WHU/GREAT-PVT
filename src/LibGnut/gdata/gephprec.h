@@ -22,13 +22,20 @@
 #include "geph.h"
 #include "gmodels/gpoly.h"
 
+#ifndef UNDEFVAL_CLK
 #define UNDEFVAL_CLK 999999999.999
+#endif
+#ifndef UNDEFVAL_POS
 #define UNDEFVAL_POS 0.000
+#endif
 
+#ifndef MAXDIFF_CLK
 #define MAXDIFF_CLK 300.0
+#endif
+#ifndef MAXDIFF_EPH
 #define MAXDIFF_EPH 900.0
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -93,12 +100,12 @@ namespace gnut
          * @param[in]  c         _clkc value.
          * @return      int
          */
-        int add(string sat,
-                vector<t_gtime> t,
-                const vector<double>& x,
-                const vector<double>& y,
-                const vector<double>& z,
-                const vector<double>& c);
+        int add(GSAT sat,
+                std::vector<t_gtime> t,
+                const std::vector<double>& x,
+                const std::vector<double>& y,
+                const std::vector<double>& z,
+                const std::vector<double>& c);
 
         /** @brief get chk. */
         int chk() const
@@ -107,7 +114,7 @@ namespace gnut
         }
 
         /** @brief get str. */
-        string str() const
+        std::string str() const
         {
             return "";
         }
@@ -115,7 +122,7 @@ namespace gnut
         /** @brief print str. */
         int print()
         {
-            cout << str();
+            std::cout << str();
             return 0;
         }
 
@@ -141,7 +148,7 @@ namespace gnut
         /** @brief get validity span. */
         unsigned int interval() const
         {
-            return (size_t)_poly_x.span();
+            return (std::size_t)_poly_x.span();
         }
 
         /** @brief check validity (incl.data span). */
@@ -165,11 +172,11 @@ namespace gnut
         t_gpoly _poly_c;      ///< C polynomials
 
         // _epoch is reference epoch
-        vector<double> _dt;   ///< time difference to _epoch
-        vector<double> _xcrd; ///< x-coordinate
-        vector<double> _ycrd; ///< y-coordinate
-        vector<double> _zcrd; ///< z-coordinate
-        vector<double> _clkc; ///< clock correction
+        std::vector<double> _dt;   ///< time difference to _epoch
+        std::vector<double> _xcrd; ///< x-coordinate
+        std::vector<double> _ycrd; ///< y-coordinate
+        std::vector<double> _zcrd; ///< z-coordinate
+        std::vector<double> _clkc; ///< clock correction
     };
 
 } // namespace gnut

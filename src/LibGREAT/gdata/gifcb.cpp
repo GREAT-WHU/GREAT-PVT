@@ -10,12 +10,10 @@
  */
 #include "gdata/gifcb.h"
 
-using namespace std;
 namespace great
 {
     t_ifcbrec::t_ifcbrec()
     {
-        obj = " ";
         npoint = 0;
         value = 0.0;
         sigma = 1E4;
@@ -25,7 +23,7 @@ namespace great
     t_gifcb::t_gifcb() :
         t_gdata()
     {
-        id_type(t_gdata::IFCB);
+        id_type(t_gdata::ID_TYPE::IFCB);
     }
 
     t_gifcb::~t_gifcb()
@@ -33,9 +31,9 @@ namespace great
         _ifcb.clear();
     }
 
-    void t_gifcb::add_sat_ifcb(t_gtime epoch, string prn, t_ifcbrec one_sat_ifcb)
+    void t_gifcb::add_sat_ifcb(t_gtime epoch, GSAT sat, t_ifcbrec one_sat_ifcb)
     {
-        _ifcb[epoch][prn] = make_shared<t_ifcbrec>(one_sat_ifcb);
+        _ifcb[epoch][sat] = std::make_shared<t_ifcbrec>(one_sat_ifcb);
     }
 
     one_epoch_ifcb& t_gifcb::get_epo_ifcb(const t_gtime& t)

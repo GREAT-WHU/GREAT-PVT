@@ -19,7 +19,6 @@
 #include "gutils/gmatrixconv.h"
 #include "gmodels/ginterp.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -335,10 +334,10 @@ namespace gnut
         return ret;
     }
 
-    vector<double> libiers_spline(int NN, Matrix X, Matrix U, Matrix A)
+    std::vector<double> libiers_spline(int NN, Matrix X, Matrix U, Matrix A)
     {
         int N = abs(NN);
-        vector<double> S;
+        std::vector<double> S;
         if (N <= 3)
         {
             for (int I = 1; I <= N; I++)
@@ -393,11 +392,11 @@ namespace gnut
         return S;
     }
 
-    Matrix libiers_eval(vector<double> Y, int NN, Matrix X, Matrix U, vector<double> S)
+    Matrix libiers_eval(std::vector<double> Y, int NN, Matrix X, Matrix U, std::vector<double> S)
     {
         unsigned int nt = Y.size();
         Matrix EVAL(0.0, nt, 1);
-        vector<double> id1;
+        std::vector<double> id1;
         for (unsigned int I = 0; I < nt; I++)
         {
             if (Y[I] <= X(1, 1))
@@ -413,7 +412,7 @@ namespace gnut
             }
         }
 
-        vector<double> id2;
+        std::vector<double> id2;
         for (unsigned int I = 0; I < nt; I++)
         {
             if (Y[I] >= X(1, NN))
@@ -429,7 +428,7 @@ namespace gnut
             }
         }
 
-        vector<double> YY;
+        std::vector<double> YY;
         bool findid1 = false, findid2 = false;
         for (unsigned int i = 0; i < Y.size(); i++)
         {
@@ -477,7 +476,7 @@ namespace gnut
             }
         }
 
-        vector<double> DY, DY1, DK, DELI, FF1, FF2, F1, F2, F3, EVAL1;
+        std::vector<double> DY, DY1, DK, DELI, FF1, FF2, F1, F2, F3, EVAL1;
         for (unsigned int I = 0; I < YY.size(); I++)
         {
             DY.push_back(X(1, int(K2(1, I + 1))) - YY[I]);
@@ -531,7 +530,7 @@ namespace gnut
         return EVAL;
     }
 
-    t_gtriple t_gtide2010::load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec)
+    t_gtriple t_gtide2010::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
         _mutex.lock();
 

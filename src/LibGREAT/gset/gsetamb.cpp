@@ -11,7 +11,6 @@
 #include "gset/gsetamb.h"
 #include <sstream>
 
-using namespace std;
 using namespace pugi;
 
 namespace great
@@ -37,7 +36,7 @@ namespace great
     void t_gsetamb::help()
     {
         _gmutex.lock();
-        cerr << "<ambiguity>\n"
+        std::cerr << "<ambiguity>\n"
              << "<upd_mode> upd </upd_mode>\n"
              << "<fix_mode> SEARCH/NO </fix_mode>\n"
              << "<ratio> 3.0 </ratio>\n"
@@ -54,9 +53,9 @@ namespace great
     {
         if (!_doc)
         {
-            str2fixmode(string());
+            str2fixmode(std::string());
         }
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("fix_mode");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("fix_mode");
         return str2fixmode(trim(tmp));
     }
 
@@ -64,9 +63,9 @@ namespace great
     {
         if (!_doc)
         {
-            str2upd_mode(string());
+            str2upd_mode(std::string());
         }
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("upd_mode");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("upd_mode");
         return str2upd_mode(trim(tmp));
     }
 
@@ -74,7 +73,7 @@ namespace great
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("ratio");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("ratio");
 
         _gmutex.unlock();
         return str2dbl(tmp);
@@ -84,7 +83,7 @@ namespace great
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("boot");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("boot");
 
         if (tmp.empty())
         {
@@ -100,17 +99,17 @@ namespace great
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("min_common_time");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("min_common_time");
 
         _gmutex.unlock();
         return str2dbl(tmp);
     }
 
-    map<string, double> t_gsetamb::get_amb_decision(string type)
+    std::map<std::string, double> t_gsetamb::get_amb_decision(std::string type)
     {
         _gmutex.lock();
-        map<string, string> type2child = {{"EWL", "extra_widelane_decision"}, {"WL", "widelane_decision"}, {"NL", "narrowlane_decision"}};
-        map<string, double> amb_decision;
+        std::map<std::string, std::string> type2child = {{"EWL", "extra_widelane_decision"}, {"WL", "widelane_decision"}, {"NL", "narrowlane_decision"}};
+        std::map<std::string, double> amb_decision;
         if (_default_decision.find(type) == _default_decision.end())
         {
             return amb_decision;
@@ -133,8 +132,8 @@ namespace great
     {
         _gmutex.lock();
 
-        istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("part_fix"));
-        string tmp;
+        std::istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("part_fix"));
+        std::string tmp;
         is >> tmp;
         bool is_part_fix = (tmp == "YES" || tmp == "yes");
 
@@ -146,7 +145,7 @@ namespace great
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("part_fix_num");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("part_fix_num");
 
         if (tmp.empty())
         {
@@ -161,7 +160,7 @@ namespace great
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("full_fix_num");
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("full_fix_num");
 
         if (tmp.empty())
         {
@@ -172,7 +171,7 @@ namespace great
         return str2int(tmp);
     }
 
-    FIX_MODE t_gsetamb::str2fixmode(string str)
+    FIX_MODE t_gsetamb::str2fixmode(std::string str)
     {
         if (str == "NO")
         {
@@ -184,13 +183,13 @@ namespace great
         }
         else
         {
-            cout << "*** warning: not defined ambiguity fixing mode [" << str << "]\n";
-            cout.flush();
+            std::cout << "*** warning: not defined ambiguity fixing mode [" << str << "]\n";
+            std::cout.flush();
         }
         return FIX_MODE::NO;
     }
 
-    string t_gsetamb::fixmode2str(FIX_MODE mode)
+    std::string t_gsetamb::fixmode2str(FIX_MODE mode)
     {
         switch (mode)
         {
@@ -201,7 +200,7 @@ namespace great
         }
     }
 
-    UPD_MODE t_gsetamb::str2upd_mode(string str)
+    UPD_MODE t_gsetamb::str2upd_mode(std::string str)
     {
         if (str == "UPD" || str == "upd")
         {
@@ -218,8 +217,8 @@ namespace great
     {
         _gmutex.lock();
 
-        istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("set_refsat"));
-        string tmp;
+        std::istringstream is(_doc.child(XMLKEY_ROOT).child(XMLKEY_AMBIGUITY).child_value("set_refsat"));
+        std::string tmp;
         is >> tmp;
         bool isSetRefsat = (tmp == "YES" || tmp == "yes");
 
@@ -227,9 +226,9 @@ namespace great
         return isSetRefsat;
     }
 
-    string updmode2str(UPDTYPE mode)
+    std::string updmode2str(UPDTYPE mode)
     {
-        string str;
+        std::string str;
         switch (mode)
         {
             case UPDTYPE::EWL:
@@ -260,7 +259,7 @@ namespace great
         return str;
     }
 
-    UPDTYPE str2updmode(string mode)
+    UPDTYPE str2updmode(std::string mode)
     {
         if (mode == "IFCB")
         {

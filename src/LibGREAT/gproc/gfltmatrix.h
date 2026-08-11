@@ -18,7 +18,6 @@
 #include "gutils/gtypeconv.h"
 #include "gmodels/gbasemodel.h"
 
-using namespace std;
 using namespace gnut;
 namespace great
 {
@@ -41,11 +40,11 @@ namespace great
          * @param[in] P_value weight of observ equation
          * @param[in] l_value res of observ equaion
          */
-        void add_equ(const vector<pair<int, double>>& B_value,
+        void add_equ(const std::vector<std::pair<int, double>>& B_value,
                      const double& P_value,
                      const double& l_value,
-                     const string& stie_name,
-                     const string& sat_name,
+                     const std::string& stie_name,
+                     GSAT sat,
                      const t_gobscombtype& obscombtype,
                      const bool& is_newamb);
         void add_equ(const t_gfltEquationMatrix& Other);
@@ -73,9 +72,9 @@ namespace great
         /**
          * @brief Get the satname
          * @param[in]  equ_idx   index of equ
-         * @return string satellite name
+         * @return satellite PRN
          */
-        string get_satname(int equ_idx) const;
+        GSAT get_sat(int equ_idx) const;
 
         /**
          * @brief Get the obscombtype
@@ -85,9 +84,9 @@ namespace great
         t_gobscombtype get_obscombtype(int equ_idx) const;
 
     protected:
-        vector<pair<string, string>> _site_sat_pairlist; ///< station & satellite name
-        vector<t_gobscombtype> _obstypelist;             ///< observation type
-        vector<bool> _newamb_list;                       ///< whether new arc
+        std::vector<std::pair<std::string, GSAT>> _site_sat_pairlist; ///< station & satellite
+        std::vector<t_gobscombtype> _obstypelist;             ///< observation type
+        std::vector<bool> _newamb_list;                       ///< whether new arc
     };
 
 } // namespace great

@@ -126,7 +126,7 @@ namespace great
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::ALLDE)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLDE)
                         {
                             dynamic_cast<t_gnavde*>(it->second)->add_head(SS, au, emrat, _ipt, constname, constval);
                         }
@@ -153,7 +153,7 @@ namespace great
                     while (it != _data.end())
                     {
                         // fill piece coffecient to data
-                        if (it->second->id_type() == t_gdata::ALLDE)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLDE)
                         {
                             dynamic_cast<t_gnavde*>(it->second)->add_data(_flag - 1, coeff);
                         }

@@ -48,7 +48,6 @@ Reference:
 #include "gutils/gconst.h"
 #include "gexport/ExportLibGnut.h"
 
-using namespace std;
 
 namespace gnut
 {

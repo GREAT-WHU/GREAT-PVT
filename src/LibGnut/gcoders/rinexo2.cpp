@@ -59,7 +59,7 @@ namespace gnut
 
         while (itDAT != _data.end())
         {
-            if (itDAT->second->id_type() != t_gdata::ALLOBS)
+            if (itDAT->second->id_type() != t_gdata::ID_TYPE::ALLOBS)
             {
                 itDAT++;
                 continue;
@@ -70,10 +70,10 @@ namespace gnut
 
             t_gallobs::t_xfilter xflt;
 
-            xflt.xdat[t_gallobs::XDATA_BEG] = _xbeg;
-            xflt.xdat[t_gallobs::XDATA_END] = _xend;
-            xflt.xdat[t_gallobs::XDATA_SMP] = _xsmp;
-            xflt.xdat[t_gallobs::XDATA_SYS] = _xsys;
+            xflt.xdat[t_gallobs::XDATA::XDATA_BEG] = _xbeg;
+            xflt.xdat[t_gallobs::XDATA::XDATA_END] = _xend;
+            xflt.xdat[t_gallobs::XDATA::XDATA_SMP] = _xsmp;
+            xflt.xdat[t_gallobs::XDATA::XDATA_SYS] = _xsys;
 
             xflt.beg = _epo_beg;
             xflt.end = _epo_end;
@@ -88,7 +88,7 @@ namespace gnut
     {
         t_gcoder::clear();
 
-        _epoch = t_gtime::current_time(t_gtime::GPS);
+        _epoch = t_gtime::current_time(t_gtime::t_tsys::GPS);
 
         _rnxhdr.clear();
 
@@ -115,10 +115,10 @@ namespace gnut
         {
             _rnxhdr.program(trim(_line.substr(0, 20)));
             _rnxhdr.runby(trim(_line.substr(20, 20)));
-            t_gtime gtime(t_gtime::UTC);
+            t_gtime gtime(t_gtime::t_tsys::UTC);
             if (_line.substr(56, 3) != "UTC")
             {
-                gtime.tsys(t_gtime::LOC);
+                gtime.tsys(t_gtime::t_tsys::LOC);
             }
 
             if (gtime.from_str("%Y%m%d %H%M%S", _line.substr(40, 15)) == 0)
@@ -457,23 +457,23 @@ namespace gnut
 
             if (tsys == "GPS")
             {
-                first.tsys(t_gtime::GPS);
+                first.tsys(t_gtime::t_tsys::GPS);
             }
             else if (tsys == "GLO")
             {
-                first.tsys(t_gtime::GLO);
+                first.tsys(t_gtime::t_tsys::GLO);
             }
             else if (tsys == "GAL")
             {
-                first.tsys(t_gtime::GAL);
+                first.tsys(t_gtime::t_tsys::GAL);
             }
             else if (tsys == "BDT" || tsys == "BDS")
             {
-                first.tsys(t_gtime::BDS);
+                first.tsys(t_gtime::t_tsys::BDS);
             }
             else
             {
-                first.tsys(t_gtime::GPS);
+                first.tsys(t_gtime::t_tsys::GPS);
             }
 
             first.from_ymdhms(str2int(_line.substr(0, 6)),    // year
@@ -496,23 +496,23 @@ namespace gnut
 
             if (tsys == "GPS")
             {
-                last.tsys(t_gtime::GPS);
+                last.tsys(t_gtime::t_tsys::GPS);
             }
             else if (tsys == "GLO")
             {
-                last.tsys(t_gtime::GLO);
+                last.tsys(t_gtime::t_tsys::GLO);
             }
             else if (tsys == "GAL")
             {
-                last.tsys(t_gtime::GAL);
+                last.tsys(t_gtime::t_tsys::GAL);
             }
             else if (tsys == "BDT" || tsys == "BDS")
             {
-                last.tsys(t_gtime::BDS);
+                last.tsys(t_gtime::t_tsys::BDS);
             }
             else
             {
-                last.tsys(t_gtime::GPS);
+                last.tsys(t_gtime::t_tsys::GPS);
             }
 
             last.from_ymdhms(str2int(_line.substr(0, 6)),    // year
@@ -554,7 +554,7 @@ namespace gnut
 
     int t_rinexo2::_decode_data()
     {
-        vector<string> satellites;
+        vector<GSAT> satellites;
         int irc = t_rinexo2::_read_epoch();
 
         // not ready to read
@@ -606,7 +606,7 @@ namespace gnut
         // loop over satellits records (x-lines)
         for (int i = 0; i < _nsat; i++)
         {
-            string sat = satellites[i];
+            string sat = gsat2str(satellites[i]);
             string key = sat;
 
             // read sat-line and define system/satellite key in _mapobs (RINEX v2.x specific)
@@ -785,7 +785,7 @@ namespace gnut
         return 0;
     }
 
-    int t_rinexo2::_read_satvec(vector<string>& satellites)
+    int t_rinexo2::_read_satvec(vector<GSAT>& satellites)
     {
         int ii = 0;
         for (int i = 0; i < _nsat; i++, ii++)
@@ -817,8 +817,7 @@ namespace gnut
 
             if (_line.length() >= idx + 3)
             {
-                string sat = t_gsys::eval_sat(_line.substr(idx, 3));
-                satellites.push_back(sat);
+                satellites.push_back(str2gsat(_line.substr(idx, 3), t_gsys::str2gsys(_csys)));
             }
         }
 
@@ -913,6 +912,7 @@ namespace gnut
     int t_rinexo2::_read_obs(const unsigned int& idx, const t_rnxhdr::t_vobstypes::const_iterator& it, t_spt_gobs obs)
     {
         GOBS type = it->first;
+        const int type_value = static_cast<int>(type);
         GSYS gsys = obs->gsys();
 
         if (_obs[gsys].size() > 0 && _obs[gsys].find(gobs2str(type)) == _obs[gsys].end())
@@ -929,8 +929,8 @@ namespace gnut
 
         obs->addobs(type, valdbl * it->second);
 
-        if (!(GOBS(type) >= 300 && GOBS(type) < 400) && // signal-to-noise ratio
-            !(GOBS(type) >= 1300 && GOBS(type) < 1400))
+        if (!(type_value >= 300 && type_value < 400) && // signal-to-noise ratio
+            !(type_value >= 1300 && type_value < 1400))
         { // signal-to-noise ratio
 
             // read LLI
@@ -949,7 +949,7 @@ namespace gnut
             }
 
             // only for phase observations !
-            if (GOBS(type) >= 100 && GOBS(type) < 200)
+            if (type_value >= 100 && type_value < 200)
             {
                 // read SNR type instead of original OBS type (always 3-char in G-Nut = RNX2.x 2-char + space)
                 GOBS snrtype = pha2snr(type);
@@ -1018,7 +1018,7 @@ namespace gnut
         map<string, t_gdata*>::iterator itDAT = _data.begin();
         while (itDAT != _data.end())
         {
-            if (itDAT->second->id_type() == t_gdata::ALLOBJ)
+            if (itDAT->second->id_type() == t_gdata::ID_TYPE::ALLOBJ)
             {
                 t_gallobj* all_obj = (t_gallobj*)itDAT->second;
 
@@ -1050,7 +1050,7 @@ namespace gnut
                 }
             }
 
-            else if (itDAT->second->id_type() == t_gdata::ALLOBS)
+            else if (itDAT->second->id_type() == t_gdata::ID_TYPE::ALLOBS)
             {
                 ((t_gallobs*)itDAT->second)->addsitecrd(_site, _rnxhdr.aprxyz());
             }
@@ -1068,7 +1068,7 @@ namespace gnut
         map<string, t_gdata*>::iterator itDAT = _data.begin();
         while (itDAT != _data.end())
         {
-            if (itDAT->second->id_type() != t_gdata::ALLOBJ)
+            if (itDAT->second->id_type() != t_gdata::ID_TYPE::ALLOBJ)
             {
                 itDAT++;
                 continue;
@@ -1077,8 +1077,8 @@ namespace gnut
             while (itOBS != _vobs.end())
             {
                 t_gallobj* all_obj = (t_gallobj*)itDAT->second;
-                shared_ptr<t_gtrn> one_obj = dynamic_pointer_cast<t_gtrn>(all_obj->obj((*itOBS)->sat()));
-                if (one_obj != 0 && one_obj->id_type() == t_gdata::TRN)
+                shared_ptr<t_gtrn> one_obj = dynamic_pointer_cast<t_gtrn>(all_obj->obj(gsat2str((*itOBS)->sat())));
+                if (one_obj != 0 && one_obj->id_type() == t_gdata::ID_TYPE::TRN)
                 {
                     int ch = one_obj->channel();
                     (*itOBS)->channel(ch);
@@ -1092,7 +1092,7 @@ namespace gnut
         itDAT = _data.begin();
         while (itDAT != _data.end())
         {
-            if (itDAT->second->id_type() != t_gdata::ALLOBS)
+            if (itDAT->second->id_type() != t_gdata::ID_TYPE::ALLOBS)
             {
                 itDAT++;
                 continue;
@@ -1101,7 +1101,7 @@ namespace gnut
             vector<t_spt_gobs>::const_iterator itOBS = _vobs.begin();
             while (itOBS != _vobs.end())
             {
-                GREAT_DEBUG((*itOBS)->sat() + " obs filled " + (*itOBS)->epoch().str_ymdhms() + " " + (*itOBS)->site());
+                GREAT_DEBUG(gsat2str((*itOBS)->sat()) + " obs filled " + (*itOBS)->epoch().str_ymdhms() + " " + (*itOBS)->site());
 
                 ((t_gallobs*)itDAT->second)->addobs(*itOBS);
 
@@ -1215,7 +1215,7 @@ namespace gnut
 
         switch (gsys)
         {
-            case GLO:
+            case GSYS::GLO:
                 if (_version <= "2.12" && go[1] == '7')
                 {
                     GREAT_WARN("Warning: extended RINEX 2.11 format (GLO L7 skipped)");
@@ -1223,28 +1223,28 @@ namespace gnut
                 };
                 break;
 
-            case GPS:
+            case GSYS::GPS:
                 if (_version <= "2.12" && go[1] == '7')
                 {
                     GREAT_WARN("Warning: extended RINEX 2.11 format (GPS L7 skipped)");
                     return 0;
                 };
                 break;
-            case BDS:
+            case GSYS::BDS:
                 if (_version <= "2.12")
                 {
                     GREAT_WARN("Warning: extended RINEX 2.11 format (BDS skipped)");
                     return 0;
                 };
                 break;
-            case QZS:
+            case GSYS::QZS:
                 if (_version <= "2.12")
                 {
                     GREAT_WARN("Warning: extended RINEX 2.11 format (QZS skipped)");
                     return 0;
                 };
                 break;
-            case IRN:
+            case GSYS::IRN:
                 if (_version <= "2.12")
                 {
                     GREAT_WARN("Warning: extended RINEX 2.11 format (IRN skipped)");

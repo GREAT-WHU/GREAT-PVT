@@ -29,7 +29,6 @@
 #include "gmodels/gephplan.h"
 #include "gall/gallobj.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -38,7 +37,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gpppmodel(string site, t_gsetbase* settings);
+        t_gpppmodel(std::string site, t_gsetbase* settings);
 
         /** @brief default constructor. */
         t_gpppmodel();

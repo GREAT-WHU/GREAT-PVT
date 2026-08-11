@@ -11,25 +11,24 @@
 #include "gutils/gtypeconv.h"
 #include "gutils/gfileconv.h"
 
-using namespace std;
 
 namespace gnut
 {
 
-    t_giof::t_giof(string mask) :
+    t_giof::t_giof(std::string mask) :
         _irc(0),
         _mask(mask),
         _name(""),
-        _omode(ios::trunc),
+        _omode(std::ios::trunc),
         _repl(false),
         _toff(0),
         _loop(false),
-        _tsys(t_gtime::UTC)
+        _tsys(t_gtime::t_tsys::UTC)
     {
         substitute(mask, GFILE_PREFIX, "");
 
-        this->exceptions(fstream::failbit | fstream::badbit);
-        if (_mask.find('%') != string::npos)
+        this->exceptions(std::fstream::failbit | std::fstream::badbit);
+        if (_mask.find('%') != std::string::npos)
         {
             _repl = true;
         }
@@ -46,15 +45,15 @@ namespace gnut
             {
                 this->close();
             }
-            catch (exception e)
+            catch (std::exception e)
             {
-                cerr << "Exception closing file " << _name << ": " << e.what() << endl;
+                std::cerr << "Exception closing file " << _name << ": " << e.what() << std::endl;
             }
         }
         _gmutex.unlock();
     }
 
-    int t_giof::mask(string mask)
+    int t_giof::mask(std::string mask)
     {
         _gmutex.lock();
 
@@ -72,15 +71,15 @@ namespace gnut
             {
                 this->close();
             }
-            catch (exception e)
+            catch (std::exception e)
             {
-                cerr << "Exception closing file " << _name << ": " << e.what() << endl;
+                std::cerr << "Exception closing file " << _name << ": " << e.what() << std::endl;
                 _irc++;
                 _gmutex.unlock();
                 return -1;
             }
         }
-        if (mask.find('%') != string::npos)
+        if (mask.find('%') != std::string::npos)
         {
             _repl = true;
         }
@@ -99,7 +98,7 @@ namespace gnut
 
         _gmutex.lock();
 
-        string name = _replace();
+        std::string name = _replace();
 
         this->clear();
         if (!this->is_open() || name != _name)
@@ -110,9 +109,9 @@ namespace gnut
                 {
                     this->close();
                 }
-                catch (exception e)
+                catch (std::exception e)
                 {
-                    cerr << "Exception closing file " << _name << ": " << e.what() << endl;
+                    std::cerr << "Exception closing file " << _name << ": " << e.what() << std::endl;
                     _irc++;
                     _gmutex.unlock();
                     return -1;
@@ -123,11 +122,11 @@ namespace gnut
             {
                 _name = name;
                 make_path(_name);
-                this->open(_name.c_str(), ios::binary | ios::out | _omode);
+                this->open(_name.c_str(), std::ios::binary | std::ios::out | _omode);
             }
-            catch (exception e)
+            catch (std::exception e)
             {
-                cerr << "Exception opening file " << _name << ": " << e.what() << endl;
+                std::cerr << "Exception opening file " << _name << ": " << e.what() << std::endl;
                 _irc++;
                 _gmutex.unlock();
                 return -1;
@@ -136,12 +135,12 @@ namespace gnut
 
         try
         {
-            fstream::write(buff, size);
-            fstream::flush();
+            std::fstream::write(buff, size);
+            std::fstream::flush();
         }
-        catch (exception e)
+        catch (std::exception e)
         {
-            cerr << "Exception writting to file " << _name << ": " << e.what() << endl;
+            std::cerr << "Exception writting to file " << _name << ": " << e.what() << std::endl;
             _irc++;
             _gmutex.unlock();
             return -1;
@@ -170,11 +169,11 @@ namespace gnut
                 try
                 {
                     make_path(_name);
-                    this->open(_name.c_str(), ios::binary | ios::in);
+                    this->open(_name.c_str(), std::ios::binary | std::ios::in);
                 }
-                catch (exception e)
+                catch (std::exception e)
                 {
-                    cerr << "Exception opening file " << _name << ": " << e.what() << endl;
+                    std::cerr << "Exception opening file " << _name << ": " << e.what() << std::endl;
                     _irc++;
                     _gmutex.unlock();
                     return -1;
@@ -184,9 +183,9 @@ namespace gnut
             nbytes = size;
             try
             {
-                fstream::read(buff, size);
+                std::fstream::read(buff, size);
             }
-            catch (exception e)
+            catch (std::exception e)
             {
                 if (this->eof())
                 {
@@ -205,7 +204,7 @@ namespace gnut
                 }
                 else
                 {
-                    cerr << "Exception reading from file " << _name << ": " << e.what() << endl;
+                    std::cerr << "Exception reading from file " << _name << ": " << e.what() << std::endl;
                     _irc++;
                     _gmutex.unlock();
                     return -1;
@@ -221,11 +220,11 @@ namespace gnut
     {
         if (b)
         {
-            _omode = ios::app;
+            _omode = std::ios::app;
         }
         else
         {
-            _omode = ios::trunc;
+            _omode = std::ios::trunc;
         }
     }
 
@@ -245,7 +244,7 @@ namespace gnut
         return tsys;
     }
 
-    string t_giof::_replace()
+    std::string t_giof::_replace()
     {
         if (!_repl)
         {

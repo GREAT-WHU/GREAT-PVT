@@ -39,7 +39,7 @@ namespace great
         this->_mapData = Other._mapData;
     }
 
-    void t_gallproc::Add_Data(const string& type, t_gdata* data)
+    void t_gallproc::Add_Data(const std::string& type, t_gdata* data)
     {
         if (data)
         {
@@ -48,7 +48,7 @@ namespace great
         else
         {
             GREAT_CRITICAL(std::string("your ") + type + " is nullptr");
-            throw logic_error("t_gdata pointer is nullptr!");
+            throw std::logic_error("t_gdata pointer is nullptr!");
         }
     }
 

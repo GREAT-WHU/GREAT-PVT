@@ -33,7 +33,6 @@
 #include "gutils/gtriple.h"
 #include "gmodels/geop.h"
 
-using namespace std;
 
 namespace gnut
 {

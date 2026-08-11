@@ -15,7 +15,6 @@
 #include "gutils/gconst.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -46,10 +45,10 @@ namespace gnut
         }
     }
 
-    void Matrix_rem(SymmetricMatrix& Q, vector<int>& ind)
+    void Matrix_rem(SymmetricMatrix& Q, std::vector<int>& ind)
     {
-        vector<int>::iterator it;
-        vector<int>::iterator it2;
+        std::vector<int>::iterator it;
+        std::vector<int>::iterator it2;
         for (it = ind.begin(); it != ind.end(); it++)
         {
             Matrix_remRC(Q, *it, *it);
@@ -183,10 +182,10 @@ namespace gnut
         A = At;
     }
 
-    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix& A, vector<int>& ind)
+    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix& A, std::vector<int>& ind)
     {
-        vector<int>::iterator it;
-        vector<int>::iterator it2;
+        std::vector<int>::iterator it;
+        std::vector<int>::iterator it2;
         for (it = ind.begin(); it != ind.end(); it++)
         {
             Matrix_remR(A, *it);
@@ -334,7 +333,7 @@ namespace gnut
     {
         if (Q1.Nrows() != Q2.Nrows())
         {
-            cerr << "Matrix_cpRC: not compatible dimension" << endl;
+            std::cerr << "Matrix_cpRC: not compatible dimension" << std::endl;
         }
 
         for (int i = 1; i <= Q1.Nrows(); i++)

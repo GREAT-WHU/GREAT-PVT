@@ -17,7 +17,6 @@
 #include "gall/gallpar.h"
 #include "gdata/gsatdata.h"
 
-using namespace std;
 using namespace gnut;
 
 namespace great
@@ -40,9 +39,9 @@ namespace great
          */
         t_gbaseEquation& operator+(t_gbaseEquation& Other);
 
-        vector<vector<pair<int, double>>> B; ///< coeff of equations
-        vector<double> P;                    ///< weight of equations
-        vector<double> l;                    ///< res of equations
+        std::vector<std::vector<std::pair<int, double>>> B; ///< coeff of equations
+        std::vector<double> P;                    ///< weight of equations
+        std::vector<double> l;                    ///< res of equations
     };
 
     // interface class for all mode

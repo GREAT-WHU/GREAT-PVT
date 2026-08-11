@@ -26,7 +26,7 @@
 #include <cstring>
 #include <memory>
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gio/gio.h"
@@ -39,15 +39,19 @@
 #include "gset/gsetgen.h"
 #include "gcoders/gcoder_buffer.h"
 
+#ifndef BUFFER_INCREASE_FAC
 #define BUFFER_INCREASE_FAC 1.5
+#endif
+#ifndef DEFAULT_BUFFER_SIZE
 #define DEFAULT_BUFFER_SIZE 4096
+#endif
+#ifndef MAXIMUM_BUFFER_SIZE
 #define MAXIMUM_BUFFER_SIZE 240000 // 9000000
-using namespace std;
+#endif
 using namespace great;
 using namespace spdlog;
 namespace gnut
 {
-    using namespace std;
 
     class t_gio;
 
@@ -70,7 +74,7 @@ namespace gnut
          * @param[in]  sz        size of the buffer
          * @param[in]  id        string for reporting
          */
-        explicit t_gcoder(t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE, string id = "gcoder");
+        explicit t_gcoder(t_gsetbase* s, std::string version = "", int sz = DEFAULT_BUFFER_SIZE, std::string id = "gcoder");
 
         /**
          * @brief override constructor 2.
@@ -81,7 +85,7 @@ namespace gnut
          * @param[in]  sz        size of the buffer
          * @param[in]  id        string for reporting
          */
-        t_gcoder(t_gtime beg, t_gtime end, t_gsetbase* s, string version = "", int sz = DEFAULT_BUFFER_SIZE, string id = "gcoder");
+        t_gcoder(t_gtime beg, t_gtime end, t_gsetbase* s, std::string version = "", int sz = DEFAULT_BUFFER_SIZE, std::string id = "gcoder");
 
         /**
          * @brief override constructor.
@@ -107,19 +111,19 @@ namespace gnut
          * @brief clear the buffer
          * @return void
          */
-        virtual void version(const string& s)
+        virtual void version(const std::string& s)
         {
             _version = s;
         }
 
         /** @brief get version. */
-        virtual const string& version() const
+        virtual const std::string& version() const
         {
             return _version;
         }
 
         /** @brief decode head. */
-        virtual int decode_head(char* buff, int sz, vector<string>& errmsg)
+        virtual int decode_head(char* buff, int sz, std::vector<std::string>& errmsg)
         {
             return 0;
         } // = 0;
@@ -132,7 +136,7 @@ namespace gnut
          * @param errmsg
          * @return int
          */
-        virtual int decode_data(char* buff, int sz, int& cnt, vector<string>& errmsg)
+        virtual int decode_data(char* buff, int sz, int& cnt, std::vector<std::string>& errmsg)
         {
             return 0;
         } // = 0;
@@ -150,29 +154,29 @@ namespace gnut
          * @return std::shared_ptr<logger>
          */
         /** @brief set/get path. */
-        void path(const string& s);
+        void path(const std::string& s);
 
         /**
          * @brief return file name
          *
          * @return const string&
          */
-        const string& path() const
+        const std::string& path() const
         {
             return _fname;
         }
 
         /** @brief set gio_ptr. */
-        void add_gio(weak_ptr<t_gio> p)
+        void add_gio(std::weak_ptr<t_gio> p)
         {
             _gio_ptr = p;
         }
 
         /** @brief add/get data. */
-        int add_data(const string& data_id, t_gdata* data);
+        int add_data(const std::string& data_id, t_gdata* data);
 
         /** @brief return data. */
-        t_gdata* data(const string& data_id)
+        t_gdata* data(const std::string& data_id)
         {
             return _data[data_id];
         }
@@ -216,7 +220,7 @@ namespace gnut
          * @param[in]  data        t_gdata
          * @return void
          */
-        virtual void _add_data(const string& id, t_gdata* data) {};
+        virtual void _add_data(const std::string& id, t_gdata* data) {};
 
         /**
          * @brief sampling filter for epochs.
@@ -234,7 +238,7 @@ namespace gnut
          *        true:the epoch fits gnss & sat
          *        false:the epoch does not fit gnss & sat
          */
-        virtual bool _filter_gnss(const string& prn);
+        virtual bool _filter_gnss(const std::string& prn);
 
         /**
          * @brief get single line from the buffer.
@@ -242,7 +246,7 @@ namespace gnut
          * @param[in]  from_pos    the position in the buffer
          * @return      int
          */
-        int _getline(string& str, int from_pos = 0);
+        int _getline(std::string& str, int from_pos = 0);
 
         /**
          * @brief get the buffer.
@@ -265,17 +269,17 @@ namespace gnut
          */
         int _consume(const int& bytes_to_eat);
 
-        weak_ptr<t_gio> _gio_ptr;    ///< gio pointer
-        string _fname;               ///< decoded file
-        string _class;               ///< string for reporting
+        std::weak_ptr<t_gio> _gio_ptr;    ///< gio pointer
+        std::string _fname;               ///< decoded file
+        std::string _class;               ///< string for reporting
         bool _initialized;           ///< if initialized
         bool _gnss;                  ///< if gnss definition is requested
         int _out_len;                ///< [min] encoder data batch length
         float _out_smp;              ///< [sec] encoder data batch sample
         t_gtime _out_epo;            ///< encoder refrence epoch
-        string _version;             ///< format version
-        string _initver;             ///< format initial version
-        map<string, t_gdata*> _data; ///< data pointer
+        std::string _version;             ///< format version
+        std::string _initver;             ///< format initial version
+        std::map<std::string, t_gdata*> _data; ///< data pointer
         t_gsetbase* _set;            ///< set pointer
         char* _buffer;               ///< class buffer
         int _buffsz;                 ///< size of buffer
@@ -289,15 +293,15 @@ namespace gnut
         t_gtime _end;     ///< default end time
         double _int;      ///< default interval
         int _scl;         ///< default scaling for decimation (if >= 1Hz)
-        set<string> _sys; ///< default systems
-        set<string> _rec; ///< default sites/receivers
+        std::set<std::string> _sys; ///< default systems
+        std::set<std::string> _rec; ///< default sites/receivers
 
-        map<GSYS, set<string>> _sat; ///< default satellites
-        map<GSYS, set<string>> _obs; ///< default observations (all mixed for single GNSS !!)
-        map<GSYS, set<string>> _nav; ///< default navigation messages
+        std::map<GSYS, std::set<GSAT>> _sat;   ///< default satellites
+        std::map<GSYS, std::set<std::string>> _obs; ///< default observations (all mixed for single GNSS !!)
+        std::map<GSYS, std::set<std::string>> _nav; ///< default navigation messages
 
         //    ENCODING
-        stringstream _ss;
+        std::stringstream _ss;
         long _ss_position;
         bool _hdr;
 

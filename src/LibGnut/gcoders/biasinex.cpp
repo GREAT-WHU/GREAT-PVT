@@ -97,7 +97,7 @@ namespace gnut
         {
             string prn = "";
             GOBS gobs1, gobs2;
-            gobs1 = gobs2 = X;
+            gobs1 = gobs2 = gnut::GOBS::X;
             t_gtime beg = FIRST_TIME;
             t_gtime end = LAST_TIME;
             double dcb = 0.0;
@@ -137,7 +137,7 @@ namespace gnut
             {
                 p_bias = make_shared<t_gbias>();
                 p_bias->set(beg, end, dcb * 1e-9 * CLIGHT, gobs1, gobs2);
-                _allbias->add(_ac, beg, prn, p_bias);
+                _allbias->add(_ac, beg, str2gsat(prn), p_bias);
             }
         }
 
@@ -152,7 +152,7 @@ namespace gnut
         }
 
         // ALL OBJECTS
-        if (pt_data->id_type() == t_gdata::ALLBIAS)
+        if (pt_data->id_type() == t_gdata::ID_TYPE::ALLBIAS)
         {
             if (!_allbias)
             {

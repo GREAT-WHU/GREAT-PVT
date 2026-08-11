@@ -64,7 +64,7 @@ namespace gnut
 #ifdef USE_OPENMP
         omp_lock_t _mutex;
 #else
-        mutex _mutex;
+        std::mutex _mutex;
 
 #endif
     };

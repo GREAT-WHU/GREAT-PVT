@@ -28,7 +28,6 @@
 #include "gutils/gtypeconv.h"
 #include "gall/gallotl.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -62,7 +61,7 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_gallobj();
 
-        typedef map<string, shared_ptr<t_gobj>> t_map_obj; ///< first : , second :allocated data of a single object
+        typedef std::map<std::string, std::shared_ptr<t_gobj>> t_map_obj; ///< first : , second :allocated data of a single object
 
         /**
          * @brief set/get single obj element
@@ -70,7 +69,7 @@ namespace gnut
          * @param obj
          * @return int
          */
-        int add(shared_ptr<t_gobj> obj);
+        int add(std::shared_ptr<t_gobj> obj);
 
         /**
          * @brief
@@ -78,7 +77,7 @@ namespace gnut
          * @param s
          * @return shared_ptr<t_gobj>
          */
-        shared_ptr<t_gobj> obj(const string& s);
+        std::shared_ptr<t_gobj> obj(const std::string& s);
 
         /**
          * @brief synchronize PCVs.
@@ -101,7 +100,7 @@ namespace gnut
          * @param[in]  id
          * @return    all object
          */
-        virtual map<string, shared_ptr<t_gobj>> objects(const t_gdata::ID_TYPE& id = NONE);
+        virtual std::map<std::string, std::shared_ptr<t_gobj>> objects(const t_gdata::ID_TYPE& id = t_gdata::ID_TYPE::NONE);
 
     private:
         t_map_obj _mapobj; ///< map of all objects

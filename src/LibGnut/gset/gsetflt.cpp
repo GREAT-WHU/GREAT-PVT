@@ -17,7 +17,6 @@
 
 #include "gset/gsetflt.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -49,11 +48,11 @@ namespace gnut
     {
     }
 
-    string t_gsetflt::method_flt()
+    std::string t_gsetflt::method_flt()
     {
         _gmutex.lock();
 
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("method_flt").value();
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT).attribute("method_flt").value();
         if (tmp.empty())
         {
             tmp = "kalman";
@@ -228,7 +227,7 @@ namespace gnut
         xml_node flt = _doc.child(XMLKEY_ROOT).child(XMLKEY_FLT);
         flt.remove_attribute("reset_par");
         xml_attribute attri = flt.append_attribute("reset_par");
-        attri.set_value(to_string(d).c_str());
+        attri.set_value(std::to_string(d).c_str());
         _gmutex.unlock();
         return 0;
     }
@@ -265,7 +264,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        cerr << " <filter \n"
+        std::cerr << " <filter \n"
              << "   method_flt=\"" << _method_flt << "\" \n"
              << "   noise_clk=\"" << _noise_clk << "\" \n"
              << "   noise_crd=\"" << _noise_crd << "\" \n"
@@ -274,7 +273,7 @@ namespace gnut
              << "   rndwk_grd=\"" << _rndwk_grd << "\" \n"
              << "  />\n";
 
-        cerr << "\t<!-- filter description:\n"
+        std::cerr << "\t<!-- filter description:\n"
              << "\t method_flt    .. type of filtering method (SRCF, Kalman)\n"
              << "\t noise_clk     .. white noise for clocks \n"
              << "\t noise_crd     .. white noise for coordinates \n"

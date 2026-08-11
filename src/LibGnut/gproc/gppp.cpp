@@ -37,7 +37,7 @@
 namespace gnut
 {
 
-    t_gppp::t_gppp(string mark, t_gsetbase* set) :
+    t_gppp::t_gppp(std::string mark, t_gsetbase* set) :
         t_gspp(mark, set),
         _gotl(0),
         _running(false)
@@ -94,9 +94,9 @@ namespace gnut
         {
             return;
         }
-        ostringstream os;
+        std::ostringstream os;
 
-        vector<t_gallrslt::result>::const_iterator it;
+        std::vector<t_gallrslt::result>::const_iterator it;
         double ztd = 0.0;
         double ztdrms = 0.0;
         t_gtriple xyz(0.0, 0.0, 0.0);
@@ -151,11 +151,11 @@ namespace gnut
 
                 xyz2neu(ell_ref, xyz_rho, neu);
 
-                os << fixed << setprecision(3) << tt.str_ymdhms() << " " << setw(13) << xyz[0] << " " << setw(13) << xyz[1] << " "
-                   << setw(13) << xyz[2] << " " << setw(7) << ztd << " " << setw(13) << neu[0] << " " << setw(13) << neu[1] << " "
-                   << setw(13) << neu[2] << fixed << setprecision(5) << " " << setw(9) << rms[0] << " " << setw(9) << rms[1] << " "
-                   << setw(9) << rms[2] << " " << setw(7) << ztdrms << " " << setw(2) << 0 // DATA SIZE NOT KNOWN HERE !!!!!
-                   << endl;
+                os << std::fixed << std::setprecision(3) << tt.str_ymdhms() << " " << std::setw(13) << xyz[0] << " " << std::setw(13) << xyz[1] << " "
+                   << std::setw(13) << xyz[2] << " " << std::setw(7) << ztd << " " << std::setw(13) << neu[0] << " " << std::setw(13) << neu[1] << " "
+                   << std::setw(13) << neu[2] << std::fixed << std::setprecision(5) << " " << std::setw(9) << rms[0] << " " << std::setw(9) << rms[1] << " "
+                   << std::setw(9) << rms[2] << " " << std::setw(7) << ztdrms << " " << std::setw(2) << 0 // DATA SIZE NOT KNOWN HERE !!!!!
+                   << std::endl;
 
                 giof->write(os.str().c_str(), os.str().size()); // _flt->flush();
 

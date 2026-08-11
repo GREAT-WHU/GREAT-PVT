@@ -51,7 +51,7 @@ namespace great
          *    @retval   false     no rec or sat clk
          *    @retval   true
          */
-        void update_obj_clk(const string& obj, const t_gtime& epo, double clk) override;
+        void update_obj_clk(const std::string& obj, const t_gtime& epo, double clk) override;
 
         /**
          * @brief get satellite clk correction
@@ -62,7 +62,7 @@ namespace great
          * @return
          *    @retval   true
          */
-        double get_rec_clk(const string& obj) override; // add by xiongyun
+        double get_rec_clk(const std::string& obj) override; // add by xiongyun
 
     protected:
         /**
@@ -74,7 +74,7 @@ namespace great
          * @param [in]  satdata     satellite data
          * @return double            delay of tropo
          */
-        double tropoDelay(t_gtime& epoch, string& rec, t_gallpar& param, t_gtriple site_ell, t_gsatdata& satdata);
+        double tropoDelay(t_gtime& epoch, std::string& rec, t_gallpar& param, t_gtriple site_ell, t_gsatdata& satdata);
 
         /**
          * @brief calculate delay of isb
@@ -84,7 +84,7 @@ namespace great
          * @param [in]  gobs        observation data
          * @return double            delay of isb
          */
-        double isbDelay(t_gallpar& param, string& sat, string& rec, t_gobs& gobs);
+        double isbDelay(t_gallpar& param, GSAT sat, std::string& rec, t_gobs& gobs);
 
         /**
          * @brief calculate delay of ifb
@@ -94,7 +94,7 @@ namespace great
          * @param [in]  gobs        observation data
          * @return double            delay of ifb
          */
-        double ifbDelay(t_gallpar& param, string& sat, string& rec, t_gobs& gobs);
+        double ifbDelay(t_gallpar& param, GSAT sat, std::string& rec, t_gobs& gobs);
 
         /**
          * @brief calculate rec/sat clk for epoch
@@ -106,13 +106,13 @@ namespace great
          * @param [out] gobs        observation
          * @return      calculate theoretical value
          */
-        double cmpObs(t_gtime& epoch, string& sat, string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) override;
+        double cmpObs(t_gtime& epoch, GSAT sat, std::string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) override;
 
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index; ///< index of band
-        map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< index of frequency
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index; ///< index of band
+        std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< index of frequency
 
-        string _crt_rec; ///< current recievers
-        string _crt_sat; ///< current satellite
+        std::string _crt_rec; ///< current recievers
+        GSAT _crt_sat = GSAT::NONE; ///< current satellite
         GSYS _crt_sys;   ///< current system
     };
 } // namespace great

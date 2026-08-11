@@ -25,7 +25,6 @@
 #include "gio/great_log.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 
 namespace gnut
 {

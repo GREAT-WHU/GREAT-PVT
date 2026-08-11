@@ -13,20 +13,20 @@ namespace gnut
     t_gallotl::t_gallotl() :
         t_gdata()
     {
-        id_type(t_gdata::ALLOTL);
+        id_type(t_gdata::ID_TYPE::ALLOTL);
     }
     t_gallotl::~t_gallotl()
     {
         _mapotl.clear();
     }
 
-    int t_gallotl::data(Matrix& otldata, const string& site)
+    int t_gallotl::data(Matrix& otldata, const std::string& site)
     {
         _gmutex.lock();
 
         if (_mapotl.find(site) == _mapotl.end() || _mapotl.size() == 0)
         {
-            string site_short = site.substr(0, 4);
+            std::string site_short = site.substr(0, 4);
             if (_mapotl.find(site_short) == _mapotl.end() || _mapotl.size() == 0)
             {
                 _gmutex.unlock();
@@ -74,7 +74,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        string site = otl.site();
+        std::string site = otl.site();
         _mapotl[site] = otl;
 
         _gmutex.unlock();

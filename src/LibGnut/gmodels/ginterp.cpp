@@ -14,15 +14,14 @@
 #include "gmodels/ginterp.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
     t_ginterp::t_ginterp() :
-        _interp_1d(LINEAR),
-        _interp_2d(BILINEAR),
-        _interp_3d(VER2HOR),
-        _interp_ht(INTERPOLATE)
+        _interp_1d(INTERP_1D::LINEAR),
+        _interp_2d(INTERP_2D::BILINEAR),
+        _interp_3d(INTERP_3D::VER2HOR),
+        _interp_ht(INTERP_HT::INTERPOLATE)
     {
     }
 
@@ -30,152 +29,152 @@ namespace gnut
     {
     }
 
-    t_ginterp::INTERP_1D t_ginterp::str_to_interp_1d(const string& str)
+    t_ginterp::INTERP_1D t_ginterp::str_to_interp_1d(const std::string& str)
     {
         if (str.compare("LINEAR") == 0)
         {
-            return LINEAR;
+            return INTERP_1D::LINEAR;
         }
         else if (str.compare("SPLINE") == 0)
         {
-            return SPLINE;
+            return INTERP_1D::SPLINE;
         }
         else
         {
-            cerr << "# warning - unknown 1D interpolation method: " << str << endl;
+            std::cerr << "# warning - unknown 1D interpolation method: " << str << std::endl;
         }
 
-        return LINEAR;
+        return INTERP_1D::LINEAR;
     }
 
-    t_ginterp::INTERP_2D t_ginterp::str_to_interp_2d(const string& str)
+    t_ginterp::INTERP_2D t_ginterp::str_to_interp_2d(const std::string& str)
     {
         if (str.compare("BILINEAR") == 0)
         {
-            return BILINEAR;
+            return INTERP_2D::BILINEAR;
         }
         else if (str.compare("IDW") == 0)
         {
-            return IDW;
+            return INTERP_2D::IDW;
         }
         else if (str.compare("TPS") == 0)
         {
-            return TPS;
+            return INTERP_2D::TPS;
         }
         else
         {
-            cerr << "# warning - unknown 2D interpolation method: " << str << endl;
+            std::cerr << "# warning - unknown 2D interpolation method: " << str << std::endl;
         }
 
-        return BILINEAR;
+        return INTERP_2D::BILINEAR;
     }
 
-    t_ginterp::INTERP_3D t_ginterp::str_to_interp_3d(const string& str)
+    t_ginterp::INTERP_3D t_ginterp::str_to_interp_3d(const std::string& str)
     {
         if (str.compare("HOR2VER") == 0)
         {
-            return HOR2VER;
+            return INTERP_3D::HOR2VER;
         }
         else if (str.compare("VER2HOR") == 0)
         {
-            return VER2HOR;
+            return INTERP_3D::VER2HOR;
         }
         else
         {
-            cerr << "# warning - unknown 3D interpolation method: " << str << endl;
+            std::cerr << "# warning - unknown 3D interpolation method: " << str << std::endl;
         }
 
-        return VER2HOR;
+        return INTERP_3D::VER2HOR;
     }
 
-    t_ginterp::INTERP_HT t_ginterp::str_to_interp_ht(const string& str)
+    t_ginterp::INTERP_HT t_ginterp::str_to_interp_ht(const std::string& str)
     {
         if (str.compare("INTERPOLATE") == 0)
         {
-            return INTERPOLATE;
+            return INTERP_HT::INTERPOLATE;
         }
         else if (str.compare("SCALE") == 0)
         {
-            return SCALE;
+            return INTERP_HT::SCALE;
         }
         else
         {
-            cerr << "# warning - unknown HT interpolation method: " << str << endl;
+            std::cerr << "# warning - unknown HT interpolation method: " << str << std::endl;
         }
 
-        return INTERPOLATE;
+        return INTERP_HT::INTERPOLATE;
     }
 
-    string t_ginterp::interp_1d_to_str(const INTERP_1D& typ)
+    std::string t_ginterp::interp_1d_to_str(const INTERP_1D& typ)
     {
         switch (typ)
         {
-            case LINEAR:
+            case INTERP_1D::LINEAR:
                 return "LINEAR";
                 break;
-            case SPLINE:
+            case INTERP_1D::SPLINE:
                 return "SPLINE";
                 break;
             default:
-                cerr << "# warning - unknown 1D interpolation method\n";
+                std::cerr << "# warning - unknown 1D interpolation method\n";
         }
         return "LINEAR";
     }
 
-    string t_ginterp::interp_2d_to_str(const INTERP_2D& typ)
+    std::string t_ginterp::interp_2d_to_str(const INTERP_2D& typ)
     {
         switch (typ)
         {
-            case BILINEAR:
+            case INTERP_2D::BILINEAR:
                 return "BILINEAR";
                 break;
-            case IDW:
+            case INTERP_2D::IDW:
                 return "IDW";
                 break;
-            case TPS:
+            case INTERP_2D::TPS:
                 return "TPS";
                 break;
             default:
-                cerr << "# warning - unknown 2D interpolation method\n";
+                std::cerr << "# warning - unknown 2D interpolation method\n";
         }
         return "BILINEAR";
     }
 
-    string t_ginterp::interp_3d_to_str(const INTERP_3D& typ)
+    std::string t_ginterp::interp_3d_to_str(const INTERP_3D& typ)
     {
         switch (typ)
         {
-            case HOR2VER:
+            case INTERP_3D::HOR2VER:
                 return "HOR2VER";
                 break;
-            case VER2HOR:
+            case INTERP_3D::VER2HOR:
                 return "VER2HOR";
                 break;
             default:
-                cerr << "# warning - unknown 3D interpolation method\n";
+                std::cerr << "# warning - unknown 3D interpolation method\n";
         }
         return "VER2HOR";
     }
 
-    string t_ginterp::interp_ht_to_str(const INTERP_HT& typ)
+    std::string t_ginterp::interp_ht_to_str(const INTERP_HT& typ)
     {
         switch (typ)
         {
-            case INTERPOLATE:
+            case INTERP_HT::INTERPOLATE:
                 return "INTERPOLATE";
                 break;
-            case SCALE:
+            case INTERP_HT::SCALE:
                 return "SCALE";
                 break;
             default:
-                cerr << "# warning - unknown HT interpolation method\n";
+                std::cerr << "# warning - unknown HT interpolation method\n";
         }
         return "INTERPOLATE";
     }
 
-    int t_ginterp::linear(map<double, double>& data, double val, double& fval)
+    int t_ginterp::linear(std::map<double, double>& data, double val, double& fval)
     {
-        map<double, double>::iterator it2, it1;
+        std::map<double, double>::iterator it2, it1;
         it2 = data.lower_bound(val);
 
         if (it2 != data.end() && double_eq(it2->first, val))
@@ -186,7 +185,7 @@ namespace gnut
         if (it2 == data.begin() || it2 == data.end())
         {
 #ifdef DEBUG
-            cerr << "# warning: extrapolation is not allowed " << it2->first << " " << val << "!\n";
+            std::cerr << "# warning: extrapolation is not allowed " << it2->first << " " << val << "!\n";
 #endif
             return -1;
         }
@@ -204,8 +203,8 @@ namespace gnut
         fval = coef(1, 1) * val + coef(2, 1);
 
 #ifdef DEBUG
-        cerr << "t_ginterp::linear: "
-             << "x = " << val << " fx = " << fval << endl;
+        std::cerr << "t_ginterp::linear: "
+             << "x = " << val << " fx = " << fval << std::endl;
 #endif
         return 0;
     }
@@ -213,13 +212,13 @@ namespace gnut
     // ----------------------------
     // Spline Interpolation (double)
     // ----------------------------
-    int t_ginterp::spline(map<double, double>& data, double val, double& fval)
+    int t_ginterp::spline(std::map<double, double>& data, double val, double& fval)
     {
         if (data.size() == 1)
         {
-            cerr << "Warning: For using of Cubic Spline Interpolation Method, the dimension of input data vector equal "
+            std::cerr << "Warning: For using of Cubic Spline Interpolation Method, the dimension of input data vector equal "
                     "to (at least): dimm = 3, is requested "
-                 << endl;
+                 << std::endl;
             return -1;
         }
         else if (data.size() == 2)
@@ -230,9 +229,9 @@ namespace gnut
         else if (data.size() > 2)
         {
             //    map<double, double>::const_iterator I = data.upper_bound( val );
-            map<double, double>::const_iterator II;
+            std::map<double, double>::const_iterator II;
 
-            vector<double> X, Y;
+            std::vector<double> X, Y;
             for (II = data.begin(); II != data.end(); ++II)
             {
                 X.push_back(II->first);
@@ -242,15 +241,15 @@ namespace gnut
 #ifdef DEBUG
             for (II = data.begin(); II != data.end(); ++II)
             {
-                cout << II->first << "  :  " << II->second << endl;
+                std::cout << II->first << "  :  " << II->second << std::endl;
             }
 
-            cout << "Interpolated value " << val << endl;
+            std::cout << "Interpolated value " << val << std::endl;
 #endif
 
             double e = val;
 
-            vector<double> h, lambda, eta, B, C, D, g, CoefA, CoefB, CoefC, CoefD, AA, BB, FI;
+            std::vector<double> h, lambda, eta, B, C, D, g, CoefA, CoefB, CoefC, CoefD, AA, BB, FI;
 
             // vector h: OK
             for (unsigned int i = 0; i < X.size() - 1; i++)
@@ -343,7 +342,7 @@ namespace gnut
         }
         else
         {
-            cerr << "Warning (ginterp-spline): something wrong with input data!" << endl;
+            std::cerr << "Warning (ginterp-spline): something wrong with input data!" << std::endl;
         }
 
         return 0;
@@ -352,7 +351,7 @@ namespace gnut
     // ----------------------------
     // Linear Interpolation (time)
     // ----------------------------
-    int t_ginterp::linear(const map<t_gtime, double>& data, const t_gtime& epo, double& fval)
+    int t_ginterp::linear(const std::map<t_gtime, double>& data, const t_gtime& epo, double& fval)
     {
         if (data.size() == 0)
         {
@@ -372,8 +371,8 @@ namespace gnut
         }
         else if (data.size() == 2)
         {
-            map<t_gtime, double>::const_iterator itDAT;
-            map<double, double> tmp;
+            std::map<t_gtime, double>::const_iterator itDAT;
+            std::map<double, double> tmp;
 
             for (itDAT = data.begin(); itDAT != data.end(); ++itDAT)
             {
@@ -389,7 +388,7 @@ namespace gnut
         }
         else
         {
-            cerr << "# warning: a problem in time linear interpolation! [#node:" << data.size() << "] " << epo.str_ymdhms() << endl;
+            std::cerr << "# warning: a problem in time linear interpolation! [#node:" << data.size() << "] " << epo.str_ymdhms() << std::endl;
             return -1;
         }
 
@@ -404,16 +403,16 @@ namespace gnut
     // 2 .. 21 (top-left)               |         |
     // 3 .. 22 (top-right)           11 *---------* 12
     // ----------------------------
-    int t_ginterp::bilinear(const map<t_gpair, double>& data, const t_gpair& req_pos, double& fval)
+    int t_ginterp::bilinear(const std::map<t_gpair, double>& data, const t_gpair& req_pos, double& fval)
     {
-        vector<t_gpair> v_pt;
-        map<t_gpair, double>::const_iterator itDAT = data.begin();
+        std::vector<t_gpair> v_pt;
+        std::map<t_gpair, double>::const_iterator itDAT = data.begin();
         for (; itDAT != data.end(); ++itDAT)
         {
             v_pt.push_back(itDAT->first);
 #ifdef DEBUG
-            cout << "# interp:" << fixed << setprecision(0) << " " << itDAT->first[0] << ":" << itDAT->first[1] << " " << setprecision(3)
-                 << " " << data.at(v_pt.at(v_pt.size() - 1)) << endl;
+            std::cout << "# interp:" << std::fixed << std::setprecision(0) << " " << itDAT->first[0] << ":" << itDAT->first[1] << " " << std::setprecision(3)
+                 << " " << data.at(v_pt.at(v_pt.size() - 1)) << std::endl;
 #endif
         }
 
@@ -445,7 +444,7 @@ namespace gnut
 
             if (a - b == 0)
             {
-                cout << "# warning: Bilinear interpolation failed (2 points) \n";
+                std::cout << "# warning: Bilinear interpolation failed (2 points) \n";
                 fval = 0.0;
                 return -1;
             }
@@ -459,10 +458,10 @@ namespace gnut
         else if (v_pt.size() == 4)
         {
 #ifdef DEBUG
-            cout << "# Linear interpolation (4): " << fixed << setprecision(0) << "  " << v_pt[0][0] << ":" << v_pt[0][1] << "  "
+            std::cout << "# Linear interpolation (4): " << std::fixed << std::setprecision(0) << "  " << v_pt[0][0] << ":" << v_pt[0][1] << "  "
                  << v_pt[1][0] << ":" << v_pt[1][1] << "  " << v_pt[2][0] << ":" << v_pt[2][1] << "  " << v_pt[3][0] << ":" << v_pt[3][1]
-                 << " ." << setprecision(3) << "  " << req_pos[0] << "-" << req_pos[1] << "  " << data.at(v_pt[0]) << "  "
-                 << data.at(v_pt[1]) << "  " << data.at(v_pt[2]) << "  " << data.at(v_pt[3]) << endl;
+                 << " ." << std::setprecision(3) << "  " << req_pos[0] << "-" << req_pos[1] << "  " << data.at(v_pt[0]) << "  "
+                 << data.at(v_pt[1]) << "  " << data.at(v_pt[2]) << "  " << data.at(v_pt[3]) << std::endl;
 #endif
 
             double a = data.at(v_pt[0]) * (v_pt[3][0] - req_pos[0]) * (v_pt[3][1] - req_pos[1]);

@@ -15,17 +15,17 @@ namespace gnut
     t_gotl::t_gotl() :
         t_gdata()
     {
-        id_type(t_gdata::OTL);
+        id_type(t_gdata::ID_TYPE::OTL);
     }
 
     t_gotl::~t_gotl()
     {
     }
 
-    string t_gotl::site()
+    std::string t_gotl::site()
     {
         _gmutex.lock();
-        string tmp = _site;
+        std::string tmp = _site;
         _gmutex.unlock();
         return tmp;
     }
@@ -54,7 +54,7 @@ namespace gnut
         return tmp;
     }
 
-    void t_gotl::setdata(const string& site, const double& lon, const double& lat, const Matrix& data)
+    void t_gotl::setdata(const std::string& site, const double& lon, const double& lat, const Matrix& data)
     {
         _gmutex.lock();
         _site = site;

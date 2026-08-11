@@ -13,7 +13,6 @@
 
 #include <vector>
 
-using namespace std;
 
 namespace great
 {
@@ -41,7 +40,7 @@ namespace great
         _cver = "06";
     }
 
-    t_gtrs2crs::t_gtrs2crs(string cver)
+    t_gtrs2crs::t_gtrs2crs(std::string cver)
     {
         _cver = cver;
     }
@@ -53,7 +52,7 @@ namespace great
         _cver = "06";
     }
 
-    t_gtrs2crs::t_gtrs2crs(bool erptab, t_gpoleut1* poleut1, string cver)
+    t_gtrs2crs::t_gtrs2crs(bool erptab, t_gpoleut1* poleut1, std::string cver)
     {
         _erptab = erptab;
         _poleut1 = poleut1;
@@ -109,7 +108,7 @@ namespace great
         double rc2t[3][3];
         double tt = (_tdt.sod() + _tdt.dsec()) / 86400.0;
         double ut1 = (sTUT1.sod() + sTUT1.dsec()) / 86400.0;
-        if (_cver.find("00") != string::npos)
+        if (_cver.find("00") != std::string::npos)
         {
             iauC2t00a(SOFA_DJM0 + _tdt.mjd(), tt, SOFA_DJM0 + sTUT1.mjd(), ut1, _xpole, _ypole, rc2t);
         }
@@ -143,11 +142,11 @@ namespace great
         t_gtime t1;
         t1.from_mjd(_tdt.mjd() + 1, 0, 0.0);
 
-        vector<t_pudaily> rec;
+        std::vector<t_pudaily> rec;
         t_pudaily rec0, rec1;
         rec0.time = t0;
         rec1.time = t1;
-        map<string, double> data0, data1;
+        std::map<std::string, double> data0, data1;
         data0 = (*(poleut1->getPoleUt1DataMap()))[rec0.time];
         rec0.xpole = data0["XPOLE"];
         rec0.ypole = data0["YPOLE"];
@@ -656,7 +655,7 @@ namespace great
     {
         if (L == NULL || LP == NULL || F == NULL || D == NULL || OM == NULL)
         {
-            cout << "invalid FUNDARG pointer";
+            std::cout << "invalid FUNDARG pointer";
         }
 
         const double DAS2R = 4.848136811095359935899141e-6;
@@ -799,13 +798,13 @@ namespace great
         int i3;
         double dX;
         double dIntv;
-        string strTemp1;
-        string strTemp2;
+        std::string strTemp1;
+        std::string strTemp2;
 
         dIntv = (*(pdX + 1)) - (*(pdX));
         if ((dXin < (*(pdX)-0.1 * dIntv)) || (dXin > (*(pdX + iPoint - 1) + 0.1 * dIntv)))
         {
-            cout << " ERROR: input variable out of the table (tbeg,tend,tinput): " << setw(10) << (*pdX) << *(pdX + iPoint - 1) << dXin << endl;
+            std::cout << " ERROR: input variable out of the table (tbeg,tend,tinput): " << std::setw(10) << (*pdX) << *(pdX + iPoint - 1) << dXin << std::endl;
         }
 
         if (iPoint == iOrder + 1)
@@ -826,8 +825,8 @@ namespace great
         }
         else
         {
-            cout << " ERROR: table is enough long for interpolation: "
-                 << " npoint = " << iPoint << " norder = " << iOrder << endl;
+            std::cout << " ERROR: table is enough long for interpolation: "
+                 << " npoint = " << iPoint << " norder = " << iOrder << std::endl;
             throw(" ERROR: table is enough long for interpolation");
         }
 
@@ -849,7 +848,7 @@ namespace great
         }
         else
         {
-            cout << "***ERROR: norder > 2 is not supported ";
+            std::cout << "***ERROR: norder > 2 is not supported ";
             throw("***ERROR: norder > 2 is not supported ");
         }
     }

@@ -18,7 +18,6 @@
 #include "gmodels/gbasemodel.h"
 #include "gmodels/gtropo.h"
 
-using namespace std;
 using namespace gnut;
 
 namespace great
@@ -52,10 +51,10 @@ namespace great
         virtual bool cmb_equ(t_gtime& epoch, t_gallpar& params, t_gsatdata& obsdata, t_gobs& gobs, t_gbaseEquation& result) = 0;
 
         /** @brief empty function */
-        virtual void update_obj_clk(const string& obj, const t_gtime& epo, double clk) {};
+        virtual void update_obj_clk(const std::string& obj, const t_gtime& epo, double clk) {};
 
         /** @brief get clk of reciever */
-        virtual double get_rec_clk(const string& obj)
+        virtual double get_rec_clk(const std::string& obj)
         {
             return 0.0;
         };
@@ -69,8 +68,8 @@ namespace great
         t_gtriple _trs_rec_vel; ///< velocity of reciever in terrestrial reference system
         t_gtriple _trs_sat_vel; ///< velocity of satellite in terrestrial reference system
 
-        string _crt_sat; ///< current satellite
-        string _crt_rec; ///< current reciever
+        GSAT _crt_sat = GSAT::NONE; ///< current satellite
+        std::string _crt_rec; ///< current reciever
         GSYS _crt_sys;   ///< current system
 
     protected:
@@ -83,7 +82,7 @@ namespace great
          *param[in] gsatdata            satlite data
          *param[in] gobs                observation data
          */
-        virtual double cmpObs(t_gtime& epoch, string& sat, string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
+        virtual double cmpObs(t_gtime& epoch, GSAT sat, std::string& rec, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs)
         {
             return 0.0;
         };
@@ -145,7 +144,7 @@ namespace great
         // trop
         int _frequency;                      ///< _frequency
         CONSTRPAR _crd_est = CONSTRPAR::FIX; ///< TODO
-        shared_ptr<t_gtropo> _tropoModel;    ///< model of tropo
+        std::shared_ptr<t_gtropo> _tropoModel;    ///< model of tropo
         TROPMODEL _trpModStr;                ///< TODO
         ZTDMPFUNC _mf_ztd;                   ///< mapping function for ZTD
         GRDMPFUNC _mf_grd;                   ///< mapping function for GRD
@@ -165,8 +164,8 @@ namespace great
         double _sigPhaseBDS; ///< phase bias of BDS
         double _sigPhaseQZS; ///< phase bias of QZS
 
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index; ///< index of band
-        map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< index of frequency
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index; ///< index of band
+        std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< index of frequency
         OBSCOMBIN _observ;                              ///< type of observations
         modeofmeanpole _meanpole_model;
         //======================================================================================================\

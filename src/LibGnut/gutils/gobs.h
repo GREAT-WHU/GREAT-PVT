@@ -24,13 +24,12 @@
 #include <vector>
 #include <string>
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gutils/gnss.h"
 #include "gexport/ExportLibGnut.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -41,7 +40,7 @@ namespace gnut
         /** @brief constructor 1. */
         t_gattr()
         {
-            _gattr = ATTR;
+            _gattr = gnut::GOBSATTR::ATTR;
         };
 
         /** @brief constructor 2. */
@@ -77,7 +76,7 @@ namespace gnut
         t_gband() :
             t_gattr()
         {
-            _gband = BAND;
+            _gband = gnut::GOBSBAND::BAND;
         };
 
         /** @brief constructor 2. */
@@ -120,7 +119,7 @@ namespace gnut
         t_gobs() :
             t_gband()
         {
-            _gtype = TYPE;
+            _gtype = gnut::GOBSTYPE::TYPE;
         };
 
         /** @brief constructor 2. */
@@ -153,7 +152,7 @@ namespace gnut
 
         /** @brief set type (only! inherit). */
         int gobs(const GOBS& g);
-        int gobs(const string& s);
+        int gobs(const std::string& s);
 
         /** @brief get gobs enum. */
         GOBS gobs() const;

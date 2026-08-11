@@ -12,7 +12,6 @@
 #define GBDECI_H
 
 #include "gexport/ExportLibGREAT.h"
-using namespace std;
 
 namespace great
 {

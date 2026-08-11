@@ -6,7 +6,6 @@
 -*/
 #include "gdata/gtrn.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -14,18 +13,18 @@ namespace gnut
         t_gobj(),
         _channel(255)
     {
-        id_type(TRN);
+        id_type(ID_TYPE::TRN);
     }
 
     t_gtrn::~t_gtrn()
     {
     }
 
-    void t_gtrn::header(const t_rxnhdr& hdr, string path)
+    void t_gtrn::header(const t_rxnhdr& hdr, std::string path)
     {
         _gmutex.lock();
 
-        t_header_pair pair = make_pair(path, hdr);
+        t_header_pair pair = std::make_pair(path, hdr);
         _headers.push_back(pair);
 
         _gmutex.unlock();
@@ -36,7 +35,7 @@ namespace gnut
         return _headers;
     }
 
-    t_rxnhdr t_gtrn::header(string path) const
+    t_rxnhdr t_gtrn::header(std::string path) const
     {
         _gmutex.lock();
 

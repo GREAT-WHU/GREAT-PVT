@@ -94,7 +94,7 @@ namespace gnut
         virtual int _read_syskey(string& sat, string& key);
 
         /** @brief read satellite list (vector). */
-        virtual int _read_satvec(vector<string>& satellites);
+        virtual int _read_satvec(vector<GSAT>& satellites);
 
         /** @brief read single satellite observation types. */
         virtual int _read_obstypes(const string& sat, const string& sys);

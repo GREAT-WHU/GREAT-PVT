@@ -15,7 +15,7 @@
 using namespace spdlog;
 namespace gnut
 {
-    t_gspp::t_gspp(string mark, t_gsetbase* set) :
+    t_gspp::t_gspp(std::string mark, t_gsetbase* set) :
         _grec(nullobj),
         _gallobj(0),
         _gallbias(0),
@@ -32,14 +32,14 @@ namespace gnut
         _allprod(0),
         _phase(false),
         _doppler(false),
-        _gnss(GNS),
+        _gnss(GSYS::GNS),
         _initialized(false),
         _use_ecl(false)
     {
         if (nullptr == set)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
-            throw logic_error("");
+            throw std::logic_error("");
         }
         else
         {
@@ -56,7 +56,7 @@ namespace gnut
         _gModel = new t_gsppmodel(_site, _set);
     }
 
-    t_gspp::t_gspp(string mark, t_gsetbase* set, string mode) :
+    t_gspp::t_gspp(std::string mark, t_gsetbase* set, std::string mode) :
         _grec(nullobj),
         _gallobj(0),
         _gallbias(0),
@@ -73,7 +73,7 @@ namespace gnut
         _allprod(0),
         _phase(false),
         _doppler(false),
-        _gnss(GNS),
+        _gnss(GSYS::GNS),
         _initialized(false),
         _use_ecl(false)
     {
@@ -81,7 +81,7 @@ namespace gnut
         if (nullptr == set)
         {
             GREAT_CRITICAL("your set pointer is nullptr !");
-            throw logic_error("");
+            throw std::logic_error("");
         }
         else
         {
@@ -180,21 +180,21 @@ namespace gnut
         _sig_init_bds = dynamic_cast<t_gsetproc*>(_set)->sig_init_bds();
         _sig_init_qzs = dynamic_cast<t_gsetproc*>(_set)->sig_init_qzs();
 
-        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GPS);
-        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GLO);
-        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GAL);
-        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(BDS);
-        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(QZS);
-        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GPS);
-        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GLO);
-        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GAL);
-        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(BDS);
-        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(QZS);
-        _sigDopplerGPS = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GPS);
-        _sigDopplerGLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GLO);
-        _sigDopplerGAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GAL);
-        _sigDopplerBDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(BDS);
-        _sigDopplerQZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(QZS);
+        _sigCodeGPS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::GPS);
+        _sigCodeGLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::GLO);
+        _sigCodeGAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::GAL);
+        _sigCodeBDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::BDS);
+        _sigCodeQZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_C(GSYS::QZS);
+        _sigPhaseGPS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::GPS);
+        _sigPhaseGLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::GLO);
+        _sigPhaseGAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::GAL);
+        _sigPhaseBDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::BDS);
+        _sigPhaseQZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_L(GSYS::QZS);
+        _sigDopplerGPS = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GSYS::GPS);
+        _sigDopplerGLO = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GSYS::GLO);
+        _sigDopplerGAL = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GSYS::GAL);
+        _sigDopplerBDS = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GSYS::BDS);
+        _sigDopplerQZS = dynamic_cast<t_gsetgnss*>(_set)->sigma_D(GSYS::QZS);
 
         _pos_kin = dynamic_cast<t_gsetproc*>(_set)->pos_kin();
         _weight = dynamic_cast<t_gsetproc*>(_set)->weighting();
@@ -210,7 +210,7 @@ namespace gnut
 
     void t_gspp::_setOut()
     {
-        string tmp(dynamic_cast<t_gsetout*>(_set)->outputs("res"));
+        std::string tmp(dynamic_cast<t_gsetout*>(_set)->outputs("res"));
         if (!tmp.empty())
         {
             substitute(tmp, "$(rec)", _site, false);

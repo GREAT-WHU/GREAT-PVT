@@ -17,7 +17,6 @@
 #include "gutils/gcommon.h"
 #include "gmodels/gpoly.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -45,7 +44,7 @@ namespace gnut
         _coef.erase(_coef.begin(), _coef.end());
     }
 
-    int t_gpoly::interpolate(const vector<double>& X, const vector<double>& Y, const double& x, double& y, double& dy)
+    int t_gpoly::interpolate(const std::vector<double>& X, const std::vector<double>& Y, const double& x, double& y, double& dy)
     {
         y = dy = 0.0;
 
@@ -62,7 +61,7 @@ namespace gnut
 
         double den = 0.0, ho = 0.0, hp = 0.0, w = 0.0;
 
-        vector<double> c, d;
+        std::vector<double> c, d;
         for (int i = 0; i < N; i++)
         {
             c.push_back(0.0);
@@ -119,7 +118,7 @@ namespace gnut
 
                 if ((den = ho - hp) == 0.0)
                 {
-                    cerr << " Error in routine [interpolate]." << endl;
+                    std::cerr << " Error in routine [interpolate]." << std::endl;
                     return -1;
                 }
 
@@ -133,7 +132,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gpoly::polynomials(const vector<double>& X, const vector<double>& Y)
+    int t_gpoly::polynomials(const std::vector<double>& X, const std::vector<double>& Y)
     {
         _ncoeff = X.size(); // # polynomials
         if (_ncoeff <= 0)
@@ -144,7 +143,7 @@ namespace gnut
         int N = _ncoeff - 1; // vector dimension (upper index)
 
         double b, phi, ff;
-        vector<double> s;
+        std::vector<double> s;
 
         _valid = true;
         _rms = 0.0;
@@ -195,8 +194,8 @@ namespace gnut
         {
             for (int j = 0; j < N; j++)
             {
-                cerr << _span << fixed << " N=" << N << " R=" << _xref << " X=" << setprecision(3) << setw(12) << X[j] - _xref
-                     << " Y=" << setprecision(6) << setw(16) << Y[j] << " C=" << setprecision(6) << setw(16) << _coef[j] << endl;
+                std::cerr << _span << std::fixed << " N=" << N << " R=" << _xref << " X=" << std::setprecision(3) << std::setw(12) << X[j] - _xref
+                     << " Y=" << std::setprecision(6) << std::setw(16) << Y[j] << " C=" << std::setprecision(6) << std::setw(16) << _coef[j] << std::endl;
             }
         }
         return 0;
@@ -219,12 +218,12 @@ namespace gnut
         }
         else
         {
-            cerr << "Error: polynomials can not be used, not valid." << endl;
+            std::cerr << "Error: polynomials can not be used, not valid." << std::endl;
         }
     }
 
-    int t_gpoly::fitpolynom(const vector<double>& X, // x data  time-difference
-                            const vector<double>& Y, // y data
+    int t_gpoly::fitpolynom(const std::vector<double>& X, // x data  time-difference
+                            const std::vector<double>& Y, // y data
                             int N,
                             double tunit,     // degree of polynom and X-time units [sec]
                             const t_gtime& t) // reference time
@@ -251,7 +250,7 @@ namespace gnut
 
         if (observ - unknwn < 0)
         {
-            cout << " Observ < Unknwn !! : " << observ << " < " << unknwn << endl;
+            std::cout << " Observ < Unknwn !! : " << observ << " < " << unknwn << std::endl;
             reset();
             return -1;
         }
@@ -302,13 +301,13 @@ namespace gnut
         return 0;
     }
 
-    double lagrange_interpolate(const vector<double>& X, const vector<double>& Y, double x, const bool& lvel)
+    double lagrange_interpolate(const std::vector<double>& X, const std::vector<double>& Y, double x, const bool& lvel)
     {
         // check
         const int maxorder = 30;
         if (X.size() != Y.size())
         {
-            cout << "wrong" << endl;
+            std::cout << "wrong" << std::endl;
             throw "interpolate Wrong!!number wrong";
         }
         int Num = X.size();

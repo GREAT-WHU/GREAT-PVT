@@ -26,15 +26,18 @@
 #include "gutils/gconst.h"
 #include "gutils/gcommon.h"
 
+#ifndef MAX_RINEXN_REC_GAL
 #define MAX_RINEXN_REC_GAL 28
+#endif
 
-using namespace std;
 
 namespace gnut
 {
 
     // ICD
+#ifndef SC2R
 #define SC2R 3.1415926535898 ///< Ratio of a circle's circumference to its diameter
+#endif
 
     class LibGnut_LIBRARY_EXPORT t_gnavgal : public t_gnav
     {
@@ -84,7 +87,7 @@ namespace gnut
          * @param msg
          * @return int
          */
-        int chk(set<string>& msg) override;
+        int chk(std::set<std::string>& msg) override;
 
         /**
          * @brief
@@ -93,7 +96,7 @@ namespace gnut
          * @param data
          * @return int
          */
-        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
+        int data2nav(std::string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /**
          * @brief
@@ -147,13 +150,13 @@ namespace gnut
         int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
-        string line() const override;
+        std::string line() const override;
 
         /** @brief get line format. */
-        string linefmt() const override;
+        std::string linefmt() const override;
 
         /** @brief convert health to string. */
-        string health_str() const override
+        std::string health_str() const override
         {
             return _health_str();
         }
@@ -172,14 +175,14 @@ namespace gnut
          *
          * @return string
          */
-        string _health_str() const override;
+        std::string _health_str() const override;
 
         /**
          * @brief source string
          *
          * @return string
          */
-        string _source_str() const;
+        std::string _source_str() const;
 
         /**
          * @brief return type of navig. mess.

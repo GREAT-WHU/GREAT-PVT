@@ -25,7 +25,6 @@
 #include "gutils/gmutex.h"
 #include "gutils/gcommon.h"
 #include "gio/great_log.h"
-using namespace std;
 
 namespace gnut
 {
@@ -49,7 +48,7 @@ namespace gnut
         t_gdata& operator=(const t_gdata& data);
 
         /** @brief data type */
-        enum ID_TYPE
+        enum class ID_TYPE
         {
             NONE,       ///<   none
             OBJ,        ///<   object
@@ -95,7 +94,7 @@ namespace gnut
         };
 
         /** @brief group type */
-        enum ID_GROUP
+        enum class ID_GROUP
         {
             GRP_NONE,    ///<   none
             GRP_OBSERV,  ///<   observations
@@ -119,10 +118,10 @@ namespace gnut
         }
 
         /** @brief get group type in string format */
-        string str_group() const;
+        std::string str_group() const;
 
         /** @brief convert data type to string */
-        static string type2str(ID_TYPE type);
+        static std::string type2str(ID_TYPE type);
 
         /** @brief lock mutex */
         void lock() const

@@ -25,18 +25,35 @@
 #include "gutils/gsys.h"
 #include "gutils/gtime.h"
 
+#ifndef MAX_RINEXN_REC
 #define MAX_RINEXN_REC 29 ///< maximum number of RINEXN records for any system !!
+#endif
 
+#ifndef MAX_NAV_TIMEDIFF
 #define MAX_NAV_TIMEDIFF 3600 * 2 ///< NAV GNS valitity interval [s]
+#endif
+#ifndef MAX_GPS_TIMEDIFF
 #define MAX_GPS_TIMEDIFF 3600 * 2 ///< NAV GPS validity interval [s]
+#endif
+#ifndef MAX_GLO_TIMEDIFF
 #define MAX_GLO_TIMEDIFF 60 * 17  ///< NAV GLO validity interval [s]
+#endif
+#ifndef MAX_GAL_TIMEDIFF
 #define MAX_GAL_TIMEDIFF 3600 * 3 ///< NAV GAL validity interval [s]
+#endif
+#ifndef MAX_BDS_TIMEDIFF
 #define MAX_BDS_TIMEDIFF 3600     ///< NAV BDS validity interval [s]
+#endif
+#ifndef MAX_SBS_TIMEDIFF
 #define MAX_SBS_TIMEDIFF 360      ///< NAV SBS validity interval [s]
+#endif
+#ifndef MAX_IRN_TIMEDIFF
 #define MAX_IRN_TIMEDIFF 3600 * 2 ///< NAV IRN validity interval [s]
+#endif
+#ifndef MAX_QZS_TIMEDIFF
 #define MAX_QZS_TIMEDIFF 3600     ///< NAV QZS validity interval [s]
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -58,7 +75,7 @@ namespace gnut
         static int nav_validity(GSYS gs);
 
         /** @brief convert data to nav. */
-        virtual int data2nav(string sat, const t_gtime& ep, const t_gnavdata& data)
+        virtual int data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
         {
             return -1;
         }
@@ -85,13 +102,13 @@ namespace gnut
         virtual bool healthy() const override;
 
         /** @brief convert health to string. */
-        virtual string health_str() const override
+        virtual std::string health_str() const override
         {
             return _health_str();
         }
 
         /** @brief get chk. */
-        virtual int chk(set<string>& msg)
+        virtual int chk(std::set<std::string>& msg)
         {
             return 1;
         }
@@ -110,7 +127,7 @@ namespace gnut
         }
 
         /** @brief convert health to string. */
-        virtual string _health_str() const
+        virtual std::string _health_str() const
         {
             return "";
         }

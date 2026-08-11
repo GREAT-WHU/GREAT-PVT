@@ -150,9 +150,9 @@ namespace great
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::UPD)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::UPD)
                         {
-                            dynamic_cast<t_gupd*>(it->second)->add_sat_upd(_updtype, _epoch, prn.substr(1), upd);
+                            dynamic_cast<t_gupd*>(it->second)->add_sat_upd(_updtype, _epoch, str2gsat(prn.substr(1)), upd);
                         }
                         ++it;
                     }
@@ -164,9 +164,9 @@ namespace great
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::UPD)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::UPD)
                         {
-                            dynamic_cast<t_gupd*>(it->second)->add_sat_upd(_updtype, _epoch, prn, upd);
+                            dynamic_cast<t_gupd*>(it->second)->add_sat_upd(_updtype, _epoch, str2gsat(prn), upd);
                         }
                         ++it;
                     }

@@ -35,17 +35,20 @@
 #include "gutils/gobs.h"
 #include "gset/gsetgen.h"
 
+#ifndef DIFF_SEC_NOMINAL
 #define DIFF_SEC_NOMINAL 0.905 ///< [sec] returns observations within +- DIFF_SEC for 1Hz
+#endif
 
 // normalize for 1Hz !
+#ifndef DIFF_SEC
 #define DIFF_SEC(a) (((a) > (0.0) && (a) < (1.0)) ? (DIFF_SEC_NOMINAL * a) : (DIFF_SEC_NOMINAL))
+#endif
 
-using namespace std;
 
 namespace gnut
 {
 
-    typedef shared_ptr<t_gobsgnss> t_spt_gobs;
+    typedef std::shared_ptr<t_gobsgnss> t_spt_gobs;
 
     /**
      *@brief Class for t_allobs derive from t_gdata
@@ -63,7 +66,7 @@ namespace gnut
         virtual ~t_gallobs();
 
         /** @brief XDATA type. */
-        enum XDATA
+        enum class XDATA
         {
             XDATA_BEG,
             XDATA_END,
@@ -72,7 +75,7 @@ namespace gnut
         };
 
         /**@brief first : XDATA, second : */
-        typedef map<XDATA, int> t_map_xdat;
+        typedef std::map<XDATA, int> t_map_xdat;
 
         struct t_xfilter
         {
@@ -81,17 +84,17 @@ namespace gnut
         };
 
         /**@brief first : , second : file filtered data */
-        typedef map<string, t_xfilter> t_map_xfil;
+        typedef std::map<std::string, t_xfilter> t_map_xfil;
         /**@brief first : , second : all filtered data */
-        typedef map<string, t_map_xfil> t_map_xflt;
+        typedef std::map<std::string, t_map_xfil> t_map_xflt;
         /**@brief first : name, second : all data-types/single epoch */
-        typedef map<string, t_spt_gobs> t_map_osat;
+        typedef std::map<GSAT, t_spt_gobs> t_map_osat;
         /**@brief first : time, second : all data-types/all epochs/single object */
-        typedef map<t_gtime, t_map_osat> t_map_oref;
+        typedef std::map<t_gtime, t_map_osat> t_map_oref;
         /**@brief first : time, second : all data-types/all epochs/all objects */
-        typedef map<string, t_map_oref> t_map_oobj;
+        typedef std::map<std::string, t_map_oref> t_map_oobj;
         /**@brief first : , second :GOBSBAND , third :GOBS , fourth: */
-        typedef map<string, map<GOBSBAND, map<GOBS, int>>> t_map_frq;
+        typedef std::map<GSAT, std::map<GOBSBAND, std::map<GOBS, int>>> t_map_frq;
 
         /**
          * @brief settings of system&sampling&scalefc.
@@ -106,7 +109,7 @@ namespace gnut
          *
          * @return all stations
          */
-        virtual set<string> stations();
+        virtual std::set<std::string> stations();
 
         /**
         * @brief if map contains the site.
@@ -116,7 +119,7 @@ namespace gnut
             if map contains the site        true
             else                            false
         */
-        virtual bool isSite(const string& site);
+        virtual bool isSite(const std::string& site);
 
         /**
         * @brief get all satellites for epoch t and system.
@@ -127,7 +130,7 @@ namespace gnut
         * @return
             the list of available satellites.
         */
-        virtual set<string> sats(const string& site, const t_gtime& t, GSYS gnss);
+        virtual std::set<GSAT> sats(const std::string& site, const t_gtime& t, GSYS gnss);
 
         /**
          * @brief get all t_gsatdata for epoch t
@@ -136,7 +139,7 @@ namespace gnut
          * @param t
          * @return vector<t_gsatdata>
          */
-        virtual vector<t_gsatdata> obs(const string& site, const t_gtime& t);
+        virtual std::vector<t_gsatdata> obs(const std::string& site, const t_gtime& t);
 
         /**
          * @brief get all t_gobsgnss pointers for epoch t
@@ -145,7 +148,7 @@ namespace gnut
          * @param t
          * @return vector<t_spt_gobs>
          */
-        virtual vector<t_spt_gobs> obs_pt(const string& site, const t_gtime& t);
+        virtual std::vector<t_spt_gobs> obs_pt(const std::string& site, const t_gtime& t);
 
         /**
          * @brief  get all t_gepochs for site
@@ -153,7 +156,7 @@ namespace gnut
          * @param site
          * @return vector<t_gtime>
          */
-        virtual vector<t_gtime> epochs(const string& site);
+        virtual std::vector<t_gtime> epochs(const std::string& site);
 
         /**
          * @brief get first t_gobs epoch for site
@@ -162,7 +165,7 @@ namespace gnut
          * @param smpl
          * @return t_gtime
          */
-        virtual t_gtime beg_obs(const string& site, double smpl = 0.0);
+        virtual t_gtime beg_obs(const std::string& site, double smpl = 0.0);
 
         /**
          * @brief get last  t_gobs epoch for site
@@ -170,7 +173,7 @@ namespace gnut
          * @param site
          * @return t_gtime
          */
-        virtual t_gtime end_obs(const string& site);
+        virtual t_gtime end_obs(const std::string& site);
 
         /**
          * @brief add site-specific filtered data/epochs
@@ -179,7 +182,7 @@ namespace gnut
          * @param file
          * @param xflt
          */
-        void xdata(const string& site, const string& file, const t_xfilter& xflt);
+        void xdata(const std::string& site, const std::string& file, const t_xfilter& xflt);
 
         /**
          * @brief add single station observation
@@ -195,7 +198,7 @@ namespace gnut
          * @param site
          * @return unsigned int
          */
-        unsigned int nepochs(const string& site);
+        unsigned int nepochs(const std::string& site);
 
         /**
          * @brief find appropriate t_gobsgnss element for site/epoch
@@ -204,7 +207,7 @@ namespace gnut
          * @param t
          * @return t_map_osat
          */
-        virtual t_map_osat find(const string& site, const t_gtime& t);
+        virtual t_map_osat find(const std::string& site, const t_gtime& t);
 
         /**
          * @brief get number of occurance of individual signals
@@ -212,7 +215,7 @@ namespace gnut
          * @param site
          * @return t_map_frq
          */
-        t_map_frq frqobs(const string& site);
+        t_map_frq frqobs(const std::string& site);
 
         /**
          * @brief add site crd
@@ -220,7 +223,7 @@ namespace gnut
          * @param site
          * @param crd
          */
-        void addsitecrd(const string& site, const t_gtriple& crd)
+        void addsitecrd(const std::string& site, const t_gtriple& crd)
         {
             _mapcrds[site] = crd;
         }
@@ -230,7 +233,7 @@ namespace gnut
          *
          * @return map<string, int>
          */
-        const map<string, int>& glo_freq_num() const
+        const std::map<GSAT, int>& glo_freq_num() const
         {
             return _glofrq;
         }
@@ -241,7 +244,7 @@ namespace gnut
          * @param sat
          * @param freqNum
          */
-        void add_glo_freq(const string& sat, int freqNum)
+        void add_glo_freq(GSAT sat, int freqNum)
         {
             if (_glofrq.find(sat) == _glofrq.end())
             {
@@ -251,13 +254,13 @@ namespace gnut
 
     protected:
         /**@brief return all sats */
-        virtual set<string> _sats(const string& site, const t_gtime& t, GSYS gnss);
+        virtual std::set<GSAT> _sats(const std::string& site, const t_gtime& t, GSYS gnss);
 
         /**@brief return all obs */
-        virtual vector<t_gsatdata> _gobs(const string& site, const t_gtime& t);
+        virtual std::vector<t_gsatdata> _gobs(const std::string& site, const t_gtime& t);
 
         /**@brief find epoch from the map */
-        int _find_epo(const string& site, const t_gtime& epo, t_gtime& tt);
+        int _find_epo(const std::string& site, const t_gtime& epo, t_gtime& tt);
 
     protected:
         t_gsetbase* _set = nullptr;
@@ -265,12 +268,12 @@ namespace gnut
         t_map_oobj _mapobj;              ///< map over all objects (receivers)
         t_map_xflt _filter;              ///< structure of stations/files filtered data (QC)
         bool _overwrite;                 ///< rewrite/add only mode
-        set<string> _sys;                ///< systems settings
+        std::set<std::string> _sys;                ///< systems settings
         double _smp;                     ///< sampling settings
         double _scl;                     ///< sampling scale-factor
-        map<string, t_gtriple> _mapcrds; ///< all sites apr coordinates
-        map<string, int> _glofrq;        ///< map of GLONASS slot/frequency
-        set<string> _map_sites;          ///< map of sites
+        std::map<std::string, t_gtriple> _mapcrds; ///< all sites apr coordinates
+        std::map<GSAT, int> _glofrq;          ///< map of GLONASS slot/frequency
+        std::set<std::string> _map_sites;          ///< map of sites
     private:
     };
 

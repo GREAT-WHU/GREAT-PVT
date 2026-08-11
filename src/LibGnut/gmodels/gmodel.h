@@ -32,7 +32,6 @@
 #include "gmodels/gtropo.h"
 #include "gall/gallbias.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -46,7 +45,7 @@ namespace gnut
         virtual ~t_gmodel();
 
         /** @brief set site. */
-        void setSite(const string& site);
+        void setSite(const std::string& site);
 
         /** @brief set log. */
         /** @brief model computed range value (phase/code). */
@@ -56,7 +55,7 @@ namespace gnut
         virtual double cmpObsD(t_gtime& epoch, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) = 0;
 
         /** @brief get WindUp. */
-        virtual double windUp(t_gtime& epoch, const string, const ColumnVector&, const ColumnVector&)
+        virtual double windUp(t_gtime& epoch, const std::string, const ColumnVector&, const ColumnVector&)
         {
             return 0.0;
         };
@@ -68,13 +67,13 @@ namespace gnut
         };
 
         /** @brief get ZHD. */
-        virtual double getZHD(const string& site, const t_gtime& epo)
+        virtual double getZHD(const std::string& site, const t_gtime& epo)
         {
             return 0.0;
         };
 
         /** @brief get ZWD. */
-        virtual double getZWD(const string& site, const t_gtime& epo)
+        virtual double getZWD(const std::string& site, const t_gtime& epo)
         {
             return 0.0;
         };
@@ -85,10 +84,10 @@ namespace gnut
         virtual void reset_SatPCO(bool cal = true) {};
 
         /** @brief Outliers detection. */
-        virtual int outlierDetect(vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&) = 0;
+        virtual int outlierDetect(std::vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&) = 0;
 
         /** @brief get tropoModel. */
-        shared_ptr<t_gtropo> tropoModel()
+        std::shared_ptr<t_gtropo> tropoModel()
         {
             return _tropoModel;
         }
@@ -100,9 +99,9 @@ namespace gnut
         }
 
     protected:
-        shared_ptr<t_gtropo> _tropoModel; ///< trop model
+        std::shared_ptr<t_gtropo> _tropoModel; ///< trop model
         t_gsetbase* _settings;            ///< setting
-        string _site;                     ///< site
+        std::string _site;                     ///< site
         bool _phase;                      ///< phase
         t_gallbias* _gallbias;            ///< allbias
     };

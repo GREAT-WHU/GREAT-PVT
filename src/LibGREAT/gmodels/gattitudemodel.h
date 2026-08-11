@@ -16,7 +16,6 @@
 #include "gmodels/gephplan.h"
 
 using namespace gnut;
-using namespace std;
 
 namespace great
 {
@@ -45,7 +44,7 @@ namespace great
             @retval =1                fail
         */
         int attitude_old(t_gsatdata& satdata,
-                         string antype,
+                         std::string antype,
                          Eigen::Vector3d& i,
                          Eigen::Vector3d& j,
                          Eigen::Vector3d& k); // from RTKlib (to remove)
@@ -76,8 +75,16 @@ namespace great
             @retval =0                success
             @retval =1                fail
         */
-        int attitude(string antype,
-                     string prn,
+        int attitude(std::string antype,
+                     GSAT prn,
+                     ColumnVector& xsat,
+                     ColumnVector& vsat,
+                     ColumnVector& xsun,
+                     ColumnVector& i,
+                     ColumnVector& j,
+                     ColumnVector& k);
+        int attitude(std::string antype,
+                     const std::string& prn,
                      ColumnVector& xsat,
                      ColumnVector& vsat,
                      ColumnVector& xsun,
@@ -97,7 +104,7 @@ namespace great
             @retval =0                fail
             @retval =1                success
         */
-        int attitude(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        int attitude(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
     protected:
         // From RTKlib - needs to be removed
@@ -112,7 +119,7 @@ namespace great
             @retval =0                fail
             @retval =1                success
         */
-        int _yaw(t_gsatdata& satdata, string antype, Eigen::Vector3d& xs, Eigen::Vector3d& ys, Eigen::Vector3d& zs);
+        int _yaw(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& xs, Eigen::Vector3d& ys, Eigen::Vector3d& zs);
 
         // attitude niminal modeling
         /** @brief Yaw-steering mode attitude model
@@ -136,7 +143,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _ysm(string prn,
+        void _ysm(GSAT prn,
                   double bata,
                   double mi,
                   ColumnVector& xsat,
@@ -199,7 +206,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _noon_turn(string _prn,
+        void _noon_turn(GSAT _prn,
                         double _beta,
                         double _mi,
                         ColumnVector& xsat,
@@ -219,7 +226,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIA(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GPSIIA(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief Attitude modelling for GPS Block IIA
          *
@@ -232,8 +239,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIA(string antype,
-                              string prn,
+        void _attitude_GPSIIA(std::string antype,
+                              GSAT prn,
                               ColumnVector& xsat,
                               ColumnVector& vsat,
                               ColumnVector& xsun,
@@ -263,7 +270,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _midnight_turn_GPSIIA(string prn,
+        void _midnight_turn_GPSIIA(GSAT prn,
                                    double _beta,
                                    double _mi,
                                    ColumnVector& xsat,
@@ -283,7 +290,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIR(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GPSIIR(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for GPS Block IIR
          *
@@ -297,8 +304,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIR(string antype,
-                              string prn,
+        void _attitude_GPSIIR(std::string antype,
+                              GSAT prn,
                               ColumnVector& xsat,
                               ColumnVector& vsat,
                               ColumnVector& xsun,
@@ -315,7 +322,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIRM(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GPSIIRM(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         // attitude for GPS Block IIF
         /** @brief attitude for GPS Block IIF
@@ -326,7 +333,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIF(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GPSIIF(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for GPS Block IIF
          *
@@ -338,8 +345,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIIF(string antype,
-                              string prn,
+        void _attitude_GPSIIF(std::string antype,
+                              GSAT prn,
                               ColumnVector& xsat,
                               ColumnVector& vsat,
                               ColumnVector& xsun,
@@ -370,7 +377,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _midnight_turn_GPSIIF(string prn,
+        void _midnight_turn_GPSIIF(GSAT prn,
                                    double _beta,
                                    double _mi,
                                    ColumnVector& xsat,
@@ -390,7 +397,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIII(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GPSIII(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for GPS Block III
          *
@@ -403,8 +410,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GPSIII(string antype,
-                              string prn,
+        void _attitude_GPSIII(std::string antype,
+                              GSAT prn,
                               ColumnVector& xsat,
                               ColumnVector& vsat,
                               ColumnVector& xsun,
@@ -421,7 +428,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GAL1(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GAL1(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for Galileo IOV
          *
@@ -434,8 +441,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GAL1(string antype,
-                            string prn,
+        void _attitude_GAL1(std::string antype,
+                            GSAT prn,
                             ColumnVector& xsat,
                             ColumnVector& vsat,
                             ColumnVector& xsun,
@@ -464,7 +471,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _noon_turn_GAL1(string prn,
+        void _noon_turn_GAL1(GSAT prn,
                              double _beta,
                              double _mi,
                              ColumnVector& xsat,
@@ -483,7 +490,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GAL2(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GAL2(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for Galileo FOC
          *
@@ -496,8 +503,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GAL2(string antype,
-                            string prn,
+        void _attitude_GAL2(std::string antype,
+                            GSAT prn,
                             ColumnVector& xsat,
                             ColumnVector& vsat,
                             ColumnVector& xsun,
@@ -526,7 +533,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _noon_turn_GAL2(string prn,
+        void _noon_turn_GAL2(GSAT prn,
                              double _beta,
                              double _mi,
                              ColumnVector& xsat,
@@ -558,7 +565,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _cys_cast(string prn,
+        void _cys_cast(GSAT prn,
                        double _beta,
                        double _mi,
                        ColumnVector& xsat,
@@ -589,7 +596,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _cys_secm(string prn,
+        void _cys_secm(GSAT prn,
                        double _beta,
                        double _mi,
                        ColumnVector& xsat,
@@ -608,7 +615,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_BDS(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_BDS(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for BeiDou
          *
@@ -621,8 +628,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_BDS(string antype,
-                           string prn,
+        void _attitude_BDS(std::string antype,
+                           GSAT prn,
                            ColumnVector& xsat,
                            ColumnVector& vsat,
                            ColumnVector& xsun,
@@ -652,7 +659,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _cys_qzs(string prn,
+        void _cys_qzs(GSAT prn,
                       double _beta,
                       double _mi,
                       ColumnVector& xsat,
@@ -671,7 +678,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_QZS(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_QZS(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for QZSS
          *
@@ -684,8 +691,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_QZS(string antype,
-                           string prn,
+        void _attitude_QZS(std::string antype,
+                           GSAT prn,
                            ColumnVector& xsat,
                            ColumnVector& vsat,
                            ColumnVector& xsun,
@@ -702,7 +709,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GLO(t_gsatdata& satdata, string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
+        void _attitude_GLO(t_gsatdata& satdata, std::string antype, Eigen::Vector3d& i, Eigen::Vector3d& j, Eigen::Vector3d& k);
 
         /** @brief attitude for QZSS
          *
@@ -715,8 +722,8 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _attitude_GLO(string antype,
-                           string prn,
+        void _attitude_GLO(std::string antype,
+                           GSAT prn,
                            ColumnVector& xsat,
                            ColumnVector& vsat,
                            ColumnVector& xsun,
@@ -757,7 +764,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _midnight_turn_GLOM(string prn,
+        void _midnight_turn_GLOM(GSAT prn,
                                  double _beta,
                                  double _mi,
                                  ColumnVector& xsat,
@@ -781,7 +788,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _noon_turn_GLOM(string prn,
+        void _noon_turn_GLOM(GSAT prn,
                              double _beta,
                              double _mi,
                              ColumnVector& xsat,
@@ -845,9 +852,9 @@ namespace great
 
         ATTITUDES _attitudes;           ///< satellite attitudes
         t_gephplan _ephplan;            ///< planetary ephemerises
-        map<string, double> _last_beta; ///< last beta
-        map<string, double> _last_yaw;  ///< last yaw
-        map<string, t_gtime> _last_epo; ///< last epoch
+        std::map<GSAT, double> _last_beta; ///< last beta
+        std::map<GSAT, double> _last_yaw;  ///< last yaw
+        std::map<GSAT, t_gtime> _last_epo; ///< last epoch
     };
 } // namespace great
 

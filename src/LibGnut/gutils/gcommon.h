@@ -29,12 +29,16 @@
 #ifdef _WIN32
 #include <direct.h>
 #include <Shlwapi.h>
+#ifndef GET_CURRENT_PATH
 #define GET_CURRENT_PATH _getcwd
+#endif
 #pragma warning(disable : 4503) // suppress Visual Studio WARNINGS 4503 about truncated decorated names
 
 #else
 #include <unistd.h>
+#ifndef GET_CURRENT_PATH
 #define GET_CURRENT_PATH getcwd
+#endif
 #endif
 
 #ifndef S_ISDIR
@@ -45,7 +49,6 @@
 #define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -54,15 +57,15 @@ namespace gnut
     static const char cr = 0x0d; ///< = "\r" .. carriage return
 
 #if defined __linux__ || defined __APPLE__
-    static const string crlf = string("") + lf; ///< "\n"
+    static const std::string crlf = std::string("") + lf; ///< "\n"
 #endif
 
 #if defined _WIN32 || defined _WIN64
-    static const string crlf = string("") + lf; // "\r\n"
+    static const std::string crlf = std::string("") + lf; // "\r\n"
 #endif
 
     /** @brief cut crlf. */
-    inline string cut_crlf(string s)
+    inline std::string cut_crlf(std::string s)
     {
         if (!s.empty() && s[s.length() - 1] == lf)
         {
@@ -76,13 +79,21 @@ namespace gnut
     }
 
 #ifdef DEBUG
+#ifndef ID_FUNC
 #define ID_FUNC printf(" .. %s\n", __func__)
+#endif
 #else
+#ifndef ID_FUNC
 #define ID_FUNC
 #endif
+#endif
 
+#ifndef SQR
 #define SQR(x) ((x) * (x))
+#endif
+#ifndef SQRT
 #define SQRT(x) ((x) <= 0.0 ? 0.0 : sqrt(x))
+#endif
 
     /**
      * @brief tail of a string
@@ -90,7 +101,7 @@ namespace gnut
      * @param[in] length        the need length
      * @return result string
      */
-    inline string tail(const string& str, const size_t length)
+    inline std::string tail(const std::string& str, const std::size_t length)
     {
         if (length >= str.size())
         {

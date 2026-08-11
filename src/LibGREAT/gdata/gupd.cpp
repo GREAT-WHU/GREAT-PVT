@@ -10,12 +10,10 @@
  */
 #include "gdata/gupd.h"
 
-using namespace std;
 namespace great
 {
     t_updrec::t_updrec()
     {
-        obj = " ";
         npoint = 0;
         value = 0.0;
         sigma = 1E4;
@@ -25,7 +23,7 @@ namespace great
     t_gupd::t_gupd() :
         t_gdata()
     {
-        id_type(t_gdata::UPD);
+        id_type(t_gdata::ID_TYPE::UPD);
         _ewl_flag = t_gtime(EWL_IDENTIFY);
         _ewl24_flag = t_gtime(EWL24_IDENTIFY);
         _ewl25_flag = t_gtime(EWL25_IDENTIFY);
@@ -46,23 +44,23 @@ namespace great
         _upd.clear();
     }
 
-    void t_gupd::add_sat_upd(UPDTYPE upd_type, t_gtime epoch, string prn, t_updrec one_sat_upd)
+    void t_gupd::add_sat_upd(UPDTYPE upd_type, t_gtime epoch, GSAT sat, t_updrec one_sat_upd)
     {
-        _upd[upd_type][epoch][prn] = make_shared<t_updrec>(one_sat_upd);
+        _upd[upd_type][epoch][sat] = std::make_shared<t_updrec>(one_sat_upd);
         if (upd_type == UPDTYPE::WL && _upd[upd_type].size() > 1)
         {
             wl_epo_mode(true);
         }
     }
 
-    void t_gupd::re_init_upd(const UPDTYPE& upd_type, const t_gtime& t, string str)
+    void t_gupd::re_init_upd(const UPDTYPE& upd_type, const t_gtime& t, GSAT sat)
     {
         t_updrec one_upd;
         one_upd.npoint = 0;
         one_upd.value = 0.0;
         one_upd.sigma = 1E4;
         one_upd.isRef = false;
-        t_gupd::add_sat_upd(upd_type, t, str, one_upd);
+        t_gupd::add_sat_upd(upd_type, t, sat, one_upd);
     }
 
     one_epoch_upd& t_gupd::get_epo_upd(const UPDTYPE& upd_type, const t_gtime& t)

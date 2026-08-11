@@ -16,9 +16,10 @@
 #include "gdata/gnavbds.h"
 #include "gutils/gtypeconv.h"
 
+#ifndef CORRECT_BDS
 #define CORRECT_BDS 14
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -28,9 +29,9 @@ namespace gnut
         _iode(0),
         _iodc(0),
         _health(0),
-        _toe(t_gtime::BDS),
-        _toc(t_gtime::BDS),
-        _tot(t_gtime::BDS),
+        _toe(t_gtime::t_tsys::BDS),
+        _toc(t_gtime::t_tsys::BDS),
+        _tot(t_gtime::t_tsys::BDS),
         _a(0.0),
         _e(0.0),
         _m(0.0),
@@ -52,8 +53,8 @@ namespace gnut
         _acc(0.0)
     {
         _tgd[0] = _tgd[1] = 0.0;
-        id_type(t_gdata::EPHBDS);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::EPHBDS);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
     }
 
     t_gnavbds::~t_gnavbds()
@@ -94,49 +95,49 @@ namespace gnut
         return ((int)_toe.sow() / 720) % 240;
     }
 
-    string t_gnavbds::line() const
+    std::string t_gnavbds::line() const
     {
         int w = 20;
-        ostringstream tmp;
+        std::ostringstream tmp;
 
-        tmp << " " << setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << scientific << setprecision(12) << setw(w) << _f0
-            << setw(w) << _f1 << setw(w) << _f2 << setw(w) << _iode / 1.0 << setw(w) << _iodc / 1.0 << setw(w) << _acc << setw(w)
-            << _health / 1.0 << setw(w) << SQRT(_a) << setw(w) << _e << setw(w) << _i << setw(w) << _m << setw(w) << _idot << setw(w)
-            << _omega << setw(w) << _OMG << setw(w) << _OMGDOT << setw(w) << _dn << setw(w) << _crc << setw(w) << _cic << setw(w) << _cuc
-            << setw(w) << _crs << setw(w) << _cis << setw(w) << _cus << setw(w) << _tgd[0] << setw(w) << _tgd[1] << endl;
+        tmp << " " << std::setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << std::scientific << std::setprecision(12) << std::setw(w) << _f0
+            << std::setw(w) << _f1 << std::setw(w) << _f2 << std::setw(w) << _iode / 1.0 << std::setw(w) << _iodc / 1.0 << std::setw(w) << _acc << std::setw(w)
+            << _health / 1.0 << std::setw(w) << SQRT(_a) << std::setw(w) << _e << std::setw(w) << _i << std::setw(w) << _m << std::setw(w) << _idot << std::setw(w)
+            << _omega << std::setw(w) << _OMG << std::setw(w) << _OMGDOT << std::setw(w) << _dn << std::setw(w) << _crc << std::setw(w) << _cic << std::setw(w) << _cuc
+            << std::setw(w) << _crs << std::setw(w) << _cis << std::setw(w) << _cus << std::setw(w) << _tgd[0] << std::setw(w) << _tgd[1] << std::endl;
 
         return tmp.str();
     }
 
-    string t_gnavbds::linefmt() const
+    std::string t_gnavbds::linefmt() const
     {
-        ostringstream tmp;
+        std::ostringstream tmp;
 
-        tmp << " " << setw(3) << sat() << fixed << " " << _toc.str("%Y-%m-%d %H:%M:%S") << fixed << setprecision(0) << setw(8)
-            << _tot - _toc << setw(8) << _tot - _toe << setw(4) << _iode << setw(4) << _health << " |" << setw(9) << setprecision(0)
+        tmp << " " << std::setw(3) << sat() << std::fixed << " " << _toc.str("%Y-%m-%d %H:%M:%S") << std::fixed << std::setprecision(0) << std::setw(8)
+            << _tot - _toc << std::setw(8) << _tot - _toe << std::setw(4) << _iode << std::setw(4) << _health << " |" << std::setw(9) << std::setprecision(0)
             << _a * 1e0                                            // 1 [m]
-            << setw(8) << setprecision(3) << _e * 1e3              // 2
-            << setw(8) << setprecision(3) << _i * 1e3              // 3
-            << setw(7) << setprecision(3) << _m * 1e0              // 4
-            << " |" << setw(7) << setprecision(3) << _idot * 1e9   // 5
-            << setw(9) << setprecision(5) << _omega * 1e0          // 6
-            << setw(9) << setprecision(5) << _OMG * 1e0            // 7
-            << setw(9) << setprecision(5) << _OMGDOT * 1e9         // 8
-            << setw(7) << setprecision(3) << _dn * 1e9             // 9
-            << " |" << setw(9) << setprecision(3) << _crc * 1e0    // 10
-            << setw(7) << setprecision(3) << _cic * 1e6            // 11
-            << setw(7) << setprecision(3) << _cuc * 1e6            // 12
-            << setw(9) << setprecision(3) << _crs * 1e0            // 13
-            << setw(7) << setprecision(3) << _cis * 1e6            // 14
-            << setw(7) << setprecision(3) << _cus * 1e6            // 15
-            << " |" << setw(9) << setprecision(3) << _tgd[0] * 1e9 // 15
-            << setw(9) << setprecision(3) << _tgd[1] * 1e9         // 15
+            << std::setw(8) << std::setprecision(3) << _e * 1e3              // 2
+            << std::setw(8) << std::setprecision(3) << _i * 1e3              // 3
+            << std::setw(7) << std::setprecision(3) << _m * 1e0              // 4
+            << " |" << std::setw(7) << std::setprecision(3) << _idot * 1e9   // 5
+            << std::setw(9) << std::setprecision(5) << _omega * 1e0          // 6
+            << std::setw(9) << std::setprecision(5) << _OMG * 1e0            // 7
+            << std::setw(9) << std::setprecision(5) << _OMGDOT * 1e9         // 8
+            << std::setw(7) << std::setprecision(3) << _dn * 1e9             // 9
+            << " |" << std::setw(9) << std::setprecision(3) << _crc * 1e0    // 10
+            << std::setw(7) << std::setprecision(3) << _cic * 1e6            // 11
+            << std::setw(7) << std::setprecision(3) << _cuc * 1e6            // 12
+            << std::setw(9) << std::setprecision(3) << _crs * 1e0            // 13
+            << std::setw(7) << std::setprecision(3) << _cis * 1e6            // 14
+            << std::setw(7) << std::setprecision(3) << _cus * 1e6            // 15
+            << " |" << std::setw(9) << std::setprecision(3) << _tgd[0] * 1e9 // 15
+            << std::setw(9) << std::setprecision(3) << _tgd[1] * 1e9         // 15
             ;
 
         return tmp.str();
     }
 
-    int t_gnavbds::chk(set<string>& msg)
+    int t_gnavbds::chk(std::set<std::string>& msg)
     {
         _gmutex.lock();
 
@@ -145,14 +146,14 @@ namespace gnut
             msg.insert("Mesg: " + _sat + " nav unhealthy satellite " + _toc.str_ymdhms());
         }
 
-        if ((_tot - _toc) > 86400 || (_toc - _tot) > t_gnav::nav_validity(BDS))
+        if ((_tot - _toc) > 86400 || (_toc - _tot) > t_gnav::nav_validity(GSYS::BDS))
         {
             msg.insert("Issue: " + _sat + " nav large difference [tot-toc] " + dbl2str(_tot - _toc) + " s " + _tot.str_ymdhms() +
                        _toc.str_ymdhms(" "));
             _validity = false;
         }
 
-        if ((_tot - _toe) > 86400 || (_toe - _tot) > t_gnav::nav_validity(BDS))
+        if ((_tot - _toe) > 86400 || (_toe - _tot) > t_gnav::nav_validity(GSYS::BDS))
         {
             msg.insert("Issue: " + _sat + " nav large difference [tot-toe] " + dbl2str(_tot - _toe) + " s " + _tot.str_ymdhms() +
                        _toe.str_ymdhms(" "));
@@ -211,7 +212,7 @@ namespace gnut
 
     int t_gnavbds::pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-        if (sat().empty())
+        if (sat() == GSAT::NONE)
         {
             return -1; // check if valid
         }
@@ -357,7 +358,7 @@ namespace gnut
 
     int t_gnavbds::clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
-        if (sat().empty())
+        if (sat() == GSAT::NONE)
         {
             return -1; // not valid !!!
         }
@@ -392,7 +393,7 @@ namespace gnut
         // check impossible clock correction
         if (clk && *clk > 1.0)
         {
-            cerr << "* warning: too large clock - skipped: " << fixed << setprecision(0) << *clk << endl;
+            std::cerr << "* warning: too large clock - skipped: " << std::fixed << std::setprecision(0) << *clk << std::endl;
             _gmutex.unlock();
             return -1;
         }
@@ -413,20 +414,13 @@ namespace gnut
         return 0;
     }
 
-    int t_gnavbds::data2nav(string sat, const t_gtime& ep, const t_gnavdata& data)
+    int t_gnavbds::data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
     {
         _gmutex.lock();
 
         char tmp[12];
 
-        if (sat.substr(0, 1) == "C")
-        {
-            _sat = sat;
-        }
-        else
-        {
-            _sat = "C" + sat;
-        }
+        _sat = str2gsat(sat, GSYS::BDS);
 
         _toc = ep; // time of clocks (tot) .. RINEX reference time
         _epoch = ep;
@@ -443,7 +437,7 @@ namespace gnut
         }
         if (data_21 == 0 || ((data_21 != _toc.gwk() - CONV_BWK2GWK) && data_21 != _toc.gwk()))
         {
-            t_gtime curt = t_gtime::current_time(t_gtime::GPS);
+            t_gtime curt = t_gtime::current_time(t_gtime::t_tsys::GPS);
             data_21 = curt.gwk();
             t_gtime tt;
             tt.from_gws(data_21, data_11);
@@ -596,71 +590,71 @@ namespace gnut
         t_timdbl tmp;
         switch (n)
         {
-            case NAV_A:
-                tmp = make_pair(_toc, _a * 1e0);
+            case NAVDATA::NAV_A:
+                tmp = std::make_pair(_toc, _a * 1e0);
                 break; // meters
-            case NAV_E:
-                tmp = make_pair(_toc, _e * 1e3);
+            case NAVDATA::NAV_E:
+                tmp = std::make_pair(_toc, _e * 1e3);
                 break; // -
-            case NAV_M:
-                tmp = make_pair(_toc, _m * 1e0);
+            case NAVDATA::NAV_M:
+                tmp = std::make_pair(_toc, _m * 1e0);
                 break; // radians
-            case NAV_I:
-                tmp = make_pair(_toc, _i * 1e0);
+            case NAVDATA::NAV_I:
+                tmp = std::make_pair(_toc, _i * 1e0);
                 break; // radians
-            case NAV_IDOT:
-                tmp = make_pair(_toc, _idot * 1e9);
+            case NAVDATA::NAV_IDOT:
+                tmp = std::make_pair(_toc, _idot * 1e9);
                 break; // radians/sec
-            case NAV_OMEGA:
-                tmp = make_pair(_toc, _omega * 1e0);
+            case NAVDATA::NAV_OMEGA:
+                tmp = std::make_pair(_toc, _omega * 1e0);
                 break; // radians
-            case NAV_OMG:
-                tmp = make_pair(_toc, _OMG * 1e0);
+            case NAVDATA::NAV_OMG:
+                tmp = std::make_pair(_toc, _OMG * 1e0);
                 break; // radians
-            case NAV_OMGDOT:
-                tmp = make_pair(_toc, _OMGDOT * 1e9);
+            case NAVDATA::NAV_OMGDOT:
+                tmp = std::make_pair(_toc, _OMGDOT * 1e9);
                 break; // radians/sec
-            case NAV_DN:
-                tmp = make_pair(_toc, _dn * 1e9);
+            case NAVDATA::NAV_DN:
+                tmp = std::make_pair(_toc, _dn * 1e9);
                 break; // radians/sec
 
-            case NAV_CRC:
-                tmp = make_pair(_toc, _crc * 1e0);
+            case NAVDATA::NAV_CRC:
+                tmp = std::make_pair(_toc, _crc * 1e0);
                 break; // meters
-            case NAV_CIC:
-                tmp = make_pair(_toc, _cic * 1e6);
+            case NAVDATA::NAV_CIC:
+                tmp = std::make_pair(_toc, _cic * 1e6);
                 break; // radians
-            case NAV_CUC:
-                tmp = make_pair(_toc, _cuc * 1e6);
+            case NAVDATA::NAV_CUC:
+                tmp = std::make_pair(_toc, _cuc * 1e6);
                 break; // radians
-            case NAV_CRS:
-                tmp = make_pair(_toc, _crs * 1e0);
+            case NAVDATA::NAV_CRS:
+                tmp = std::make_pair(_toc, _crs * 1e0);
                 break; // meters
-            case NAV_CIS:
-                tmp = make_pair(_toc, _cis * 1e6);
+            case NAVDATA::NAV_CIS:
+                tmp = std::make_pair(_toc, _cis * 1e6);
                 break; // radians
 
-            case NAV_F0:
-                tmp = make_pair(_toc, _f0 * 1e6);
+            case NAVDATA::NAV_F0:
+                tmp = std::make_pair(_toc, _f0 * 1e6);
                 break; // ns
-            case NAV_F1:
-                tmp = make_pair(_toc, _f1 * 1e6);
+            case NAVDATA::NAV_F1:
+                tmp = std::make_pair(_toc, _f1 * 1e6);
                 break; // ns/sec
-            case NAV_F2:
-                tmp = make_pair(_toc, _f2 * 1e6);
+            case NAVDATA::NAV_F2:
+                tmp = std::make_pair(_toc, _f2 * 1e6);
                 break; // ns/sec^2
 
-            case NAV_IOD:
-                tmp = make_pair(_toc, _iode * 1e0);
+            case NAVDATA::NAV_IOD:
+                tmp = std::make_pair(_toc, _iode * 1e0);
                 break; //
-            case NAV_HEALTH:
-                tmp = make_pair(_toc, _health * 1e0);
+            case NAVDATA::NAV_HEALTH:
+                tmp = std::make_pair(_toc, _health * 1e0);
                 break; //
-            case NAV_TGD0:
-                tmp = make_pair(_toc, _tgd[0] * 1e0);
+            case NAVDATA::NAV_TGD0:
+                tmp = std::make_pair(_toc, _tgd[0] * 1e0);
                 break; // sec
-            case NAV_TGD1:
-                tmp = make_pair(_toc, _tgd[1] * 1e0);
+            case NAVDATA::NAV_TGD1:
+                tmp = std::make_pair(_toc, _tgd[1] * 1e0);
                 break; // sec
 
             default:
@@ -678,16 +672,16 @@ namespace gnut
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
 
-            case NAV_IOD:
+            case NAVDATA::NAV_IOD:
                 _iode = val / 1.e0;
                 break;
-            case NAV_HEALTH:
+            case NAVDATA::NAV_HEALTH:
                 _health = val / 1.e0;
                 break;
-            case NAV_TGD0:
+            case NAVDATA::NAV_TGD0:
                 _tgd[0] = val / 1.e0;
                 break;
-            case NAV_TGD1:
+            case NAVDATA::NAV_TGD1:
                 _tgd[1] = val / 1.e0;
                 break;
 

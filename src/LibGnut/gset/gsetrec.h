@@ -19,7 +19,9 @@
 #ifndef GSETREC_H
 #define GSETREC_H
 
+#ifndef XMLKEY_REC
 #define XMLKEY_REC "receiver"
+#endif
 
 #include <map>
 #include <string>
@@ -31,9 +33,10 @@
 #include "gutils/gtriple.h"
 #include "gmodels/ggpt.h"
 
+#ifndef HSL_UNKNOWN
 #define HSL_UNKNOWN -9999
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -54,38 +57,38 @@ namespace gnut
         void help();
 
         /** @brief get crd xyz */
-        t_gtriple get_crd_xyz(string s);
+        t_gtriple get_crd_xyz(std::string s);
 
         /** @brief get all objects IDs */
-        set<string> objects();
-        shared_ptr<t_grec> grec(string s);
+        std::set<std::string> objects();
+        std::shared_ptr<t_grec> grec(std::string s);
 
         /**
          * @brief get the List of recevier names
          * @return set<string> : List of recevier names
          */
-        virtual set<string> recs();
-        set<string> all_rec();
+        virtual std::set<std::string> recs();
+        std::set<std::string> all_rec();
 
     protected:
         /** @brief get crd xyz */
-        t_gtriple _get_crd_xyz(string s);
+        t_gtriple _get_crd_xyz(std::string s);
 
         /** @brief get ecc neu */
-        t_gtriple _get_ecc_neu(string s);
+        t_gtriple _get_ecc_neu(std::string s);
 
         /** @brief get crd blh */
-        t_gtriple _get_crd_blh(string s);
+        t_gtriple _get_crd_blh(std::string s);
 
         /** @brief Global Pressure Temperature model */
         t_gpt _ggpt;
 
         /** @brief get all objects IDs */
-        set<string> _objects();
+        std::set<std::string> _objects();
 
-        string _rec;      // default receiver name
-        string _id;       // receiver id
-        string _name_rec; // receiver name
+        std::string _rec;      // default receiver name
+        std::string _id;       // receiver id
+        std::string _name_rec; // receiver name
         t_gtime _beg;     // default begin time
         t_gtime _end;     // default end time
         double _X;        // receiver X-coordinate [m]

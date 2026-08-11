@@ -26,6 +26,7 @@ History
 #include <iostream>
 
 #include "gutils/gtime.h"
+#include "gutils/gnss.h"
 
 namespace gnut
 {
@@ -41,8 +42,8 @@ namespace gnut
         /** @brief struct result. */
         struct result
         {
-            string type; ///< type
-            string prn;  ///< prn
+            std::string type; ///< type
+            GSAT prn;    ///< prn
             t_gtime beg; ///< begin time
             t_gtime end; ///< end time
             int index;   ///< index
@@ -54,11 +55,11 @@ namespace gnut
             bool operator<(const t_gallrslt::result&) const;
         };
 
-        vector<t_gallrslt::result> v_rslt; ///< result vector
-        set<t_gallrslt::result> set_crd;   ///< crd set
-        set<t_gallrslt::result> set_trp;   ///< trop set
-        set<t_gallrslt::result> set_clk;   ///< clk set
-        set<t_gallrslt::result> set_amb;   ///< amb set
+        std::vector<t_gallrslt::result> v_rslt; ///< result vector
+        std::set<t_gallrslt::result> set_crd;   ///< crd set
+        std::set<t_gallrslt::result> set_trp;   ///< trop set
+        std::set<t_gallrslt::result> set_clk;   ///< clk set
+        std::set<t_gallrslt::result> set_amb;   ///< amb set
 
         /** @brief append result structure. */
         void append(const t_gallrslt::result& rslt);
@@ -75,11 +76,19 @@ namespace gnut
          * @param rms
          * @param val
          */
-        void append(const string& type,
+        void append(const std::string& type,
                     const t_gtime& beg,
                     const t_gtime& end,
                     int idx,
-                    const string& prn,
+                    GSAT prn,
+                    double adj,
+                    double rms,
+                    double val);
+        void append(const std::string& type,
+                    const t_gtime& beg,
+                    const t_gtime& end,
+                    int idx,
+                    const std::string& prn,
                     double adj,
                     double rms,
                     double val);

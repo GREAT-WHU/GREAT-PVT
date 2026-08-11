@@ -11,7 +11,6 @@
 #include "gutils/gtypeconv.h"
 #include "gmodels/gephplan.h"
 
-using namespace std;
 
 namespace gnut
 {

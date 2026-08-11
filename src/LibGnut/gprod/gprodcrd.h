@@ -24,12 +24,11 @@
 #include "gprod/gprod.h"
 #include "gutils/gtriple.h"
 
-using namespace std;
 
 namespace gnut
 {
     /** @brief cov type. */
-    enum COV_TYPE
+    enum class COV_TYPE
     {
         COV_XY,
         COV_XZ,
@@ -41,7 +40,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gprodcrd(const t_gtime& t, shared_ptr<t_gobj> pt = nullobj);
+        t_gprodcrd(const t_gtime& t, std::shared_ptr<t_gobj> pt = nullobj);
 
         /** @brief default destructor. */
         virtual ~t_gprodcrd();

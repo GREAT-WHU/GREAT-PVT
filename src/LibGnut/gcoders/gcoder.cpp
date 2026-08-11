@@ -28,7 +28,6 @@ History
 #include "gutils/gtimesync.h"
 #include "gset/gsetrec.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -37,7 +36,7 @@ namespace gnut
     {
     }
 
-    t_gcoder::t_gcoder(t_gsetbase* s, string version, int sz, string id) :
+    t_gcoder::t_gcoder(t_gsetbase* s, std::string version, int sz, std::string id) :
         _class(id),
         _initialized(false),
         _gnss(true),
@@ -63,7 +62,7 @@ namespace gnut
             _gset(s); // READ SETTINGS IN CONSTRUCT ONLY!
         }
     }
-    t_gcoder::t_gcoder(t_gtime beg, t_gtime end, t_gsetbase* s, string version, int sz, string id) :
+    t_gcoder::t_gcoder(t_gtime beg, t_gtime end, t_gsetbase* s, std::string version, int sz, std::string id) :
         _class(id),
         _initialized(false),
         _gnss(true),
@@ -154,14 +153,14 @@ namespace gnut
 
         for (auto itGNSS = _sys.begin(); itGNSS != _sys.end(); ++itGNSS)
         {
-            string gs = *itGNSS;
+            std::string gs = *itGNSS;
             GSYS gsys = t_gsys::str2gsys(gs);
 
             _sat[gsys] = dynamic_cast<t_gsetgnss*>(_set)->sat(gsys, false); // empty if not set (to speed up!)
             _obs[gsys] = dynamic_cast<t_gsetgnss*>(_set)->obs(gsys, false); // empty if not set (to speed up!)
             _nav[gsys] = dynamic_cast<t_gsetgnss*>(_set)->nav(gsys, false); // empty if not set (to speed up!)
 
-            set<string> sgobs = dynamic_cast<t_gsetgnss*>(_set)->gobs(gsys);
+            std::set<std::string> sgobs = dynamic_cast<t_gsetgnss*>(_set)->gobs(gsys);
             for (auto it = sgobs.begin(); it != sgobs.end(); it++)
             {
                 _obs[gsys].insert(*it);
@@ -170,9 +169,9 @@ namespace gnut
         return 0;
     }
 
-    void t_gcoder::path(const string& s)
+    void t_gcoder::path(const std::string& s)
     {
-        string tmp(s);
+        std::string tmp(s);
         substitute(tmp, GFILE_PREFIX, "");
         _fname = tmp;
     }
@@ -196,7 +195,7 @@ namespace gnut
         _buffer = (char*)malloc((_buffsz + 1) * sizeof(char)); // due to realocate function!
     }
 
-    int t_gcoder::_getline(string& str, int from_pos)
+    int t_gcoder::_getline(std::string& str, int from_pos)
     {
         return _decode_buffer.getline(str, from_pos);
     }
@@ -216,14 +215,14 @@ namespace gnut
         return _decode_buffer.consume(bytes_to_eat);
     }
 
-    int t_gcoder::add_data(const string& data_id, t_gdata* data)
+    int t_gcoder::add_data(const std::string& data_id, t_gdata* data)
     {
         if (data_id.empty() || data == 0)
         {
             return -1;
         }
 
-        map<string, t_gdata*>::iterator it = _data.find(data_id);
+        std::map<std::string, t_gdata*>::iterator it = _data.find(data_id);
         if (it != _data.end())
         {
             GREAT_WARN("warning: structure " + data_id + " already exists !");
@@ -250,11 +249,13 @@ namespace gnut
         return false;
     }
 
-    bool t_gcoder::_filter_gnss(const string& prn)
+    bool t_gcoder::_filter_gnss(const std::string& prn)
     {
-        string gs = t_gsys::char2str(prn[0]); // DONT USE SYS FROM ARG WHICH MAY BE EMPTY
-        GSYS gsys = t_gsys::str2gsys(gs);     // DONT USE SYS FROM ARG WHICH MAY BE EMPTY
-        if ((_sys.size() == 0 || _sys.find(gs) != _sys.end()) && (_sat[gsys].size() == 0 || _sat[gsys].find(prn) != _sat[gsys].end()))
+        GSAT sat = str2gsat(prn);
+        GSYS gsys = gsat2gsys(sat);
+        std::string gs = t_gsys::gsys2str(gsys);
+        if (sat != GSAT::NONE && (_sys.size() == 0 || _sys.find(gs) != _sys.end()) &&
+            (_sat[gsys].size() == 0 || _sat[gsys].find(sat) != _sat[gsys].end()))
         {
             return true;
         }

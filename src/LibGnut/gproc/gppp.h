@@ -23,7 +23,7 @@
 #define GPPP_H
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gproc/gspp.h"
@@ -50,7 +50,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gppp(string mark, t_gsetbase* set);
+        t_gppp(std::string mark, t_gsetbase* set);
 
         /** @brief default destructor. */
         virtual ~t_gppp();

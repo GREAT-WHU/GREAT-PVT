@@ -23,7 +23,7 @@
 using namespace gnut;
 namespace great
 {
-    enum SMOOTH_MODEL
+    enum class SMOOTH_MODEL
     {
         SMT_DOPPLER,
         SMT_PHASE,
@@ -51,11 +51,7 @@ namespace great
         double _sampling;           ///< sampling
         RECEIVERTYPE _receiverType; ///< type of receiver
 
-        map<string, map<string, map<GOBS, double>>> _pre_smt_range; ///< site/sat/range_obs/pre_smt_value
-
-        map<string, map<string, t_gtime>> _smt_beg_time;                 ///< smooth begin time
-        map<string, map<string, map<GOBSBAND, t_gtime>>> _smt_last_time; ///< smooth last time
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index;                  ///< index band
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index;                  ///< index band
     };
 
     /**
@@ -83,18 +79,18 @@ namespace great
          *    @retval   false     unsuccessfully apply IGSO
          *    @retval   true      successfully apply MEO
          */
-        void apply_IGSO_MEO(const string& rec, t_gtriple& rec_crd, t_gallnav* gnav, vector<t_gsatdata>& obsdata);
+        void apply_IGSO_MEO(const std::string& rec, t_gtriple& rec_crd, t_gallnav* gnav, std::vector<t_gsatdata>& obsdata);
 
     private:
         t_gsetbase* _set;                                            ///< setbase control
-        map<GSYS, map<FREQ_SEQ, GOBSBAND>> _band_index;              ///< index of band
+        std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index;              ///< index of band
         bool _correct_bds_code_bias;                                 ///< BEIDOU correct bias
-        map<GOBSBAND, map<string, map<int, double>>> _IGSO_MEO_Corr; ///< IGSO MEO Correction
+        std::map<GOBSBAND, std::map<std::string, std::map<int, double>>> _IGSO_MEO_Corr; ///< IGSO MEO Correction
 
         /**
          * @brief Approximate location of the receiver
          */
-        bool _recAprCoordinate(const string& rec, t_gtriple& rec_crd, t_gallnav* gnav, vector<t_gsatdata>& obsdata);
+        bool _recAprCoordinate(const std::string& rec, t_gtriple& rec_crd, t_gallnav* gnav, std::vector<t_gsatdata>& obsdata);
     };
 
     /**
@@ -124,15 +120,15 @@ namespace great
          * @brief move bad observation
          * @param[in]  obsdata   all observation data
          */
-        void excludeBadObs(vector<t_gsatdata>& obsdata);
+        void excludeBadObs(std::vector<t_gsatdata>& obsdata);
 
     private:
         t_gsetbase* _set;                               ///< setbase control
         t_giof* _debug_outliers = nullptr;              ///< debug outliers
         int _frequency;                                 ///< frequency
         OBSCOMBIN _observ;                              ///< type of obsevation
-        map<GSYS, map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< frequncy of type
-        set<OBSCOMBIN> _single_mix;                     ///< TODO
+        std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< frequncy of type
+        std::set<OBSCOMBIN> _single_mix;                     ///< TODO
         RECEIVERTYPE _receiverType;                     ///< type of receiver
     };
 
@@ -161,7 +157,7 @@ namespace great
          * @param[in]  rec_crd   station coodinate
          * @param[in]  obsdata   observation data
          */
-        int processOneEpoch(const t_gtime& now, const string& rec, t_gtriple& rec_crd, vector<t_gsatdata>& obsdata);
+        int processOneEpoch(const t_gtime& now, const std::string& rec, t_gtriple& rec_crd, std::vector<t_gsatdata>& obsdata);
 
         /**
          * @brief Set the Nav data

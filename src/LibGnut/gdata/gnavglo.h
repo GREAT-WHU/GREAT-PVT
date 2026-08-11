@@ -28,16 +28,29 @@
 #include "gutils/gcommon.h"
 #include "gutils/gtriple.h"
 
+#ifndef MAX_RINEXN_REC_GLO
 #define MAX_RINEXN_REC_GLO 15
+#endif
 
+#ifndef MIN_GLO_RADIUS
 #define MIN_GLO_RADIUS 25300      ///< km
+#endif
+#ifndef MAX_GLO_RADIUS
 #define MAX_GLO_RADIUS 25700      ///< km
+#endif
+#ifndef MAX_GLO_RADDIF
 #define MAX_GLO_RADDIF 50         ///< km
+#endif
+#ifndef MAX_GLO_CLKDIF
 #define MAX_GLO_CLKDIF 50         ///< ns
+#endif
+#ifndef RAD_GLO_FACTOR
 #define RAD_GLO_FACTOR 0.001      ///< m->km
+#endif
+#ifndef CLK_GLO_FACTOR
 #define CLK_GLO_FACTOR 1000000000 ///< sec->ns
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -107,10 +120,10 @@ namespace gnut
          * @param msg
          * @return int
          */
-        virtual int chk(set<string>& msg) override;
+        virtual int chk(std::set<std::string>& msg) override;
 
         /** @brief convert data to nav. */
-        virtual int data2nav(string sat, const t_gtime& ep, const t_gnavdata& data) override;
+        virtual int data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
         virtual int nav2data(t_gnavdata& data) override;
@@ -140,10 +153,10 @@ namespace gnut
         int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
-        string line() const override;
+        std::string line() const override;
 
         /** @brief get line format. */
-        string linefmt() const override;
+        std::string linefmt() const override;
 
         /** @brief get freq_num. */
         int freq_num() const override

@@ -164,7 +164,7 @@ namespace gnut
         bool complete = false;
 
         GOBS gobs1, gobs2;
-        gobs1 = gobs2 = X;
+        gobs1 = gobs2 = gnut::GOBS::X;
 
         while ((tmpsize = t_gcoder::_getline(line)) >= 0)
         {
@@ -201,11 +201,11 @@ namespace gnut
                 map<string, t_gdata*>::iterator it = _data.begin();
                 while (it != _data.end())
                 {
-                    if (it->second->id_type() == t_gdata::ALLBIAS)
+                    if (it->second->id_type() == t_gdata::ID_TYPE::ALLBIAS)
                     {
                         shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>();
                         pt_bias->set(_beg, _end, dcb * 1e-9 * CLIGHT, gobs1, gobs2);
-                        ((t_gallbias*)it->second)->add(_ac, _beg, prn, pt_bias);
+                        ((t_gallbias*)it->second)->add(_ac, _beg, str2gsat(prn), pt_bias);
                     }
                     it++;
                 }
@@ -233,7 +233,7 @@ namespace gnut
         bool complete = false;
 
         GOBS gobs1, gobs2;
-        gobs1 = gobs2 = X;
+        gobs1 = gobs2 = gnut::GOBS::X;
 
         while ((tmpsize = t_gcoder::_getline(line)) >= 0)
         {
@@ -329,11 +329,11 @@ namespace gnut
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::ALLBIAS)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLBIAS)
                         {
                             shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>();
                             pt_bias->set(_beg, _end, value * factor, gobs1, gobs2);
-                            ((t_gallbias*)it->second)->add(_ac, _beg, prn, pt_bias);
+                            ((t_gallbias*)it->second)->add(_ac, _beg, str2gsat(prn), pt_bias);
                         }
                         it++;
                     }
@@ -365,7 +365,7 @@ namespace gnut
         bool complete = false;
 
         GOBS gobs1, gobs2;
-        gobs1 = gobs2 = X;
+        gobs1 = gobs2 = gnut::GOBS::X;
 
         while ((tmpsize = t_gcoder::_getline(line)) >= 0)
         {
@@ -425,12 +425,12 @@ namespace gnut
                     map<string, t_gdata*>::iterator it = _data.begin();
                     while (it != _data.end())
                     {
-                        if (it->second->id_type() == t_gdata::ALLBIAS)
+                        if (it->second->id_type() == t_gdata::ID_TYPE::ALLBIAS)
                         {
                             shared_ptr<t_gbias> pt_bias = make_shared<t_gbias>();
                             cout << value << factor << value * factor << endl;
                             pt_bias->set(_beg, _end, value * factor, gobs1, gobs2);
-                            ((t_gallbias*)it->second)->add(_ac, _beg, prn, pt_bias);
+                            ((t_gallbias*)it->second)->add(_ac, _beg, str2gsat(prn), pt_bias);
                         }
                         it++;
                     }

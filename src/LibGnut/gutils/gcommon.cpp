@@ -11,7 +11,6 @@
 
 #include "gutils/gcommon.h"
 
-using namespace std;
 
 namespace gnut
 {

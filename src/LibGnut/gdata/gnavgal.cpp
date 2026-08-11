@@ -16,7 +16,6 @@
 #include "gdata/gnavgal.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -25,9 +24,9 @@ namespace gnut
         t_gnav(),
         _iode(0),
         _health(0),
-        _toe(t_gtime::GAL),
-        _toc(t_gtime::GAL),
-        _tot(t_gtime::GAL),
+        _toe(t_gtime::t_tsys::GAL),
+        _toc(t_gtime::t_tsys::GAL),
+        _tot(t_gtime::t_tsys::GAL),
         _a(0.0),
         _e(0.0),
         _m(0.0),
@@ -50,66 +49,66 @@ namespace gnut
         _sisa(0.0)
     {
         _tgd[0] = _tgd[1] = 0.0;
-        id_type(t_gdata::EPHGAL);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::EPHGAL);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
     }
 
     t_gnavgal::~t_gnavgal()
     {
     }
 
-    string t_gnavgal::line() const
+    std::string t_gnavgal::line() const
     {
         int w = 20;
-        ostringstream tmp;
+        std::ostringstream tmp;
 
-        tmp << " " << setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << scientific << setprecision(12) << setw(w) << _f0
-            << setw(w) << _f1 << setw(w) << _f2 << setw(w) << _iode / 1.0 << setw(w) << _health / 1.0 << setw(w) << SQRT(_a) << setw(w)
-            << _e << setw(w) << _i << setw(w) << _m << setw(w) << _idot << setw(w) << _omega << setw(w) << _OMG << setw(w) << _OMGDOT
-            << setw(w) << _dn << setw(w) << _crc << setw(w) << _cic << setw(w) << _cuc << setw(w) << _crs << setw(w) << _cis << setw(w)
-            << _cus << setw(w) << _tgd[0] // E5a/E1
-            << setw(w) << _tgd[1]         // E5b/E1
-            << endl;
+        tmp << " " << std::setw(3) << sat() << " " << _toc.str("%Y-%m-%d %H:%M:%S") << std::scientific << std::setprecision(12) << std::setw(w) << _f0
+            << std::setw(w) << _f1 << std::setw(w) << _f2 << std::setw(w) << _iode / 1.0 << std::setw(w) << _health / 1.0 << std::setw(w) << SQRT(_a) << std::setw(w)
+            << _e << std::setw(w) << _i << std::setw(w) << _m << std::setw(w) << _idot << std::setw(w) << _omega << std::setw(w) << _OMG << std::setw(w) << _OMGDOT
+            << std::setw(w) << _dn << std::setw(w) << _crc << std::setw(w) << _cic << std::setw(w) << _cuc << std::setw(w) << _crs << std::setw(w) << _cis << std::setw(w)
+            << _cus << std::setw(w) << _tgd[0] // E5a/E1
+            << std::setw(w) << _tgd[1]         // E5b/E1
+            << std::endl;
 
         return tmp.str();
     }
 
-    string t_gnavgal::linefmt() const
+    std::string t_gnavgal::linefmt() const
     {
-        ostringstream tmp;
+        std::ostringstream tmp;
 
-        string source_bin = _source_str();
-        string health_bin = _health_str();
+        std::string source_bin = _source_str();
+        std::string health_bin = _health_str();
 
-        tmp << " " << setw(3) << sat() << fixed << " " << _toc.str("%Y-%m-%d %H:%M:%S") << fixed << setprecision(0) << setw(8)
-            << _tot - _toc << setw(8) << _tot - _toe << setw(4) << _iode << setw(4) << _health << setw(4) << _source << " |" << setw(9)
-            << setprecision(0) << _a * 1e0                         // 1 [m]
-            << setw(8) << setprecision(3) << _e * 1e3              // 2
-            << setw(8) << setprecision(3) << _i * 1e3              // 3
-            << setw(7) << setprecision(3) << _m * 1e0              // 4
-            << " |" << setw(7) << setprecision(3) << _idot * 1e9   // 5
-            << setw(9) << setprecision(5) << _omega * 1e0          // 6
-            << setw(9) << setprecision(5) << _OMG * 1e0            // 7
-            << setw(9) << setprecision(5) << _OMGDOT * 1e9         // 8
-            << setw(7) << setprecision(3) << _dn * 1e9             // 9
-            << " |" << setw(9) << setprecision(3) << _crc * 1e0    // 10
-            << setw(7) << setprecision(3) << _cic * 1e6            // 11
-            << setw(7) << setprecision(3) << _cuc * 1e6            // 12
-            << setw(9) << setprecision(3) << _crs * 1e0            // 13
-            << setw(7) << setprecision(3) << _cis * 1e6            // 14
-            << setw(7) << setprecision(3) << _cus * 1e6            // 15
-            << " |" << setw(9) << setprecision(3) << _tgd[0] * 1e9 // E5a/E1
-            << setw(9) << setprecision(3) << _tgd[1] * 1e9         // E5b/E1
-            << " |" << setw(11) << health_bin << setw(11) << source_bin << setw(4) << src(true) << setw(9) << gnavtype2str(_gnavtype(true));
+        tmp << " " << std::setw(3) << sat() << std::fixed << " " << _toc.str("%Y-%m-%d %H:%M:%S") << std::fixed << std::setprecision(0) << std::setw(8)
+            << _tot - _toc << std::setw(8) << _tot - _toe << std::setw(4) << _iode << std::setw(4) << _health << std::setw(4) << _source << " |" << std::setw(9)
+            << std::setprecision(0) << _a * 1e0                         // 1 [m]
+            << std::setw(8) << std::setprecision(3) << _e * 1e3              // 2
+            << std::setw(8) << std::setprecision(3) << _i * 1e3              // 3
+            << std::setw(7) << std::setprecision(3) << _m * 1e0              // 4
+            << " |" << std::setw(7) << std::setprecision(3) << _idot * 1e9   // 5
+            << std::setw(9) << std::setprecision(5) << _omega * 1e0          // 6
+            << std::setw(9) << std::setprecision(5) << _OMG * 1e0            // 7
+            << std::setw(9) << std::setprecision(5) << _OMGDOT * 1e9         // 8
+            << std::setw(7) << std::setprecision(3) << _dn * 1e9             // 9
+            << " |" << std::setw(9) << std::setprecision(3) << _crc * 1e0    // 10
+            << std::setw(7) << std::setprecision(3) << _cic * 1e6            // 11
+            << std::setw(7) << std::setprecision(3) << _cuc * 1e6            // 12
+            << std::setw(9) << std::setprecision(3) << _crs * 1e0            // 13
+            << std::setw(7) << std::setprecision(3) << _cis * 1e6            // 14
+            << std::setw(7) << std::setprecision(3) << _cus * 1e6            // 15
+            << " |" << std::setw(9) << std::setprecision(3) << _tgd[0] * 1e9 // E5a/E1
+            << std::setw(9) << std::setprecision(3) << _tgd[1] * 1e9         // E5b/E1
+            << " |" << std::setw(11) << health_bin << std::setw(11) << source_bin << std::setw(4) << src(true) << std::setw(9) << gnavtype2str(_gnavtype(true));
 
         return tmp.str();
     }
 
-    int t_gnavgal::chk(set<string>& msg)
+    int t_gnavgal::chk(std::set<std::string>& msg)
     {
         _gmutex.lock();
 
-        string binary = _source_str();
+        std::string binary = _source_str();
 
         if (binary.compare(0, 3, "000") == 0 || binary.compare(0, 3, "111") == 0)
         {
@@ -122,14 +121,14 @@ namespace gnut
             msg.insert("Mesg: " + _sat + " nav unhealthy satellite " + _toc.str_ymdhms());
         }
 
-        if ((_tot - _toc) > 86400 || (_toc - _tot) > t_gnav::nav_validity(GAL))
+        if ((_tot - _toc) > 86400 || (_toc - _tot) > t_gnav::nav_validity(GSYS::GAL))
         {
             msg.insert("Issue: " + _sat + " nav large difference [tot-toc] " + dbl2str(_tot - _toc) + " s " + _tot.str_ymdhms() +
                        _toc.str_ymdhms(" "));
             _validity = false;
         }
 
-        if ((_tot - _toe) > 86400 || (_toe - _tot) > t_gnav::nav_validity(GAL))
+        if ((_tot - _toe) > 86400 || (_toe - _tot) > t_gnav::nav_validity(GSYS::GAL))
         {
             msg.insert("Issue: " + _sat + " nav large difference [tot-toe] " + dbl2str(_tot - _toe) + " s " + _tot.str_ymdhms() +
                        _toe.str_ymdhms(" "));
@@ -170,7 +169,7 @@ namespace gnut
 
     int t_gnavgal::pos(const t_gtime& t, double xyz[], double var[], double vel[], bool chk_health)
     {
-        if (sat().empty())
+        if (sat() == GSAT::NONE)
         {
             return -1; // check if valid
         }
@@ -271,7 +270,7 @@ namespace gnut
 
     int t_gnavgal::clk(const t_gtime& t, double* clk, double* var, double* dclk, bool chk_health)
     {
-        if (sat().empty())
+        if (sat() == GSAT::NONE)
         {
             return -1; // not valid !!!
         }
@@ -303,7 +302,7 @@ namespace gnut
         // check impossible clock correction
         if (clk && *clk > 1.0)
         {
-            cerr << "* warning: too large clock - skipped: " << fixed << setprecision(0) << *clk << endl;
+            std::cerr << "* warning: too large clock - skipped: " << std::fixed << std::setprecision(0) << *clk << std::endl;
             _gmutex.unlock();
             return -1;
         }
@@ -324,20 +323,13 @@ namespace gnut
         return 0;
     }
 
-    int t_gnavgal::data2nav(string sat, const t_gtime& ep, const t_gnavdata& data)
+    int t_gnavgal::data2nav(std::string sat, const t_gtime& ep, const t_gnavdata& data)
     {
         _gmutex.lock();
 
         char tmp[12];
 
-        if (sat.substr(0, 1) == "E")
-        {
-            _sat = sat;
-        }
-        else
-        {
-            _sat = "E" + sat;
-        }
+        _sat = str2gsat(sat, GSYS::GAL);
 
         _toc = ep; // time of clocks (tot) .. RINEX reference time
         _epoch = ep;
@@ -477,71 +469,71 @@ namespace gnut
         t_timdbl tmp;
         switch (n)
         {
-            case NAV_A:
-                tmp = make_pair(_toc, _a * 1e0);
+            case NAVDATA::NAV_A:
+                tmp = std::make_pair(_toc, _a * 1e0);
                 break; // meters
-            case NAV_E:
-                tmp = make_pair(_toc, _e * 1e3);
+            case NAVDATA::NAV_E:
+                tmp = std::make_pair(_toc, _e * 1e3);
                 break; // -
-            case NAV_M:
-                tmp = make_pair(_toc, _m * 1e0);
+            case NAVDATA::NAV_M:
+                tmp = std::make_pair(_toc, _m * 1e0);
                 break; // radians
-            case NAV_I:
-                tmp = make_pair(_toc, _i * 1e0);
+            case NAVDATA::NAV_I:
+                tmp = std::make_pair(_toc, _i * 1e0);
                 break; // radians
-            case NAV_IDOT:
-                tmp = make_pair(_toc, _idot * 1e9);
+            case NAVDATA::NAV_IDOT:
+                tmp = std::make_pair(_toc, _idot * 1e9);
                 break; // radians/sec
-            case NAV_OMEGA:
-                tmp = make_pair(_toc, _omega * 1e0);
+            case NAVDATA::NAV_OMEGA:
+                tmp = std::make_pair(_toc, _omega * 1e0);
                 break; // radians
-            case NAV_OMG:
-                tmp = make_pair(_toc, _OMG * 1e0);
+            case NAVDATA::NAV_OMG:
+                tmp = std::make_pair(_toc, _OMG * 1e0);
                 break; // radians
-            case NAV_OMGDOT:
-                tmp = make_pair(_toc, _OMGDOT * 1e9);
+            case NAVDATA::NAV_OMGDOT:
+                tmp = std::make_pair(_toc, _OMGDOT * 1e9);
                 break; // radians/sec
-            case NAV_DN:
-                tmp = make_pair(_toc, _dn * 1e9);
+            case NAVDATA::NAV_DN:
+                tmp = std::make_pair(_toc, _dn * 1e9);
                 break; // radians/sec
 
-            case NAV_CRC:
-                tmp = make_pair(_toc, _crc * 1e0);
+            case NAVDATA::NAV_CRC:
+                tmp = std::make_pair(_toc, _crc * 1e0);
                 break; // meters
-            case NAV_CIC:
-                tmp = make_pair(_toc, _cic * 1e6);
+            case NAVDATA::NAV_CIC:
+                tmp = std::make_pair(_toc, _cic * 1e6);
                 break; // radians
-            case NAV_CUC:
-                tmp = make_pair(_toc, _cuc * 1e6);
+            case NAVDATA::NAV_CUC:
+                tmp = std::make_pair(_toc, _cuc * 1e6);
                 break; // radians
-            case NAV_CRS:
-                tmp = make_pair(_toc, _crs * 1e0);
+            case NAVDATA::NAV_CRS:
+                tmp = std::make_pair(_toc, _crs * 1e0);
                 break; // meters
-            case NAV_CIS:
-                tmp = make_pair(_toc, _cis * 1e6);
+            case NAVDATA::NAV_CIS:
+                tmp = std::make_pair(_toc, _cis * 1e6);
                 break; // radians
 
-            case NAV_F0:
-                tmp = make_pair(_toc, _f0 * 1e6);
+            case NAVDATA::NAV_F0:
+                tmp = std::make_pair(_toc, _f0 * 1e6);
                 break; // ns
-            case NAV_F1:
-                tmp = make_pair(_toc, _f1 * 1e6);
+            case NAVDATA::NAV_F1:
+                tmp = std::make_pair(_toc, _f1 * 1e6);
                 break; // ns/sec
-            case NAV_F2:
-                tmp = make_pair(_toc, _f2 * 1e6);
+            case NAVDATA::NAV_F2:
+                tmp = std::make_pair(_toc, _f2 * 1e6);
                 break; // ns/sec^2
 
-            case NAV_IOD:
-                tmp = make_pair(_toc, _iode * 1e0);
+            case NAVDATA::NAV_IOD:
+                tmp = std::make_pair(_toc, _iode * 1e0);
                 break; //
-            case NAV_HEALTH:
-                tmp = make_pair(_toc, _health * 1e0);
+            case NAVDATA::NAV_HEALTH:
+                tmp = std::make_pair(_toc, _health * 1e0);
                 break; //
-            case NAV_TGD0:
-                tmp = make_pair(_toc, _tgd[0] * 1e0);
+            case NAVDATA::NAV_TGD0:
+                tmp = std::make_pair(_toc, _tgd[0] * 1e0);
                 break; // sec E5a/E1
-            case NAV_TGD1:
-                tmp = make_pair(_toc, _tgd[1] * 1e0);
+            case NAVDATA::NAV_TGD1:
+                tmp = std::make_pair(_toc, _tgd[1] * 1e0);
                 break; // sec E5b/E1
 
             default:
@@ -559,16 +551,16 @@ namespace gnut
         switch (n)
         { // SELECTED only, ! use the same MULTIPLICATOR as in param()
 
-            case NAV_IOD:
+            case NAVDATA::NAV_IOD:
                 _iode = val / 1.e0;
                 break;
-            case NAV_HEALTH:
+            case NAVDATA::NAV_HEALTH:
                 _health = val / 1.e0;
                 break;
-            case NAV_TGD0:
+            case NAVDATA::NAV_TGD0:
                 _tgd[0] = val / 1.e0;
                 break; // sec E5a/E1
-            case NAV_TGD1:
+            case NAVDATA::NAV_TGD1:
                 _tgd[1] = val / 1.e0;
                 break; // sec E5b/E1
 
@@ -582,22 +574,22 @@ namespace gnut
 
     int t_gnavgal::src(bool full) const
     {
-        string source_bin = _source_str();
+        std::string source_bin = _source_str();
 
         int src = 0; // bitset<3> tmp(source_bin.substr(0,3));
         if (full)
         {
-            bitset<3> tmp(source_bin.substr(0, 3));
+            std::bitset<3> tmp(source_bin.substr(0, 3));
             src = (int)tmp.to_ulong();
         }
         else if (source_bin.compare(0, 1, "1") == 0 || source_bin.compare(2, 1, "1") == 0)
         {
-            bitset<3> tmp("101");
+            std::bitset<3> tmp("101");
             src = (int)tmp.to_ulong();
         }
         else if (source_bin.compare(1, 1, "1") == 0)
         {
-            bitset<3> tmp("010");
+            std::bitset<3> tmp("010");
             src = (int)tmp.to_ulong();
         }
 
@@ -616,48 +608,48 @@ namespace gnut
 
     GNAVTYPE t_gnavgal::_gnavtype(bool full) const
     {
-        GNAVTYPE gnavtype = NAV;
-        string binary = _source_str();
+        GNAVTYPE gnavtype = gnut::GNAVTYPE::NAV;
+        std::string binary = _source_str();
 
         if ((full && binary.compare(0, 1, "1") == 0 && binary.compare(2, 1, "1") == 0) ||  // full + combined
             (!full && (binary.compare(0, 1, "1") == 0 || binary.compare(2, 1, "1") == 0))) // not full, any-source
         {
-            gnavtype = INAV;
+            gnavtype = gnut::GNAVTYPE::INAV;
         }
         else if (full && binary.compare(0, 1, "1") == 0)
         {
-            gnavtype = INAV_E01;
+            gnavtype = gnut::GNAVTYPE::INAV_E01;
         }
         else if (full && binary.compare(2, 1, "1") == 0)
         {
-            gnavtype = INAV_E07;
+            gnavtype = gnut::GNAVTYPE::INAV_E07;
         }
         else if (binary.compare(1, 1, "1") == 0)
         {
-            gnavtype = FNAV;
+            gnavtype = gnut::GNAVTYPE::FNAV;
         }
 
         return gnavtype;
     }
 
-    string t_gnavgal::_source_str() const
+    std::string t_gnavgal::_source_str() const
     {
-        string source_bin = bitset<10>(_source).to_string();
+        std::string source_bin = std::bitset<10>(_source).to_string();
         reverse(source_bin.begin(), source_bin.end());
         return source_bin;
     }
 
-    string t_gnavgal::_health_str() const
+    std::string t_gnavgal::_health_str() const
     {
-        string health_bin = bitset<9>(_health).to_string();
+        std::string health_bin = std::bitset<9>(_health).to_string();
         reverse(health_bin.begin(), health_bin.end());
         return health_bin;
     }
 
     bool t_gnavgal::_healthy() const
     {
-        string source_bin = _source_str();
-        string health_bin = _health_str();
+        std::string source_bin = _source_str();
+        std::string health_bin = _health_str();
 
         // INAV E01-B + E5b-I
         if (source_bin.compare(0, 1, "1") == 0 && source_bin.compare(2, 1, "1") == 0)

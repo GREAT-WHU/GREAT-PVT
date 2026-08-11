@@ -23,21 +23,20 @@
 #include "gmodels/gbias.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 
 namespace gnut
 {
-    typedef shared_ptr<t_gbias> t_spt_bias;
+    typedef std::shared_ptr<t_gbias> t_spt_bias;
 
     /**
      *@brief Class for bias setting derive from t_gdata
      */
     class LibGnut_LIBRARY_EXPORT t_gallbias : public t_gdata
     {
-        typedef map<GOBS, t_spt_bias> t_map_gobs;  ///< first : GNSS Observations, second : bias
-        typedef map<string, t_map_gobs> t_map_sat; ///< first : sat name, second : observations
-        typedef map<t_gtime, t_map_sat> t_map_epo; ///< first : time, second : sat data
-        typedef map<string, t_map_epo> t_map_ac;   ///< first : ac name, second : epoch
+        typedef std::map<GOBS, t_spt_bias> t_map_gobs;  ///< first : GNSS Observations, second : bias
+        typedef std::map<GSAT, t_map_gobs> t_map_sat;   ///< first : satellite, second : observations
+        typedef std::map<t_gtime, t_map_sat> t_map_epo; ///< first : time, second : sat data
+        typedef std::map<std::string, t_map_epo> t_map_ac;   ///< first : ac name, second : epoch
 
     public:
         /** @brief default constructor. */
@@ -57,7 +56,7 @@ namespace gnut
          * @param[in]  pt_bias    pt bias of the data
          * @return void
          */
-        void add(const string& ac, const t_gtime& epo, const string& obj, t_spt_bias pt_bias);
+        void add(const std::string& ac, const t_gtime& epo, GSAT sat, t_spt_bias pt_bias);
 
         /**
          * @brief get DCB.
@@ -69,7 +68,7 @@ namespace gnut
          * @param[in]  ac            ac of the data
          * @return DCB
          */
-        double get(const t_gtime& epo, const string& obj, const GOBS& gobs1, const GOBS& gobs2, const string& ac = "");
+        double get(const t_gtime& epo, GSAT sat, const GOBS& gobs1, const GOBS& gobs2, const std::string& ac = "");
 
         /**
          * @brief get single bias element.
@@ -81,25 +80,25 @@ namespace gnut
          * @param[in]  meter        unit
          * @return single bias
          */
-        double get(const string& prd, const t_gtime& epo, const string& obj, const GOBS& gobs1, const bool& meter = true);
+        double get(const std::string& prd, const t_gtime& epo, GSAT sat, const GOBS& gobs1, const bool& meter = true);
 
         /**
          * @brief get ac list.
          * @return ac list
          */
-        vector<string> get_ac();
+        std::vector<std::string> get_ac();
 
         /**
          * @brief set ac priority.
          * @return priority of ac
          */
-        string get_ac_priority();
+        std::string get_ac_priority();
 
         /**
          * @brief get used av.
          * @return used ac
          */
-        string get_used_ac();
+        std::string get_used_ac();
 
     protected:
         /**
@@ -111,7 +110,7 @@ namespace gnut
          * @param[in]  gobs        observation of the data
          * @return    pt bias
          */
-        t_spt_bias _find(const string& ac, const t_gtime& epo, const string& obj, const GOBS& gobs);
+        t_spt_bias _find(const std::string& ac, const t_gtime& epo, GSAT sat, const GOBS& gobs);
 
         /**
          * @brief get single bias element pointer.
@@ -122,7 +121,7 @@ namespace gnut
          * @param[in]  ref
          * @return    vec bias
          */
-        vector<t_spt_bias> _find_ref(const string& ac, const t_gtime& epo, const string& obj, const GOBS& ref);
+        std::vector<t_spt_bias> _find_ref(const std::string& ac, const t_gtime& epo, GSAT sat, const GOBS& ref);
 
         /**
          * @brief convert type of observations.
@@ -132,7 +131,7 @@ namespace gnut
          * @param[in]  obstype    observation type
          * @return    void
          */
-        void _convert_obstype(const string& ac, const string& obj, GOBS& obstype);
+        void _convert_obstype(const std::string& ac, GSAT sat, GOBS& obstype);
 
         /**
          * @brief connect DCB pt_cb2 with first GOBS.
@@ -161,12 +160,12 @@ namespace gnut
          * @param[in]  pt_cb2
          * @return    void
          */
-        void _consolidate(const string& ac, const string& obj, const t_spt_bias& pt_cb1, const t_spt_bias& pt_cb2);
+        void _consolidate(const std::string& ac, GSAT sat, const t_spt_bias& pt_cb1, const t_spt_bias& pt_cb2);
 
     protected:
-        string _acUsed;            ///<
-        string _acPri = "DLR_R";   ///< primary AC
-        map<string, int> _acOrder; ///< map of all ACs
+        std::string _acUsed;            ///<
+        std::string _acPri = "DLR_R";   ///< primary AC
+        std::map<std::string, int> _acOrder; ///< map of all ACs
         int _udbiaInt = 99999;     ///< flag of undifferentiated bia
         bool _isOverWrite = false; ///< flag of overwrite
         bool _isOrdered = false;   ///< if AC is ordered

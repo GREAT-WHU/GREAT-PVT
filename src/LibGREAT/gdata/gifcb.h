@@ -14,6 +14,7 @@
 #include "gexport/ExportLibGREAT.h"
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
+#include "gutils/gnss.h"
 
 using namespace gnut;
 
@@ -31,7 +32,6 @@ namespace great
         /** @brief default destructor. */
         ~t_ifcbrec() {};
 
-        string obj;   ///< ifcb objection may be site or satellite
         int npoint;   ///< site number
         double value; ///< ifcb value
         double sigma; ///< std
@@ -40,7 +40,7 @@ namespace great
 
     /** map container using satellite name as a index for storaging t_ifcbrec ptr , one epoch/all satellite
      *   for wide-lane only one sign epoch "WL_IDENTIFY"   */
-    typedef map<string, shared_ptr<t_ifcbrec>> LibGREAT_LIBRARY_EXPORT one_epoch_ifcb;
+    typedef std::map<GSAT, std::shared_ptr<t_ifcbrec>> LibGREAT_LIBRARY_EXPORT one_epoch_ifcb;
 
     /**
      *@brief     Class for storaging all epoch/all satellite ifcb data
@@ -63,7 +63,7 @@ namespace great
          * @param[in]  one_sat_ifcb ifcb data of one epoch/one satellite
          * @return      void
          */
-        void add_sat_ifcb(t_gtime epoch, string prn, t_ifcbrec one_sat_ifcb);
+        void add_sat_ifcb(t_gtime epoch, GSAT sat, t_ifcbrec one_sat_ifcb);
 
         /**
          * @brief get ifcb data of one epoch/all satellite.
@@ -74,7 +74,7 @@ namespace great
         one_epoch_ifcb& get_epo_ifcb(const t_gtime& t);
 
     protected:
-        map<t_gtime, one_epoch_ifcb> _ifcb; ///< ifcb map container of all epoch/all satellite
+        std::map<t_gtime, one_epoch_ifcb> _ifcb; ///< ifcb map container of all epoch/all satellite
         t_gtime _valid_beg;                 ///< valid begin epoch
         one_epoch_ifcb _null_epoch_ifcb;    ///< ione epoch ifcb value
 

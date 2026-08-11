@@ -11,7 +11,6 @@
 #include "gutils/gcommon.h"
 #include "gutils/gfileconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -28,19 +27,19 @@ namespace gnut
         reset();
     }
 
-    int t_gfile::path(string str)
+    int t_gfile::path(std::string str)
     {
         if (str == "")
         {
             return -1;
         }
 
-        size_t idx1 = 0, idx2 = 0;
-        string prefix = GFILE_PREFIX;
+        std::size_t idx1 = 0, idx2 = 0;
+        std::string prefix = GFILE_PREFIX;
 
         // check if file
         idx2 = str.find(prefix);
-        if (idx2 == string::npos)
+        if (idx2 == std::string::npos)
         {
             str = prefix + str;
             idx2 = 0;
@@ -49,9 +48,9 @@ namespace gnut
         // file path
         idx1 = idx2 + prefix.length();
         idx2 = str.length();
-        if (idx2 != string::npos && idx2 > idx1)
+        if (idx2 != std::string::npos && idx2 > idx1)
         {
-            string name = str.substr(idx1, idx2 - idx1);
+            std::string name = str.substr(idx1, idx2 - idx1);
 
             if (_file == 0)
             {
@@ -68,12 +67,12 @@ namespace gnut
             }
             else
             {
-                cerr << "cannot assign file to path!\n";
+                std::cerr << "cannot assign file to path!\n";
                 _irc++;
                 return -1;
             }
 
-            ostringstream ltmp;
+            std::ostringstream ltmp;
             ltmp << "File: " << int(idx1) << ":" << int(idx2) << " = " << name;
             GREAT_DEBUG(ltmp.str());
         }
@@ -88,12 +87,12 @@ namespace gnut
         return 1;
     }
 
-    string t_gfile::path()
+    std::string t_gfile::path()
     {
         return GFILE_PREFIX + mask();
     }
 
-    string t_gfile::name()
+    std::string t_gfile::name()
     {
         return mask();
     }
@@ -108,7 +107,7 @@ namespace gnut
         return true;
     }
 
-    string t_gfile::mask()
+    std::string t_gfile::mask()
     {
         if (_file)
         {
@@ -128,7 +127,7 @@ namespace gnut
         char* loc_buff = new char[FILEHDR_SIZE];
 
         int nbytes = 0;
-        vector<string> errmsg;
+        std::vector<std::string> errmsg;
         while ((nbytes = _gio_read(loc_buff, FILEHDR_SIZE)) > 0 && _stop != 1)
         {
             if (_coder->decode_head(loc_buff, nbytes, errmsg) < 0)

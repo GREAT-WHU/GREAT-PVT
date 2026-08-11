@@ -99,13 +99,13 @@ namespace great
         t_gtriple tide_pole_pod(const t_gtime& epo, double xpole, double ypole, t_gtriple& xyz);
 
         /** @brief ocean tide loading.*/
-        t_gtriple load_ocean(const t_gtime& epoch, const string& site, const t_gtriple& xRec) override;
+        t_gtriple load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec) override;
 
         /** @brief atmospheric tide loading.*/
         t_gtriple load_atmosph() override;
 
         /** @brief get frequency of tide.*/
-        t_gtriple tide_freq(const string& site, const t_gtriple& xRec, double gast);
+        t_gtriple tide_freq(const std::string& site, const t_gtriple& xRec, double gast);
 
         /** @brief get mean pole.*/
         void getMeanPole(double mjd, double& xpm, double& ypm);

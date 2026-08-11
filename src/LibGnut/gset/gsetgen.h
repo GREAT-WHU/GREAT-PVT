@@ -31,7 +31,6 @@
 #include "gutils/gtime.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -103,39 +102,39 @@ namespace gnut
          * @brief get the List of system names
          * @return set<string> : List of system names
          */
-        virtual set<string> sys();
-        virtual void sys(string str);
+        virtual std::set<std::string> sys();
+        virtual void sys(std::string str);
 
         /**
          * @brief get the List of sites
          * @return set<string> : List of sites
          */
-        set<string> recs();
-        set<string> rec_all();
+        std::set<std::string> recs();
+        std::set<std::string> rec_all();
 
         /**
          * @brief get the List of base/rover sites
          * @return set<string> : List of base/rover sites
          */
-        virtual vector<string> list_base();
-        virtual vector<string> list_rover();
+        virtual std::vector<std::string> list_base();
+        virtual std::vector<std::string> list_rover();
 
         /**
          * @brief get name of estimator
          * @return string : estimator name
          */
-        virtual string estimator();
+        virtual std::string estimator();
 
         /**
          * @brief add for remove unused satellites
          * @return set<string> : satellites which will be removed
          */
-        virtual set<string> sat_rm();
-        virtual void sat_rm(string str);
+        virtual std::set<GSAT> sat_rm();
+        virtual void sat_rm(std::string str);
 
     protected:
         bool _gnss;  ///< gnss or not
-        string _sys; ///< sys name
+        std::string _sys; ///< sys name
         int _dec;    ///< sampling
 
     private:

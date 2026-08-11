@@ -24,7 +24,7 @@ namespace gnut
     {
         _dSig = 9999.9;
 
-        t_gtime Tfirst(1980, 01, 01, 00, 00, 00, t_gtime::GPS);
+        t_gtime Tfirst(1980, 01, 01, 00, 00, 00, 0.0, t_gtime::t_tsys::GPS);
         setTprev(Tfirst);
         setTcurr(Tfirst);
     }

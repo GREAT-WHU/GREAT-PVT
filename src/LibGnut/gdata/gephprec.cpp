@@ -15,7 +15,6 @@
 #include "gutils/gconst.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -27,25 +26,25 @@ namespace gnut
         _poly_z(),
         _poly_c()
     {
-        id_type(t_gdata::EPHPREC);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::EPHPREC);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
     }
 
     t_gephprec::~t_gephprec()
     {
     }
 
-    int t_gephprec::add(string sat,
-                        vector<t_gtime> t,
-                        const vector<double>& x,
-                        const vector<double>& y,
-                        const vector<double>& z,
-                        const vector<double>& c)
+    int t_gephprec::add(GSAT sat,
+                        std::vector<t_gtime> t,
+                        const std::vector<double>& x,
+                        const std::vector<double>& y,
+                        const std::vector<double>& z,
+                        const std::vector<double>& c)
     {
         _gmutex.lock();
 
         // check dimensions
-        if (ndata() != t.size() || ndata() != x.size() || ndata() != y.size() || ndata() != z.size() || ndata() != c.size() || sat.empty())
+        if (ndata() != t.size() || ndata() != x.size() || ndata() != y.size() || ndata() != z.size() || ndata() != c.size() || !valid_gsat(sat))
         {
             _gmutex.unlock();
             return -1;
@@ -90,9 +89,9 @@ namespace gnut
 
         double tdiff = t - _epoch;
 
-        if (!_valid_crd() || sat().empty() || fabs(_epoch - t) > (fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25))
+        if (!_valid_crd() || sat() == GSAT::NONE || fabs(_epoch - t) > (fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25))
         {
-            GREAT_WARN("no ephemeris [" + _sat + t.str("] %Y-%m-%d %H:%M:%S") + " epoch: " + _epoch.str("%Y-%m-%d %H:%M:%S") +
+            GREAT_WARN("no ephemeris [" + gsat2str(_sat) + t.str("] %Y-%m-%d %H:%M:%S") + " epoch: " + _epoch.str("%Y-%m-%d %H:%M:%S") +
                        " tdiff: " + dbl2str(tdiff) + " xref: " + dbl2str(_poly_x.xref()) + " span: " + dbl2str(_poly_x.span()));
             _gmutex.unlock();
             return -1;
@@ -127,7 +126,7 @@ namespace gnut
             *dclk = 0.0;
         }
 
-        if (!_valid_clk() || sat().empty())
+        if (!_valid_clk() || sat() == GSAT::NONE)
         {
             _gmutex.unlock();
             return -1;
@@ -137,7 +136,7 @@ namespace gnut
 
         if (abs(tdiff) > (abs(_poly_c.xref() - _poly_c.span() / 2) + 0.25))
         {
-            GREAT_WARN("no clock [" + _sat + t.str("] %Y-%m-%d %H:%M:%S"));
+            GREAT_WARN("no clock [" + gsat2str(_sat) + t.str("] %Y-%m-%d %H:%M:%S"));
             _gmutex.unlock();
             return -1;
         }
@@ -171,7 +170,7 @@ namespace gnut
             *dclk = 0.0;
         }
 
-        if (!_valid_clk() || sat().empty())
+        if (!_valid_clk() || sat() == GSAT::NONE)
         {
             _gmutex.unlock();
             return -1;
@@ -181,7 +180,7 @@ namespace gnut
 
         if (abs(tdiff) > (abs(_poly_c.xref() - _poly_c.span() / 2) + 0.25))
         {
-            GREAT_WARN("no ephemeris [" + _sat + t.str("] %Y-%m-%d %H:%M:%S"));
+            GREAT_WARN("no ephemeris [" + gsat2str(_sat) + t.str("] %Y-%m-%d %H:%M:%S"));
             _gmutex.unlock();
             return -1;
         }
@@ -208,7 +207,7 @@ namespace gnut
 
     bool t_gephprec::valid(const t_gtime& t) const
     {
-        if (_valid_crd() && !sat().empty() && fabs(_epoch - t) < fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25) // add 0.25s!
+        if (_valid_crd() && sat() != GSAT::NONE && fabs(_epoch - t) < fabs(_poly_x.xref() - _poly_x.span() / 2) + 0.25) // add 0.25s!
         {
             return true;
         }
@@ -219,7 +218,7 @@ namespace gnut
     void t_gephprec::_clear()
     {
         _epoch = FIRST_TIME;
-        _sat.clear();
+        _sat = GSAT::NONE;
 
         _dt.clear();
 
@@ -251,7 +250,7 @@ namespace gnut
         {
             if (_clkc[i] >= 999999)
             {
-                GREAT_WARN("clk_int undefined ephemeris [" + _sat + _epoch.str("] %Y-%m-%d %H:%M:%S"));
+                GREAT_WARN("clk_int undefined ephemeris [" + gsat2str(_sat) + _epoch.str("] %Y-%m-%d %H:%M:%S"));
                 undef = true;
             }
         }

@@ -28,7 +28,6 @@
 #include "gutils/gconst.h"
 #include "gutils/gtime.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -44,8 +43,8 @@ namespace gnut
         virtual ~t_gbias();
 
         /** @brief add single differential bias in meters. */
-        void set(const t_gtime& beg, const t_gtime& end, double d, GOBS obs1, GOBS obs2 = X);
-        void set(double d, GOBS obs1, GOBS obs2 = X);
+        void set(const t_gtime& beg, const t_gtime& end, double d, GOBS obs1, GOBS obs2 = gnut::GOBS::X);
+        void set(double d, GOBS obs1, GOBS obs2 = gnut::GOBS::X);
 
         /** @brief get signgle differential bias. */
         double bias(bool meter = true);

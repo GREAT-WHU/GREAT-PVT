@@ -16,7 +16,6 @@
 #include "gutils/gtypeconv.h"
 #include "gall/gallbias.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -31,11 +30,11 @@ namespace gnut
         _bds_code_bias_mark(false),
         _range_smooth_mark(false)
     {
-        id_type(t_gdata::OBSGNSS);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::OBSGNSS);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
 
-    t_gobsgnss::t_gobsgnss(const string& sat) :
+    t_gobsgnss::t_gobsgnss(GSAT sat) :
         t_gdata(),
         _apr_ele(-1),
         _channel(DEF_CHANNEL),
@@ -45,17 +44,19 @@ namespace gnut
         _bds_code_bias_mark(false),
         _range_smooth_mark(false),
         _satid(sat),
-        _gsys(t_gsys::char2gsys(sat[0]))
+        _gsys(gsat2gsys(_satid))
     {
-        id_type(t_gdata::OBSGNSS);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::OBSGNSS);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
 
-    t_gobsgnss::t_gobsgnss(const string& site, const string& sat, const t_gtime& t) :
+    t_gobsgnss::t_gobsgnss(const std::string& sat) : t_gobsgnss(str2gsat(sat)) {}
+
+    t_gobsgnss::t_gobsgnss(const std::string& site, const std::string& sat, const t_gtime& t) :
         t_gdata(),
         _staid(site),
-        _satid(sat),
-        _gsys(t_gsys::char2gsys(_satid[0])),
+        _satid(str2gsat(sat)),
+        _gsys(gsat2gsys(_satid)),
         _epoch(t),
         _apr_ele(-1),
         _channel(DEF_CHANNEL),
@@ -65,8 +66,8 @@ namespace gnut
         _bds_code_bias_mark(false),
         _range_smooth_mark(false)
     {
-        id_type(t_gdata::OBSGNSS);
-        id_group(t_gdata::GRP_OBSERV);
+        id_type(t_gdata::ID_TYPE::OBSGNSS);
+        id_group(t_gdata::ID_GROUP::GRP_OBSERV);
     }
 
     t_gobsgnss::~t_gobsgnss()
@@ -123,7 +124,7 @@ namespace gnut
         return;
     }
 
-    void t_gobsgnss::setrangestate(const string& name, const bool& b)
+    void t_gobsgnss::setrangestate(const std::string& name, const bool& b)
     {
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
@@ -141,7 +142,7 @@ namespace gnut
         return;
     }
 
-    bool t_gobsgnss::getrangestate(const string& name)
+    bool t_gobsgnss::getrangestate(const std::string& name)
     {
         _gmutex.lock();
         bool tmp = false;
@@ -168,15 +169,15 @@ namespace gnut
         return;
     }
 
-    vector<GOBS> t_gobsgnss::obs() const
+    std::vector<GOBS> t_gobsgnss::obs() const
     {
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
         _gmutex.lock();
 
-        vector<GOBS> tmp;
-        map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::vector<GOBS> tmp;
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
         while (it != _gobs.end())
         {
             tmp.push_back(it->first);
@@ -187,16 +188,16 @@ namespace gnut
         return tmp;
     }
 
-    set<GOBS> t_gobsgnss::obs_phase(const int& band) const
+    std::set<GOBS> t_gobsgnss::obs_phase(const GOBSBAND& band) const
     {
         _gmutex.lock();
 
-        set<GOBS> tmp;
-        map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::set<GOBS> tmp;
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
         while (it != _gobs.end())
         {
             GOBS gobs = it->first;
-            int b = gobs2band(gobs);
+            GOBSBAND b = static_cast<GOBSBAND>(gobs2band(gobs));
             if (band == b && gobs_phase(gobs))
             {
                 tmp.insert(gobs);
@@ -272,7 +273,7 @@ namespace gnut
 #endif
         //_gmutex.lock();
 
-        vector<GOBS> obs_vec = this->obs();
+        std::vector<GOBS> obs_vec = this->obs();
         for (auto it : obs_vec) // delete
         {
             if (str2gobsband(gobs2str(it)) == b)
@@ -315,7 +316,7 @@ namespace gnut
             return true;
         }
 
-        string gsat = this->sat();
+        GSAT gsat = this->sat();
         t_gtime gepo = this->epoch();
         GSYS gsys = this->gsys();
 
@@ -329,12 +330,12 @@ namespace gnut
             }
             else if (t_gobs(obs_type).is_phase())
             {
-                if (obs_type == L1W)
+                if (obs_type == gnut::GOBS::L1W)
                 {
                     bias1 = allbias->get(gepo, gsat, gobs_type.gobs(), gobs_type.gobs(), "WHU_PHASE");
                     b1 = t_gobs(obs_type).band();
                 }
-                else if (obs_type == L2W)
+                else if (obs_type == gnut::GOBS::L2W)
                 {
                     bias2 = allbias->get(gepo, gsat, gobs_type.gobs(), gobs_type.gobs(), "WHU_PHASE");
                     b2 = t_gobs(obs_type).band();
@@ -347,11 +348,11 @@ namespace gnut
 
             // apply dcb to obsdata
             double obs_value = this->getobs(gobs_type.gobs());
-            if (obs_type == L2W)
+            if (obs_type == gnut::GOBS::L2W)
             {
                 coef_ionofree(b1, c1, b2, c2);
                 biasif = c1 * bias1 + c2 * bias2;
-                std::cout << gsat << " " << t_gobs(obs_type).gobs() << " " << biasif << endl;
+                std::cout << gsat << " " << gobs2str(t_gobs(obs_type).gobs()) << " " << biasif << std::endl;
             }
             this->resetobs(gobs_type.gobs(), obs_value);
         }
@@ -373,7 +374,7 @@ namespace gnut
             return true;
         }
 
-        string gsat = this->sat();
+        GSAT gsat = this->sat();
         t_gtime gepo = this->epoch();
         GSYS gsys = this->gsys();
 
@@ -418,36 +419,36 @@ namespace gnut
             {
                 switch (gobs_type.gobs())
                 {
-                    case C1C:
-                        dcb_value = allbias->get(gepo, gsat, C1W, C1C);
+                    case gnut::GOBS::C1C:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C1W, gnut::GOBS::C1C);
                         break;
-                    case C1P:
+                    case gnut::GOBS::C1P:
                         dcb_value = 0.0;
-                    case C1Y:
+                    case gnut::GOBS::C1Y:
                         dcb_value = 0.0;
-                    case C1W:
-                        dcb_value = 0.0;
-                        break;
-                    case C2C:
-                        dcb_value = allbias->get(gepo, gsat, C2W, C2C);
-                        break;
-                    case C2L:
-                        dcb_value = allbias->get(gepo, gsat, C2W, C2L);
-                        break;
-                    case C2X:
-                        dcb_value = allbias->get(gepo, gsat, C2W, C2X);
-                        break;
-                    case C2P:
-                        dcb_value = 0.0;
-                    case C2Y:
-                        dcb_value = 0.0;
-                    case C2W:
+                    case gnut::GOBS::C1W:
                         dcb_value = 0.0;
                         break;
-                    case C5Q:
-                        dcb_value = allbias->get(gepo, gsat, C5X, C5Q);
+                    case gnut::GOBS::C2C:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C2W, gnut::GOBS::C2C);
                         break;
-                    case C5X:
+                    case gnut::GOBS::C2L:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C2W, gnut::GOBS::C2L);
+                        break;
+                    case gnut::GOBS::C2X:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C2W, gnut::GOBS::C2X);
+                        break;
+                    case gnut::GOBS::C2P:
+                        dcb_value = 0.0;
+                    case gnut::GOBS::C2Y:
+                        dcb_value = 0.0;
+                    case gnut::GOBS::C2W:
+                        dcb_value = 0.0;
+                        break;
+                    case gnut::GOBS::C5Q:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C5X, gnut::GOBS::C5Q);
+                        break;
+                    case gnut::GOBS::C5X:
                         dcb_value = 0.0;
                         break;
                     default:
@@ -459,16 +460,16 @@ namespace gnut
             {
                 switch (gobs_type.gobs())
                 {
-                    case C1C:
-                        dcb_value = allbias->get(gepo, gsat, C1P, C1C);
+                    case gnut::GOBS::C1C:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C1P, gnut::GOBS::C1C);
                         break;
-                    case C1P:
+                    case gnut::GOBS::C1P:
                         dcb_value = 0.0;
                         break;
-                    case C2C:
-                        dcb_value = allbias->get(gepo, gsat, C2P, C2C);
+                    case gnut::GOBS::C2C:
+                        dcb_value = allbias->get(gepo, gsat, gnut::GOBS::C2P, gnut::GOBS::C2C);
                         break;
-                    case C2P:
+                    case gnut::GOBS::C2P:
                         dcb_value = 0.0;
                         break;
                     default:
@@ -553,7 +554,7 @@ namespace gnut
         return dcb_value;
     }
 
-    double t_gobsgnss::getobs(const string& obs) const
+    double t_gobsgnss::getobs(const std::string& obs) const
     {
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
@@ -658,7 +659,7 @@ namespace gnut
         return tmp;
     }
 
-    int t_gobsgnss::getlli(const string& obs) const
+    int t_gobsgnss::getlli(const std::string& obs) const
     {
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
@@ -707,14 +708,14 @@ namespace gnut
         return _channel;
     }
 
-    size_t t_gobsgnss::size() const
+    std::size_t t_gobsgnss::size() const
     {
 #ifdef BMUTEX
         boost::mutex::scoped_lock lock(_mutex);
 #endif
         _gmutex.lock();
 
-        size_t tmp = _gobs.size();
+        std::size_t tmp = _gobs.size();
 
         _gmutex.unlock();
         return tmp;
@@ -730,109 +731,109 @@ namespace gnut
     {
         switch (_gsys)
         {
-            case GPS:
+            case GSYS::GPS:
                 switch (b)
                 {
-                    case BAND_1:
+                    case gnut::GOBSBAND::BAND_1:
                         return G01_F;
-                    case BAND_2:
+                    case gnut::GOBSBAND::BAND_2:
                         return G02_F;
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return G05_F;
                     default:
                         return 0.0;
                 }
 
-            case GLO:
+            case GSYS::GLO:
                 switch (b)
                 {
-                    case BAND_1:
+                    case gnut::GOBSBAND::BAND_1:
                         return R01_F(_channel);
-                    case BAND_2:
+                    case gnut::GOBSBAND::BAND_2:
                         return R02_F(_channel);
-                    case BAND_3:
+                    case gnut::GOBSBAND::BAND_3:
                         return R03_F_CDMA;
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return R05_F_CDMA;
                     default:
                         return 0.0;
                 }
 
-            case GAL:
+            case GSYS::GAL:
                 switch (b)
                 {
-                    case BAND_1:
+                    case gnut::GOBSBAND::BAND_1:
                         return E01_F;
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return E05_F;
-                    case BAND_6:
+                    case gnut::GOBSBAND::BAND_6:
                         return E06_F;
-                    case BAND_7:
+                    case gnut::GOBSBAND::BAND_7:
                         return E07_F;
-                    case BAND_8:
+                    case gnut::GOBSBAND::BAND_8:
                         return E08_F;
                     default:
                         return 0.0;
                 }
 
-            case BDS:
+            case GSYS::BDS:
                 switch (b)
                 {
-                    case BAND_2:
+                    case gnut::GOBSBAND::BAND_2:
                         return C02_F;
-                    case BAND_6:
+                    case gnut::GOBSBAND::BAND_6:
                         return C06_F;
-                    case BAND_7:
+                    case gnut::GOBSBAND::BAND_7:
                         return C07_F;
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return C05_F;
-                    case BAND_8:
+                    case gnut::GOBSBAND::BAND_8:
                         return C08_F;
-                    case BAND_9:
+                    case gnut::GOBSBAND::BAND_9:
                         return C09_F;
-                    case BAND_1:
+                    case gnut::GOBSBAND::BAND_1:
                         return C01_F;
 
                     default:
                         return 0.0;
                 }
 
-            case QZS:
+            case GSYS::QZS:
                 switch (b)
                 {
-                    case BAND_1:
+                    case gnut::GOBSBAND::BAND_1:
                         return J01_F;
-                    case BAND_2:
+                    case gnut::GOBSBAND::BAND_2:
                         return J02_F;
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return J05_F;
-                    case BAND_6:
+                    case gnut::GOBSBAND::BAND_6:
                         return J06_F;
                     default:
                         return 0.0;
                 }
 
-            case IRN:
+            case GSYS::IRN:
                 switch (b)
                 {
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return I05_F;
                     default:
                         return 0.0;
                 }
 
-            case SBS:
+            case GSYS::SBS:
                 switch (b)
                 {
-                    case BAND_1:
+                    case gnut::GOBSBAND::BAND_1:
                         return S01_F;
-                    case BAND_5:
+                    case gnut::GOBSBAND::BAND_5:
                         return S05_F;
                     default:
                         return 0.0;
                 }
 
-            case GNS:
+            case GSYS::GNS:
                 return 0.0;
             default:
                 return 0.0;
@@ -926,10 +927,10 @@ namespace gnut
         }
 
         // AUTO SELECTION
-        if (go.attr() == ATTR)
+        if (go.attr() == gnut::GOBSATTR::ATTR)
         {
             GOBS gobs = _id_range(go.band());
-            if (gobs == X)
+            if (gobs == gnut::GOBS::X)
             {
                 return NULL_GOBS;
             }
@@ -943,17 +944,17 @@ namespace gnut
         // FIXED SELECTION
         // here avoid a PROBLEM WITH the legacy TYPE_P (only when NULL_ATTR)
         // -----------------------------
-        map<GOBS, double>::const_iterator it = _gobs.end();
+        std::map<GOBS, double>::const_iterator it = _gobs.end();
 
-        if (go.attr() == ATTR_NULL && (go.type() == TYPE || go.type() == TYPE_P))
+        if (go.attr() == gnut::GOBSATTR::ATTR_NULL && (go.type() == gnut::GOBSTYPE::TYPE || go.type() == gnut::GOBSTYPE::TYPE_P))
         {
-            t_gobs gobs(TYPE_P, go.band(), go.attr());
+            t_gobs gobs(gnut::GOBSTYPE::TYPE_P, go.band(), go.attr());
             it = _gobs.find(gobs.gobs());
         }
 
-        if (it == _gobs.end() && go.type() != TYPE_P)
+        if (it == _gobs.end() && go.type() != gnut::GOBSTYPE::TYPE_P)
         {
-            t_gobs gobs(TYPE_C, go.band(), go.attr());
+            t_gobs gobs(gnut::GOBSTYPE::TYPE_C, go.band(), go.attr());
             it = _gobs.find(gobs.gobs());
         }
 
@@ -967,11 +968,11 @@ namespace gnut
 
     double t_gobsgnss::_obs_range(const t_gband& gb) const
     {
-        t_gobs gobs(TYPE, gb.band(), gb.attr());
+        t_gobs gobs(gnut::GOBSTYPE::TYPE, gb.band(), gb.attr());
 
 #ifdef DEBUG
-        cout << _epoch.str_hms() << " sat: " << sat() << " band: " << gobsband2str(gb.band()) << " attr: " << gobsattr2str(gb.attr())
-             << endl;
+        std::cout << _epoch.str_hms() << " sat: " << sat() << " band: " << gobsband2str(gb.band()) << " attr: " << gobsattr2str(gb.attr())
+             << std::endl;
 #endif
 
         return _obs_range(gobs);
@@ -1036,10 +1037,10 @@ namespace gnut
         }
 
         // AUTO SELECTION
-        if (gb.attr() == ATTR)
+        if (gb.attr() == gnut::GOBSATTR::ATTR)
         {
             GOBS gobs = _id_phase(gb.band());
-            if (gobs == X)
+            if (gobs == gnut::GOBS::X)
             {
                 return NULL_GOBS;
             }
@@ -1050,9 +1051,9 @@ namespace gnut
         }
 
         // FIXED SELECTION
-        t_gobs go(TYPE_L, gb.band(), gb.attr());
+        t_gobs go(gnut::GOBSTYPE::TYPE_L, gb.band(), gb.attr());
 
-        map<GOBS, double>::const_iterator it;
+        std::map<GOBS, double>::const_iterator it;
         it = _gobs.find(go.gobs());
 
         if (it == _gobs.end())
@@ -1071,10 +1072,10 @@ namespace gnut
         }
 
         // AUTO SELECTION
-        if (gb.attr() == ATTR)
+        if (gb.attr() == gnut::GOBSATTR::ATTR)
         {
             GOBS gobs = _id_doppler(gb.band());
-            if (gobs == X)
+            if (gobs == gnut::GOBS::X)
             {
                 return NULL_GOBS;
             }
@@ -1085,9 +1086,9 @@ namespace gnut
             return NULL_GOBS;
         }
 
-        t_gobs go(TYPE_D, gb.band(), gb.attr());
+        t_gobs go(gnut::GOBSTYPE::TYPE_D, gb.band(), gb.attr());
 
-        map<GOBS, double>::const_iterator it = _gobs.end();
+        std::map<GOBS, double>::const_iterator it = _gobs.end();
 
         it = _gobs.find(go.gobs());
         if (it == _gobs.end())
@@ -1109,10 +1110,10 @@ namespace gnut
         }
 
         // AUTO SELECTION
-        if (gb.attr() == ATTR)
+        if (gb.attr() == gnut::GOBSATTR::ATTR)
         {
             GOBS gobs = _id_snr(gb.band());
-            if (gobs == X)
+            if (gobs == gnut::GOBS::X)
             {
                 return NULL_GOBS;
             }
@@ -1123,9 +1124,9 @@ namespace gnut
             return NULL_GOBS;
         }
 
-        t_gobs go(TYPE_S, gb.band(), gb.attr());
+        t_gobs go(gnut::GOBSTYPE::TYPE_S, gb.band(), gb.attr());
 
-        map<GOBS, double>::const_iterator it = _gobs.end();
+        std::map<GOBS, double>::const_iterator it = _gobs.end();
 
         it = _gobs.find(go.gobs());
         if (it == _gobs.end())
@@ -1140,14 +1141,14 @@ namespace gnut
 
     int t_gobsgnss::mod_L(const double& dL, const GOBS& gobs, const int i)
     {
-        map<GOBS, double>::iterator it;
+        std::map<GOBS, double>::iterator it;
 
-        if (gobs == X)
+        if (gobs == gnut::GOBS::X)
         {
             for (it = _gobs.begin(); it != _gobs.end(); ++it)
             {
                 // phase only !!!!
-                string gobs_str = gobs2str(it->first);
+                std::string gobs_str = gobs2str(it->first);
                 if (gobs_str.compare(0, 1, "L") != 0)
                 {
                     continue;
@@ -1166,7 +1167,7 @@ namespace gnut
                 }
                 else
                 {
-                    cout << "Observations not modified!" << endl;
+                    std::cout << "Observations not modified!" << std::endl;
                 }
             }
 
@@ -1193,7 +1194,7 @@ namespace gnut
             }
             else
             {
-                cout << "Observations not modified!" << endl;
+                std::cout << "Observations not modified!" << std::endl;
             }
         }
         return 0; // not found
@@ -1201,10 +1202,10 @@ namespace gnut
 
     int t_gobsgnss::mod_L(const double& dL, const GOBSBAND& band, const int i)
     {
-        for (map<GOBS, double>::iterator it = _gobs.begin(); it != _gobs.end(); ++it)
+        for (std::map<GOBS, double>::iterator it = _gobs.begin(); it != _gobs.end(); ++it)
         {
             // phase only !!!!
-            string gobs_str = gobs2str(it->first);
+            std::string gobs_str = gobs2str(it->first);
             if (gobs_str.compare(0, 1, "L") != 0)
             {
                 continue;
@@ -1231,31 +1232,26 @@ namespace gnut
             }
             else
             {
-                cout << "Observations not modified!" << endl;
+                std::cout << "Observations not modified!" << std::endl;
             }
         }
         return 0;
     }
 
-    double t_gobsgnss::frequency_lc(const int& band1,
+    double t_gobsgnss::frequency_lc(const GOBSBAND& band1,
                                     const double& coef1,
-                                    const int& band2,
+                                    const GOBSBAND& band2,
                                     const double& coef2,
-                                    const int& band3,
+                                    const GOBSBAND& band3,
                                     const double& coef3) const
     {
         double f1 = 0.0;
         double f2 = 0.0;
         double f3 = 0.0;
 
-        // TEMPORARY CONVERSION !
-        GOBSBAND gb1 = GOBSBAND(band1);
-        GOBSBAND gb2 = GOBSBAND(band2);
-        GOBSBAND gb3 = GOBSBAND(band3);
-
         if (coef1 != 0.0)
         {
-            f1 = this->frequency(gb1);
+            f1 = this->frequency(band1);
             if (double_eq(f1, NULL_GOBS))
             {
                 return NULL_GOBS;
@@ -1263,7 +1259,7 @@ namespace gnut
         }
         if (coef2 != 0.0)
         {
-            f2 = this->frequency(gb2);
+            f2 = this->frequency(band2);
             if (double_eq(f2, NULL_GOBS))
             {
                 return NULL_GOBS;
@@ -1271,7 +1267,7 @@ namespace gnut
         }
         if (coef3 != 0.0)
         {
-            f3 = this->frequency(gb3);
+            f3 = this->frequency(band3);
             if (double_eq(f3, NULL_GOBS))
             {
                 return NULL_GOBS;
@@ -1283,21 +1279,17 @@ namespace gnut
         return freq;
     }
 
-    double t_gobsgnss::isf_lc(const int& band1, const double& coef1, const int& band2, const double& coef2) const
+    double t_gobsgnss::isf_lc(const GOBSBAND& band1, const double& coef1, const GOBSBAND& band2, const double& coef2) const
     {
         double f1 = 1.0;
         double f2 = 1.0;
 
-        // TEMPORARY CONVERSION !
-        GOBSBAND gb1 = GOBSBAND(band1);
-        GOBSBAND gb2 = GOBSBAND(band2);
-
-        f1 = this->frequency(gb1);
+        f1 = this->frequency(band1);
         if (double_eq(f1, NULL_GOBS))
         {
             return NULL_GOBS;
         }
-        f2 = this->frequency(gb2);
+        f2 = this->frequency(band2);
         if (double_eq(f2, NULL_GOBS))
         {
             return NULL_GOBS;
@@ -1405,8 +1397,6 @@ namespace gnut
             return lc;
         }
 
-        string sat = this->sat();
-
         if (gobs3)
         {
             lc = (coef1 * f1 * C1 + coef2 * f2 * C2 + coef3 * f3 * C3) / (coef1 * f1 + coef2 * f2 + coef3 * f3);
@@ -1503,8 +1493,8 @@ namespace gnut
 
         double coef1, coef2;
 
-        t_gobs g1(TYPE, b1, ATTR);
-        t_gobs g2(TYPE, b2, ATTR);
+        t_gobs g1(gnut::GOBSTYPE::TYPE, b1, gnut::GOBSATTR::ATTR);
+        t_gobs g2(gnut::GOBSTYPE::TYPE, b2, gnut::GOBSATTR::ATTR);
 
         _coef_ionofree(g1.band(), coef1, g2.band(), coef2);
 
@@ -1561,8 +1551,8 @@ namespace gnut
 
         double coef1, coef2;
 
-        t_gobs g1(TYPE, b1, ATTR);
-        t_gobs g2(TYPE, b2, ATTR);
+        t_gobs g1(gnut::GOBSTYPE::TYPE, b1, gnut::GOBSATTR::ATTR);
+        t_gobs g2(gnut::GOBSTYPE::TYPE, b2, gnut::GOBSATTR::ATTR);
 
         _coef_geomfree(g1.band(), coef1, g2.band(), coef2);
 
@@ -1596,7 +1586,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1604,8 +1594,8 @@ namespace gnut
 
         double coef1, coef2;
 
-        t_gobs g1(TYPE_L, b1, ATTR);
-        t_gobs g2(TYPE_L, b2, ATTR);
+        t_gobs g1(gnut::GOBSTYPE::TYPE_L, b1, gnut::GOBSATTR::ATTR);
+        t_gobs g2(gnut::GOBSTYPE::TYPE_L, b2, gnut::GOBSATTR::ATTR);
 
         _coef_ionofree(b1, coef1, b2, coef2);
 
@@ -1623,7 +1613,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1646,7 +1636,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1673,7 +1663,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1714,14 +1704,14 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
         }
 
-        t_gobs g1(TYPE_L, b1, ATTR);
-        t_gobs g2(TYPE_L, b2, ATTR);
+        t_gobs g1(gnut::GOBSTYPE::TYPE_L, b1, gnut::GOBSATTR::ATTR);
+        t_gobs g2(gnut::GOBSTYPE::TYPE_L, b2, gnut::GOBSATTR::ATTR);
 
         double coef1, coef2;
 
@@ -1741,7 +1731,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1765,7 +1755,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1803,7 +1793,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (gsys() == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1812,11 +1802,11 @@ namespace gnut
         double wideL = NULL_GOBS;
         double narrP = NULL_GOBS;
 
-        t_gobs L1(TYPE_L, g1.band(), g1.attr()); // should always be as input 1st argument
-        t_gobs L2(TYPE_L, g2.band(), g2.attr()); // should always be as input 2nd argument
+        t_gobs L1(gnut::GOBSTYPE::TYPE_L, g1.band(), g1.attr()); // should always be as input 1st argument
+        t_gobs L2(gnut::GOBSTYPE::TYPE_L, g2.band(), g2.attr()); // should always be as input 2nd argument
 
-        t_gobs C1(TYPE, g1.band(), ATTR); // TYPE universal to handle P+C code
-        t_gobs C2(TYPE, g2.band(), ATTR); // TYPE universal to handle P+C code
+        t_gobs C1(gnut::GOBSTYPE::TYPE, g1.band(), gnut::GOBSATTR::ATTR); // TYPE universal to handle P+C code
+        t_gobs C2(gnut::GOBSTYPE::TYPE, g2.band(), gnut::GOBSATTR::ATTR); // TYPE universal to handle P+C code
 
         if (phacod_consistent)
         { // overwrite attribute
@@ -1848,7 +1838,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        if (gsys() == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1900,7 +1890,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (gsys() == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -1968,7 +1958,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (gsys() == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -2005,7 +1995,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (gsys() == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -2052,7 +2042,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (gsys() == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (gsys() == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -2079,7 +2069,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -2098,7 +2088,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -2117,7 +2107,7 @@ namespace gnut
 #endif
         _gmutex.lock();
 
-        if (_gsys == GLO && double_eq(_channel, DEF_CHANNEL))
+        if (_gsys == GSYS::GLO && double_eq(_channel, DEF_CHANNEL))
         {
             _gmutex.unlock();
             return 0.0;
@@ -2166,8 +2156,6 @@ namespace gnut
             _gmutex.unlock();
             return NULL_GOBS;
         }
-
-        string sat = this->sat();
 
         double lc = coefC * C + L;
 
@@ -2282,26 +2270,26 @@ namespace gnut
         return true;
     }
 
-    void t_gobsgnss::nbands(pair<int, int>& nb)
+    void t_gobsgnss::nbands(std::pair<int, int>& nb)
     {
         for (int b = 1; b <= 8; b++)
         {
-            if (_cod_id(b) != X)
+            if (_cod_id(b) != gnut::GOBS::X)
             {
                 nb.first++;
             }
-            if (_pha_id(b) != X)
+            if (_pha_id(b) != gnut::GOBS::X)
             {
                 nb.second++;
             }
         }
     }
 
-    set<GOBSBAND> t_gobsgnss::band_avail(bool phase) const
+    std::set<GOBSBAND> t_gobsgnss::band_avail(bool phase) const
     {
         _gmutex.lock();
 
-        set<GOBSBAND> s_f;
+        std::set<GOBSBAND> s_f;
 
         if (phase)
         {
@@ -2316,10 +2304,10 @@ namespace gnut
         return s_f;
     }
 
-    set<GFRQ> t_gobsgnss::freq_avail() const
+    std::set<GFRQ> t_gobsgnss::freq_avail() const
     {
         _gmutex.lock();
-        set<GFRQ> s_f = _freq_avail();
+        std::set<GFRQ> s_f = _freq_avail();
 
         _gmutex.unlock();
         return s_f;
@@ -2331,7 +2319,7 @@ namespace gnut
 
         bool res = false;
 
-        set<GFRQ> frqs = _freq_avail();
+        std::set<GFRQ> frqs = _freq_avail();
         for (auto it = frqs.begin(); it != frqs.end(); it++)
         {
             FREQ_SEQ fs = t_gsys::gfrq2freq(_gsys, *it);
@@ -2345,10 +2333,10 @@ namespace gnut
         return res;
     }
 
-    set<GFRQ> t_gobsgnss::_freq_avail() const
+    std::set<GFRQ> t_gobsgnss::_freq_avail() const
     {
-        set<GFRQ> s_f;
-        for (map<GOBS, double>::const_iterator it = _gobs.begin(); it != _gobs.end(); it++)
+        std::set<GFRQ> s_f;
+        for (std::map<GOBS, double>::const_iterator it = _gobs.begin(); it != _gobs.end(); it++)
         {
             t_gobs gobs;
             gobs.gobs(it->first);
@@ -2364,10 +2352,10 @@ namespace gnut
         return s_f;
     }
 
-    set<GOBSBAND> t_gobsgnss::_band_avail() const
+    std::set<GOBSBAND> t_gobsgnss::_band_avail() const
     {
-        set<GOBSBAND> s_f;
-        for (map<GOBS, double>::const_iterator it = _gobs.begin(); it != _gobs.end(); it++)
+        std::set<GOBSBAND> s_f;
+        for (std::map<GOBS, double>::const_iterator it = _gobs.begin(); it != _gobs.end(); it++)
         {
             t_gobs gobs;
             gobs.gobs(it->first);
@@ -2384,10 +2372,10 @@ namespace gnut
         return s_f;
     }
 
-    set<GOBSBAND> t_gobsgnss::_band_avail_code() const
+    std::set<GOBSBAND> t_gobsgnss::_band_avail_code() const
     {
-        set<GOBSBAND> s_f;
-        for (map<GOBS, double>::const_iterator it = _gobs.begin(); it != _gobs.end(); it++)
+        std::set<GOBSBAND> s_f;
+        for (std::map<GOBS, double>::const_iterator it = _gobs.begin(); it != _gobs.end(); it++)
         {
             t_gobs gobs;
             gobs.gobs(it->first);
@@ -2406,7 +2394,7 @@ namespace gnut
 
     bool t_gobsgnss::_valid_obs() const
     {
-        if (_gsys == GLO && _channel == 255)
+        if (_gsys == GSYS::GLO && _channel == 255)
         {
             return false;
         }
@@ -2457,8 +2445,6 @@ namespace gnut
             GREAT_DEBUG("Inconsistencies of the code observations " + _epoch.str_ymdhms());
             return 0.0;
         }
-
-        string sat = this->sat();
 
         double lc = (coef1 * C1 + coef2 * C2 + coef3 * C3);
 
@@ -2513,7 +2499,7 @@ namespace gnut
 
     GOBS t_gobsgnss::_id_range(const GOBSBAND& b) const
     {
-        map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
 
         while (it != _gobs.end())
         {
@@ -2528,12 +2514,12 @@ namespace gnut
             }
             it++;
         }
-        return X;
+        return gnut::GOBS::X;
     }
 
     GOBS t_gobsgnss::_id_phase(const GOBSBAND& b) const
     {
-        map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
 
         while (it != _gobs.end())
         {
@@ -2548,12 +2534,12 @@ namespace gnut
             }
             it++;
         }
-        return X;
+        return gnut::GOBS::X;
     }
 
     GOBS t_gobsgnss::_id_doppler(const GOBSBAND& b) const
     {
-        map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
 
         while (it != _gobs.end())
         {
@@ -2568,12 +2554,12 @@ namespace gnut
             }
             it++;
         }
-        return X;
+        return gnut::GOBS::X;
     }
 
     GOBS t_gobsgnss::_id_snr(const GOBSBAND& b) const
     {
-        map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
 
         while (it != _gobs.end())
         {
@@ -2588,14 +2574,14 @@ namespace gnut
             }
             it++;
         }
-        return X;
+        return gnut::GOBS::X;
     }
 
     GOBS t_gobsgnss::select_range(const GOBSBAND& band, const bool& isRawAll) const
     {
         int max = -1;
-        map<GOBS, double>::const_iterator it = _gobs.begin();
-        map<GOBS, double>::const_iterator it_find = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it_find = _gobs.begin();
         while (it != _gobs.end())
         {
             GOBS gobs = it->first;
@@ -2638,7 +2624,7 @@ namespace gnut
 
         if (max == -1)
         {
-            return X;
+            return gnut::GOBS::X;
         }
         else
         {
@@ -2649,8 +2635,8 @@ namespace gnut
     GOBS t_gobsgnss::select_phase(const GOBSBAND& band, const bool& isRawAll) const
     {
         int max = -1;
-        map<GOBS, double>::const_iterator it = _gobs.begin();
-        map<GOBS, double>::const_iterator it_find = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it = _gobs.begin();
+        std::map<GOBS, double>::const_iterator it_find = _gobs.begin();
         while (it != _gobs.end())
         {
             GOBS gobs = it->first;
@@ -2692,7 +2678,7 @@ namespace gnut
 
         if (max == -1)
         {
-            return X;
+            return gnut::GOBS::X;
         }
         else
         {
@@ -2702,18 +2688,18 @@ namespace gnut
 
     GOBS t_gobsgnss::_cod_id(const int& band) const // , const GOBS& obs)
     {
-        size_t sz = sizeof(code_choise[band]) / sizeof(GOBS);
-        map<GOBS, double>::const_iterator it;
+        std::size_t sz = sizeof(code_choise[band]) / sizeof(GOBS);
+        std::map<GOBS, double>::const_iterator it;
 
-        GOBS tmp = X; // obs;
+        GOBS tmp = gnut::GOBS::X; // obs;
 
         // choices
-        for (size_t i = 0; i < sz; ++i)
+        for (std::size_t i = 0; i < sz; ++i)
         {
             tmp = code_choise[band][i];
 
             it = _gobs.find(tmp);
-            if (tmp == X || it == _gobs.end())
+            if (tmp == gnut::GOBS::X || it == _gobs.end())
             {
                 continue;
             }
@@ -2724,23 +2710,23 @@ namespace gnut
             }
         }
 
-        return X;
+        return gnut::GOBS::X;
     }
 
     GOBS t_gobsgnss::_pha_id(const int& band) const // , const GOBS& obs)
     {
-        size_t sz = sizeof(phase_choise[band]) / sizeof(GOBS);
-        map<GOBS, double>::const_iterator it;
+        std::size_t sz = sizeof(phase_choise[band]) / sizeof(GOBS);
+        std::map<GOBS, double>::const_iterator it;
 
-        GOBS tmp = X; // obs;
+        GOBS tmp = gnut::GOBS::X; // obs;
 
         // choices
-        for (size_t i = 0; i < sz; ++i)
+        for (std::size_t i = 0; i < sz; ++i)
         {
             tmp = phase_choise[band][i];
 
             it = _gobs.find(tmp);
-            if (tmp == X || it == _gobs.end())
+            if (tmp == gnut::GOBS::X || it == _gobs.end())
             {
                 continue;
             }
@@ -2751,7 +2737,7 @@ namespace gnut
             }
         }
 
-        return X;
+        return gnut::GOBS::X;
     }
 
     int t_gobsgnss::_coef_ionofree(const GOBSBAND& b1, double& c1, const GOBSBAND& b2, double& c2) const

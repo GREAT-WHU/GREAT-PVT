@@ -85,10 +85,10 @@ int main(int argc, char** argv)
     vector<t_gpvtflt*> vgpvt;
 
     // runepoch for the time costed each epoch
-    t_gtime runepoch(t_gtime::GPS);
+    t_gtime runepoch(t_gtime::t_tsys::GPS);
 
     // lstepoch for the time of all epoches
-    t_gtime lstepoch(t_gtime::GPS);
+    t_gtime lstepoch(t_gtime::t_tsys::GPS);
 
     // check precision products
     if (gset.input_size("sp3") == 0 && gset.input_size("rinexc") == 0)
@@ -226,11 +226,11 @@ int main(int argc, char** argv)
             // Note, gcoder contain the gdata and gio contain the gcoder
             tgio->coder(tgcoder);
 
-            runepoch = t_gtime::current_time(t_gtime::GPS);
+            runepoch = t_gtime::current_time(t_gtime::t_tsys::GPS);
 
             // Read the data from file here
             tgio->run_read();
-            lstepoch = t_gtime::current_time(t_gtime::GPS);
+            lstepoch = t_gtime::current_time(t_gtime::t_tsys::GPS);
 
             // Write the information of reading process to log file
             GREAT_INFO("READ: " + path + " time: " + dbl2str(lstepoch.diff(runepoch)) + " sec");
@@ -341,13 +341,13 @@ int main(int argc, char** argv)
         GREAT_INFO("PVT processing started ");
         GREAT_INFO(beg.str_ymdhms("  beg: ") + end.str_ymdhms("  end: "));
 
-        runepoch = t_gtime::current_time(t_gtime::GPS);
+        runepoch = t_gtime::current_time(t_gtime::t_tsys::GPS);
 
         // The main processing code : processBatch
         vgpvt[idx]->processBatch(beg, end, true);
 
         // The time when process ends
-        lstepoch = t_gtime::current_time(t_gtime::GPS);
+        lstepoch = t_gtime::current_time(t_gtime::t_tsys::GPS);
 
         // Write the log file
         GREAT_INFO(site_base + site + "PVT processing finished : duration  " + dbl2str(lstepoch.diff(runepoch)) + " sec");

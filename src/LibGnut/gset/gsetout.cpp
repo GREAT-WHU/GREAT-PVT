@@ -23,45 +23,44 @@
 #include "gset/gsetout.h"
 #include "gutils/gfileconv.h"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
 {
-    OFMT t_gsetout::str2ofmt(const string& s)
+    OFMT t_gsetout::str2ofmt(const std::string& s)
     {
-        string tmp = s;
+        std::string tmp = s;
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         if (tmp == "OUT")
         {
-            return XXX_OUT;
+            return OFMT::XXX_OUT;
         }
         if (tmp == "LOG")
         {
-            return LOG_OUT;
+            return OFMT::LOG_OUT;
         }
         if (tmp == "PPP")
         {
-            return PPP_OUT;
+            return OFMT::PPP_OUT;
         }
         if (tmp == "FLT")
         {
-            return FLT_OUT;
+            return OFMT::FLT_OUT;
         }
-        return OFMT(-1);
+        return static_cast<OFMT>(-1);
     }
 
-    string t_gsetout::ofmt2str(const OFMT& f)
+    std::string t_gsetout::ofmt2str(const OFMT& f)
     {
         switch (f)
         {
-            case XXX_OUT:
+            case OFMT::XXX_OUT:
                 return "OUT";
-            case LOG_OUT:
+            case OFMT::LOG_OUT:
                 return "LOG";
-            case PPP_OUT:
+            case OFMT::PPP_OUT:
                 return "PPP";
-            case FLT_OUT:
+            case OFMT::FLT_OUT:
                 return "FLT";
             default:
                 return "UNDEF";
@@ -81,7 +80,7 @@ namespace gnut
     {
     }
 
-    int t_gsetout::output_size(const string& fmt)
+    int t_gsetout::output_size(const std::string& fmt)
     {
         _gmutex.lock();
 
@@ -111,20 +110,20 @@ namespace gnut
         return tmp;
     }
 
-    string t_gsetout::outputs(const string& fmt)
+    std::string t_gsetout::outputs(const std::string& fmt)
     {
         _gmutex.lock();
 
-        string tmp = _outputs(fmt);
+        std::string tmp = _outputs(fmt);
 
         _gmutex.unlock();
         return tmp;
     }
 
-    string t_gsetout::log_type()
+    std::string t_gsetout::log_type()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("type").as_string();
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("type").as_string();
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -138,10 +137,10 @@ namespace gnut
         }
     }
 
-    string t_gsetout::log_name()
+    std::string t_gsetout::log_name()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("name").as_string();
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("name").as_string();
         str_erase(tmp);
         _gmutex.unlock();
         if (tmp.empty())
@@ -154,16 +153,16 @@ namespace gnut
         }
     }
 
-    string t_gsetout::log_pattern()
+    std::string t_gsetout::log_pattern()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("pattern").as_string();
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("pattern").as_string();
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
         if (tmp.empty())
         {
-            return string("[%Y-%m-%d %H:%M:%S] <thread %t> [%l] [%@] %v");
+            return std::string("[%Y-%m-%d %H:%M:%S] <thread %t> [%l] [%@] %v");
         }
         else
         {
@@ -174,7 +173,7 @@ namespace gnut
     level::level_enum t_gsetout::log_level()
     {
         _gmutex.lock();
-        string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("level").as_string();
+        std::string tmp = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child("log").attribute("level").as_string();
         str_erase(tmp);
         transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
         _gmutex.unlock();
@@ -184,27 +183,27 @@ namespace gnut
         }
         else
         {
-            if (tmp.find("ERROR") != string::npos)
+            if (tmp.find("ERROR") != std::string::npos)
             {
                 return level::level_enum::err;
             }
-            else if (tmp.find("DEBUG") != string::npos)
+            else if (tmp.find("DEBUG") != std::string::npos)
             {
                 return level::level_enum::debug;
             }
-            else if (tmp.find("WARN") != string::npos)
+            else if (tmp.find("WARN") != std::string::npos)
             {
                 return level::level_enum::warn;
             }
-            else if (tmp.find("CRITICAL") != string::npos)
+            else if (tmp.find("CRITICAL") != std::string::npos)
             {
                 return level::level_enum::critical;
             }
-            else if (tmp.find("TRACE") != string::npos)
+            else if (tmp.find("TRACE") != std::string::npos)
             {
                 return level::level_enum::trace;
             }
-            else if (tmp.find("INFO") != string::npos)
+            else if (tmp.find("INFO") != std::string::npos)
             {
                 return level::level_enum::info;
             }
@@ -215,11 +214,11 @@ namespace gnut
         }
     }
 
-    string t_gsetout::version(const string& fmt)
+    std::string t_gsetout::version(const std::string& fmt)
     {
         _gmutex.lock();
 
-        string ver = DEFAULT_FILE_VER;
+        std::string ver = DEFAULT_FILE_VER;
         xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).child(fmt.c_str());
         if (!fmt.empty() && !node.attribute("ver").empty())
         {
@@ -230,14 +229,14 @@ namespace gnut
         return ver;
     }
 
-    set<string> t_gsetout::oformats()
+    std::set<std::string> t_gsetout::oformats()
     {
         return _oformats();
     }
 
-    set<string> t_gsetout::_oformats()
+    std::set<std::string> t_gsetout::_oformats()
     {
-        set<string> tmp;
+        std::set<std::string> tmp;
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).first_child(); node; node = node.next_sibling())
         {
             tmp.insert(node.name());
@@ -245,17 +244,17 @@ namespace gnut
         return tmp;
     }
 
-    string t_gsetout::_outputs(const string& fmt)
+    std::string t_gsetout::_outputs(const std::string& fmt)
     {
-        string str;
+        std::string str;
         for (xml_node node = _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).first_child(); node; node = node.next_sibling())
         {
             if (node.name() == fmt)
             {
-                istringstream is(node.child_value());
+                std::istringstream is(node.child_value());
                 while (is >> str && !is.fail())
                 {
-                    if (str.find("://") == string::npos)
+                    if (str.find("://") == std::string::npos)
                     {
                         str = GFILE_PREFIX + str;
                     }
@@ -278,16 +277,16 @@ namespace gnut
         _default_attr(node, "append", _append);
 
         // check supported input formats (see OFMT enum !)
-        set<string> ofmt = _oformats();
-        set<string>::const_iterator itFMT = ofmt.begin();
+        std::set<std::string> ofmt = _oformats();
+        std::set<std::string>::const_iterator itFMT = ofmt.begin();
         while (itFMT != ofmt.end())
         {
-            string fmt = *itFMT;
+            std::string fmt = *itFMT;
             OFMT ofmt = str2ofmt(fmt);
-            if (ofmt < 0)
+            if (static_cast<int>(ofmt) < 0)
             {
                 _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).remove_child(node.child(fmt.c_str()));
-                cout << "Warning: " + fmt + " out format not implemented [gsetout::check()]!" << endl;
+                std::cout << "Warning: " + fmt + " out format not implemented [gsetout::check()]!" << std::endl;
                 itFMT++;
                 continue;
             }
@@ -297,7 +296,7 @@ namespace gnut
             {
                 _doc.child(XMLKEY_ROOT).child(XMLKEY_OUT).remove_child(node.child(fmt.c_str()));
 
-                cout << "Warning: " + fmt + " out format not supported by this application!" << endl;
+                std::cout << "Warning: " + fmt + " out format not supported by this application!" << std::endl;
             }
             itFMT++;
         }
@@ -310,7 +309,7 @@ namespace gnut
     {
         _gmutex.lock();
 
-        cerr << " <outputs append=\"" << _append << "\" verb=\"" << _verb << "\" >\n"
+        std::cerr << " <outputs append=\"" << _append << "\" verb=\"" << _verb << "\" >\n"
              << "   <flt> file://dir/name </flt>    \t\t <!-- filter output encoder -->\n"
              << " </outputs>\n";
 

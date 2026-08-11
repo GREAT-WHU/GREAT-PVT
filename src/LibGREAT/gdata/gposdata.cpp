@@ -13,7 +13,7 @@
 
 gsins::t_gposdata::t_gposdata()
 {
-    id_type(LCI_POS);
+    id_type(t_gdata::ID_TYPE::LCI_POS);
     _ptr = 0;
 }
 gsins::t_gposdata::~t_gposdata()

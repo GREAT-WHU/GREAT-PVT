@@ -27,7 +27,6 @@
 #include "gutils/gtime.h"
 #include "gutils/gtriple.h"
 
-using namespace std;
 
 namespace gnut
 {

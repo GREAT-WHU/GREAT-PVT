@@ -12,7 +12,6 @@
 #include "gutils/gtypeconv.h"
 #include "gmodels/geop.h"
 
-using namespace std;
 
 namespace gnut
 {

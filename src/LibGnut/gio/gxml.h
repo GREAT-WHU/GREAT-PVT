@@ -24,14 +24,13 @@
 #include <iostream>
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gutils/gmutex.h"
 #include "gutils/gtypeconv.h"
 #include "pugixml/src/pugixml.hpp"
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -42,23 +41,23 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        explicit t_gxml(string s, bool upper = true);
+        explicit t_gxml(std::string s, bool upper = true);
 
         /** @brief default destructor. */
         virtual ~t_gxml();
 
         /** @brief read glog file and set it. */
         /** @brief read from file. */
-        int read(const string& file);
+        int read(const std::string& file);
 
         /** @brief read from istream. */
-        int read_istream(istream& is);
+        int read_istream(std::istream& is);
 
         /** @brief write in file. */
-        int write(const string& file);
+        int write(const std::string& file);
 
         /** @brief write in ostream. */
-        int write_ostream(ostream& os);
+        int write_ostream(std::ostream& os);
 
         /** @brief settings check. */
         virtual void check() {};
@@ -71,7 +70,7 @@ namespace gnut
         xml_node _default_node(xml_node& node, const char* n, const char* val = "", bool reset = false);
 
         /** @brief default attr. */
-        void _default_attr(xml_node& node, const char* n, const string& val, bool reset = false);
+        void _default_attr(xml_node& node, const char* n, const std::string& val, bool reset = false);
         void _default_attr(xml_node& node, const char* n, const bool& val, bool reset = false);
         void _default_attr(xml_node& node, const char* n, const int& val, bool reset = false);
         void _default_attr(xml_node& node, const char* n, const double& val, bool reset = false);
@@ -79,9 +78,9 @@ namespace gnut
         xml_document _doc;     ///< root document
         xml_parse_result _irc; ///< result status
 
-        string _name;      ///< file name
-        string _root;      ///< root directory
-        string _delimiter; ///< delimiter for writting nodes/elements
+        std::string _name;      ///< file name
+        std::string _root;      ///< root directory
+        std::string _delimiter; ///< delimiter for writting nodes/elements
         bool _ucase;       ///< upper/lower case for keywords
         t_gmutex _gmutexxml;
 

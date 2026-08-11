@@ -19,8 +19,8 @@
 #include <list>
 #include "gutils/gtime.h"
 #include "gutils/gtypeconv.h"
+#include "gutils/gnss.h"
 
-using namespace std;
 using namespace gnut;
 
 namespace great
@@ -37,8 +37,8 @@ namespace great
         /** @brief default destructor. */
         virtual ~t_oneway_ambiguity() {};
 
-        string ambtype;     ///< C/1/2/W
-        string sat;         ///< satellite name
+        std::string ambtype;     ///< C/1/2/W
+        GSAT sat = GSAT::NONE; ///< satellite
         int ipt = 0;        ///< index of par
         int beg_epo = 0;    ///< start time
         int end_epo = 0;    ///< t_end time
@@ -65,16 +65,16 @@ namespace great
         /** @brief default destructor. */
         virtual ~t_dd_ambiguity() {};
 
-        string ambtype; ///< C/1/2/W
+        std::string ambtype; ///< C/1/2/W
 
         bool isEwlFixed = false;   ///< extral widelane fixed
         bool isEwl24Fixed = false; ///< extral frequency24 fixed
         bool isEwl25Fixed = false; ///< extral frequency25 fixed
         bool isWlFixed = false;    ///< widelane fixed
         bool isNlFixed = false;    ///< narrowlane fixed
-        string site = "default";
+        std::string site = "default";
         // map<string, int> ipt2ow;
-        vector<tuple<string, int, int>> ddSats; ///< sat_name, index in all_pars, index in amb_pars
+        std::vector<std::tuple<GSAT, int, int>> ddSats; ///< satellite, index in all_pars, index in amb_pars
         t_gtime beg_epo;                        ///< begin time
         t_gtime end_epo;                        ///< end time
         t_gtime end_epo_save;                   ///< save end epoch time
@@ -161,31 +161,31 @@ namespace great
 
     // UPD
     /** @brief map for storaging ambiguity info ,t_epoch_amb[site][res] = epoch_amb. */
-    typedef map<string, map<string, epoch_amb>> LibGREAT_LIBRARY_EXPORT t_epoch_amb;
+    typedef std::map<std::string, std::map<GSAT, epoch_amb>> LibGREAT_LIBRARY_EXPORT t_epoch_amb;
 
     /** @brief map for storaging ambiguity residual ,t_epoch_amb_res[site][res] = epoch_amb_res. */
-    typedef map<string, map<string, epoch_amb_res>> LibGREAT_LIBRARY_EXPORT t_epoch_amb_res;
+    typedef std::map<std::string, std::map<GSAT, epoch_amb_res>> LibGREAT_LIBRARY_EXPORT t_epoch_amb_res;
 
     // PPP AR/ WL+EWL UPD
     /** @brief map for storaging oneway_ambiguity  */
-    typedef vector<shared_ptr<t_oneway_ambiguity>> LibGREAT_LIBRARY_EXPORT t_OW_amb; // satellites OW;
+    typedef std::vector<std::shared_ptr<t_oneway_ambiguity>> LibGREAT_LIBRARY_EXPORT t_OW_amb; // satellites OW;
 
     /** @brief map for storaging oneway_ambiguity , one station/all satellite/all epoch. */
-    typedef map<string, t_OW_amb> LibGREAT_LIBRARY_EXPORT t_all_sats_OW; // satellites OW;
+    typedef std::map<GSAT, t_OW_amb> LibGREAT_LIBRARY_EXPORT t_all_sats_OW; // satellites OW;
 
     //** @brief vector for storaging double-differece ambiguity. */
-    typedef vector<t_dd_ambiguity> LibGREAT_LIBRARY_EXPORT t_DD_amb;
+    typedef std::vector<t_dd_ambiguity> LibGREAT_LIBRARY_EXPORT t_DD_amb;
 
     // WL/EWL UPD
     //** @brief map for storaging ambiguity value, one station/all epo/all satellite. */
-    typedef map<int, map<string, double>> LibGREAT_LIBRARY_EXPORT t_epo_sat_amb;
+    typedef std::map<int, std::map<GSAT, double>> LibGREAT_LIBRARY_EXPORT t_epo_sat_amb;
 
     // MW in PPP
     //** @brief map for storaging ambiguity valid time. */
-    typedef map<string, vector<pair<t_gtime, t_gtime>>> LibGREAT_LIBRARY_EXPORT t_map_amb_time;
+    typedef std::map<GSAT, std::vector<std::pair<t_gtime, t_gtime>>> LibGREAT_LIBRARY_EXPORT t_map_amb_time;
 
     //** @brief map for storaging MW obs value, one station/all epo/all satellite/idx=(1,2,3,4,5). */
-    typedef map<t_gtime, map<string, map<int, double>>> LibGREAT_LIBRARY_EXPORT t_map_MW;
+    typedef std::map<t_gtime, std::map<GSAT, std::map<int, double>>> LibGREAT_LIBRARY_EXPORT t_map_MW;
 
     /**
      * @brief Compute mean of the fractional ambiguities.
@@ -198,7 +198,7 @@ namespace great
      * @param[out] sigx
      * @return      void
      */
-    LibGREAT_LIBRARY_EXPORT void getMeanFract(list<pair<double, double>>& values, double& mean, double& sigma, double& sigx);
+    LibGREAT_LIBRARY_EXPORT void getMeanFract(std::list<std::pair<double, double>>& values, double& mean, double& sigma, double& sigx);
 
     /**
      * @brief Get mean, sigma and sigma of the mean of a set sampled data.
@@ -212,7 +212,7 @@ namespace great
      * @param[out] sigx
      * @return      void
      */
-    LibGREAT_LIBRARY_EXPORT void getMeanWgt(bool is_edit, list<pair<double, double>>& wx, double& mean, double& sigma, double& mean_sig);
+    LibGREAT_LIBRARY_EXPORT void getMeanWgt(bool is_edit, std::list<std::pair<double, double>>& wx, double& mean, double& sigma, double& mean_sig);
 
     /**
      * @brief Adjust ambiguities between -0.5~0.5 cycle.

@@ -25,7 +25,6 @@
 
 #include "newmat/newmat.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -54,9 +53,9 @@ namespace gnut
         t_gpair operator+(const t_gpair& other) const;
         bool operator==(const t_gpair& tr) const;
         bool operator<(const t_gpair& tr) const;
-        double& operator[](const size_t idx);
-        double operator[](const size_t idx) const;
-        friend ostream& operator<<(ostream& os, const t_gpair& x);
+        double& operator[](const std::size_t idx);
+        double operator[](const std::size_t idx) const;
+        friend std::ostream& operator<<(std::ostream& os, const t_gpair& x);
 
         /**@brief get single element */
         double crd(int idx) const;

@@ -18,11 +18,10 @@
 #include "gutils/gtimesync.h"
 #include "gall/gallprec.h"
 
-using namespace std;
 
 namespace gnut
 {
-    t_gpppflt::t_gpppflt(string mark, t_gsetbase* gset) :
+    t_gpppflt::t_gpppflt(std::string mark, t_gsetbase* gset) :
         t_gspp(mark, gset),
         t_gppp(mark, gset),
         t_gsppflt(mark, gset),
@@ -34,7 +33,7 @@ namespace gnut
     {
         this->_setOut();
 
-        _epoch.tsys(t_gtime::GPS);
+        _epoch.tsys(t_gtime::t_tsys::GPS);
 
         _grdStoModel = new t_randomwalk();
         _ambStoModel = new t_randomwalk();
@@ -64,7 +63,7 @@ namespace gnut
             _Qx(i, i) = tmp(i, i);
         }
 
-        for (size_t i = 1; i <= _param.parNumber(); i++)
+        for (std::size_t i = 1; i <= _param.parNumber(); i++)
         {
             if (_param[i - 1].parType == par_type::GRD_N)
             {
@@ -183,17 +182,17 @@ namespace gnut
 
         if (_allprod != 0)
         {
-            shared_ptr<t_gprod> prdcrd = _allprod->get(_site, t_gdata::POS, epoch);
+            std::shared_ptr<t_gprod> prdcrd = _allprod->get(_site, t_gdata::ID_TYPE::POS, epoch);
             if (prdcrd)
             {
-                dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr(xyz_ecc);
-                dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr_rms(crd_rms);
+                std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr(xyz_ecc);
+                std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr_rms(crd_rms);
             }
             else
             {
-                prdcrd = make_shared<t_gprodcrd>(epoch);
-                dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr(xyz_ecc);
-                dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr_rms(crd_rms);
+                prdcrd = std::make_shared<t_gprodcrd>(epoch);
+                std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr(xyz_ecc);
+                std::dynamic_pointer_cast<t_gprodcrd>(prdcrd)->apr_rms(crd_rms);
                 _allprod->add(prdcrd, _site);
             }
         }
@@ -203,19 +202,19 @@ namespace gnut
     {
         if (_allprod != 0)
         {
-            _allprod->rem(_site, t_gdata::POS, epoch);
+            _allprod->rem(_site, t_gdata::ID_TYPE::POS, epoch);
         }
     }
 
     void t_gpppflt::_setOut()
     {
-        string tmp;
+        std::string tmp;
         tmp = dynamic_cast<t_gsetout*>(_set)->outputs("flt");
         if (!tmp.empty() && !_read)
         {
             substitute(tmp, "$(rec)", _site, false);
             _flt = new t_giof;
-            _flt->tsys(t_gtime::GPS);
+            _flt->tsys(t_gtime::t_tsys::GPS);
             _flt->mask(tmp);
             _flt->append(dynamic_cast<t_gsetout*>(_set)->append());
         }
@@ -233,8 +232,8 @@ namespace gnut
 
             document = this->_default_node(node, "Document");
 
-            string mode;
-            string smooth = dynamic_cast<t_gsetout*>(_set)->outputs("smt");
+            std::string mode;
+            std::string smooth = dynamic_cast<t_gsetout*>(_set)->outputs("smt");
             if (!smooth.empty())
             {
                 mode = "_SMT";
@@ -243,11 +242,11 @@ namespace gnut
             {
                 mode = "_FLT";
             }
-            string desc = _site + mode;
+            std::string desc = _site + mode;
             this->_default_node(document, "name", desc.c_str(), false);
 
             xml_node doc_style1 = this->_default_node(document, "Style");
-            string id1 = "P1";
+            std::string id1 = "P1";
             this->_default_attr(doc_style1, "id", id1);
             xml_node IconStyle = this->_default_node(doc_style1, "IconStyle");
             this->_default_node(IconStyle, "color", "ff00ff64");
@@ -258,35 +257,35 @@ namespace gnut
             xml_node BalloonStyle = this->_default_node(doc_style1, "BalloonStyle");
             this->_default_node(BalloonStyle, "color", "ffd5f3fa");
             xml_node text = BalloonStyle.append_child("text");
-            string str("<b><font color=\"#CC0000\" size=\"+3\">$[name]</font></b><br>$[description]</font><br/>");
+            std::string str("<b><font color=\"#CC0000\" size=\"+3\">$[name]</font></b><br>$[description]</font><br/>");
             text.append_child(pugi::node_cdata).set_value(str.c_str());
 
             xml_node doc_style2 = document.append_copy(doc_style1);
-            string id2 = "P2";
+            std::string id2 = "P2";
             this->_default_attr(doc_style2, "id", id2, true);
             IconStyle = this->_default_node(doc_style2, "IconStyle");
             this->_default_node(IconStyle, "color", "ff78c800", true);
 
             xml_node doc_style3 = document.append_copy(doc_style1);
-            string id3 = "P3";
+            std::string id3 = "P3";
             this->_default_attr(doc_style3, "id", id3, true);
             IconStyle = this->_default_node(doc_style3, "IconStyle");
             this->_default_node(IconStyle, "color", "ffff9600", true);
 
             xml_node doc_style4 = document.append_copy(doc_style1);
-            string id4 = "P4";
+            std::string id4 = "P4";
             this->_default_attr(doc_style4, "id", id4, true);
             IconStyle = this->_default_node(doc_style4, "IconStyle");
             this->_default_node(IconStyle, "color", "ffff6496", true);
 
             xml_node doc_style5 = document.append_copy(doc_style1);
-            string id5 = "P5";
+            std::string id5 = "P5";
             this->_default_attr(doc_style5, "id", id5, true);
             IconStyle = this->_default_node(doc_style5, "IconStyle");
             this->_default_node(IconStyle, "color", "ffff00ff", true);
 
             xml_node doc_style6 = document.append_copy(doc_style1);
-            string id6 = "P6";
+            std::string id6 = "P6";
             this->_default_attr(doc_style6, "id", id6, true);
             IconStyle = this->_default_node(doc_style6, "IconStyle");
             this->_default_node(IconStyle, "color", "ff0000ff", true);
@@ -309,7 +308,7 @@ namespace gnut
 
 void t_gpppflt::_reset_param()
 {
-    vector<int> ind = _param.delAmb();
+    std::vector<int> ind = _param.delAmb();
     Matrix_rem(_Qx, ind);
     _initialized = false;
 }

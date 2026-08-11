@@ -28,13 +28,14 @@
 #include "pugixml/src/pugixml.hpp"
 #include "spdlog/spdlog.h"
 
+#ifndef XMLKEY_ROOT
 #define XMLKEY_ROOT "config" ///< The define of ROOT node
+#endif
 
 #ifdef WIN32
 #pragma warning(disable : 4250)
 #endif
 
-using namespace std;
 using namespace pugi;
 
 namespace gnut
@@ -61,31 +62,31 @@ namespace gnut
          * @brief  read configuration from file
          * @param[in] file file name
          */
-        int read(const string& file);
+        int read(const std::string& file);
 
         /**
          * @brief  read configuration from istream
          * @param[in] is istream name
          */
-        int read_istream(istream& is);
+        int read_istream(std::istream& is);
 
         /**
          * @brief  write configuration in file
          * @param[in] file file name
          */
-        int write(const string& file);
+        int write(const std::string& file);
 
         /**
          * @brief  write configuration in ostream
          * @param[in] os istream name
          */
-        int write_ostream(ostream& os);
+        int write_ostream(std::ostream& os);
 
         /** @brief application name. */
-        virtual string pgm();
+        virtual std::string pgm();
 
         /** @brief application info/version. */
-        virtual string app();
+        virtual std::string app();
 
         /**
          * @brief  get some information of the application
@@ -96,7 +97,7 @@ namespace gnut
          * @param[out] rev program revision number
          * @param[out] own program owner name
          */
-        virtual void app(const string& pgm, const string& ver, const string& dat, const string& tim, const string& rev, const string& own);
+        virtual void app(const std::string& pgm, const std::string& ver, const std::string& dat, const std::string& tim, const std::string& rev, const std::string& own);
 
         /** @brief application usage. */
         virtual void usage();
@@ -121,7 +122,7 @@ namespace gnut
          * @brief remove spaces, tabs and newlines in the string
          * @param[in]  str    string
          */
-        void str_erase(string& str);
+        void str_erase(std::string& str);
 
     protected:
         /**
@@ -130,7 +131,7 @@ namespace gnut
          * @param[in] attrib  attribute name in xml
          * @return double : The value of ROOT.elem.attribute
          */
-        double _dblatt(const string& elem, const string& attrib);
+        double _dblatt(const std::string& elem, const std::string& attrib);
 
         /**
          * @brief get the set<string> value of ROOT.elem.subelem
@@ -138,8 +139,8 @@ namespace gnut
          * @param[in] subelem subelem name in xml
          * @return set<string> : The value of ROOT.elem.subelem
          */
-        set<string> _setval(const string& elem, const string& subelem);
-        set<string> _setvals(const string& elem, const string& subelem);
+        std::set<std::string> _setval(const std::string& elem, const std::string& subelem);
+        std::set<std::string> _setvals(const std::string& elem, const std::string& subelem);
 
         /**
          * @brief get the vector<string> value of ROOT.elem.subelem
@@ -147,7 +148,7 @@ namespace gnut
          * @param[in] subelem subelem name in xml
          * @return vector<string> : The value of ROOT.elem.subelem
          */
-        vector<string> _vecval(const string& elem, const string& subelem);
+        std::vector<std::string> _vecval(const std::string& elem, const std::string& subelem);
 
         /**
          * @brief get default child node of a xml node
@@ -167,7 +168,7 @@ namespace gnut
          * @param[in] reset   reset or not
          * @return xml_node : The child node
          */
-        void _default_attr(xml_node& node, const char* n, const string& v, bool reset = false);
+        void _default_attr(xml_node& node, const char* n, const std::string& v, bool reset = false);
 
         /**
          * @brief get default node of a xml node by the attribute or reset it with v
@@ -200,7 +201,7 @@ namespace gnut
         void _default_attr(xml_node& node, const char* n, const double& value, bool reset = false);
 
         /** @brief report element issues. */
-        void _add_log(string element, string msg);
+        void _add_log(std::string element, std::string msg);
 
         /** @brief XML settings header. */
         virtual void help_header();
@@ -212,18 +213,18 @@ namespace gnut
         xml_parse_result _irc; ///< result status
 
     protected:
-        string _name;      ///< configuration name
-        string _delimiter; ///< delimiter for writting nodes/elements
+        std::string _name;      ///< configuration name
+        std::string _delimiter; ///< delimiter for writting nodes/elements
 
-        string _pgm; ///< program name
-        string _ver; ///< program version
-        string _rev; ///< program revision
-        string _own; ///< program owner
-        string _dat; ///< program data
-        string _tim; ///< program time
+        std::string _pgm; ///< program name
+        std::string _ver; ///< program version
+        std::string _rev; ///< program revision
+        std::string _own; ///< program owner
+        std::string _dat; ///< program data
+        std::string _tim; ///< program time
 
-        set<string> _set;                     ///< program settings
-        map<string, set<string>> _chache_log; ///< The chache of log pointer
+        std::set<std::string> _set;                     ///< program settings
+        std::map<std::string, std::set<std::string>> _chache_log; ///< The chache of log pointer
 
         mutable t_gmutex _gmutex; ///< For the thread
 

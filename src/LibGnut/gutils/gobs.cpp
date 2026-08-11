@@ -13,13 +13,12 @@
 
 #include "gutils/gobs.h"
 
-using namespace std;
 
 namespace gnut
 {
     bool t_gattr::valid() const
     {
-        return (_gattr != ATTR);
+        return (_gattr != gnut::GOBSATTR::ATTR);
     }
 
     void t_gattr::attr(const GOBSATTR& a)
@@ -39,7 +38,7 @@ namespace gnut
 
     bool t_gband::valid() const
     {
-        return (t_gattr::valid() && _gband != BAND);
+        return (t_gattr::valid() && _gband != gnut::GOBSBAND::BAND);
     }
 
     void t_gband::band(const GOBSBAND& b)
@@ -55,7 +54,7 @@ namespace gnut
     void t_gband::gattr(const t_gattr& g)
     {
         _gattr = g.attr();
-        _gband = BAND;
+        _gband = gnut::GOBSBAND::BAND;
     }
 
     t_gattr t_gband::gattr() const
@@ -71,7 +70,7 @@ namespace gnut
 
     bool t_gobs::valid() const
     {
-        return (t_gband::valid() && _gtype != TYPE);
+        return (t_gband::valid() && _gtype != gnut::GOBSTYPE::TYPE);
     }
 
     void t_gobs::type(const GOBSTYPE& t)
@@ -88,7 +87,7 @@ namespace gnut
     {
         _gattr = g.attr();
         _gband = g.band();
-        _gtype = TYPE;
+        _gtype = gnut::GOBSTYPE::TYPE;
     }
 
     t_gband t_gobs::gband() const
@@ -104,7 +103,7 @@ namespace gnut
 
     int t_gobs::gobs(const GOBS& g)
     {
-        string s = gobs2str(g);
+        std::string s = gobs2str(g);
         _gtype = str2gobstype(s);
         _gband = str2gobsband(s);
         _gattr = str2gobsattr(s);
@@ -112,7 +111,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gobs::gobs(const string& s)
+    int t_gobs::gobs(const std::string& s)
     {
         _gtype = str2gobstype(s);
         _gband = str2gobsband(s);
@@ -123,34 +122,34 @@ namespace gnut
 
     GOBS t_gobs::gobs() const
     {
-        string s = gobstype2str(_gtype) + gobsband2str(_gband) + gobsattr2str(_gattr);
+        std::string s = gobstype2str(_gtype) + gobsband2str(_gband) + gobsattr2str(_gattr);
         return str2gobs(s);
     }
 
     GOBS t_gobs::gobs2CH(GSYS gs) const
     {
-        GOBS g = X;
+        GOBS g = gnut::GOBS::X;
 
-        if (_gattr == ATTR_NULL)
+        if (_gattr == gnut::GOBSATTR::ATTR_NULL)
         { // already 2char signal
             g = this->gobs();
         }
         else
         {
-            if (_gtype == TYPE_C)
+            if (_gtype == gnut::GOBSTYPE::TYPE_C)
             {
-                if (_gattr != ATTR_C && (gs == GPS || gs == GLO))
+                if (_gattr != gnut::GOBSATTR::ATTR_C && (gs == GSYS::GPS || gs == GSYS::GLO))
                 {
-                    g = tba2gobs(TYPE_P, _gband, ATTR_NULL);
+                    g = tba2gobs(gnut::GOBSTYPE::TYPE_P, _gband, gnut::GOBSATTR::ATTR_NULL);
                 }
                 else
                 {
-                    g = tba2gobs(_gtype, _gband, ATTR_NULL);
+                    g = tba2gobs(_gtype, _gband, gnut::GOBSATTR::ATTR_NULL);
                 }
             }
-            if (_gtype == TYPE_L)
+            if (_gtype == gnut::GOBSTYPE::TYPE_L)
             {
-                g = tba2gobs(_gtype, _gband, ATTR_NULL);
+                g = tba2gobs(_gtype, _gband, gnut::GOBSATTR::ATTR_NULL);
             }
         }
 
@@ -159,21 +158,21 @@ namespace gnut
 
     GOBS t_gobs::gobs3CH() const
     {
-        GOBS g = X;
+        GOBS g = gnut::GOBS::X;
 
-        if (_gattr != ATTR_NULL && _gattr != ATTR)
+        if (_gattr != gnut::GOBSATTR::ATTR_NULL && _gattr != gnut::GOBSATTR::ATTR)
         { // already 3char signal
             g = this->gobs();
         }
         else
         {
-            if (_gtype == TYPE_C)
+            if (_gtype == gnut::GOBSTYPE::TYPE_C)
             {
-                g = tba2gobs(_gtype, _gband, ATTR_C);
+                g = tba2gobs(_gtype, _gband, gnut::GOBSATTR::ATTR_C);
             }
-            else if (_gtype == TYPE_P)
+            else if (_gtype == gnut::GOBSTYPE::TYPE_P)
             {
-                g = tba2gobs(TYPE_C, _gband, ATTR_W);
+                g = tba2gobs(gnut::GOBSTYPE::TYPE_C, _gband, gnut::GOBSATTR::ATTR_W);
             }
         }
 
@@ -182,97 +181,97 @@ namespace gnut
 
     void t_gobs::gobs2to3(GSYS sys)
     {
-        if (_gattr != ATTR_NULL)
+        if (_gattr != gnut::GOBSATTR::ATTR_NULL)
         {
             return;
         }
         GOBS obs2 = this->gobs();
         switch (sys)
         {
-            case gnut::GPS:
-                if (obs2 == L1 || obs2 == L2 || obs2 == C1 || obs2 == C2 || obs2 == D1 || obs2 == D2 || obs2 == S1 || obs2 == S2)
+            case gnut::GSYS::GPS:
+                if (obs2 == gnut::GOBS::L1 || obs2 == gnut::GOBS::L2 || obs2 == gnut::GOBS::C1 || obs2 == gnut::GOBS::C2 || obs2 == gnut::GOBS::D1 || obs2 == gnut::GOBS::D2 || obs2 == gnut::GOBS::S1 || obs2 == gnut::GOBS::S2)
                 {
-                    _gattr = ATTR_C;
+                    _gattr = gnut::GOBSATTR::ATTR_C;
                 }
-                else if (obs2 == L5 || obs2 == C5 || obs2 == D5 || obs2 == S5)
+                else if (obs2 == gnut::GOBS::L5 || obs2 == gnut::GOBS::C5 || obs2 == gnut::GOBS::D5 || obs2 == gnut::GOBS::S5)
                 {
-                    _gattr = ATTR_Q;
+                    _gattr = gnut::GOBSATTR::ATTR_Q;
                 }
-                else if (obs2 == P1 || obs2 == P2 || obs2 == P5)
+                else if (obs2 == gnut::GOBS::P1 || obs2 == gnut::GOBS::P2 || obs2 == gnut::GOBS::P5)
                 {
-                    _gtype = TYPE_C;
-                    _gattr = ATTR_W;
-                }
-                break;
-            case gnut::GAL:
-                if (obs2 == L1 || obs2 == L6 || obs2 == C1 || obs2 == C6 || obs2 == S1 || obs2 == S6 || obs2 == D1 || obs2 == D6)
-                {
-                    _gattr = ATTR_X;
-                }
-                else if (obs2 == L5 || obs2 == L7 || obs2 == L8 || obs2 == C5 || obs2 == C7 || obs2 == C8 || obs2 == D5 || obs2 == D7 ||
-                         obs2 == D8 || obs2 == S5 || obs2 == S7 || obs2 == S8)
-                {
-                    _gattr = ATTR_I;
-                }
-                else if (obs2 == P5)
-                {
-                    _gtype = TYPE_C;
-                    _gattr = ATTR_Q;
+                    _gtype = gnut::GOBSTYPE::TYPE_C;
+                    _gattr = gnut::GOBSATTR::ATTR_W;
                 }
                 break;
-            case gnut::GLO:
-                if (obs2 == L1 || obs2 == L2 || obs2 == C1 || obs2 == C2 || obs2 == D1 || obs2 == D2 || obs2 == S1 || obs2 == S2)
+            case gnut::GSYS::GAL:
+                if (obs2 == gnut::GOBS::L1 || obs2 == gnut::GOBS::L6 || obs2 == gnut::GOBS::C1 || obs2 == gnut::GOBS::C6 || obs2 == gnut::GOBS::S1 || obs2 == gnut::GOBS::S6 || obs2 == gnut::GOBS::D1 || obs2 == gnut::GOBS::D6)
                 {
-                    _gattr = ATTR_C;
+                    _gattr = gnut::GOBSATTR::ATTR_X;
                 }
-                else if (obs2 == P1 || obs2 == P2)
+                else if (obs2 == gnut::GOBS::L5 || obs2 == gnut::GOBS::L7 || obs2 == gnut::GOBS::L8 || obs2 == gnut::GOBS::C5 || obs2 == gnut::GOBS::C7 || obs2 == gnut::GOBS::C8 || obs2 == gnut::GOBS::D5 || obs2 == gnut::GOBS::D7 ||
+                         obs2 == gnut::GOBS::D8 || obs2 == gnut::GOBS::S5 || obs2 == gnut::GOBS::S7 || obs2 == gnut::GOBS::S8)
                 {
-                    _gtype = TYPE_C;
-                    _gattr = ATTR_P;
+                    _gattr = gnut::GOBSATTR::ATTR_I;
                 }
-                break;
-            case gnut::BDS:
-                if (obs2 == L1 || obs2 == L7 || obs2 == C1 || obs2 == C7 || obs2 == S1 || obs2 == S7 || obs2 == D1 || obs2 == D7)
+                else if (obs2 == gnut::GOBS::P5)
                 {
-                    _gattr = ATTR_I;
-                }
-                else if (obs2 == L2 || obs2 == C2 || obs2 == D2 || obs2 == S2)
-                {
-                    _gband = BAND_7;
-                    _gattr = ATTR_I;
-                }
-                else if (obs2 == P1)
-                {
-                    _gtype = TYPE_C;
-                    _gattr = ATTR_Q;
-                }
-                else if (obs2 == P2)
-                {
-                    _gtype = TYPE_C;
-                    _gband = BAND_7;
-                    _gattr = ATTR_Q;
-                }
-                else if (obs2 == C5 || obs2 == L5)
-                {
-                    _gband = BAND_3;
-                    _gattr = ATTR_I;
+                    _gtype = gnut::GOBSTYPE::TYPE_C;
+                    _gattr = gnut::GOBSATTR::ATTR_Q;
                 }
                 break;
-            case gnut::QZS:
-                if (obs2 == L1 || obs2 == L5 || obs2 == C1 || obs2 == C5)
+            case gnut::GSYS::GLO:
+                if (obs2 == gnut::GOBS::L1 || obs2 == gnut::GOBS::L2 || obs2 == gnut::GOBS::C1 || obs2 == gnut::GOBS::C2 || obs2 == gnut::GOBS::D1 || obs2 == gnut::GOBS::D2 || obs2 == gnut::GOBS::S1 || obs2 == gnut::GOBS::S2)
                 {
-                    _gattr = ATTR_C;
+                    _gattr = gnut::GOBSATTR::ATTR_C;
                 }
-                else if (obs2 == D1 || obs2 == D5 || obs2 == S1 || obs2 == S5)
+                else if (obs2 == gnut::GOBS::P1 || obs2 == gnut::GOBS::P2)
                 {
-                    _gattr = ATTR_C;
+                    _gtype = gnut::GOBSTYPE::TYPE_C;
+                    _gattr = gnut::GOBSATTR::ATTR_P;
                 }
                 break;
-            case gnut::SBS:
+            case gnut::GSYS::BDS:
+                if (obs2 == gnut::GOBS::L1 || obs2 == gnut::GOBS::L7 || obs2 == gnut::GOBS::C1 || obs2 == gnut::GOBS::C7 || obs2 == gnut::GOBS::S1 || obs2 == gnut::GOBS::S7 || obs2 == gnut::GOBS::D1 || obs2 == gnut::GOBS::D7)
+                {
+                    _gattr = gnut::GOBSATTR::ATTR_I;
+                }
+                else if (obs2 == gnut::GOBS::L2 || obs2 == gnut::GOBS::C2 || obs2 == gnut::GOBS::D2 || obs2 == gnut::GOBS::S2)
+                {
+                    _gband = gnut::GOBSBAND::BAND_7;
+                    _gattr = gnut::GOBSATTR::ATTR_I;
+                }
+                else if (obs2 == gnut::GOBS::P1)
+                {
+                    _gtype = gnut::GOBSTYPE::TYPE_C;
+                    _gattr = gnut::GOBSATTR::ATTR_Q;
+                }
+                else if (obs2 == gnut::GOBS::P2)
+                {
+                    _gtype = gnut::GOBSTYPE::TYPE_C;
+                    _gband = gnut::GOBSBAND::BAND_7;
+                    _gattr = gnut::GOBSATTR::ATTR_Q;
+                }
+                else if (obs2 == gnut::GOBS::C5 || obs2 == gnut::GOBS::L5)
+                {
+                    _gband = gnut::GOBSBAND::BAND_3;
+                    _gattr = gnut::GOBSATTR::ATTR_I;
+                }
                 break;
-            case gnut::IRN:
+            case gnut::GSYS::QZS:
+                if (obs2 == gnut::GOBS::L1 || obs2 == gnut::GOBS::L5 || obs2 == gnut::GOBS::C1 || obs2 == gnut::GOBS::C5)
+                {
+                    _gattr = gnut::GOBSATTR::ATTR_C;
+                }
+                else if (obs2 == gnut::GOBS::D1 || obs2 == gnut::GOBS::D5 || obs2 == gnut::GOBS::S1 || obs2 == gnut::GOBS::S5)
+                {
+                    _gattr = gnut::GOBSATTR::ATTR_C;
+                }
                 break;
-            case gnut::GNS:
+            case gnut::GSYS::SBS:
+                break;
+            case gnut::GSYS::IRN:
+                break;
+            case gnut::GSYS::GNS:
                 break;
             default:
                 break;
@@ -282,15 +281,15 @@ namespace gnut
 
     bool t_gobs::is_code() const
     {
-        return (_gtype == TYPE_C || _gtype == TYPE_P);
+        return (_gtype == gnut::GOBSTYPE::TYPE_C || _gtype == gnut::GOBSTYPE::TYPE_P);
     }
 
     bool t_gobs::is_phase() const
     {
-        return (_gtype == TYPE_L);
+        return (_gtype == gnut::GOBSTYPE::TYPE_L);
     }
     bool t_gobs::is_doppler() const
     {
-        return (_gtype == TYPE_D);
+        return (_gtype == gnut::GOBSTYPE::TYPE_D);
     }
 } // namespace gnut

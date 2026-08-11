@@ -12,7 +12,6 @@
 #include "gutils/gconst.h"
 #include <math.h>
 #include <algorithm>
-using namespace std;
 
 namespace great
 {
@@ -20,23 +19,23 @@ namespace great
         _days(0.0),
         _emrat(0.0)
     {
-        id_type(t_gdata::ALLDE);
+        id_type(t_gdata::ID_TYPE::ALLDE);
 
-        _allplanets[PLANET_EART].gm = EARTH_GM; // earth gm
-        _allplanets[PLANET_EART].rad = EARTH_R; // radius /km
+        _allplanets[static_cast<int>(PLANET::PLANET_EART)].gm = EARTH_GM; // earth gm
+        _allplanets[static_cast<int>(PLANET::PLANET_EART)].rad = EARTH_R; // radius /km
 
-        _allplanets[PLANET_SUN].gm = SUN_GM; // sun
-        _allplanets[PLANET_SUN].rad = SUN_R;
+        _allplanets[static_cast<int>(PLANET::PLANET_SUN)].gm = SUN_GM; // sun
+        _allplanets[static_cast<int>(PLANET::PLANET_SUN)].rad = SUN_R;
 
-        _allplanets[PLANET_MOON].gm = MOON_GM; // moon
-        _allplanets[PLANET_MOON].rad = MOON_R;
+        _allplanets[static_cast<int>(PLANET::PLANET_MOON)].gm = MOON_GM; // moon
+        _allplanets[static_cast<int>(PLANET::PLANET_MOON)].rad = MOON_R;
     }
 
     t_gnavde::~t_gnavde()
     {
     }
 
-    void t_gnavde::get_pos(const double& tm, const string& plane_tname, t_gtriple& pos)
+    void t_gnavde::get_pos(const double& tm, const std::string& plane_tname, t_gtriple& pos)
     {
         // transfer planetname to (int) num
         int planet = str2planet(plane_tname);
@@ -51,7 +50,7 @@ namespace great
         pos[2] = rrd[2];
     }
 
-    void t_gnavde::get_pos(const double& tm, const string& planet_name, ColumnVector& pos)
+    void t_gnavde::get_pos(const double& tm, const std::string& planet_name, ColumnVector& pos)
     {
         // transfer planetname to (int) num
         int planet = str2planet(planet_name);
@@ -226,7 +225,7 @@ namespace great
 
         if (pjd[0] + pjd[3] < start || pjd[0] + pjd[3] > end)
         {
-            cout << "ERROR:wrong JPL file,obs time is out of range" << endl;
+            std::cout << "ERROR:wrong JPL file,obs time is out of range" << std::endl;
             return -1;
         }
         // find the correct coffe by time
@@ -238,7 +237,7 @@ namespace great
 
         dt[0] = ((pjd[0] - nindex * _days - start) + pjd[3]) / _days;
 
-        vector<double> coeff = _chebycoeff[nindex];
+        std::vector<double> coeff = _chebycoeff[nindex];
 
         // unit correct
         dt[1] = _days * 86400;
@@ -303,7 +302,7 @@ namespace great
         return;
     }
 
-    void t_gnavde::_interp(const vector<double>& coeff,
+    void t_gnavde::_interp(const std::vector<double>& coeff,
                            const int& ipt,
                            const int& ncf,
                            const int& ncm,
@@ -390,8 +389,8 @@ namespace great
                             const double& au,
                             const double& emrat,
                             int ipt[3][13],
-                            const vector<string>& constname,
-                            const vector<double>& constval)
+                            const std::vector<std::string>& constname,
+                            const std::vector<double>& constval)
     {
         _start.from_mjd(int(SS[0] - 2400000.5), 0, 0);
         _start_mjd = _start.dmjd();
@@ -413,11 +412,11 @@ namespace great
             }
             _allplanets[i].gm = 0.0;
             _allplanets[i].rad = 0.0;
-            string gm = "GM" + to_string(i + 1) + "   ";
-            string rad = "RAD" + to_string(i + 1) + "  ";
+            std::string gm = "GM" + std::to_string(i + 1) + "   ";
+            std::string rad = "RAD" + std::to_string(i + 1) + "  ";
             for (int j = 0; j < constname.size(); j++)
             {
-                string tmp = constname[j];
+                std::string tmp = constname[j];
                 if (gm == tmp)
                 {
                     _allplanets[i].gm = constval[j];
@@ -431,70 +430,70 @@ namespace great
         }
     }
 
-    void t_gnavde::add_data(const int& index, const vector<double>& coeff)
+    void t_gnavde::add_data(const int& index, const std::vector<double>& coeff)
     {
         _chebycoeff[index] = coeff;
     }
 
-    int t_gnavde::str2planet(const string& tmp) const
+    int t_gnavde::str2planet(const std::string& tmp) const
     {
-        string planet(tmp);
+        std::string planet(tmp);
         transform(planet.begin(), planet.end(), planet.begin(), ::toupper);
         if (planet == "MERCURY" || planet == "MERC")
         {
-            return PLANET_MERC;
+            return static_cast<int>(PLANET::PLANET_MERC);
         }
         else if (planet == "VENUS" || planet == "VENU")
         {
-            return PLANET_VENU;
+            return static_cast<int>(PLANET::PLANET_VENU);
         }
         else if (planet == "EARTH" || planet == "EART")
         {
-            return PLANET_EART;
+            return static_cast<int>(PLANET::PLANET_EART);
         }
         else if (planet == "MARS")
         {
-            return PLANET_MARS;
+            return static_cast<int>(PLANET::PLANET_MARS);
         }
         else if (planet == "JUPITER" || planet == "JUPI")
         {
-            return PLANET_JUPI;
+            return static_cast<int>(PLANET::PLANET_JUPI);
         }
         else if (planet == "SATURN" || planet == "SATU")
         {
-            return PLANET_SATU;
+            return static_cast<int>(PLANET::PLANET_SATU);
         }
         else if (planet == "URANUS" || planet == "URAN")
         {
-            return PLANET_URAN;
+            return static_cast<int>(PLANET::PLANET_URAN);
         }
         else if (planet == "NEPTUNE" || planet == "NEPT")
         {
-            return PLANET_NEPT;
+            return static_cast<int>(PLANET::PLANET_NEPT);
         }
         else if (planet == "PLUTO" || planet == "PLUT")
         {
-            return PLANET_PLUT;
+            return static_cast<int>(PLANET::PLANET_PLUT);
         }
         else if (planet == "MOON")
         {
-            return PLANET_MOON;
+            return static_cast<int>(PLANET::PLANET_MOON);
         }
         else if (planet == "SUN")
         {
-            return PLANET_SUN;
+            return static_cast<int>(PLANET::PLANET_SUN);
         }
         else if (planet == "SOLAR_SYSTEM")
         {
-            return SOLAR_SYSTEM;
+            return static_cast<int>(PLANET::SOLAR_SYSTEM);
         }
         else if (planet == "EARTH_MOON")
         {
-            return EARTH_MOON;
+            return static_cast<int>(PLANET::EARTH_MOON);
         }
         else
         {
-            cout << "unknow planet" << endl;
+            std::cout << "unknow planet" << std::endl;
             return -1;
         }
     }

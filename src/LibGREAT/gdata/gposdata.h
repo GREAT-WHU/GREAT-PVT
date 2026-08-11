@@ -12,6 +12,7 @@
 #define GPOSDATA_H
 
 #include "gdata/gdata.h"
+#include "gutils/gnss.h"
 #include <Eigen/Eigen>
 #include "gexport/ExportLibGREAT.h"
 #include <newmat/newmat.h>
@@ -78,8 +79,8 @@ namespace gsins
             Matrix A;
             SymmetricMatrix P;
             ColumnVector l;
-            map<vector<string>, vector<Eigen::Vector3d>> sat;
-            map<vector<string>, vector<Eigen::Vector3d>> ant;
+            std::map<std::vector<GSAT>, std::vector<Eigen::Vector3d>> sat;
+            std::map<std::vector<std::string>, std::vector<Eigen::Vector3d>> ant;
         };
 
         struct rtk_pos
@@ -119,8 +120,8 @@ namespace gsins
         };
 
     private:
-        vector<data_pos> _vecpos; /// latitude and longitude are saved by radian
-        set<data_pos> _setpos;    /// latitude and longitude are saved by radian
+        std::vector<data_pos> _vecpos; /// latitude and longitude are saved by radian
+        std::set<data_pos> _setpos;    /// latitude and longitude are saved by radian
         int _ptr;
     };
 

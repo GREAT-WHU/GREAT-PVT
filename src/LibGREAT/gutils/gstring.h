@@ -12,7 +12,6 @@
 #include <vector>
 #include <set>
 #include "gexport/ExportLibGREAT.h"
-using namespace std;
 
 namespace great
 {

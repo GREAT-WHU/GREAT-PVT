@@ -11,19 +11,18 @@
 #include "gutils/gtypeconv.h"
 #include "gutils/gcommon.h"
 
-using namespace std;
 
 namespace gnut
 {
 
     t_geph::t_geph() :
         t_gdata(),
-        _sat(""),
-        _epoch(t_gtime::GPS),
+        _sat(GSAT::NONE),
+        _epoch(t_gtime::t_tsys::GPS),
         _validity(true),
         _gio_ptr(0)
     {
-        _type = EPHGPS;
+        _type = ID_TYPE::EPHGPS;
     }
 
     t_geph::~t_geph()
@@ -32,23 +31,23 @@ namespace gnut
 
     GSYS t_geph::gsys() const
     {
-        GSYS tmp = GNS;
+        GSYS tmp = GSYS::GNS;
         _gmutex.lock();
         if (_valid())
         {
-            tmp = t_gsys::char2gsys(_sat[0]);
+            tmp = gsat2gsys(_sat);
         }
         _gmutex.unlock();
         return tmp;
     }
 
-    string t_geph::gsat() const
+    std::string t_geph::gsat() const
     {
-        string tmp = "";
+        std::string tmp = "";
         _gmutex.lock();
         if (_valid())
         {
-            tmp = _sat;
+            tmp = gsat2str(_sat);
         }
         _gmutex.unlock();
         return tmp;
@@ -67,7 +66,7 @@ namespace gnut
 
     bool t_geph::param_cyclic(const NAVDATA& n)
     {
-        if (n == 2 || n == 6)
+        if (n == NAVDATA::NAV_E || n == NAVDATA::NAV_OMG)
         {
             return true;
         }
@@ -92,13 +91,13 @@ namespace gnut
 
     void t_geph::_clear()
     {
-        _sat.clear();
+        _sat = GSAT::NONE;
         _epoch = FIRST_TIME;
     }
 
     bool t_geph::_valid() const
     {
-        if (!_validity || _sat.empty() || _sat == "" || _epoch == FIRST_TIME)
+        if (!_validity || _sat == GSAT::NONE || _epoch == FIRST_TIME)
         {
             return false;
         }

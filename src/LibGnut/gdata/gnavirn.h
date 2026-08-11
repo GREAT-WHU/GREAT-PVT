@@ -26,18 +26,27 @@
 #include "gutils/gconst.h"
 #include "gutils/gcommon.h"
 
+#ifndef MAX_RINEXN_REC_IRN
 #define MAX_RINEXN_REC_IRN 28
+#endif
+#ifndef SYS_IRN
 #define SYS_IRN 'I'
+#endif
 
-using namespace std;
 
 namespace gnut
 {
 
     // IRNSS_SPS_ICD
+#ifndef GM_WGS84
 #define GM_WGS84 3.986005e14     ///< WGS 84 value of earth's graviational constant for GPS user [m^3/s^2]
+#endif
+#ifndef OMGE_DOT
 #define OMGE_DOT 7.2921151467e-5 ///< WGS 84 value of the earth's rotation rate [rad/sec]
+#endif
+#ifndef SC2R
 #define SC2R 3.1415926535898     ///< semi-circle to radian
+#endif
 
     /** @brief class for t_gnavirn. */
     class LibGnut_LIBRARY_EXPORT t_gnavirn : public t_gnav
@@ -88,10 +97,10 @@ namespace gnut
          * @param msg
          * @return int
          */
-        int chk(set<string>& msg) override;
+        int chk(std::set<std::string>& msg) override;
 
         /** @brief convert data to nav. */
-        int data2nav(string, const t_gtime& ep, const t_gnavdata& data) override;
+        int data2nav(std::string, const t_gtime& ep, const t_gnavdata& data) override;
 
         /** @brief convert nav to data. */
         int nav2data(t_gnavdata& data) override;
@@ -124,10 +133,10 @@ namespace gnut
         int param(const NAVDATA& n, double val) override;
 
         /** @brief get line. */
-        string line() const override;
+        std::string line() const override;
 
         /** @brief get line format. */
-        string linefmt() const override;
+        std::string linefmt() const override;
 
     private:
         /** @brief get health state. */

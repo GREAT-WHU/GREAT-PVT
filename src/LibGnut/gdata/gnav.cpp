@@ -9,7 +9,6 @@
 
 #include "gdata/gnav.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -17,8 +16,8 @@ namespace gnut
     t_gnav::t_gnav() :
         t_geph()
     {
-        id_type(t_gdata::EPH);
-        id_group(t_gdata::GRP_EPHEM);
+        id_type(t_gdata::ID_TYPE::EPH);
+        id_group(t_gdata::ID_GROUP::GRP_EPHEM);
     }
 
     t_gnav::~t_gnav()
@@ -29,21 +28,21 @@ namespace gnut
     {
         switch (gs)
         {
-            case GPS:
+            case GSYS::GPS:
                 return MAX_GPS_TIMEDIFF;
-            case GLO:
+            case GSYS::GLO:
                 return MAX_GLO_TIMEDIFF;
-            case GAL:
+            case GSYS::GAL:
                 return MAX_GAL_TIMEDIFF;
-            case BDS:
+            case GSYS::BDS:
                 return MAX_BDS_TIMEDIFF;
-            case QZS:
+            case GSYS::QZS:
                 return MAX_QZS_TIMEDIFF;
-            case SBS:
+            case GSYS::SBS:
                 return MAX_SBS_TIMEDIFF;
-            case IRN:
+            case GSYS::IRN:
                 return MAX_IRN_TIMEDIFF;
-            case GNS:
+            case GSYS::GNS:
                 return MAX_NAV_TIMEDIFF;
             default:
                 return MAX_NAV_TIMEDIFF;

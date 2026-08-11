@@ -25,7 +25,6 @@
 #include "gprod/gprod.h"
 #include "gutils/gtriple.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -34,7 +33,7 @@ namespace gnut
     {
     public:
         /** @brief constructor 1. */
-        t_gprodclk(const t_gtime& t, shared_ptr<t_gobj> pt = nullobj);
+        t_gprodclk(const t_gtime& t, std::shared_ptr<t_gobj> pt = nullobj);
 
         /** @brief default destructor. */
         virtual ~t_gprodclk();

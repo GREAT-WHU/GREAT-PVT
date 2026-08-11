@@ -24,14 +24,13 @@
 #include <string>
 
 #ifdef BMUTEX
-#include <boost/thread/mutex.hpp>
+#include <boost/std::thread/std::mutex.hpp>
 #endif
 
 #include "gdata/gobj.h"
 #include "gdata/gdata.h"
 #include "gdata/grxnhdr.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -52,16 +51,16 @@ namespace gnut
         virtual ~t_gtrn();
 
         /** @brief header pair. */
-        typedef pair<string, t_rxnhdr> t_header_pair;
+        typedef std::pair<std::string, t_rxnhdr> t_header_pair;
 
         /** @brief header. */
-        typedef vector<t_header_pair> t_header;
+        typedef std::vector<t_header_pair> t_header;
 
         /** @brief header. */
-        virtual void header(const t_rxnhdr& hdr, string path);
+        virtual void header(const t_rxnhdr& hdr, std::string path);
 
         /** @brief overried header. */
-        virtual t_rxnhdr header(string path) const;
+        virtual t_rxnhdr header(std::string path) const;
 
         /** @brief headers. */
         virtual t_header headers() const;

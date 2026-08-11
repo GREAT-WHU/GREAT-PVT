@@ -25,7 +25,7 @@ namespace gnut
     public:
         /**@brief constructor */
         explicit t_gpppflt();
-        explicit t_gpppflt(string mark, t_gsetbase* set);
+        explicit t_gpppflt(std::string mark, t_gsetbase* set);
 
         /**@brief destructor */
         virtual ~t_gpppflt();
@@ -55,7 +55,7 @@ namespace gnut
         xml_node line;                ///< working line read from
         bool _read;                   ///< is read
         t_giof* _flt;                 ///< filter file
-        string _kml_name;             ///< kml name
+        std::string _kml_name;             ///< kml name
         bool _kml;                    ///< is kml
         bool _beg_end;                ///< processing direction
         t_randomwalk* _grdStoModel;   ///< tropo gradient models
@@ -63,7 +63,7 @@ namespace gnut
         int _reset_amb;               ///< is reset ambiguity
         int _reset_par;               ///< is reset parameters
         t_gtriple xyz_standard;       ///< enu coord reference
-        map<string, int> _glofrq_num; ///< glofrq number, set GLO frequency number
+        std::map<GSAT, int> _glofrq_num; ///< glofrq number, set GLO frequency number
     };
 
 } // namespace gnut

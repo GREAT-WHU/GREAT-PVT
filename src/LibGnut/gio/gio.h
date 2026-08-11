@@ -28,9 +28,10 @@
 #include "gcoders/gcoder.h"
 #include "gio/giof.h"
 
+#ifndef BUF_SIZE
 #define BUF_SIZE 1024
+#endif
 
-using namespace std;
 
 namespace gnut
 {
@@ -83,13 +84,13 @@ namespace gnut
          *    @retval =-1 false
          *    @retval =1    true
          */
-        virtual int path(string str);
+        virtual int path(std::string str);
 
         /**
          * @brief get file://dir/name.
          * @return        file path
          */
-        virtual string path() const
+        virtual std::string path() const
         {
             return _path;
         }
@@ -107,7 +108,7 @@ namespace gnut
          * @brief get local i/o file.
          * @return        file name
          */
-        string file()
+        std::string file()
         {
             return _giof.mask();
         }
@@ -140,7 +141,7 @@ namespace gnut
          * @brief get size.
          * @return        size
          */
-        size_t size()
+        std::size_t size()
         {
             return _size;
         }
@@ -177,7 +178,7 @@ namespace gnut
         /** @brief override opreator < == <<. */
         bool operator<(const t_gio& n) const;
         bool operator==(const t_gio& n) const;
-        friend ostream& operator<<(ostream& os, const t_gio& n);
+        friend std::ostream& operator<<(std::ostream& os, const t_gio& n);
 
     protected:
         /**
@@ -223,8 +224,8 @@ namespace gnut
          */
         virtual int _stop_common();
         int _fd;          ///< file descriptor
-        size_t _size;     ///< buffer size
-        string _path;     ///< URL-like path (e.g. file:///home/honza/file)
+        std::size_t _size;     ///< buffer size
+        std::string _path;     ///< URL-like path (e.g. file:///home/honza/file)
         t_giof _giof;     ///< local file
         int _count;       ///< record counter
         int _verb;        ///< verbosity

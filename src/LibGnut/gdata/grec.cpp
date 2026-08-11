@@ -10,7 +10,6 @@
 #include "gdata/grec.h"
 #include "gutils/gtypeconv.h"
 
-using namespace std;
 
 namespace gnut
 {
@@ -18,7 +17,7 @@ namespace gnut
     t_grec::t_grec() :
         t_gobj()
     {
-        id_type(REC);
+        id_type(ID_TYPE::REC);
         _overwrite = true;
     }
 
@@ -29,7 +28,7 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    void t_grec::rec(string rec, const t_gtime& beg, const t_gtime& end)
+    void t_grec::rec(std::string rec, const t_gtime& beg, const t_gtime& end)
     {
         _gmutex.lock();
 
@@ -39,13 +38,13 @@ namespace gnut
         return;
     }
 
-    void t_grec::_rec(string rec, const t_gtime& beg, const t_gtime& end)
+    void t_grec::_rec(std::string rec, const t_gtime& beg, const t_gtime& end)
     {
         t_maprec::iterator it = _maprec.find(beg);
 
         if (!(beg < end))
         {
-            string lg = "Warning: " + _id + " not valid end time (end<beg) for receiver (beg:" + beg.str_ymdhms() +
+            std::string lg = "Warning: " + _id + " not valid end time (end<beg) for receiver (beg:" + beg.str_ymdhms() +
                         " -> end:" + end.str_ymdhms() + ")";
             GREAT_WARN(lg);
             return;
@@ -120,18 +119,18 @@ namespace gnut
         return;
     }
 
-    string t_grec::rec(const t_gtime& t) const
+    std::string t_grec::rec(const t_gtime& t) const
     {
         _gmutex.lock();
 
-        string tmp = "";
+        std::string tmp = "";
         tmp = _rec(t);
 
         _gmutex.unlock();
         return tmp;
     }
 
-    string t_grec::_rec(const t_gtime& t) const
+    std::string t_grec::_rec(const t_gtime& t) const
     {
         t_maprec::const_iterator it = _maprec.upper_bound(t);
         if (it == _maprec.begin())
@@ -166,11 +165,11 @@ namespace gnut
         return;
     }
 
-    vector<t_gtime> t_grec::rec_id() const
+    std::vector<t_gtime> t_grec::rec_id() const
     {
         _gmutex.lock();
 
-        vector<t_gtime> tmp;
+        std::vector<t_gtime> tmp;
         t_maprec::const_iterator itMAP = _maprec.begin();
         while (itMAP != _maprec.end())
         {
@@ -181,7 +180,7 @@ namespace gnut
         return tmp;
     }
 
-    void t_grec::addhdr(const t_rnxhdr& hdr, const t_gtime& epo, string path)
+    void t_grec::addhdr(const t_rnxhdr& hdr, const t_gtime& epo, std::string path)
     {
         _gmutex.lock();
 
@@ -194,7 +193,7 @@ namespace gnut
         _gmutex.unlock();
     }
 
-    void t_grec::changehdr(const t_rnxhdr& hdr, const t_gtime& epo, string path)
+    void t_grec::changehdr(const t_rnxhdr& hdr, const t_gtime& epo, std::string path)
     {
         _maphdr.erase(_maphdr.begin(), _maphdr.end());
         _maphdr[epo] = hdr;
@@ -216,7 +215,7 @@ namespace gnut
         return rnxhdr;
     }
 
-    void t_grec::compare(shared_ptr<t_grec> grec, const t_gtime& tt, string source)
+    void t_grec::compare(std::shared_ptr<t_grec> grec, const t_gtime& tt, std::string source)
     {
         _gmutex.lock();
 
@@ -224,7 +223,7 @@ namespace gnut
         t_gobj::compare(grec, tt, source);
         _gmutex.lock();
 
-        string old, alt;
+        std::string old, alt;
         old = trim(_rec(tt));
         alt = trim(grec->rec(tt));
         t_gtime beg, end;
