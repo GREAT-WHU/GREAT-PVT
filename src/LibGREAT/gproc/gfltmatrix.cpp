@@ -1,7 +1,7 @@
 /**
  * @file         gfltmatrix.cpp
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        Matrix for NEQ,W,observ_equations
+ * @brief        Eigen::MatrixXd for NEQ,W,observ_equations
  * @version      1.0
  * @date         2024-08-29
  *
@@ -60,28 +60,25 @@ namespace great
         }
     }
 
-    void t_gfltEquationMatrix::chageNewMat(Matrix& B_value, SymmetricMatrix& P_value, ColumnVector& l_value, const int& par_num)
+    void t_gfltEquationMatrix::toEigen(Eigen::MatrixXd& B_value, Eigen::MatrixXd& P_value, Eigen::VectorXd& l_value, const int& par_num)
     {
-        B_value.ReSize(B.size(), par_num);
-        B_value = 0.0;
+        B_value.setZero(B.size(), par_num);
         for (unsigned int row = 0; row < B.size(); row++)
         {
             for (unsigned int col = 0; col < B[row].size(); col++)
             {
-                B_value(row + 1, B[row][col].first) = B[row][col].second;
+                B_value(row, B[row][col].first - 1) = B[row][col].second;
             }
         }
-        P_value.ReSize(P.size());
-        P_value = 0.0;
+        P_value.setZero(P.size(), P.size());
         for (unsigned int row = 0; row < P.size(); row++)
         {
-            P_value(row + 1, row + 1) = P[row];
+            P_value(row, row) = P[row];
         }
-        l_value.ReSize(l.size());
-        l_value = 0.0;
+        l_value.setZero(l.size());
         for (unsigned int row = 0; row < l.size(); row++)
         {
-            l_value(row + 1) = l[row];
+            l_value(row) = l[row];
         }
     }
 

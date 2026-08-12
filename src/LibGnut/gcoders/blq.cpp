@@ -103,8 +103,8 @@ namespace gnut
                 if (!istr.fail())
                 {
                     int ii = 1;
-                    _blqdata.ReSize(6, 11);
-                    _blqdata.Row(ii) << a << b << c << d << e << f << g << h << i << j << k;
+                    _blqdata.setZero(6, 11);
+                    _blqdata.row(ii - 1) << a, b, c, d, e, f, g, h, i, j, k;
                     ii++;
                     while (ii <= 6)
                     {
@@ -114,7 +114,7 @@ namespace gnut
                         }
                         istringstream istr(line);
                         istr >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k;
-                        _blqdata.Row(ii) << a << b << c << d << e << f << g << h << i << j << k;
+                        _blqdata.row(ii - 1) << a, b, c, d, e, f, g, h, i, j, k;
                         ii++;
                         sitsize += tmpsize;
                         consume += tmpsize;

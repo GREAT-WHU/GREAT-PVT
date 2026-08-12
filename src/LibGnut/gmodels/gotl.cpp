@@ -28,9 +28,9 @@ namespace gnut
         return tmp;
     }
 
-    Matrix t_gotl::data()
+    Eigen::MatrixXd t_gotl::data()
     {
-        Matrix tmp = _data;
+        Eigen::MatrixXd tmp = _data;
         return tmp;
     }
 
@@ -46,7 +46,7 @@ namespace gnut
         return tmp;
     }
 
-    void t_gotl::setdata(const std::string& site, const double& lon, const double& lat, const Matrix& data)
+    void t_gotl::setdata(const std::string& site, const double& lon, const double& lat, const Eigen::MatrixXd& data)
     {
         _site = site;
         _lon = lon;

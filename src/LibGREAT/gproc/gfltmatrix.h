@@ -1,7 +1,7 @@
 /**
  * @file         gfltmatrix.h
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        Matrix for NEQ,W,observ_equations
+ * @brief        Eigen::MatrixXd for NEQ,W,observ_equations
  * @version      1.0
  * @date         2024-08-29
  *
@@ -14,7 +14,7 @@
 #include "gexport/ExportLibGREAT.h"
 #include <gset/gsetproc.h>
 #include <Eigen/Core>
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gutils/gtypeconv.h"
 #include "gmodels/gbasemodel.h"
 
@@ -23,7 +23,7 @@ namespace great
 {
 
     /**
-     * @brief  Matrix for storage observe equations of B,P,L
+     * @brief  Eigen::MatrixXd for storage observe equations of B,P,L
      */
     class LibGREAT_LIBRARY_EXPORT t_gfltEquationMatrix : public t_gbaseEquation
     {
@@ -50,12 +50,12 @@ namespace great
         void add_equ(const t_gfltEquationMatrix& Other);
 
         /**
-         * @brief change equations to newmat format
-         * @param[out] B_value coeff of observ equation newmat format
-         * @param[out] P_value weight of observ equation newmat format
-         * @param[out] l_value res of observ equaion newmat format
+         * @brief convert stored equations to Eigen matrices
+         * @param[out] B_value coefficient matrix
+         * @param[out] P_value weight matrix
+         * @param[out] l_value residual vector
          */
-        void chageNewMat(Matrix& B_value, SymmetricMatrix& P_value, ColumnVector& l_value, const int& par_num);
+        void toEigen(Eigen::MatrixXd& B_value, Eigen::MatrixXd& P_value, Eigen::VectorXd& l_value, const int& par_num);
 
         /**
          * @brief get numbers of equations

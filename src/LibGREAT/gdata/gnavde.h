@@ -15,7 +15,7 @@
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
 #include "gutils/gtriple.h"
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 using namespace gnut;
 
@@ -108,9 +108,9 @@ namespace great
          * @brief get position of planet in crs(J2000), earth is center body.
          * @param[in]   tm             dynamic time(mjd)
          * @param[in]   planet_name   planet's name
-         * @param[out]  pos             position of planet(columnvector)
+         * @param[out]  pos             position of planet (Eigen vector)
          */
-        void get_pos(const double& tm, const std::string& planet_name, ColumnVector& pos);
+        void get_pos(const double& tm, const std::string& planet_name, Eigen::VectorXd& pos);
 
         /**
          * @brief string type to PLANET

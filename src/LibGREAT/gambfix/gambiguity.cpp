@@ -107,12 +107,12 @@ namespace great
         }
         if (_pdE)
         {
-            delete _pdE;
+            delete[] _pdE;
             _pdE = nullptr;
         }
         if (_pdC)
         {
-            delete _pdC;
+            delete[] _pdC;
             _pdC = nullptr;
         }
     }
@@ -406,22 +406,22 @@ namespace great
         _IWL.clear();
     }
 
-    void t_gambiguity::updateFixParam(t_gallpar& param, ColumnVector& dx, ColumnVector* stdx)
+    void t_gambiguity::updateFixParam(t_gallpar& param, Eigen::VectorXd& dx, Eigen::VectorXd* stdx)
     {
         _param.delAllParam();
         _param = param;
 
         for (unsigned int i = 0; i < param.parNumber(); i++)
         {
-            _param[i].value(param[i].value() + dx(i + 1));
+            _param[i].value(param[i].value() + dx(i));
             if (stdx)
             {
-                _param[i].apriori((*stdx)(i + 1));
+                _param[i].apriori((*stdx)(i));
             }
         }
     }
 
-    double t_gambiguity::lambdaSolve(double& ratio, const Matrix& anor, const ColumnVector& fltpar, ColumnVector& ibias, bool parlamb)
+    double t_gambiguity::lambdaSolve(double& ratio, const Eigen::MatrixXd& anor, const Eigen::VectorXd& fltpar, Eigen::VectorXd& ibias, bool parlamb)
     {
         double boot_temp = 0.0; // by qzy
         _ratio = ratio;
@@ -434,11 +434,11 @@ namespace great
             _part_fix = false;
         }
 
-        int namb = fltpar.Nrows();
+        int namb = fltpar.rows();
         std::vector<double> fltpar_;
         std::vector<int> ibias_;
 
-        for (int i = 1; i <= namb; i++)
+        for (int i = 0; i < namb; i++)
         {
             fltpar_.push_back(fltpar(i));
         }
@@ -448,9 +448,9 @@ namespace great
         {
             if (ibias_.size() == namb)
             {
-                for (int i = 1; i <= namb; i++)
+                for (int i = 0; i < namb; i++)
                 {
-                    ibias(i) = ibias_[i - 1];
+                    ibias(i) = ibias_[i];
                 }
             }
         }
@@ -536,12 +536,12 @@ namespace great
             {
                 if (_pdE)
                 {
-                    delete _pdE;
+                    delete[] _pdE;
                     _pdE = nullptr;
                 }
                 if (_pdC)
                 {
-                    delete _pdC;
+                    delete[] _pdC;
                     _pdC = nullptr;
                 }
 
@@ -652,7 +652,7 @@ namespace great
         for (auto it_par = params_ALL.begin(); it_par != params_ALL.end(); it_par++)
         {
             it_par->index = distance(params_ALL.begin(), it_par) + 1;
-            it_par->pred = it_par->value() + amb_cmn->dx()(it_par->index);
+            it_par->pred = it_par->value() + amb_cmn->dx()(it_par->index - 1);
             if (it_par->str_type().find("AMB") == std::string::npos || it_par->str_type().find("AMB13") != std::string::npos ||
                 _sat_rm.find(it_par->prn) != _sat_rm.end() || double_eq(it_par->value(), 0.0))
             {
@@ -760,8 +760,9 @@ namespace great
                 if (_fix_mode != FIX_MODE::NO)
                 {
                     // get dd ambiguity _sigma
-                    sigma = amb_cmn->Qx()(itsat1->index, itsat1->index) - 2 * amb_cmn->Qx()(itsat1->index, itsat2->index) +
-                            amb_cmn->Qx()(itsat2->index, itsat2->index);
+                    sigma = amb_cmn->Qx()(itsat1->index - 1, itsat1->index - 1) -
+                            2 * amb_cmn->Qx()(itsat1->index - 1, itsat2->index - 1) +
+                            amb_cmn->Qx()(itsat2->index - 1, itsat2->index - 1);
                     if (double_eq(sigma, 0.0))
                     {
                         continue;
@@ -911,10 +912,10 @@ namespace great
                         itdd->rwl -= (itdd1->rlc + itdd1->rwl_R1) * _sat_wavelen[sat11]["NL"] / lambda_2 -
                                      itdd1->rwl_R1 * _sat_wavelen[sat12]["NL"] / lambda_22;
                     }
-                    qq = amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_1) -
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[0]), get<1>(itdd1->ddSats[1])) / (lambda_1 * lambda_2) -
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]), get<1>(itdd1->ddSats[0])) / (lambda_1 * lambda_2) +
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]), get<1>(itdd1->ddSats[1])) / (lambda_2 * lambda_2);
+                    qq = amb_cmn->Qx()(get<1>(itdd->ddSats[0]) - 1, get<1>(itdd1->ddSats[0]) - 1) / (lambda_1 * lambda_1) -
+                         amb_cmn->Qx()(get<1>(itdd->ddSats[0]) - 1, get<1>(itdd1->ddSats[1]) - 1) / (lambda_1 * lambda_2) -
+                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]) - 1, get<1>(itdd1->ddSats[0]) - 1) / (lambda_1 * lambda_2) +
+                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]) - 1, get<1>(itdd1->ddSats[1]) - 1) / (lambda_2 * lambda_2);
                     if (double_eq(qq, 0.0))
                     {
                         continue;
@@ -1711,32 +1712,32 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_prepareCovariance(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, std::vector<double>& value)
+    bool t_gambiguity::_prepareCovariance(t_gamb_cmn* amb_cmn, Eigen::MatrixXd& covariance, std::vector<double>& value)
     {
         int row = 0, col = 0;
         // set covariance-matrix
-        covariance.resize(_DD.size());
-        covariance = 0;
+        covariance.setZero(_DD.size(), _DD.size());
         for (auto itdd1 = _DD.begin(); itdd1 != _DD.end(); itdd1++)
         {
             // Row of covariance-matrix
             value.push_back(itdd1->rnl);
-            row = distance(_DD.begin(), itdd1) + 1;
+            row = distance(_DD.begin(), itdd1);
 
             for (auto itdd2 = itdd1; itdd2 != _DD.end(); itdd2++)
             {
                 // Column of covariance-matrix
-                col = distance(_DD.begin(), itdd2) + 1;
+                col = distance(_DD.begin(), itdd2);
 
-                Matrix Q(2, 2);
+                Eigen::MatrixXd Q(2, 2);
                 // Covariance of ambiguity between four satellites
-                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[0]));
-                Q(1, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[1]));
-                Q(2, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[0]));
-                Q(2, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[1]));
+                Q(0, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[0]) - 1);
+                Q(0, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[1]) - 1);
+                Q(1, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[0]) - 1);
+                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[1]) - 1);
 
                 // Combinatorial transformation
-                covariance(row, col) = (Q(1, 1) - Q(2, 1) - Q(1, 2) + Q(2, 2)) / itdd1->factor / itdd2->factor; // unit [cycle]
+                covariance(row, col) = (Q(0, 0) - Q(1, 0) - Q(0, 1) + Q(1, 1)) / itdd1->factor / itdd2->factor; // unit [cycle]
+                covariance(col, row) = covariance(row, col);
             }
         }
         // Unit weight
@@ -1752,14 +1753,13 @@ namespace great
         }
     }
 
-    bool t_gambiguity::_prepareCovarianceWL(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, std::vector<double>& value, std::string mode)
+    bool t_gambiguity::_prepareCovarianceWL(t_gamb_cmn* amb_cmn, Eigen::MatrixXd& covariance, std::vector<double>& value, std::string mode)
     {
         int row = 0, col = 0;
         double lambda_1 = 0.0, lambda_2 = 0.0;
-        ColumnVector op_dd(4);
+        Eigen::VectorXd op_dd(4);
         // set covariance-matrix
-        covariance.resize(_DD.size());
-        covariance = 0;
+        covariance.setZero(_DD.size(), _DD.size());
 
         for (auto itdd1 = _DD.begin(); itdd1 != _DD.end(); itdd1++)
         {
@@ -1805,7 +1805,7 @@ namespace great
 
             // Row of covariance-matrix
 
-            row = distance(_DD.begin(), itdd1) + 1;
+            row = distance(_DD.begin(), itdd1);
 
             for (auto itdd2 = itdd1; itdd2 != _DD.end(); itdd2++)
             {
@@ -1814,30 +1814,31 @@ namespace great
                     continue;
                 }
                 // Column of covariance-matrix
-                col = distance(_DD.begin(), itdd2) + 1;
-                op_dd << 1 / (lambda_1 * lambda_1) << -1 / (lambda_1 * lambda_2) << -1 / (lambda_1 * lambda_2) << 1 / (lambda_2 * lambda_2);
-                Matrix Q(2, 2);
+                col = distance(_DD.begin(), itdd2);
+                op_dd << 1 / (lambda_1 * lambda_1), -1 / (lambda_1 * lambda_2), -1 / (lambda_1 * lambda_2), 1 / (lambda_2 * lambda_2);
+                Eigen::MatrixXd Q(2, 2);
 
                 // Covariance of ambiguity between four satellites
-                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[0])) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[2])) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[0])) * op_dd(3) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[2])) * op_dd(4);
-                Q(1, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[1])) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]), get<1>(itdd2->ddSats[3])) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[1])) * op_dd(3) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]), get<1>(itdd2->ddSats[3])) * op_dd(4);
-                Q(2, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[0])) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[2])) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[0])) * op_dd(3) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[2])) * op_dd(4);
-                Q(2, 2) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[1])) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]), get<1>(itdd2->ddSats[3])) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[1])) * op_dd(3) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]), get<1>(itdd2->ddSats[3])) * op_dd(4);
+                Q(0, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(0) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(3);
+                Q(0, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(0) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(3);
+                Q(1, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(0) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(3);
+                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(0) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(1) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(2) +
+                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(3);
 
                 // Combinatorial transformation
-                covariance(row, col) = (Q(1, 1) - Q(2, 1) - Q(1, 2) + Q(2, 2)); // unit [cycle]
+                covariance(row, col) = Q(0, 0) - Q(1, 0) - Q(0, 1) + Q(1, 1); // unit [cycle]
+                covariance(col, row) = covariance(row, col);
             }
         }
         // Unit weight
@@ -1854,7 +1855,7 @@ namespace great
         }
     }
 
-    double t_gambiguity::_lambdaSearch(const Matrix& anor, const std::vector<double>& fltpar, std::vector<int>& ibias, double* boot)
+    double t_gambiguity::_lambdaSearch(const Eigen::MatrixXd& anor, const std::vector<double>& fltpar, std::vector<int>& ibias, double* boot)
     {
         const int maxcan = 2;
         int namb = fltpar.size();
@@ -1878,7 +1879,7 @@ namespace great
                 // col
                 for (j = 0; j < namb; j++)
                 {
-                    Q[i * namb + j] = anor(i + 1, j + 1);
+                    Q[i * namb + j] = anor(i, j);
                     if (i < j)
                     {
                         Q[i * namb + j] = 0.0;
@@ -1903,11 +1904,10 @@ namespace great
 
             if (!double_eq(ratio, 0.0) && _part_fix && lambda->pDia != NULL)
             {
-                _mDia.ReSize(namb);
-                _mDia = 0;
+                _mDia.setZero(namb);
                 for (i = 0; i < namb; i++)
                 {
-                    _mDia(i + 1) = lambda->pDia[i];
+                    _mDia(i) = lambda->pDia[i];
                 }
             }
 
@@ -1963,7 +1963,7 @@ namespace great
 
     bool t_gambiguity::_ambSolve(t_gamb_cmn* amb_cmn, std::vector<int>& fixed_amb, std::string mode)
     {
-        SymmetricMatrix covariance;
+        Eigen::MatrixXd covariance;
         std::vector<double> value;
         double ratio = 0.0;
         double boot = 0.0;
@@ -2039,9 +2039,9 @@ namespace great
                     if (_fix_epo_num[mode][get<0>(itdd->ddSats[0])] == 0 || _fix_epo_num[mode][get<0>(itdd->ddSats[1])] == 0 ||
                         _lock_epo_num[get<0>(itdd->ddSats[0])] < 5 || _lock_epo_num[get<0>(itdd->ddSats[1])] < 5)
                     {
-                        if (covariance(i, i) > max_diag)
+                        if (covariance(i - 1, i - 1) > max_diag)
                         {
-                            max_diag = covariance(i, i);
+                            max_diag = covariance(i - 1, i - 1);
                             index = i;
                         }
                     }
@@ -2053,9 +2053,9 @@ namespace great
             {
                 for (unsigned int i = 1; i <= value.size(); i++)
                 {
-                    if (covariance(i, i) > max_diag)
+                    if (covariance(i - 1, i - 1) > max_diag)
                     {
-                        max_diag = covariance(i, i);
+                        max_diag = covariance(i - 1, i - 1);
                         index = i;
                     }
                 }
@@ -2069,9 +2069,9 @@ namespace great
                 sat2 = get<0>(itdd->ddSats[1]);
                 if (gsat2gsys(sat1) == GSYS::GLO && gsat2gsys(sat2) == GSYS::GLO)
                 {
-                    if (covariance(i, i) > max_diag)
+                    if (covariance(i - 1, i - 1) > max_diag)
                     {
-                        max_diag = covariance(i, i);
+                        max_diag = covariance(i - 1, i - 1);
                         index = i;
                     }
                 }
@@ -2282,13 +2282,13 @@ namespace great
             B.push_back(std::make_pair(index_sat1, Ba));
             B.push_back(std::make_pair(index_sat2, Bb));
 
-            Matrix B_mat;
-            SymmetricMatrix P_mat;
-            ColumnVector l_mat;
+            Eigen::MatrixXd B_mat;
+            Eigen::MatrixXd P_mat;
+            Eigen::VectorXd l_mat;
             t_gfltEquationMatrix virtual_equ;
             t_gobscombtype type;
             virtual_equ.add_equ(B, p0, dl, _site, GSAT::NONE, type, false);
-            virtual_equ.chageNewMat(B_mat, P_mat, l_mat, gflt->npar_number());
+            virtual_equ.toEigen(B_mat, P_mat, l_mat, gflt->npar_number());
 
             gflt->resetQ();
             gflt->add_virtual_obs(B_mat, P_mat, l_mat);
@@ -2325,7 +2325,7 @@ namespace great
         double Bb = 0.0;
         double Bc = 0.0;
         double Bd = 0.0; // the Coefficient of B matrix
-        SymmetricMatrix _Qx_tmp;
+        Eigen::MatrixXd _Qx_tmp;
         t_gflt flttmp(*gflt);
         _Qx_tmp = gflt->Qx();
         if (mode == "EWL" || mode == "EWL24" || mode == "EWL25")
@@ -2421,9 +2421,9 @@ namespace great
             B.push_back(std::make_pair(index_sat2, Bc));
             B.push_back(std::make_pair(index_sat4, Bd));
 
-            Matrix B_mat;
-            SymmetricMatrix P_mat;
-            ColumnVector l_mat;
+            Eigen::MatrixXd B_mat;
+            Eigen::MatrixXd P_mat;
+            Eigen::VectorXd l_mat;
             t_gfltEquationMatrix virtual_equ;
             t_gobscombtype type;
             virtual_equ.add_equ(B,
@@ -2433,7 +2433,7 @@ namespace great
                                 GSAT::NONE,
                                 type,
                                 false);
-            virtual_equ.chageNewMat(B_mat, P_mat, l_mat, gflt->npar_number());
+            virtual_equ.toEigen(B_mat, P_mat, l_mat, gflt->npar_number());
 
             gflt->resetQ();
             gflt->add_virtual_obs(B_mat, P_mat, l_mat);
@@ -2703,17 +2703,17 @@ namespace great
         return _param;
     }
 
-    ColumnVector t_gamb_cmn::dx() const
+    Eigen::VectorXd t_gamb_cmn::dx() const
     {
         return _dx;
     }
 
-    ColumnVector t_gamb_cmn::stdx() const
+    Eigen::VectorXd t_gamb_cmn::stdx() const
     {
         return _stdx;
     }
 
-    SymmetricMatrix t_gamb_cmn::Qx() const
+    Eigen::MatrixXd t_gamb_cmn::Qx() const
     {
         return _Qx;
     }

@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 #include "gcoders/gcoder.h"
 #include "gmodels/gotl.h"
@@ -84,7 +84,7 @@ namespace gnut
         double _lat;     ///< latitude
         double _lon;     ///< longitude
         string _site;    ///< site
-        Matrix _blqdata; ///< blqdata
+        Eigen::MatrixXd _blqdata; ///< blqdata
 
     private:
     };

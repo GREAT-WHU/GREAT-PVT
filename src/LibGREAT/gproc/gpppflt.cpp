@@ -1,7 +1,7 @@
 /**
  * @file         gpppflt.cpp
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        Matrix for NEQ,W,observ_equations
+ * @brief        Eigen::MatrixXd for NEQ,W,observ_equations
  * @version      1.0
  * @date         2024-08-29
  *
@@ -54,30 +54,29 @@ namespace gnut
             _param.addParam(par_grdE);
         }
 
-        SymmetricMatrix tmp = _Qx;
-        _Qx.ReSize(_param.parNumber());
-        _Qx = 0.0;
+        Eigen::MatrixXd tmp = _Qx;
+        _Qx.setZero(_param.parNumber(), _param.parNumber());
 
-        for (int i = 1; i <= tmp.Nrows(); i++)
+        for (int i = 0; i < tmp.rows(); i++)
         {
             _Qx(i, i) = tmp(i, i);
         }
 
-        for (std::size_t i = 1; i <= _param.parNumber(); i++)
+        for (std::size_t i = 0; i < _param.parNumber(); i++)
         {
-            if (_param[i - 1].parType == par_type::GRD_N)
+            if (_param[i].parType == par_type::GRD_N)
             {
                 _Qx(i, i) = _sig_init_grd * _sig_init_grd;
             }
-            else if (_param[i - 1].parType == par_type::GRD_E)
+            else if (_param[i].parType == par_type::GRD_E)
             {
                 _Qx(i, i) = _sig_init_grd * _sig_init_grd;
             }
-            else if (_param[i - 1].parType == par_type::P1P2G_REC)
+            else if (_param[i].parType == par_type::P1P2G_REC)
             {
                 _Qx(i, i) = 100.0 * 100;
             }
-            else if (_param[i - 1].parType == par_type::P1P2E_REC)
+            else if (_param[i].parType == par_type::P1P2E_REC)
             {
                 _Qx(i, i) = 100.0 * 100;
             }
@@ -140,7 +139,7 @@ namespace gnut
         return 1;
     }
 
-    void t_gpppflt::_saveApr(t_gtime& epoch, t_gallpar& X, const SymmetricMatrix& Q)
+    void t_gpppflt::_saveApr(t_gtime& epoch, t_gallpar& X, const Eigen::MatrixXd& Q)
     {
         // get CRD params
         t_gtriple xyz;
@@ -154,29 +153,29 @@ namespace gnut
         int icrdx = _param.getParam(_site, par_type::CRD_X, "");
         int icrdy = _param.getParam(_site, par_type::CRD_Y, "");
         int icrdz = _param.getParam(_site, par_type::CRD_Z, "");
-        if (Q(icrdx + 1, icrdx + 1) < 0)
+        if (Q(icrdx, icrdx) < 0)
         {
             Xrms = -1;
         }
         else
         {
-            Xrms = sqrt(Q(icrdx + 1, icrdx + 1));
+            Xrms = sqrt(Q(icrdx, icrdx));
         }
-        if (Q(icrdy + 1, icrdy + 1) < 0)
+        if (Q(icrdy, icrdy) < 0)
         {
             Yrms = -1;
         }
         else
         {
-            Yrms = sqrt(Q(icrdy + 1, icrdy + 1));
+            Yrms = sqrt(Q(icrdy, icrdy));
         }
-        if (Q(icrdz + 1, icrdz + 1) < 0)
+        if (Q(icrdz, icrdz) < 0)
         {
             Zrms = -1;
         }
         else
         {
-            Zrms = sqrt(Q(icrdz + 1, icrdz + 1));
+            Zrms = sqrt(Q(icrdz, icrdz));
         }
         t_gtriple crd_rms(Xrms, Yrms, Zrms);
 

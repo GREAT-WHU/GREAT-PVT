@@ -34,10 +34,10 @@ namespace gnut
         _crd[1] = crd[1];
     }
 
-    t_gpair::t_gpair(const ColumnVector& crd)
+    t_gpair::t_gpair(const Eigen::VectorXd& crd)
     {
-        _crd[0] = crd(1);
-        _crd[1] = crd(2);
+        _crd[0] = crd(0);
+        _crd[1] = crd(1);
     }
 
     t_gpair::~t_gpair()
@@ -117,11 +117,11 @@ namespace gnut
         return _crd;
     }
 
-    ColumnVector t_gpair::crd_cvect()
+    Eigen::VectorXd t_gpair::crd_cvect()
     {
-        ColumnVector tmp(2);
-        tmp(1) = _crd[0];
-        tmp(2) = _crd[1];
+        Eigen::VectorXd tmp(2);
+        tmp(0) = _crd[0];
+        tmp(1) = _crd[1];
         return tmp;
     }
 
@@ -130,10 +130,10 @@ namespace gnut
         return *this;
     }
 
-    void t_gpair::set(const ColumnVector& crd)
+    void t_gpair::set(const Eigen::VectorXd& crd)
     {
-        _crd[0] = crd(1);
-        _crd[1] = crd(2);
+        _crd[0] = crd(0);
+        _crd[1] = crd(1);
     }
 
     void t_gpair::set(double crd[2])
@@ -142,11 +142,11 @@ namespace gnut
         _crd[1] = crd[1];
     }
 
-    ColumnVector t_gpair::unitary()
+    Eigen::VectorXd t_gpair::unitary()
     {
-        ColumnVector tmp(2);
+        Eigen::VectorXd tmp(2);
         tmp = this->crd_cvect();
-        double s = tmp.norm_Frobenius();
+        double s = tmp.norm();
         tmp /= s;
 
         return tmp;

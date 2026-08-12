@@ -23,7 +23,7 @@
 #include <vector>
 #include <map>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gutils/gtime.h"
 #include "gutils/gpair.h"
 #include "gdata/gdata.h"

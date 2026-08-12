@@ -15,7 +15,7 @@
 #include "gutils/gnss.h"
 #include <Eigen/Eigen>
 #include "gexport/ExportLibGREAT.h"
-#include <newmat/newmat.h>
+#include <Eigen/Dense>
 #include <set>
 using namespace gnut;
 
@@ -76,9 +76,9 @@ namespace gsins
 
         struct data_dd
         {
-            Matrix A;
-            SymmetricMatrix P;
-            ColumnVector l;
+            Eigen::MatrixXd A;
+            Eigen::MatrixXd P;
+            Eigen::VectorXd l;
             std::map<std::vector<GSAT>, std::vector<Eigen::Vector3d>> sat;
             std::map<std::vector<std::string>, std::vector<Eigen::Vector3d>> ant;
         };

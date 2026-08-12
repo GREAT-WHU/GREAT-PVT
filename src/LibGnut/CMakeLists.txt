@@ -68,6 +68,8 @@ message(STATUS " include path for ${LibGnut} is : ${LibGnutSrc}")
 # listing is more reliable for production.
 file(GLOB_RECURSE header_files ${PROJECT_SOURCE_DIR} *.h *.hpp)
 file(GLOB_RECURSE source_files ${PROJECT_SOURCE_DIR} *.c *.cpp)
+list(FILTER header_files EXCLUDE REGEX "/newmat/")
+list(FILTER source_files EXCLUDE REGEX "/newmat/")
 
 # ---- 6. Source grouping for Visual Studio (Windows only) ----
 # On Windows, we organise the files into virtual folders in the IDE.

@@ -110,12 +110,12 @@ namespace great
         /**
          * @brief add pseudorange and carrier-phase measurement to model. Rewritten for RTK application.
          * @note,Lvhb created  for RTK/SD-PPP
-         * @param[in/out] A            Coff Matrix
+         * @param[in/out] A            Coff Eigen::MatrixXd
          * @param[in/out] l            measurement vector
          * @param[in/out] P            measurement variance
          * @return retval > 0,success; retval < 0,fail
          */
-        int _combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l);
+        int _combineDD(Eigen::MatrixXd& A, Eigen::MatrixXd& P, Eigen::VectorXd& l);
 
         /** @brief filter time update. */
         void _syncAmb();
@@ -139,14 +139,14 @@ namespace great
         bool _getSatRef();
 
         /** @brief Detect outlier. */
-        virtual int _outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, GSAT& sat);
+        virtual int _outlierDetect(const Eigen::VectorXd& v, const Eigen::MatrixXd& Qsav, GSAT& sat);
 
         /**
          * @brief add doppler measurement to model
          * @param[in] satdata    satellite data
          * @param[in] iobs        index
          * @param[in] XYZ        ECEF coordinate
-         * @param[out] A            Coff Matrix
+         * @param[out] A            Coff Eigen::MatrixXd
          * @param[out] l            measurement vector
          * @param[out] P            measurement variance
          * @return retval > 0,success; retval < 0,fail
@@ -155,12 +155,12 @@ namespace great
                      unsigned int& iobs,
                      t_gallpar& param,
                      t_gtriple& XYZ,
-                     Matrix& A,
-                     ColumnVector& l,
-                     DiagonalMatrix& P);
+                     Eigen::MatrixXd& A,
+                     Eigen::VectorXd& l,
+                     Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P);
 
         /** @brief post residual for rtk */
-        int _postRes(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, const ColumnVector& dx);
+        int _postRes(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l, const Eigen::VectorXd& dx);
 
         /** @brief modified for PPP/RTK processing */
         virtual int _combineMW(t_gsatdata& satdata);
@@ -180,12 +180,12 @@ namespace great
         /** @brief print  the result. */
         virtual void _prtOut(t_gtime& epo,
                              t_gallpar& X,
-                             const SymmetricMatrix& Q,
+                             const Eigen::MatrixXd& Q,
                              std::vector<t_gsatdata>& data,
                              std::ostringstream& os,
                              xml_node& node,
                              bool saveProd = true);
-        virtual void _prt_port(t_gtime& epo, t_gallpar& X, const SymmetricMatrix& Q, std::vector<t_gsatdata>& data);
+        virtual void _prt_port(t_gtime& epo, t_gallpar& X, const Eigen::MatrixXd& Q, std::vector<t_gsatdata>& data);
 
         /** @brief print  the result. */
         void _prtOutHeader();
@@ -206,10 +206,10 @@ namespace great
         void _remove_sat(GSAT sat);
 
         /** @brief check sat. */
-        bool _check_sat(const std::string& ssite, t_gsatdata* const iter, Matrix& BB, int& iobs);
+        bool _check_sat(const std::string& ssite, t_gsatdata* const iter, Eigen::MatrixXd& BB, int& iobs);
 
         /** @brief compute rec crd. */
-        bool _cmp_rec_crd(const std::string& ssite, Matrix& BB);
+        bool _cmp_rec_crd(const std::string& ssite, Eigen::MatrixXd& BB);
 
         /** @brief compute sat information. */
         bool _cmp_sat_info(const std::string& ssite, t_gsatdata* const iter);
@@ -236,12 +236,12 @@ namespace great
         unsigned int _cmp_equ(t_gfltEquationMatrix& equ);
 
         /** @brief posteriori Test. */
-        void _posterioriTest(const Matrix& A,
-                             const SymmetricMatrix& P,
-                             const ColumnVector& l,
-                             const ColumnVector& dx,
-                             const SymmetricMatrix& Q,
-                             ColumnVector& v_norm,
+        void _posterioriTest(const Eigen::MatrixXd& A,
+                             const Eigen::MatrixXd& P,
+                             const Eigen::VectorXd& l,
+                             const Eigen::VectorXd& dx,
+                             const Eigen::MatrixXd& Q,
+                             Eigen::VectorXd& v_norm,
                              double& vtpv);
 
     protected:
@@ -252,9 +252,9 @@ namespace great
         bool _isFirstFix;                                                         ///< is First Fix
         double _max_res_norm;                                                     ///< maximum normalize res
         bool _isBase;                                                             ///< if using base,true; other: fasle
-        Matrix _post_A;                                                           ///< post A P L for RTK
-        SymmetricMatrix _post_P;                                                  ///< post A P L for RTK
-        ColumnVector _post_l;                                                     ///< post A P L for RTK
+        Eigen::MatrixXd _post_A;                                                           ///< post A P L for RTK
+        Eigen::MatrixXd _post_P;                                                  ///< post A P L for RTK
+        Eigen::VectorXd _post_l;                                                     ///< post A P L for RTK
         std::string _site_base;                                                        ///< base site name;
         std::vector<t_gsatdata> _data_base;                                            ///< base data in every epoch;
         t_gpppmodel* _gModel_base;                                                ///< base model
@@ -268,12 +268,12 @@ namespace great
         bool _amb_state;                                                          ///< ambiguity state
         t_gallpar _param_fixed;                                                   ///< param fixed
         t_gtriple _vel;                                                           ///< vel
-        SymmetricMatrix _Qx_vel;                                                  ///< Qx_vel
+        Eigen::MatrixXd _Qx_vel;                                                  ///< Qx_vel
         std::map<GSAT, double> _crt_ele;                                               ///< crt vel
         std::map<GSAT, std::map<FREQ_SEQ, double>> _crt_SNR;                                ///< crt SNR
         std::vector<std::pair<GSAT, std::pair<FREQ_SEQ, GOBSTYPE>>> _obs_index;                ///< obs index
         std::map<std::pair<GSAT, par_type>, std::tuple<GOBS, GOBS, GOBS, GOBS>> _amb_obs;
-        ColumnVector _vBanc_base;                       ///< _vBanc_base
+        Eigen::VectorXd _vBanc_base;                       ///< _vBanc_base
         std::map<GSYS, std::map<FREQ_SEQ, GOBSBAND>> _band_index; ///< band index
         std::map<GSYS, std::map<GOBSBAND, FREQ_SEQ>> _freq_index; ///< freq index
         int _frequency;                                 ///< frequency

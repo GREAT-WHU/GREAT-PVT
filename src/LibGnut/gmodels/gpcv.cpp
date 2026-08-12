@@ -299,8 +299,8 @@ namespace gnut
         mapDataf2 = _mapzen[f2];
 
         double eleS = satdata.ele();
-        double rS = satdata.satcrd().crd_cvect().NormFrobenius();
-        double rR = site.crd_cvect().NormFrobenius();
+        double rS = satdata.satcrd().crd_cvect().norm();
+        double rR = site.crd_cvect().norm();
 
         double sinz = (rR / rS) * cos(eleS);
         double zen = asin(sinz) * R2D;
@@ -595,8 +595,8 @@ namespace gnut
         }
 
         double eleS = satdata.ele();
-        double rS = satdata.satcrd().crd_cvect().NormFrobenius();
-        double rR = site.crd_cvect().NormFrobenius();
+        double rS = satdata.satcrd().crd_cvect().norm();
+        double rR = site.crd_cvect().norm();
         double sinz = (rR / rS) * cos(eleS);
         double zen = asin(sinz) * R2D;
         double azi = satdata.azi_sat() * R2D;
@@ -816,8 +816,8 @@ namespace gnut
         t_gtriple Satcrd_t = satdata.satcrd();
         t_gtriple Satvel_t = satdata.satvel(); // TEMPORARY
         GSYS gsys = satdata.gsys();
-        ColumnVector Satcrd = Satcrd_t.crd_cvect();
-        ColumnVector Satvel = Satvel_t.crd_cvect(); // TEMPORARY
+        Eigen::VectorXd Satcrd = Satcrd_t.crd_cvect();
+        Eigen::VectorXd Satvel = Satvel_t.crd_cvect(); // TEMPORARY
 
         t_gtriple apcf1, apcf2, apcf3, apcf4, apcf5, apcLC;
 
@@ -1121,9 +1121,9 @@ namespace gnut
         t_gtriple satcrd = satdata.satcrd();
         t_gtriple SatRec(0.0, 0.0, 0.0);
         SatRec = satcrd - site;
-        ColumnVector e = SatRec.unitary();
+        Eigen::VectorXd e = SatRec.unitary();
 
-        corr = DotProduct(dx.crd_cvect(), e);
+        corr = dx.crd_cvect().dot(e);
 
         return 1;
     }
@@ -1213,8 +1213,8 @@ namespace gnut
         mapDataf5 = _mapzen[f5];
 
         double eleS = satdata.ele();
-        double rS = satdata.satcrd().crd_cvect().NormFrobenius();
-        double rR = site.crd_cvect().NormFrobenius();
+        double rS = satdata.satcrd().crd_cvect().norm();
+        double rR = site.crd_cvect().norm();
 
         double sinz = (rR / rS) * cos(eleS);
         double zen = asin(sinz) * R2D;

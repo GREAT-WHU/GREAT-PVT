@@ -1,7 +1,7 @@
 /**
  * @file         gpppflt.h
  * @author       GREAT-WHU (https://github.com/GREAT-WHU)
- * @brief        Matrix for NEQ,W,observ_equations
+ * @brief        Eigen::MatrixXd for NEQ,W,observ_equations
  * @version      1.0
  * @date         2024-08-29
  *
@@ -41,7 +41,7 @@ namespace gnut
         virtual void _setOut();
 
         /**@brief Save apriory coordinates to products */
-        void _saveApr(t_gtime& epo, t_gallpar& X, const SymmetricMatrix& Q);
+        void _saveApr(t_gtime& epo, t_gallpar& X, const Eigen::MatrixXd& Q);
 
         /**@brief Remove apriory coordinates from products */
         void _removeApr(t_gtime& epo);

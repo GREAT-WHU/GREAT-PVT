@@ -20,7 +20,7 @@
 #include <string>
 #include <map>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
 #include "gutils/gsysconv.h"

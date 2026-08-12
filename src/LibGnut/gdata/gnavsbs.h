@@ -21,7 +21,7 @@
 
 #include <vector>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gdata/gnav.h"
 #include "gutils/gtime.h"
 #include "gutils/gconst.h"

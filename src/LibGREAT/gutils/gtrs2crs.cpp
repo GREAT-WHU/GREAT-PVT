@@ -72,7 +72,7 @@ namespace great
     }
 
     // return the values needed by other functions
-    Matrix& t_gtrs2crs::getRotMat()
+    Eigen::MatrixXd& t_gtrs2crs::getRotMat()
     {
         return _rotmat;
     };
@@ -117,7 +117,7 @@ namespace great
             iauC2t06a(SOFA_DJM0 + _tdt.mjd(), tt, SOFA_DJM0 + sTUT1.mjd(), ut1, _xpole, _ypole, rc2t);
         }
 
-        _rotmat.ReSize(3, 3);
+        _rotmat.setZero(3, 3);
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)

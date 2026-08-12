@@ -20,6 +20,38 @@
 
 namespace gnut
 {
+    namespace
+    {
+        int gsat_block(GSYS sys)
+        {
+            switch (sys)
+            {
+                case GSYS::BDS: return 1; // C
+                case GSYS::GAL: return 2; // E
+                case GSYS::GPS: return 3; // G
+                case GSYS::IRN: return 4; // I
+                case GSYS::QZS: return 5; // J
+                case GSYS::GLO: return 6; // R
+                case GSYS::SBS: return 7; // S
+                default: return 0;
+            }
+        }
+
+        GSYS gsat_system(int block)
+        {
+            switch (block)
+            {
+                case 1: return GSYS::BDS; // C
+                case 2: return GSYS::GAL; // E
+                case 3: return GSYS::GPS; // G
+                case 4: return GSYS::IRN; // I
+                case 5: return GSYS::QZS; // J
+                case 6: return GSYS::GLO; // R
+                case 7: return GSYS::SBS; // S
+                default: return GSYS::GNS;
+            }
+        }
+    }
 
     GSAT str2gsat(const std::string& sat, GSYS sys)
     {
@@ -88,12 +120,13 @@ namespace gnut
         {
             prn -= 100;
         }
-        if (prn < 1 || prn > 99 || sys < GSYS::GPS || sys > GSYS::IRN)
+        int block = gsat_block(sys);
+        if (prn < 1 || prn > 99 || block == 0)
         {
             return GSAT::NONE;
         }
 
-        GSAT result = static_cast<GSAT>(static_cast<unsigned short>(sys) * 100 + prn);
+        GSAT result = static_cast<GSAT>(block * 100 + prn);
         return valid_gsat(result) ? result : GSAT::NONE;
     }
 
@@ -101,7 +134,7 @@ namespace gnut
     {
         int value = static_cast<unsigned short>(sat);
         int prn = value % 100;
-        switch (static_cast<GSYS>(value / 100))
+        switch (gsat_system(value / 100))
         {
             case GSYS::GPS:
                 return prn >= 1 && prn <= 32;
@@ -124,8 +157,8 @@ namespace gnut
 
     GSYS gsat2gsys(GSAT sat)
     {
-        int sys = static_cast<unsigned short>(sat) / 100;
-        return valid_gsat(sat) ? static_cast<GSYS>(sys) : GSYS::GNS;
+        int block = static_cast<unsigned short>(sat) / 100;
+        return valid_gsat(sat) ? gsat_system(block) : GSYS::GNS;
     }
 
     int gsat2prn(GSAT sat)

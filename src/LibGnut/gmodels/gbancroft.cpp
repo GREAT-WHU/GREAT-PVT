@@ -16,27 +16,27 @@
 namespace gnut
 {
 
-    int gbancroft(const Matrix& BBpass, ColumnVector& pos)
+    int gbancroft(const Eigen::MatrixXd& BBpass, Eigen::VectorXd& pos)
     {
-        if (pos.Nrows() != 4)
+        if (pos.rows() != 4)
         {
-            pos.ReSize(4);
+            pos.resize(4);
         }
-        pos = 0.0;
+        pos.setZero();
 
         for (int iter = 1; iter <= 2; iter++)
         {
-            Matrix BB = BBpass;
-            int mm = BB.Nrows();
-            for (int ii = 1; ii <= mm; ii++)
+            Eigen::MatrixXd BB = BBpass;
+            int mm = BB.rows();
+            for (int ii = 0; ii < mm; ++ii)
             {
-                double xx = BB(ii, 1);
-                double yy = BB(ii, 2);
+                double xx = BB(ii, 0);
+                double yy = BB(ii, 1);
                 double traveltime = 0.072;
                 if (iter > 1)
                 {
-                    double zz = BB(ii, 3);
-                    double rho2 = (xx - pos(1)) * (xx - pos(1)) + (yy - pos(2)) * (yy - pos(2)) + (zz - pos(3)) * (zz - pos(3));
+                    double zz = BB(ii, 2);
+                    double rho2 = (xx - pos(0)) * (xx - pos(0)) + (yy - pos(1)) * (yy - pos(1)) + (zz - pos(2)) * (zz - pos(2));
                     if (rho2 < 0)
                     {
                         return -1;
@@ -49,31 +49,31 @@ namespace gnut
                 double angle = traveltime * OMEGA;
                 double cosa = cos(angle);
                 double sina = sin(angle);
-                BB(ii, 1) = cosa * xx + sina * yy;
-                BB(ii, 2) = -sina * xx + cosa * yy;
+                BB(ii, 0) = cosa * xx + sina * yy;
+                BB(ii, 1) = -sina * xx + cosa * yy;
             }
 
-            Matrix BBB;
+            Eigen::MatrixXd BBB;
             if (mm > 4)
             {
-                SymmetricMatrix hlp;
-                hlp << BB.t() * BB;
-                BBB = hlp.i() * BB.t();
+                Eigen::MatrixXd hlp;
+                hlp = BB.transpose() * BB;
+                BBB = hlp.inverse() * BB.transpose();
             }
             else
             {
-                BBB = BB.i();
+                BBB = BB.inverse();
             }
-            ColumnVector ee(mm);
-            ee = 1.0;
-            ColumnVector alpha(mm);
-            alpha = 0.0;
-            for (int ii = 1; ii <= mm; ii++)
+            Eigen::VectorXd ee(mm);
+            ee.setOnes();
+            Eigen::VectorXd alpha(mm);
+            alpha.setZero();
+            for (int ii = 0; ii < mm; ++ii)
             {
-                alpha(ii) = lorentz(BB.Row(ii).t(), BB.Row(ii).t()) / 2.0;
+                alpha(ii) = lorentz(BB.row(ii).transpose(), BB.row(ii).transpose()) / 2.0;
             }
-            ColumnVector BBBe = BBB * ee;
-            ColumnVector BBBalpha = BBB * alpha;
+            Eigen::VectorXd BBBe = BBB * ee;
+            Eigen::VectorXd BBBalpha = BBB * alpha;
             double aa = lorentz(BBBe, BBBe);
             double bb = lorentz(BBBe, BBBalpha) - 1;
             double cc = lorentz(BBBalpha, BBBalpha);
@@ -85,39 +85,39 @@ namespace gnut
             }
             double root = sqrt(root2);
 
-            Matrix hlpPos(4, 2);
-            hlpPos.Column(1) = (-bb - root) / aa * BBBe + BBBalpha;
-            hlpPos.Column(2) = (-bb + root) / aa * BBBe + BBBalpha;
+            Eigen::MatrixXd hlpPos(4, 2);
+            hlpPos.col(0) = (-bb - root) / aa * BBBe + BBBalpha;
+            hlpPos.col(1) = (-bb + root) / aa * BBBe + BBBalpha;
 
-            ColumnVector omc(2);
-            for (int pp = 1; pp <= 2; pp++)
+            Eigen::VectorXd omc(2);
+            for (int pp = 0; pp < 2; ++pp)
             {
-                hlpPos(4, pp) = -hlpPos(4, pp);
-                double tm = (BB(1, 1) - hlpPos(1, pp)) * (BB(1, 1) - hlpPos(1, pp)) +
-                            (BB(1, 2) - hlpPos(2, pp)) * (BB(1, 2) - hlpPos(2, pp)) +
-                            (BB(1, 3) - hlpPos(3, pp)) * (BB(1, 3) - hlpPos(3, pp));
+                hlpPos(3, pp) = -hlpPos(3, pp);
+                double tm = (BB(0, 0) - hlpPos(0, pp)) * (BB(0, 0) - hlpPos(0, pp)) +
+                            (BB(0, 1) - hlpPos(1, pp)) * (BB(0, 1) - hlpPos(1, pp)) +
+                            (BB(0, 2) - hlpPos(2, pp)) * (BB(0, 2) - hlpPos(2, pp));
                 if (tm < 0)
                 {
                     return -1;
                 }
 
-                omc(pp) = BB(1, 4) - sqrt(tm) - hlpPos(4, pp);
+                omc(pp) = BB(0, 3) - sqrt(tm) - hlpPos(3, pp);
             }
-            if (fabs(omc(1)) > fabs(omc(2)))
+            if (fabs(omc(0)) > fabs(omc(1)))
             {
-                pos = hlpPos.Column(2);
+                pos = hlpPos.col(1);
             }
             else
             {
-                pos = hlpPos.Column(1);
+                pos = hlpPos.col(0);
             }
         }
         return 0;
     }
 
-    double lorentz(const ColumnVector& aa, const ColumnVector& bb)
+    double lorentz(const Eigen::VectorXd& aa, const Eigen::VectorXd& bb)
     {
-        return aa(1) * bb(1) + aa(2) * bb(2) + aa(3) * bb(3) - aa(4) * bb(4);
+        return aa(0) * bb(0) + aa(1) * bb(1) + aa(2) * bb(2) - aa(3) * bb(3);
     }
 
 } // namespace gnut

@@ -39,11 +39,10 @@ namespace gnut
         double L = 2.0 * G_PI * _frac(0.7859444 + M / 2.0 / G_PI + (6892.0 * sin(M) + 72.0 * sin(2.0 * M)) / 1296.0e3);
         double r = 149.619e9 - 2.499e9 * cos(M) - 0.021e9 * cos(2 * M);
 
-        ColumnVector r_Sun(3);
-        r_Sun << r * cos(L) << r * sin(L) << 0.0;
+        Eigen::Vector3d r_Sun(r * cos(L), r * sin(L), 0.0);
         r_Sun = rotX(-eps) * r_Sun;
 
-        ColumnVector tmp;
+        Eigen::Vector3d tmp;
 
         if (itrf)
         {
@@ -56,7 +55,7 @@ namespace gnut
 
         for (int i = 0; i < 3; i++)
         {
-            ret[i] = tmp(i + 1);
+            ret[i] = tmp(i);
         }
 
         if (itrf)
@@ -97,15 +96,14 @@ namespace gnut
         double R = 385000e3 - 20905e3 * cos(l) - 3699e3 * cos(2 * D - l) - 2956e3 * cos(2 * D) - 570e3 * cos(2 * l) +
                    246e3 * cos(2 * l - 2 * D) - 205e3 * cos(lp - 2 * D) - 171e3 * cos(l + 2 * D) - 152e3 * cos(l + lp - 2 * D);
 
-        ColumnVector r_Moon(3);
-        r_Moon << R * cos(L) * cosB << R * sin(L) * cosB << R * sin(B);
+        Eigen::Vector3d r_Moon(R * cos(L) * cosB, R * sin(L) * cosB, R * sin(B));
         r_Moon = rotX(-eps) * r_Moon;
 
-        ColumnVector tmp = rotZ(gmst(mjd)) * _eop.nutMatrix(mjd) * _eop.precMatrix(mjd) * r_Moon;
+        Eigen::Vector3d tmp = rotZ(gmst(mjd)) * _eop.nutMatrix(mjd) * _eop.precMatrix(mjd) * r_Moon;
 
         for (int i = 0; i < 3; i++)
         {
-            ret[i] = tmp(i + 1);
+            ret[i] = tmp(i);
         }
 
         return ret;

@@ -20,7 +20,7 @@ namespace gnut
         _mapotl.clear();
     }
 
-    int t_gallotl::data(Matrix& otldata, const std::string& site)
+    int t_gallotl::data(Eigen::MatrixXd& otldata, const std::string& site)
     {
 
         if (_mapotl.find(site) == _mapotl.end() || _mapotl.size() == 0)
@@ -43,7 +43,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gallotl::data(Matrix& otldata, double lon, double lat)
+    int t_gallotl::data(Eigen::MatrixXd& otldata, double lon, double lat)
     {
         const double dlon_eps = 1E4 / 6378235.0 * R2D, dlat_eps = dlon_eps / cos(lat * D2R);
 

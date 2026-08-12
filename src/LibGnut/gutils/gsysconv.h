@@ -24,7 +24,7 @@
 
 #include "gutils/gtriple.h"
 #include "gdata/gsatdata.h"
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gexport/ExportLibGnut.h"
 
 
@@ -46,13 +46,13 @@ namespace gnut
                                        double* xyz); // ! Radians only: Ell[0], Ell[1]
 
     /**@brief rotation matrix for rao2xyz */
-    LibGnut_LIBRARY_EXPORT int rao2xyz_rot(const ColumnVector& pos, const ColumnVector& vel, Matrix& R);
+    LibGnut_LIBRARY_EXPORT int rao2xyz_rot(const Eigen::VectorXd& pos, const Eigen::VectorXd& vel, Eigen::MatrixXd& R);
 
     /**@brief Radial/Along-track/Out-of-plane (Satell-system) to XYZ coordinates */
-    LibGnut_LIBRARY_EXPORT int rao2xyz(const ColumnVector& pos, const ColumnVector& vel, const ColumnVector& rao, ColumnVector& xyz);
+    LibGnut_LIBRARY_EXPORT int rao2xyz(const Eigen::VectorXd& pos, const Eigen::VectorXd& vel, const Eigen::VectorXd& rao, Eigen::VectorXd& xyz);
 
     /**@brief XYZ coordinates to Radial/Along-track/Out-of-plane (Satell-system) */
-    LibGnut_LIBRARY_EXPORT int xyz2rao(const ColumnVector& pos, const ColumnVector& vel, ColumnVector& xyz, ColumnVector& rao);
+    LibGnut_LIBRARY_EXPORT int xyz2rao(const Eigen::VectorXd& pos, const Eigen::VectorXd& vel, Eigen::VectorXd& xyz, Eigen::VectorXd& rao);
 
     /**@brief ELL coordinates to XYZ coordinates */
     LibGnut_LIBRARY_EXPORT int ell2xyz(const t_gtriple& ell, t_gtriple& xyz, bool degrees);
@@ -73,16 +73,16 @@ namespace gnut
                                         t_gtriple& xyz); // Radians only: Ell[0], Ell[1]
 
     /**@brief XYZ coordinates to Topocentric/Local (NEU) */
-    LibGnut_LIBRARY_EXPORT int xyz2neu(t_gtriple& xyz, SymmetricMatrix& Q_xyz, SymmetricMatrix& Q_neu);
+    LibGnut_LIBRARY_EXPORT int xyz2neu(t_gtriple& xyz, Eigen::MatrixXd& Q_xyz, Eigen::MatrixXd& Q_neu);
 
     /**@brief ELL coordinates to ipp */
     LibGnut_LIBRARY_EXPORT int ell2ipp(t_gsatdata& satdata, t_gtriple& ell_site, t_gtriple& ell_ipp, bool GPStkflag = false);
 
     /**@brief rotm */
-    LibGnut_LIBRARY_EXPORT Matrix rotm(double angle, int type);
+    LibGnut_LIBRARY_EXPORT Eigen::MatrixXd rotm(double angle, int type);
 
     /**@brief drotm */
-    LibGnut_LIBRARY_EXPORT Matrix drotm(double angle, int type);
+    LibGnut_LIBRARY_EXPORT Eigen::MatrixXd drotm(double angle, int type);
 } // namespace gnut
 
 #endif // GSYSCONV_H

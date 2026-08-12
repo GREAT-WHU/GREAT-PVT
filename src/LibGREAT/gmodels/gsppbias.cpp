@@ -108,7 +108,7 @@ namespace great
         xyz2ell(xyz, ell, false);
 
         t_gtriple satcrd = gsatdata.satcrd();
-        ColumnVector cSat = satcrd.crd_cvect();
+        Eigen::VectorXd cSat = satcrd.crd_cvect();
 
         // Tropospheric wet delay correction
         double trpDelay = 0;

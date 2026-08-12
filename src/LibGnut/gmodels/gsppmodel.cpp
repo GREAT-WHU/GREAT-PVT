@@ -74,7 +74,7 @@ namespace gnut
     {
     }
 
-    int t_gsppmodel::outlierDetect(std::vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix& Qsav)
+    int t_gsppmodel::outlierDetect(std::vector<t_gsatdata>& data, Eigen::MatrixXd& Qx, const Eigen::MatrixXd& Qsav)
     {
         std::vector<t_gsatdata>::iterator itMaxVcodeNORM = data.end();
         std::vector<t_gsatdata>::iterator itMaxVphaseNORM = data.end();
@@ -148,7 +148,7 @@ namespace gnut
         xyz2ell(xyz, ell, false);
 
         t_gtriple satcrd = gsatdata.satcrd();
-        ColumnVector cSat = satcrd.crd_cvect();
+        Eigen::VectorXd cSat = satcrd.crd_cvect();
 
         GSAT sat = gsatdata.sat();
         std::string rec = gsatdata.site();
@@ -213,7 +213,7 @@ namespace gnut
     {
         // Cartesian coordinates to ellipsodial coordinates
         t_gtriple xyz, ell;
-        ColumnVector cRec(3), vRec(3);
+        Eigen::VectorXd cRec(3), vRec(3);
 
         if (param.getCrdParam(_site, xyz) > 0)
         {
@@ -237,12 +237,12 @@ namespace gnut
         double dclk = gsatdata.dclk();
         t_gtriple satcrd = gsatdata.satcrd();
         t_gtriple satvel = gsatdata.satvel();
-        ColumnVector cSat = satcrd.crd_cvect();
-        ColumnVector vSat = satvel.crd_cvect();
-        ColumnVector e = (cSat - cRec) / gsatdata.rho();
+        Eigen::VectorXd cSat = satcrd.crd_cvect();
+        Eigen::VectorXd vSat = satvel.crd_cvect();
+        Eigen::VectorXd e = (cSat - cRec) / gsatdata.rho();
 
         double res =
-            dotproduct(e, vSat - vRec) + OMEGA / CLIGHT * (vSat(2) * cRec(1) + cSat(2) * vRec(1) - vSat(1) * cRec(2) - cSat(1) * vRec(2));
+            e.dot(vSat - vRec) + OMEGA / CLIGHT * (vSat(1) * cRec(0) + cSat(1) * vRec(0) - vSat(0) * cRec(1) - cSat(0) * vRec(1));
 
         return res + dclk_Rec - dclk;
     }

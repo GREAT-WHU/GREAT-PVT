@@ -17,7 +17,7 @@
 #include "gdata/gpoleut1.h"
 #include "gutils/gconst.h"
 #include "gutils/gtriple.h"
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 
 namespace great
@@ -93,7 +93,7 @@ namespace great
         void calcRotMat(const t_gtime& epoch);
 
         /** @brief return rotation matrix. */
-        Matrix& getRotMat();
+        Eigen::MatrixXd& getRotMat();
 
         /** @brief return xpole. */
         double getXpole();
@@ -171,7 +171,7 @@ namespace great
         // out variable
         double _xpole = 0.0; ///< x pole of pole shift
         double _ypole = 0.0; ///< y pole of pole shift
-        Matrix _rotmat;      ///< rotation matrix from TRS to CRS
+        Eigen::MatrixXd _rotmat;      ///< rotation matrix from TRS to CRS
 
         t_gpoleut1* _poleut1; ///< poleut1 data
 

@@ -623,7 +623,7 @@ namespace great
             t_gtriple pco(0.0, 0.0, 0.0);
             if (rec_pcv->pcoR_raw(satdata, pco, band) > 0)
             {
-                Matrix _rot_matrix = _RotMatrix_Ant(satdata, _crt_rec_epo, rec_obj);
+                Eigen::MatrixXd _rot_matrix = _RotMatrix_Ant(satdata, _crt_rec_epo, rec_obj);
                 t_gtriple dx(_rot_matrix * (pco.crd_cvect()));
                 rec_pcv->pco_proj(pco_R, satdata, trs_rec_crd, dx);
             }
@@ -688,10 +688,10 @@ namespace great
         satdata.addvel(trs_velocity);
     }
 
-    Matrix t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, std::shared_ptr<t_gobj> obj)
+    Eigen::MatrixXd t_gprecisebias::_RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, std::shared_ptr<t_gobj> obj)
     {
         t_gdata::ID_TYPE type = obj->id_type();
-        Matrix rotmatrix(3, 3);
+        Eigen::MatrixXd rotmatrix(3, 3);
         t_gtriple ell(0.0, 0.0, 0.0);
         double sinPhi, cosPhi, sinLam, cosLam;
 
@@ -702,9 +702,9 @@ namespace great
             t_gtriple dx(0, 0, 0);
             Eigen::Vector3d i, j, k;
             _satellite_attitude(obsdata, antenna, i, j, k);
-            rotmatrix.Column(1) << i.data();
-            rotmatrix.Column(2) << j.data();
-            rotmatrix.Column(3) << k.data();
+            rotmatrix.col(0) = i;
+            rotmatrix.col(1) = j;
+            rotmatrix.col(2) = k;
         }
         else if (type == t_gdata::ID_TYPE::REC)
         {
@@ -713,8 +713,9 @@ namespace great
             cosPhi = cos(ell[0]);
             sinLam = sin(ell[1]);
             cosLam = cos(ell[1]);
-            rotmatrix << -sinPhi * cosLam << -sinLam << +cosPhi * cosLam << -sinPhi * sinLam << +cosLam << +cosPhi * sinLam << +cosPhi
-                      << 0.0 << +sinPhi;
+            rotmatrix << -sinPhi * cosLam, -sinLam, +cosPhi * cosLam,
+                         -sinPhi * sinLam, +cosLam, +cosPhi * sinLam,
+                         +cosPhi, 0.0, +sinPhi;
         }
         else
         {
@@ -781,7 +782,7 @@ namespace great
     bool t_gprecisebias::_apply_sat(const t_gtime& rec_epo, t_gtime& sat_epo, t_gallnav* nav)
     {
         double delay = 0.0;
-        Matrix rot_matrix_sat, rot_matrix_rec;
+        Eigen::MatrixXd rot_matrix_sat, rot_matrix_rec;
 
         while (true)
         {
@@ -794,7 +795,7 @@ namespace great
                 return false;
             }
 
-            Matrix earth_rotation = rotZ(OMEGA * delay);
+            Eigen::MatrixXd earth_rotation = rotZ(OMEGA * delay);
             _trs_sat_crd = t_gtriple(earth_rotation * sat_crd.crd_cvect());
             _trs_sat_vel = t_gtriple(earth_rotation * sat_vel.crd_cvect());
 

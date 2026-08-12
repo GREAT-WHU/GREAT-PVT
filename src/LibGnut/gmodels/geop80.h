@@ -47,11 +47,11 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_geop80();
 
-        /** @brief Nutation Matrix. */
-        Matrix nutMatrix(double mjd);
+        /** @brief Nutation Eigen::MatrixXd. */
+        Eigen::MatrixXd nutMatrix(double mjd);
 
-        /** @brief Precession Matrix. */
-        Matrix precMatrix(double mjd_1);
+        /** @brief Precession Eigen::MatrixXd. */
+        Eigen::MatrixXd precMatrix(double mjd_1);
 
     protected:
         /** @brief Frac part of double. */

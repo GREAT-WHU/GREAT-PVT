@@ -24,9 +24,10 @@
 #include <iostream>
 #include <string.h>
 #include <Eigen/Dense>
+#include <stdexcept>
 
 #include "gutils/gpair.h"
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 namespace gnut
 {
@@ -45,8 +46,20 @@ namespace gnut
         explicit t_gtriple(double crd[3]);
 
         /** @brief constructor CloumnVector. */
-        explicit t_gtriple(const ColumnVector& crd);
+        explicit t_gtriple(const Eigen::VectorXd& crd);
         t_gtriple(const Eigen::Vector3d& crd);
+
+        template <typename Derived>
+        explicit t_gtriple(const Eigen::MatrixBase<Derived>& crd)
+        {
+            if (crd.rows() != 3 || crd.cols() != 1)
+            {
+                throw std::invalid_argument("t_gtriple requires a three-element column vector");
+            }
+            _crd[0] = crd(0, 0);
+            _crd[1] = crd(1, 0);
+            _crd[2] = crd(2, 0);
+        }
 
         /** @brief default destructor. */
         virtual ~t_gtriple();
@@ -74,14 +87,14 @@ namespace gnut
         double sum() const;        ///< Sum of items
         void set(int idx,
                  double newValue);               ///< set single element
-        void set(const ColumnVector&);           ///< set array by ColumnVector
+        void set(const Eigen::VectorXd&);           ///< set array by Eigen::VectorXd
         void set(const Eigen::Vector3d&);        ///< set array by Eigen::Vector3d
         void set(double crd[3]);                 ///< set array by array
         double* crd_array();                     ///< get array
-        ColumnVector crd_cvect() const;          ///< get ColumnVector
+        Eigen::VectorXd crd_cvect() const;          ///< get Eigen::VectorXd
         Eigen::Vector3d crd_cvect_Eigen() const; ///< get Eigen::Vector3d
         t_gtriple& crd_tripl();                  ///< get triple
-        ColumnVector unitary();                  ///< get unit ColumnVector
+        Eigen::VectorXd unitary();                  ///< get unit Eigen::VectorXd
         Eigen::Vector3d unitary_Eigen();         ///< get unit Eigen::Vector3d
         t_gpair gpair() const;
         bool zero() const; ///< true: zero elements, false: not zero elements

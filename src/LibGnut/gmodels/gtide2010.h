@@ -55,8 +55,8 @@ namespace gnut
         virtual t_gtriple load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec);
 
     protected:
-        ColumnVector _D;  ///< D
-        ColumnVector _DD; ///< DD
+        Eigen::VectorXd _D;  ///< D
+        Eigen::VectorXd _DD; ///< DD
     };
 
 } // namespace gnut

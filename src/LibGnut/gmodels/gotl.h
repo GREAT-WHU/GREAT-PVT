@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
@@ -51,14 +51,14 @@ namespace gnut
         double lon();
 
         /** @brief get the data. */
-        Matrix data();
+        Eigen::MatrixXd data();
 
         /** @brief set the data. */
-        void setdata(const std::string& site, const double& lon, const double& lat, const Matrix& data);
+        void setdata(const std::string& site, const double& lon, const double& lat, const Eigen::MatrixXd& data);
 
     private:
         std::string _site; ///< site
-        Matrix _data; ///< data
+        Eigen::MatrixXd _data; ///< data
         double _lat;  ///< latitude
         double _lon;  ///< lontitude
     };

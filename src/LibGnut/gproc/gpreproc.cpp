@@ -452,10 +452,8 @@ namespace gnut
 
         for (unsigned int tmp = 1; tmp <= maxit; tmp++)
         {
-            Matrix M(d, d);
-            M = 0;
-            ColumnVector S(d);
-            S = 0;
+            Eigen::MatrixXd M = Eigen::MatrixXd::Zero(d, d);
+            Eigen::VectorXd S = Eigen::VectorXd::Zero(d);
             std::map<GOBS, double> m_orig;
 
             bool trans = false;
@@ -464,8 +462,8 @@ namespace gnut
             {
                 if (_v_lcslp.find(i + 10) != _v_lcslp.end())
                 {
-                    S(d) = -_v_lcslp[i + 10].begin()->val;
-                    if (!double_eq(S(d), 0.0))
+                    S(d - 1) = -_v_lcslp[i + 10].begin()->val;
+                    if (!double_eq(S(d - 1), 0.0))
                     {
                         trans = true;
                     }
@@ -477,16 +475,16 @@ namespace gnut
                         _v_lcslp[i + 10].erase(_v_lcslp[i + 10].begin());
                     }
 
-                    M(d, 1) = 2;
-                    M(d, 2) = -1;
+                    M(d - 1, 0) = 2;
+                    M(d - 1, 1) = -1;
                 }
 
                 if (_v_lcslp.find(i) != _v_lcslp.end())
                 {
-                    M(i, d) = -1;
-                    M(i, d - i) = 1;
+                    M(i - 1, d - 1) = -1;
+                    M(i - 1, d - i - 1) = 1;
 
-                    S(i) = -_v_lcslp[i].begin()->val;
+                    S(i - 1) = -_v_lcslp[i].begin()->val;
 
                     m_orig[_v_lcslp[i].begin()->obs1.gobs()] = 0;
                     m_orig[_v_lcslp[i].begin()->obs2.gobs()] = 0;
@@ -495,19 +493,18 @@ namespace gnut
                         _v_lcslp[i].erase(_v_lcslp[i].begin());
                     }
 
-                    if (!double_eq(S(d - i), 0.0))
+                    if (!double_eq(S(d - i - 1), 0.0))
                     {
                         trans = true;
                     }
                 }
             }
 
-            ColumnVector O(S);
-            O = 0;
+            Eigen::VectorXd O = Eigen::VectorXd::Zero(d);
 
             if (trans)
             {
-                O = M.i() * S;
+                O = M.inverse() * S;
                 std::set<GOBSBAND> bands;
                 for (std::map<GOBS, double>::iterator it = m_orig.begin(); it != m_orig.end(); it++)
                 {
@@ -528,7 +525,7 @@ namespace gnut
 
                         if (s.band() == *it)
                         {
-                            it2->second = O(i);
+                            it2->second = O(i - 1);
                             gobs->addlli(it2->first, 1);
                             gobs->addslip(it2->first, int(it2->second));
                         }

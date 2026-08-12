@@ -23,7 +23,7 @@
 #include <iostream>
 #include <set>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gall/gallnav.h"
 #include "gall/gallobs.h"
 #include "gutils/gtriple.h"
@@ -79,7 +79,7 @@ namespace gnut
         t_gallobs* _gobs;    ///< observations
         std::set<GSAT> _sats;     ///< set of visible satellites
         t_gtriple _rec;      ///< receiver position
-        SymmetricMatrix _Qx; ///< variance-covariance matrix
+        Eigen::MatrixXd _Qx; ///< variance-covariance matrix
     };
 } // namespace gnut
 

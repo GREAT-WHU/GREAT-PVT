@@ -256,42 +256,42 @@ namespace gnut
         }
 
         // Copy over to correctly sized matrices
-        Matrix A(observ, unknwn);
-        Matrix APA(unknwn, unknwn);
-        DiagonalMatrix P(observ);
-        DiagonalMatrix C(unknwn);
-        ColumnVector L(observ);
-        ColumnVector RES(observ);
-        ColumnVector XXX(unknwn);
+        Eigen::MatrixXd A(observ, unknwn);
+        Eigen::MatrixXd APA(unknwn, unknwn);
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> P(observ);
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> C(unknwn);
+        Eigen::VectorXd L(observ);
+        Eigen::VectorXd RES(observ);
+        Eigen::VectorXd XXX(unknwn);
 
         for (int n = 0; n < observ; ++n)
         {
             for (int k = 0; k < unknwn; ++k)
             {
-                A(n + 1, k + 1) = pow(X[n], k);
+                A(n, k) = pow(X[n], k);
             }
-            L(n + 1) = Y[n];
-            P(n + 1) = 1.0;
-            SumP += P(n + 1);
+            L(n) = Y[n];
+            P.diagonal()(n) = 1.0;
+            SumP += P.diagonal()(n);
         }
 
         for (int k = 0; k < unknwn; ++k)
         {
-            C(k + 1) = 1.0;
+            C.diagonal()(k) = 1.0;
         } // normalization (fixed for SP3)
 
-        APA = C.t() * A.t() * P * A * C;
-        XXX = APA.i() * (C * A.t() * P * L);
+        APA = C * A.transpose() * P * A * C;
+        XXX = APA.inverse() * (C * A.transpose() * P * L);
         RES = (A * C * XXX - L);
 
         for (int k = 0; k < unknwn; ++k)
         {
-            _coef[k] = C(k + 1) * XXX(k + 1);
+            _coef[k] = C.diagonal()(k) * XXX(k);
         }
         for (int n = 0; n < observ; ++n)
         {
             epo = t + X[n] * tunit;
-            Sum += P(n + 1) * RES(n + 1) * RES(n + 1);
+            Sum += P.diagonal()(n) * RES(n) * RES(n);
 
             double y = 0.0;
             this->evaluate((epo - t) / tunit, 0, y);

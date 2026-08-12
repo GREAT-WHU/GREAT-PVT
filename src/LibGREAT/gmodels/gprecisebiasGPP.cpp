@@ -115,7 +115,7 @@ namespace great
         xyz2ell(xyz, ell, false);
 
         t_gtriple satcrd = gsatdata.satcrd();
-        ColumnVector cSat = satcrd.crd_cvect();
+        Eigen::VectorXd cSat = satcrd.crd_cvect();
 
         // Tropospheric wet delay correction
         double trpDelay = 0;
@@ -241,7 +241,7 @@ namespace great
             t_gtriple pco(0, 0, 0);
             if (sat_pcv->pcoS(_crt_obs, pco, _observ, _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_1], _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_2]) > 0)
             {
-                Matrix _rot_matrix = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
+                Eigen::MatrixXd _rot_matrix = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
                 this->_trs_sat_pco += t_gtriple(_rot_matrix * pco.crd_cvect());
             }
         }
@@ -252,7 +252,7 @@ namespace great
             t_gtriple pco(0.0, 0.0, 0.0);
             if (rec_pcv->pcoR(_crt_obs, pco, _observ, _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_1], _band_index[_crt_sys][gnut::FREQ_SEQ::FREQ_2]) > 0)
             {
-                Matrix _rot_matrix = _RotMatrix_Ant(_crt_obs, _crt_epo, rec_obj);
+                Eigen::MatrixXd _rot_matrix = _RotMatrix_Ant(_crt_obs, _crt_epo, rec_obj);
                 this->_trs_rec_pco += t_gtriple(_rot_matrix * pco.crd_cvect());
             }
         }
@@ -270,15 +270,15 @@ namespace great
         _crt_obs.addrho(tmp);
 
         // add drate
-        _crt_obs.adddrate((DotProduct((_trs_sat_vel - _trs_rec_vel).crd_cvect(), (_trs_sat_pco - _trs_rec_pco).crd_cvect())) /
+        _crt_obs.adddrate((((_trs_sat_vel - _trs_rec_vel).crd_cvect().dot((_trs_sat_pco - _trs_rec_pco).crd_cvect()))) /
                           (CLIGHT * tmp));
 
         // add azim && elev
         t_gtriple xyz_rho = _trs_sat_pco - _trs_rec_pco;
         t_gtriple ell_r, neu_s;
 
-        Matrix _rot_ant2trs = _RotMatrix_Ant(_crt_obs, _crt_rec_epo, _crt_obj);
-        neu_s = t_gtriple(_rot_ant2trs.t() * xyz_rho.crd_cvect());
+        Eigen::MatrixXd _rot_ant2trs = _RotMatrix_Ant(_crt_obs, _crt_rec_epo, _crt_obj);
+        neu_s = t_gtriple(_rot_ant2trs.transpose() * xyz_rho.crd_cvect());
         double NE2 = neu_s[0] * neu_s[0] + neu_s[1] * neu_s[1];
         double ele = acos(sqrt(NE2) / _crt_obs.rho());
         if (sqrt(NE2) / _crt_obs.rho() > 1.0)
@@ -290,7 +290,7 @@ namespace great
             _crt_obs.addele(ele);
         }
 
-        double offnadir = dotproduct(xyz_rho.crd_cvect(), _trs_sat_pco.crd_cvect()) / xyz_rho.norm() / _trs_sat_pco.norm();
+        double offnadir = xyz_rho.crd_cvect().dot(_trs_sat_pco.crd_cvect()) / xyz_rho.norm() / _trs_sat_pco.norm();
         offnadir = acos(offnadir);
         _crt_obs.addnadir(offnadir);
         _crt_obs.addzen_sat(offnadir);
@@ -304,8 +304,8 @@ namespace great
         _crt_obs.addzen_rec((G_PI / 2.0 - ele));
 
         /// for satellite-side azimuth
-        Matrix _rot_matrix_scf2trs = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
-        t_gtriple xyz_s2r = t_gtriple(_rot_matrix_scf2trs.t() * ((-1) * xyz_rho.crd_cvect())); // from sat. to rec. in SCF XYZ
+        Eigen::MatrixXd _rot_matrix_scf2trs = _RotMatrix_Ant(_crt_obs, _crt_epo, sat_obj);
+        t_gtriple xyz_s2r = t_gtriple(_rot_matrix_scf2trs.transpose() * ((-1) * xyz_rho.crd_cvect())); // from sat. to rec. in SCF XYZ
         double azi_sat = atan2(xyz_s2r[0], xyz_s2r[1]);
         if (azi_sat < 0)
         {

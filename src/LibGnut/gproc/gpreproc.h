@@ -23,7 +23,7 @@
 
 #include <sstream>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 #include "gall/gallobs.h"
 #include "gall/gallnav.h"

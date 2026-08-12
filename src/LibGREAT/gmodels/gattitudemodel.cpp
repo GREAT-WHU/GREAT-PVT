@@ -111,32 +111,32 @@ namespace great
 
     int t_gattitude_model::attitude(std::string antype,
                                     const std::string& prn,
-                                    ColumnVector& xsat,
-                                    ColumnVector& vsat,
-                                    ColumnVector& xsun,
-                                    ColumnVector& i,
-                                    ColumnVector& j,
-                                    ColumnVector& k)
+                                    Eigen::VectorXd& xsat,
+                                    Eigen::VectorXd& vsat,
+                                    Eigen::VectorXd& xsun,
+                                    Eigen::VectorXd& i,
+                                    Eigen::VectorXd& j,
+                                    Eigen::VectorXd& k)
     {
         return attitude(antype, str2gsat(prn), xsat, vsat, xsun, i, j, k);
     }
 
     int t_gattitude_model::attitude(std::string antype,
                                     GSAT prn,
-                                    ColumnVector& xsat,
-                                    ColumnVector& vsat,
-                                    ColumnVector& xsun,
-                                    ColumnVector& i,
-                                    ColumnVector& j,
-                                    ColumnVector& k)
+                                    Eigen::VectorXd& xsat,
+                                    Eigen::VectorXd& vsat,
+                                    Eigen::VectorXd& xsun,
+                                    Eigen::VectorXd& i,
+                                    Eigen::VectorXd& j,
+                                    Eigen::VectorXd& k)
     {
-        ColumnVector satcrd = xsat;
-        ColumnVector satvel = vsat;
+        Eigen::VectorXd satcrd = xsat;
+        Eigen::VectorXd satvel = vsat;
 
         double orb_angle = _orb_angle(xsat, vsat, xsun);
         double beta = _beta(xsat, vsat, xsun);
 
-        if (satcrd.NormFrobenius() == 0 || satvel.NormFrobenius() == 0)
+        if (satcrd.norm() == 0 || satvel.norm() == 0)
         {
             return -1;
         }
@@ -196,32 +196,32 @@ namespace great
             _attitude_QZS(antype, prn, xsat, vsat, xsun, i, j, k);
         }
 
-        if (i.NormFrobenius() == 0 || j.NormFrobenius() == 0 || k.NormFrobenius() == 0)
+        if (i.norm() == 0 || j.norm() == 0 || k.norm() == 0)
         {
             return 0;
         }
         return 1;
     }
 
-    double t_gattitude_model::_orb_angle(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun)
+    double t_gattitude_model::_orb_angle(Eigen::VectorXd& xsat, Eigen::VectorXd& vsat, Eigen::VectorXd& xsun)
     {
         double mi = 0.0;
-        ColumnVector Sun = xsun; // ICRF
-        ColumnVector Satcrd = xsat;
-        ColumnVector Satvel = vsat;
+        Eigen::VectorXd Sun = xsun; // ICRF
+        Eigen::VectorXd Satcrd = xsat;
+        Eigen::VectorXd Satvel = vsat;
 
-        ColumnVector n = crossproduct(Satcrd, Satvel);
+        Eigen::Vector3d n = Satcrd.head<3>().cross(Satvel.head<3>());
 
-        ColumnVector es = Satcrd / Satcrd.NormFrobenius();
+        Eigen::VectorXd es = Satcrd / Satcrd.norm();
 
-        ColumnVector eSun = Sun / Sun.NormFrobenius();
+        Eigen::VectorXd eSun = Sun / Sun.norm();
 
-        ColumnVector p = crossproduct(Sun, n);
-        p /= p.NormFrobenius();
+        Eigen::Vector3d p = Sun.head<3>().cross(n);
+        p /= p.norm();
 
-        double E = acos(DotProduct(es, p));
+        double E = acos(es.dot(p));
 
-        double SunSat = acos(DotProduct(es, eSun));
+        double SunSat = acos(es.dot(eSun));
 
         if (SunSat > G_PI / 2)
         {
@@ -249,22 +249,22 @@ namespace great
         return mi;
     }
 
-    double t_gattitude_model::_beta(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun)
+    double t_gattitude_model::_beta(Eigen::VectorXd& xsat, Eigen::VectorXd& vsat, Eigen::VectorXd& xsun)
     {
         double beta = 0.0;
 
-        ColumnVector Sun = xsun;
+        Eigen::VectorXd Sun = xsun;
 
-        ColumnVector Satcrd = xsat;
-        ColumnVector Satvel = vsat;
+        Eigen::VectorXd Satcrd = xsat;
+        Eigen::VectorXd Satvel = vsat;
 
-        ColumnVector n = crossproduct(Satcrd, Satvel);
+        Eigen::Vector3d n = Satcrd.head<3>().cross(Satvel.head<3>());
 
-        n /= n.NormFrobenius();
+        n /= n.norm();
 
-        ColumnVector nSun = Sun / Sun.NormFrobenius();
+        Eigen::VectorXd nSun = Sun / Sun.norm();
 
-        double cosa = DotProduct(nSun, n);
+        double cosa = nSun.dot(n);
 
         beta = G_PI / 2.0 - acos(cosa);
 
@@ -301,32 +301,32 @@ namespace great
     void t_gattitude_model::_ysm(GSAT prn,
                                  double bata,
                                  double mi,
-                                 ColumnVector& xsat,
-                                 ColumnVector& vsat,
-                                 ColumnVector& xsun,
-                                 ColumnVector& i,
-                                 ColumnVector& j,
-                                 ColumnVector& k)
+                                 Eigen::VectorXd& xsat,
+                                 Eigen::VectorXd& vsat,
+                                 Eigen::VectorXd& xsun,
+                                 Eigen::VectorXd& i,
+                                 Eigen::VectorXd& j,
+                                 Eigen::VectorXd& k)
     {
-        ColumnVector satcrd = xsat;
+        Eigen::VectorXd satcrd = xsat;
 
         // Satelite-Earth unit vector
         k = -satcrd;
 
         // Along solar panel unit vector
-        ColumnVector sun = xsun;
-        j = crossproduct(k, sun);
+        Eigen::VectorXd sun = xsun;
+        j = k.head<3>().cross(sun.head<3>());
         // there is a little difference for Y-axis: Xsun vs Xsun-Xsat.
         // The resulting error can be ignored. yqyuan
-        // ColumnVector sat2sun = _ephplan.sunPos(MJD).crd_cvect() - satcrd;
+        // Eigen::VectorXd sat2sun = _ephplan.sunPos(MJD).crd_cvect() - satcrd;
         // j = crossproduct(k, sat2sun);
 
         // complete to satelite fixed right-hand coord system
-        i = crossproduct(j, k);
+        i = j.head<3>().cross(k.head<3>());
 
-        i = i / i.NormFrobenius();
-        j = j / j.NormFrobenius();
-        k = k / k.NormFrobenius();
+        i = i / i.norm();
+        j = j / j.norm();
+        k = k / k.norm();
 
         _last_beta[prn] = bata;
     }
@@ -337,12 +337,12 @@ namespace great
         _yaw2ijk(satdata, yaw, i, j, k);
     }
 
-    void t_gattitude_model::_onm(ColumnVector& xsat,
-                                 ColumnVector& vsat,
-                                 ColumnVector& xsun,
-                                 ColumnVector& i,
-                                 ColumnVector& j,
-                                 ColumnVector& k)
+    void t_gattitude_model::_onm(Eigen::VectorXd& xsat,
+                                 Eigen::VectorXd& vsat,
+                                 Eigen::VectorXd& xsun,
+                                 Eigen::VectorXd& i,
+                                 Eigen::VectorXd& j,
+                                 Eigen::VectorXd& k)
     {
         double yaw = 0;
         _yaw2ijk(xsat, vsat, xsun, yaw, i, j, k);
@@ -416,12 +416,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GPSIIA(std::string antype,
                                              GSAT prn,
-                                             ColumnVector& xsat,
-                                             ColumnVector& vsat,
-                                             ColumnVector& xsun,
-                                             ColumnVector& i,
-                                             ColumnVector& j,
-                                             ColumnVector& k)
+                                             Eigen::VectorXd& xsat,
+                                             Eigen::VectorXd& vsat,
+                                             Eigen::VectorXd& xsun,
+                                             Eigen::VectorXd& i,
+                                             Eigen::VectorXd& j,
+                                             Eigen::VectorXd& k)
     {
         const double R_GPSIIA[] = {0.1046, 0.1230, 0.1255, 0.1249, 0.1003, 0.1230, 0.1136, 0.1169, 0.1253, 0.0999, 0.1230,
                                    0.1230, 0.1230, 0.1230, 0.1092, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230, 0.1230,
@@ -476,12 +476,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GPSIIR(std::string antype,
                                              GSAT prn,
-                                             ColumnVector& xsat,
-                                             ColumnVector& vsat,
-                                             ColumnVector& xsun,
-                                             ColumnVector& i,
-                                             ColumnVector& j,
-                                             ColumnVector& k)
+                                             Eigen::VectorXd& xsat,
+                                             Eigen::VectorXd& vsat,
+                                             Eigen::VectorXd& xsun,
+                                             Eigen::VectorXd& i,
+                                             Eigen::VectorXd& j,
+                                             Eigen::VectorXd& k)
     {
         const double R = 0.2 * D2R; // maximal yaw hardware rate
         double beta0 = atan2(MUDOT_GPS, R);
@@ -596,13 +596,13 @@ namespace great
     void t_gattitude_model::_noon_turn(GSAT _prn,
                                        double _beta,
                                        double _mi,
-                                       ColumnVector& xsat,
-                                       ColumnVector& vsat,
-                                       ColumnVector& xsun,
+                                       Eigen::VectorXd& xsat,
+                                       Eigen::VectorXd& vsat,
+                                       Eigen::VectorXd& xsun,
                                        double R,
-                                       ColumnVector& i,
-                                       ColumnVector& j,
-                                       ColumnVector& k)
+                                       Eigen::VectorXd& i,
+                                       Eigen::VectorXd& j,
+                                       Eigen::VectorXd& k)
     {
         double beta0 = atan2(MUDOT_GPS, R);
         double beta = _beta;
@@ -690,13 +690,13 @@ namespace great
     void t_gattitude_model::_midnight_turn_GPSIIA(GSAT prn,
                                                   double _beta,
                                                   double _mi,
-                                                  ColumnVector& xsat,
-                                                  ColumnVector& vsat,
-                                                  ColumnVector& xsun,
+                                                  Eigen::VectorXd& xsat,
+                                                  Eigen::VectorXd& vsat,
+                                                  Eigen::VectorXd& xsun,
                                                   double R,
-                                                  ColumnVector& i,
-                                                  ColumnVector& j,
-                                                  ColumnVector& k)
+                                                  Eigen::VectorXd& i,
+                                                  Eigen::VectorXd& j,
+                                                  Eigen::VectorXd& k)
     {
         double beta = _beta;
         double mi = _mi;
@@ -783,13 +783,13 @@ namespace great
     void t_gattitude_model::_midnight_turn_GPSIIF(GSAT prn,
                                                   double _beta,
                                                   double _mi,
-                                                  ColumnVector& xsat,
-                                                  ColumnVector& vsat,
-                                                  ColumnVector& xsun,
+                                                  Eigen::VectorXd& xsat,
+                                                  Eigen::VectorXd& vsat,
+                                                  Eigen::VectorXd& xsun,
                                                   double R,
-                                                  ColumnVector& i,
-                                                  ColumnVector& j,
-                                                  ColumnVector& k)
+                                                  Eigen::VectorXd& i,
+                                                  Eigen::VectorXd& j,
+                                                  Eigen::VectorXd& k)
     {
         double beta = _beta;
         double tan_beta = tan(beta);
@@ -867,13 +867,13 @@ namespace great
     void t_gattitude_model::_midnight_turn_GLOM(GSAT prn,
                                                 double _beta,
                                                 double _mi,
-                                                ColumnVector& xsat,
-                                                ColumnVector& vsat,
-                                                ColumnVector& xsun,
+                                                Eigen::VectorXd& xsat,
+                                                Eigen::VectorXd& vsat,
+                                                Eigen::VectorXd& xsun,
                                                 double R,
-                                                ColumnVector& i,
-                                                ColumnVector& j,
-                                                ColumnVector& k)
+                                                Eigen::VectorXd& i,
+                                                Eigen::VectorXd& j,
+                                                Eigen::VectorXd& k)
     {
         double beta = _beta;
         double tan_beta = tan(beta);
@@ -943,13 +943,13 @@ namespace great
     void t_gattitude_model::_noon_turn_GLOM(GSAT prn,
                                             double _beta,
                                             double _mi,
-                                            ColumnVector& xsat,
-                                            ColumnVector& vsat,
-                                            ColumnVector& xsun,
+                                            Eigen::VectorXd& xsat,
+                                            Eigen::VectorXd& vsat,
+                                            Eigen::VectorXd& xsun,
                                             double R,
-                                            ColumnVector& i,
-                                            ColumnVector& j,
-                                            ColumnVector& k)
+                                            Eigen::VectorXd& i,
+                                            Eigen::VectorXd& j,
+                                            Eigen::VectorXd& k)
     {
         double beta = _beta;
         double mi = _mi;
@@ -1018,12 +1018,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GPSIIF(std::string antype,
                                              GSAT prn,
-                                             ColumnVector& xsat,
-                                             ColumnVector& vsat,
-                                             ColumnVector& xsun,
-                                             ColumnVector& i,
-                                             ColumnVector& j,
-                                             ColumnVector& k)
+                                             Eigen::VectorXd& xsat,
+                                             Eigen::VectorXd& vsat,
+                                             Eigen::VectorXd& xsun,
+                                             Eigen::VectorXd& i,
+                                             Eigen::VectorXd& j,
+                                             Eigen::VectorXd& k)
     {
         const double R_noon = 0.11 * D2R; // maximal yaw hardware rate during noon turn
         const double R_midn = 0.06 * D2R; // maximal yaw hardware rate during midnight turn
@@ -1056,12 +1056,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GPSIII(std::string antype,
                                              GSAT prn,
-                                             ColumnVector& xsat,
-                                             ColumnVector& vsat,
-                                             ColumnVector& xsun,
-                                             ColumnVector& i,
-                                             ColumnVector& j,
-                                             ColumnVector& k)
+                                             Eigen::VectorXd& xsat,
+                                             Eigen::VectorXd& vsat,
+                                             Eigen::VectorXd& xsun,
+                                             Eigen::VectorXd& i,
+                                             Eigen::VectorXd& j,
+                                             Eigen::VectorXd& k)
     {
     }
 
@@ -1090,12 +1090,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GLO(std::string antype,
                                           GSAT prn,
-                                          ColumnVector& xsat,
-                                          ColumnVector& vsat,
-                                          ColumnVector& xsun,
-                                          ColumnVector& i,
-                                          ColumnVector& j,
-                                          ColumnVector& k)
+                                          Eigen::VectorXd& xsat,
+                                          Eigen::VectorXd& vsat,
+                                          Eigen::VectorXd& xsun,
+                                          Eigen::VectorXd& i,
+                                          Eigen::VectorXd& j,
+                                          Eigen::VectorXd& k)
     {
         const double R = 0.25 * D2R; // maximal yaw hardware rate
         double beta0 = 2.0 * D2R;
@@ -1158,12 +1158,12 @@ namespace great
     void t_gattitude_model::_noon_turn_GAL1(GSAT prn,
                                             double _beta,
                                             double _mi,
-                                            ColumnVector& xsat,
-                                            ColumnVector& vsat,
-                                            ColumnVector& xsun,
-                                            ColumnVector& i,
-                                            ColumnVector& j,
-                                            ColumnVector& k)
+                                            Eigen::VectorXd& xsat,
+                                            Eigen::VectorXd& vsat,
+                                            Eigen::VectorXd& xsun,
+                                            Eigen::VectorXd& i,
+                                            Eigen::VectorXd& j,
+                                            Eigen::VectorXd& k)
     {
         double beta = _beta;
         double mi = _mi;
@@ -1222,12 +1222,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GAL1(std::string antype,
                                            GSAT prn,
-                                           ColumnVector& xsat,
-                                           ColumnVector& vsat,
-                                           ColumnVector& xsun,
-                                           ColumnVector& i,
-                                           ColumnVector& j,
-                                           ColumnVector& k)
+                                           Eigen::VectorXd& xsat,
+                                           Eigen::VectorXd& vsat,
+                                           Eigen::VectorXd& xsun,
+                                           Eigen::VectorXd& i,
+                                           Eigen::VectorXd& j,
+                                           Eigen::VectorXd& k)
     {
         double beta0 = 2.0 * D2R;
         double mi_n0 = (180 - 15) * D2R; // noon
@@ -1307,12 +1307,12 @@ namespace great
     void t_gattitude_model::_noon_turn_GAL2(GSAT prn,
                                             double _beta,
                                             double _mi,
-                                            ColumnVector& xsat,
-                                            ColumnVector& vsat,
-                                            ColumnVector& xsun,
-                                            ColumnVector& i,
-                                            ColumnVector& j,
-                                            ColumnVector& k)
+                                            Eigen::VectorXd& xsat,
+                                            Eigen::VectorXd& vsat,
+                                            Eigen::VectorXd& xsun,
+                                            Eigen::VectorXd& i,
+                                            Eigen::VectorXd& j,
+                                            Eigen::VectorXd& k)
     {
         // the origional edition needs time info; updated with our model: Li et al. 2019
         double beta = _beta;
@@ -1324,10 +1324,10 @@ namespace great
 
         double yaw = 0.0;
 
-        ColumnVector satvel = vsat;
-        double satvel_norm = satvel.NormFrobenius();
-        ColumnVector satcrd = xsat;
-        double satcrd_norm = satcrd.NormFrobenius();
+        Eigen::VectorXd satvel = vsat;
+        double satvel_norm = satvel.norm();
+        Eigen::VectorXd satcrd = xsat;
+        double satcrd_norm = satcrd.norm();
         double murate = (satvel_norm / satcrd_norm); // in radius
 
         double ub = 0.0;
@@ -1391,12 +1391,12 @@ namespace great
 
     void t_gattitude_model::_attitude_GAL2(std::string antype,
                                            GSAT prn,
-                                           ColumnVector& xsat,
-                                           ColumnVector& vsat,
-                                           ColumnVector& xsun,
-                                           ColumnVector& i,
-                                           ColumnVector& j,
-                                           ColumnVector& k)
+                                           Eigen::VectorXd& xsat,
+                                           Eigen::VectorXd& vsat,
+                                           Eigen::VectorXd& xsun,
+                                           Eigen::VectorXd& i,
+                                           Eigen::VectorXd& j,
+                                           Eigen::VectorXd& k)
     {
         double beta0 = 4.1 * D2R;
         double mi_n0 = (180 - 10) * D2R;
@@ -1444,12 +1444,12 @@ namespace great
     void t_gattitude_model::_cys_cast(GSAT prn,
                                       double _beta,
                                       double _mi,
-                                      ColumnVector& xsat,
-                                      ColumnVector& vsat,
-                                      ColumnVector& xsun,
-                                      ColumnVector& i,
-                                      ColumnVector& j,
-                                      ColumnVector& k)
+                                      Eigen::VectorXd& xsat,
+                                      Eigen::VectorXd& vsat,
+                                      Eigen::VectorXd& xsun,
+                                      Eigen::VectorXd& i,
+                                      Eigen::VectorXd& j,
+                                      Eigen::VectorXd& k)
     {
         double beta_threshold_cast = 2.8;
         double d_constant = 80000.0;
@@ -1490,12 +1490,12 @@ namespace great
     void t_gattitude_model::_cys_secm(GSAT prn,
                                       double _beta,
                                       double _mi,
-                                      ColumnVector& xsat,
-                                      ColumnVector& vsat,
-                                      ColumnVector& xsun,
-                                      ColumnVector& i,
-                                      ColumnVector& j,
-                                      ColumnVector& k)
+                                      Eigen::VectorXd& xsat,
+                                      Eigen::VectorXd& vsat,
+                                      Eigen::VectorXd& xsun,
+                                      Eigen::VectorXd& i,
+                                      Eigen::VectorXd& j,
+                                      Eigen::VectorXd& k)
     {
         double beta_threshold_secm = 3.0;
 
@@ -1547,12 +1547,12 @@ namespace great
 
     void t_gattitude_model::_attitude_BDS(std::string antype,
                                           GSAT prn,
-                                          ColumnVector& xsat,
-                                          ColumnVector& vsat,
-                                          ColumnVector& xsun,
-                                          ColumnVector& i,
-                                          ColumnVector& j,
-                                          ColumnVector& k)
+                                          Eigen::VectorXd& xsat,
+                                          Eigen::VectorXd& vsat,
+                                          Eigen::VectorXd& xsun,
+                                          Eigen::VectorXd& i,
+                                          Eigen::VectorXd& j,
+                                          Eigen::VectorXd& k)
     {
         double orb_angle = _orb_angle(xsat, vsat, xsun);
         double beta = _beta(xsat, vsat, xsun);
@@ -1683,12 +1683,12 @@ namespace great
     void t_gattitude_model::_cys_qzs(GSAT prn,
                                      double _beta,
                                      double _mi,
-                                     ColumnVector& xsat,
-                                     ColumnVector& vsat,
-                                     ColumnVector& xsun,
-                                     ColumnVector& i,
-                                     ColumnVector& j,
-                                     ColumnVector& k)
+                                     Eigen::VectorXd& xsat,
+                                     Eigen::VectorXd& vsat,
+                                     Eigen::VectorXd& xsun,
+                                     Eigen::VectorXd& i,
+                                     Eigen::VectorXd& j,
+                                     Eigen::VectorXd& k)
     {
         // genernal settings and thresholds
         double beta_threshold_qzs = 5.0 * D2R; // radius
@@ -1706,10 +1706,10 @@ namespace great
         double rotation_direction = 0.0;
 
         // sat_pos and sat_vel for murate
-        ColumnVector satvel = vsat;
-        double satvel_norm = satvel.NormFrobenius();
-        ColumnVector satcrd = xsat;
-        double satcrd_norm = satcrd.NormFrobenius();
+        Eigen::VectorXd satvel = vsat;
+        double satvel_norm = satvel.norm();
+        Eigen::VectorXd satcrd = xsat;
+        double satcrd_norm = satcrd.norm();
         double murate = (satvel_norm / satcrd_norm); // in radius
                                                      // beta and u angle
         double beta = _beta;
@@ -1820,12 +1820,12 @@ namespace great
 
     void t_gattitude_model::_attitude_QZS(std::string antype,
                                           GSAT prn,
-                                          ColumnVector& xsat,
-                                          ColumnVector& vsat,
-                                          ColumnVector& xsun,
-                                          ColumnVector& i,
-                                          ColumnVector& j,
-                                          ColumnVector& k)
+                                          Eigen::VectorXd& xsat,
+                                          Eigen::VectorXd& vsat,
+                                          Eigen::VectorXd& xsun,
+                                          Eigen::VectorXd& i,
+                                          Eigen::VectorXd& j,
+                                          Eigen::VectorXd& k)
     {
         double orb_angle = _orb_angle(xsat, vsat, xsun);
         double beta = _beta(xsat, vsat, xsun);
@@ -1889,19 +1889,19 @@ namespace great
         }
     }
 
-    void t_gattitude_model::_yaw2ijk(ColumnVector& xsat,
-                                     ColumnVector& vsat,
-                                     ColumnVector& xsun,
+    void t_gattitude_model::_yaw2ijk(Eigen::VectorXd& xsat,
+                                     Eigen::VectorXd& vsat,
+                                     Eigen::VectorXd& xsun,
                                      double& yaw,
-                                     ColumnVector& i,
-                                     ColumnVector& j,
-                                     ColumnVector& k)
+                                     Eigen::VectorXd& i,
+                                     Eigen::VectorXd& j,
+                                     Eigen::VectorXd& k)
     {
         // satdata.yaw(yaw);   // store yaw angle
-        ColumnVector satcrd = xsat;
-        ColumnVector satvel = vsat;
+        Eigen::VectorXd satcrd = xsat;
+        Eigen::VectorXd satvel = vsat;
 
-        if (satcrd.NormFrobenius() == 0 || satvel.NormFrobenius() == 0)
+        if (satcrd.norm() == 0 || satvel.norm() == 0)
         {
             return;
         }
@@ -1910,16 +1910,16 @@ namespace great
         //satvel(1) -= OMEGA * satcrd(2);
         //satvel(2) += OMEGA * satcrd(1);
 
-        ColumnVector n = crossproduct(satcrd, satvel);
+        Eigen::Vector3d n = satcrd.head<3>().cross(satvel.head<3>());
 
         // Satelite-Earth unit vector
         k = -satcrd;
-        k /= k.NormFrobenius();
+        k /= k.norm();
 
-        ColumnVector ex = crossproduct(n, satcrd);
+        Eigen::Vector3d ex = n.cross(satcrd.head<3>());
 
-        ex /= ex.NormFrobenius();
-        n /= n.NormFrobenius();
+        ex /= ex.norm();
+        n /= n.norm();
 
         double cosy = cos(yaw);
         double siny = sin(yaw);

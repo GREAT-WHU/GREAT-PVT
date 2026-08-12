@@ -193,14 +193,14 @@ namespace gnut
         it1 = it2;
         it1--;
 
-        Matrix x(2, 2), y(2, 1);
-        x << it1->first << 1 << it2->first << 1;
-        y << it1->second << it2->second;
+        Eigen::MatrixXd x(2, 2), y(2, 1);
+        x << it1->first, 1, it2->first, 1;
+        y << it1->second, it2->second;
 
-        Matrix coef(2, 1);
-        coef = x.i() * y;
+        Eigen::MatrixXd coef(2, 1);
+        coef = x.inverse() * y;
 
-        fval = coef(1, 1) * val + coef(2, 1);
+        fval = coef(0, 0) * val + coef(1, 0);
 
 #ifdef DEBUG
         std::cerr << "t_ginterp::linear: "
@@ -272,49 +272,40 @@ namespace gnut
                 D.push_back(eta[j]);
             }
 
-            Matrix A(X.size() - 2, X.size() - 2), M(X.size() - 2, X.size() - 2);
-            A = 0.0;
-            for (unsigned int i = 1; i <= X.size() - 2; i++)
+            Eigen::MatrixXd A(X.size() - 2, X.size() - 2), M(X.size() - 2, X.size() - 2);
+            A.setZero();
+            for (unsigned int i = 0; i < X.size() - 2; i++)
             {
-                for (unsigned int j = 1; j <= X.size() - 2; j++)
-                {
-                    A(i, i) = B[j - 1]; // ok
-                }
+                A(i, i) = B[i];
             }
-            for (unsigned int i = 1; i < X.size() - 2; i++)
+            for (unsigned int i = 0; i < X.size() - 3; i++)
             {
-                for (unsigned int j = 1; j < X.size() - 2; j++)
-                {
-                    if (j == i)
-                    {
-                        A(i, j + 1) = D[j - 1];
-                        A(i + 1, j) = C[j - 1];
-                    }
-                }
+                A(i, i + 1) = D[i];
+                A(i + 1, i) = C[i];
             }
 
-            ColumnVector G(X.size() - 2), MM(X.size());
+            Eigen::VectorXd G(X.size() - 2), MM(X.size());
             for (unsigned int i = 0; i < X.size() - 2; i++) // ok
             {
                 g.push_back((6.0 / (h[i] + h[i + 1])) * (((Y[i + 2] - Y[i + 1]) / h[i + 1]) - ((Y[i + 1] - Y[i]) / h[i])));
             }
 
-            for (unsigned int i = 1; i <= g.size(); i++)
+            for (unsigned int i = 0; i < g.size(); i++)
             {
-                G(i) = g[i - 1];
+                G(i) = g[i];
             }
 
             // Solving a linear equations
-            M = A.i() * G;
+            M = A.inverse() * G;
             double M0 = 0.0;
             double Mn = 0.0;
 
-            MM.row(1) << M0;
-            for (unsigned int i = 2; i < X.size(); i++) // ok
+            MM(0) = M0;
+            for (unsigned int i = 1; i < X.size() - 1; i++) // ok
             {
-                MM.row(i) << M[i - 2];
+                MM(i) = M(i - 1);
             }
-            MM.row(X.size()) << Mn;
+            MM(X.size() - 1) = Mn;
 
             // Coeficients a, b, c, d
             for (unsigned int i = 0; i < X.size() - 1; i++) // ok

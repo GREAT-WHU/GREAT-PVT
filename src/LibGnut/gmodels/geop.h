@@ -41,11 +41,11 @@ namespace gnut
         /** @brief default destructor. */
         virtual ~t_geop();
 
-        /** @brief Nutation Matrix. */
-        Matrix nutMatrix(double mjd);
+        /** @brief Nutation Eigen::MatrixXd. */
+        Eigen::MatrixXd nutMatrix(double mjd);
 
-        /** @brief Precession Matrix. */
-        Matrix precMatrix(double mjd);
+        /** @brief Precession Eigen::MatrixXd. */
+        Eigen::MatrixXd precMatrix(double mjd);
 
         /** @brief Normalize angle into interval 0 - 2pi. */
         double _normangle(double x);

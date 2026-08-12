@@ -109,20 +109,18 @@ namespace gnut
         double ele[3];
         xyz2ell(XYZ_Ref, ele, false);
 
-        ColumnVector r(3);
-
-        r << XYZ[0] - XYZ_Ref[0] << XYZ[1] - XYZ_Ref[1] << XYZ[2] - XYZ_Ref[2];
+        Eigen::Vector3d r(XYZ[0] - XYZ_Ref[0], XYZ[1] - XYZ_Ref[1], XYZ[2] - XYZ_Ref[2]);
 
         double sinPhi = sin(ele[0]);
         double cosPhi = cos(ele[0]);
         double sinLam = sin(ele[1]);
         double cosLam = cos(ele[1]);
 
-        neu[0] = -sinPhi * cosLam * r(1) - sinPhi * sinLam * r(2) + cosPhi * r(3);
+        neu[0] = -sinPhi * cosLam * r(0) - sinPhi * sinLam * r(1) + cosPhi * r(2);
 
-        neu[1] = -sinLam * r(1) + cosLam * r(2);
+        neu[1] = -sinLam * r(0) + cosLam * r(1);
 
-        neu[2] = +cosPhi * cosLam * r(1) + cosPhi * sinLam * r(2) + sinPhi * r(3);
+        neu[2] = +cosPhi * cosLam * r(0) + cosPhi * sinLam * r(1) + sinPhi * r(2);
 
         return 1;
     }
@@ -143,47 +141,47 @@ namespace gnut
         return 1;
     }
 
-    int rao2xyz_rot(const ColumnVector& pos, const ColumnVector& vel, Matrix& R)
+    int rao2xyz_rot(const Eigen::VectorXd& pos, const Eigen::VectorXd& vel, Eigen::MatrixXd& R)
     {
-        ColumnVector along = vel / vel.norm_Frobenius();
-        ColumnVector cross = crossproduct(pos, vel);
-        cross /= cross.norm_Frobenius();
-        ColumnVector radial = crossproduct(along, cross);
+        Eigen::Vector3d along = vel.head<3>().normalized();
+        Eigen::Vector3d cross = pos.head<3>().cross(vel.head<3>());
+        cross /= cross.norm();
+        Eigen::Vector3d radial = along.cross(cross);
 
-        R.Column(1) = radial;
-        R.Column(2) = along;
-        R.Column(3) = cross;
+        R.resize(3, 3);
+        R.col(0) = radial;
+        R.col(1) = along;
+        R.col(2) = cross;
 
         return 1;
     }
 
-    int rao2xyz(const ColumnVector& pos, const ColumnVector& vel, const ColumnVector& rao, ColumnVector& xyz)
+    int rao2xyz(const Eigen::VectorXd& pos, const Eigen::VectorXd& vel, const Eigen::VectorXd& rao, Eigen::VectorXd& xyz)
     {
-        ColumnVector along = vel / vel.norm_Frobenius();
-        ColumnVector cross = crossproduct(pos, vel);
-        cross /= cross.norm_Frobenius();
-        ColumnVector radial = crossproduct(along, cross);
+        Eigen::Vector3d along = vel.head<3>().normalized();
+        Eigen::Vector3d cross = pos.head<3>().cross(vel.head<3>());
+        cross /= cross.norm();
+        Eigen::Vector3d radial = along.cross(cross);
 
-        Matrix RR(3, 3);
-        RR.Column(1) = radial;
-        RR.Column(2) = along;
-        RR.Column(3) = cross;
+        Eigen::MatrixXd RR(3, 3);
+        RR.col(0) = radial;
+        RR.col(1) = along;
+        RR.col(2) = cross;
 
         xyz = RR * rao;
 
-        Matrix R(3, 3);
-        R = 0;
+        Eigen::MatrixXd R(3, 3);
         rao2xyz_rot(pos, vel, R);
 
         return 1;
     }
 
-    int xyz2rao(const ColumnVector& pos, const ColumnVector& vel, ColumnVector& xyz, ColumnVector& rao)
+    int xyz2rao(const Eigen::VectorXd& pos, const Eigen::VectorXd& vel, Eigen::VectorXd& xyz, Eigen::VectorXd& rao)
     {
-        Matrix R(3, 3);
+        Eigen::MatrixXd R(3, 3);
         rao2xyz_rot(pos, vel, R);
 
-        rao = R.t() * xyz;
+        rao = R.transpose() * xyz;
 
         return 1;
     }
@@ -310,7 +308,7 @@ namespace gnut
         xyz.set(2, +cosPhi * neu[0] + sinPhi * neu[2]);
     }
 
-    int xyz2neu(t_gtriple& xyz, SymmetricMatrix& Q_xyz, SymmetricMatrix& Q_neu)
+    int xyz2neu(t_gtriple& xyz, Eigen::MatrixXd& Q_xyz, Eigen::MatrixXd& Q_neu)
     {
         t_gtriple ele(0, 0, 0);
         xyz2ell(xyz, ele, false);
@@ -320,25 +318,19 @@ namespace gnut
         double sinLam = sin(ele[1]);
         double cosLam = cos(ele[1]);
 
-        int n_par = Q_xyz.Ncols();
-        Matrix R(n_par, n_par);
-        R = 0;
-        for (int i = 1; i <= n_par; i++)
-        {
-            R(i, i) = 1;
-        }
+        int n_par = Q_xyz.cols();
+        Eigen::MatrixXd R = Eigen::MatrixXd::Identity(n_par, n_par);
+        R(0, 0) = -sinPhi * cosLam;
+        R(0, 1) = -sinPhi * sinLam;
+        R(0, 2) = cosPhi;
+        R(1, 0) = -sinLam;
+        R(1, 1) = cosLam;
+        R(1, 2) = 0;
+        R(2, 0) = cosPhi * cosLam;
+        R(2, 1) = cosPhi * sinLam;
+        R(2, 2) = sinPhi;
 
-        R(1, 1) = -sinPhi * cosLam;
-        R(1, 2) = -sinPhi * sinLam;
-        R(1, 3) = cosPhi;
-        R(2, 1) = -sinLam;
-        R(2, 2) = cosLam;
-        R(2, 3) = 0;
-        R(3, 1) = cosPhi * cosLam;
-        R(3, 2) = cosPhi * sinLam;
-        R(3, 3) = sinPhi;
-
-        Q_neu << R * Q_xyz * R.t();
+        Q_neu = R * Q_xyz * R.transpose();
 
         return 1;
     }
@@ -398,41 +390,41 @@ namespace gnut
         return 1;
     }
 
-    Matrix rotm(double angle, int type)
+    Eigen::MatrixXd rotm(double angle, int type)
     {
-        Matrix R(0.0, 3, 3);
+        Eigen::Matrix3d R = Eigen::Matrix3d::Zero();
         double ca = cos(angle);
         double sa = sin(angle);
         switch (type)
         {
             case 1:
-                R(1, 1) = 1;
-                R(2, 2) = ca;
-                R(2, 3) = sa;
-                R(3, 2) = -sa;
-                R(3, 3) = ca;
-                break;
-            case 2:
-                R(1, 1) = ca;
-                R(1, 3) = -sa;
-                R(2, 2) = 1;
-                R(3, 1) = sa;
-                R(3, 3) = ca;
-                break;
-            case 3:
+                R(0, 0) = 1;
                 R(1, 1) = ca;
                 R(1, 2) = sa;
                 R(2, 1) = -sa;
                 R(2, 2) = ca;
-                R(3, 3) = 1;
+                break;
+            case 2:
+                R(0, 0) = ca;
+                R(0, 2) = -sa;
+                R(1, 1) = 1;
+                R(2, 0) = sa;
+                R(2, 2) = ca;
+                break;
+            case 3:
+                R(0, 0) = ca;
+                R(0, 1) = sa;
+                R(1, 0) = -sa;
+                R(1, 1) = ca;
+                R(2, 2) = 1;
                 break;
         }
         return R;
     }
 
-    Matrix drotm(double angle, int type)
+    Eigen::MatrixXd drotm(double angle, int type)
     {
-        Matrix R(0.0, 3, 3);
+        Eigen::MatrixXd R = Eigen::MatrixXd::Zero(3, 3);
         double ca = cos(angle);
         double sa = sin(angle);
         switch (type)

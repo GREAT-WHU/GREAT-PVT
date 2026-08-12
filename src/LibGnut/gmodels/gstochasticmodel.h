@@ -21,7 +21,7 @@
 #define STOCHASTIC_H
 
 #include "gutils/gtime.h"
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 
 namespace gnut
@@ -116,8 +116,8 @@ namespace gnut
         virtual ~t_statemode();
 
         int order;         ///< order
-        Matrix M;          ///< M
-        SymmetricMatrix P; ///< P
+        Eigen::MatrixXd M;          ///< M
+        Eigen::MatrixXd P; ///< P
 
     private:
         static const double _coeff[6]; /// coff

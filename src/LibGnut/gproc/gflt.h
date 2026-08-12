@@ -19,8 +19,7 @@
 #ifndef FLT_H
 #define FLT_H
 
-#include "newmat/newmat.h"
-#include "newmat/newmatap.h"
+#include <Eigen/Dense>
 #include "gall/gallpar.h"
 #include "gexport/ExportLibGnut.h"
 
@@ -52,7 +51,7 @@ namespace gnut
          * @param[in]  Q              Q matrix in flt
          * @return void
          */
-        virtual void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q) {};
+        virtual void update(const Eigen::MatrixXd& A, const Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q) {};
 
         /**
          * @brief update parametere.
@@ -64,7 +63,7 @@ namespace gnut
          * @param[in]  Q              Q matrix in flt
          * @return void
          */
-        virtual void update(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q) {};
+        virtual void update(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q) {};
 
         /**
          * @brief add data.
@@ -77,10 +76,10 @@ namespace gnut
          * @return void
          */
         virtual void add_data(const t_gallpar& param,
-                              const ColumnVector& dx,
-                              const SymmetricMatrix& Qx,
+                              const Eigen::VectorXd& dx,
+                              const Eigen::MatrixXd& Qx,
                               const double& sigma0,
-                              const SymmetricMatrix& Qx0);
+                              const Eigen::MatrixXd& Qx0);
 
         /**
          * @brief add data.
@@ -90,7 +89,7 @@ namespace gnut
          * @param[in]  l              l matrix in flt
          * @return void
          */
-        virtual void add_data(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l);
+        virtual void add_data(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l);
 
         /**
          * @brief add data.
@@ -110,7 +109,7 @@ namespace gnut
          * @param[in]  l              l matrix in flt
          * @return void
          */
-        virtual void add_virtual_obs(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l);
+        virtual void add_virtual_obs(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l);
 
         /**
          * @brief detect outlier.
@@ -122,16 +121,16 @@ namespace gnut
          * @param[in]  P           P matrix in flt
          * @return void
          */
-        virtual bool outlierDetect(const Matrix& A,
-                                   const SymmetricMatrix& Q,
-                                   const ColumnVector& dx,
-                                   const ColumnVector& l,
-                                   SymmetricMatrix& P);
+        virtual bool outlierDetect(const Eigen::MatrixXd& A,
+                                   const Eigen::MatrixXd& Q,
+                                   const Eigen::VectorXd& dx,
+                                   const Eigen::VectorXd& l,
+                                   Eigen::MatrixXd& P);
 
         /** @brief reset Qx. */
         virtual void resetQ();
 
-        /** @brief set Qx Matrix specified location
+        /** @brief set Qx Eigen::MatrixXd specified location
          * @param[in]  row        row of Qx matrix in flt
          * @param[in]  col        col of Qx matrix in flt
          * @param[in]  xx         value for (row,col) of Qx matrix in flt
@@ -160,16 +159,16 @@ namespace gnut
         void change_vtpv(double xx);
 
         /** @brief get stdx */
-        ColumnVector stdx();
+        Eigen::VectorXd stdx();
 
         /** @brief get dx */
-        ColumnVector dx()
+        Eigen::VectorXd dx()
         {
             return _dx;
         }
 
         /** @brief get Qx */
-        SymmetricMatrix Qx()
+        Eigen::MatrixXd Qx()
         {
             return _Qx;
         }
@@ -219,18 +218,18 @@ namespace gnut
         }
 
     protected:
-        ColumnVector _dx;    ///< dx
-        ColumnVector _stdx;  ///< stdx
-        SymmetricMatrix _Qx; ///< Qx
+        Eigen::VectorXd _dx;    ///< dx
+        Eigen::VectorXd _stdx;  ///< stdx
+        Eigen::MatrixXd _Qx; ///< Qx
         // LX added for WL constraint
-        SymmetricMatrix _Qx_tmp;    ///< tmp Qx matrix
-        SymmetricMatrix _Qx0;       ///< Qx0 matrix
-        Matrix _A;                  ///< A matrix
-        Matrix _A_virtual;          ///< A matrix for virtual using
-        SymmetricMatrix _P;         ///< P matrix
-        SymmetricMatrix _P_virtual; ///< P matrix for virtual using
-        ColumnVector _l;            ///< l matrix
-        ColumnVector _l_virtual;    ///< l matrix for virtual using
+        Eigen::MatrixXd _Qx_tmp;    ///< tmp Qx matrix
+        Eigen::MatrixXd _Qx0;       ///< Qx0 matrix
+        Eigen::MatrixXd _A;                  ///< A matrix
+        Eigen::MatrixXd _A_virtual;          ///< A matrix for virtual using
+        Eigen::MatrixXd _P;         ///< P matrix
+        Eigen::MatrixXd _P_virtual; ///< P matrix for virtual using
+        Eigen::VectorXd _l;            ///< l matrix
+        Eigen::VectorXd _l_virtual;    ///< l matrix for virtual using
         t_gallpar _param;           ///< all pars in flt
         double _sigma0;             ///< sigma0
         double _vtpv;               ///< value of v*p*v
@@ -251,8 +250,8 @@ namespace gnut
 
         /** @brief update parameter. */
         virtual void update();
-        void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
-        void update(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
+        void update(const Eigen::MatrixXd& A, const Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q);
+        void update(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q);
     };
 
     /** @brief class for Square root covariance filter derive from t_gflt. */
@@ -278,7 +277,7 @@ namespace gnut
          * @param[in]  Q              Q matrix in flt
          * @return void
          */
-        void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
+        void update(const Eigen::MatrixXd& A, const Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q);
 
         /**
          * @brief update parametere.
@@ -290,7 +289,7 @@ namespace gnut
          * @param[in]  Q              Q matrix in flt
          * @return void
          */
-        void update(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
+        void update(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q);
     };
 
     /** @brief class for Square root information filter derive from t_gflt. */
@@ -313,7 +312,7 @@ namespace gnut
          * @param[in]  Q              Q matrix in flt
          * @return void
          */
-        void update(const Matrix& A, const DiagonalMatrix& P, const ColumnVector& l, ColumnVector& dx, SymmetricMatrix& Q);
+        void update(const Eigen::MatrixXd& A, const Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Q);
     };
 
 } // namespace gnut

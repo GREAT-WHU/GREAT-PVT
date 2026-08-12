@@ -26,7 +26,7 @@
 
 #include "gmodels/gmodel.h"
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gset/gsetproc.h"
 #include "gset/gsetgnss.h"
 #include "gset/gsetrec.h"
@@ -52,7 +52,7 @@ namespace gnut
         virtual ~t_gsppmodel();
 
         /** @brief Outliers detection. */
-        virtual int outlierDetect(std::vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&);
+        virtual int outlierDetect(std::vector<t_gsatdata>& data, Eigen::MatrixXd& Qx, const Eigen::MatrixXd&);
 
         /** @brief model for computed range value. */
         virtual double cmpObs(t_gtime& epoch, t_gallpar& param, t_gsatdata&, t_gobs& gobs, bool com = false);

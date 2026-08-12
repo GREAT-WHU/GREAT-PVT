@@ -22,7 +22,7 @@
 
 #include <string>
 #include <vector>
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gdata/gdata.h"
 #include "gdata/gobsgnss.h"
 #include "gutils/gtime.h"
@@ -71,8 +71,8 @@ namespace gnut
         /** @brief add satellite relative delay. */
         void addreldelay(const double& d);
 
-        /** @brief add add the TRS2CRS Matrix. */
-        void addSCF2CRS(const Matrix& scf2crs, const Matrix& scf2trs);
+        /** @brief add add the TRS2CRS Eigen::MatrixXd. */
+        void addSCF2CRS(const Eigen::MatrixXd& scf2crs, const Eigen::MatrixXd& scf2trs);
 
         /** @brief add add the rate. */
         void adddrate(const double& drate);
@@ -181,37 +181,37 @@ namespace gnut
         /**
          * @brief get satellite funct
          *
-         * @return const Matrix&
+         * @return const Eigen::MatrixXd&
          */
-        const Matrix& orbfunct() const;
+        const Eigen::MatrixXd& orbfunct() const;
 
         /**
          * @brief rotmat
          *
-         * @return const Matrix&
+         * @return const Eigen::MatrixXd&
          */
-        const Matrix& rotmat() const;
+        const Eigen::MatrixXd& rotmat() const;
 
         /**
          * @brief drdxpole
          *
-         * @return const Matrix&
+         * @return const Eigen::MatrixXd&
          */
-        const Matrix& drdxpole() const;
+        const Eigen::MatrixXd& drdxpole() const;
 
         /**
          * @brief drdypole
          *
-         * @return const Matrix&
+         * @return const Eigen::MatrixXd&
          */
-        const Matrix& drdypole() const;
+        const Eigen::MatrixXd& drdypole() const;
 
         /**
          * @brief drdut1
          *
-         * @return const Matrix&
+         * @return const Eigen::MatrixXd&
          */
-        const Matrix& drdut1() const;
+        const Eigen::MatrixXd& drdut1() const;
 
         /**
          * @brief get the site receiver time
@@ -413,17 +413,17 @@ namespace gnut
         t_gtriple _satpco;                     ///< satellite pco
         t_gtriple _satvel;                     ///< satellite TRS/ECEF position derivative
         t_gtriple _satvel_crs;                 ///< satellite velocity_crs
-        Matrix _orbfunct;                      ///< satellite funct
+        Eigen::MatrixXd _orbfunct;                      ///< satellite funct
         int _satindex;                         ///< satellite index
         t_gtriple _reccrd;                     ///< reciver positoin(TRS)
         t_gtriple _reccrdcrs;                  ///< reciver positoin(TRS)
         t_gtriple _sat2reccrs;                 ///< reciver positoin(TRS)
-        Matrix _rotmat;                        ///< rotmat
-        Matrix _drdxpole;                      ///< drdxpole
-        Matrix _drdypole;                      ///< drdypole
-        Matrix _drdut1;                        ///< drdut1
-        Matrix _scf2crs;                       ///< scf2crs
-        Matrix _scf2trs;                       ///< scf2trs
+        Eigen::MatrixXd _rotmat;                        ///< rotmat
+        Eigen::MatrixXd _drdxpole;                      ///< drdxpole
+        Eigen::MatrixXd _drdypole;                      ///< drdypole
+        Eigen::MatrixXd _drdut1;                        ///< drdut1
+        Eigen::MatrixXd _scf2crs;                       ///< scf2crs
+        Eigen::MatrixXd _scf2trs;                       ///< scf2trs
         double _drate;                         ///< drate
         t_gtriple _dloudx;                     ///< dloudx
         t_gtime _TR;                           ///< site recieve time

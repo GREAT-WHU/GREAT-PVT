@@ -70,7 +70,7 @@ namespace gnut
         virtual void _predict();
 
         /** @brief Restore state and covariance matrix. */
-        virtual void _restore(const SymmetricMatrix& Qsav, const t_gallpar& Xsav);
+        virtual void _restore(const Eigen::MatrixXd& Qsav, const t_gallpar& Xsav);
 
         /** @brief Satelite position. */
         virtual int _satPos(t_gtime&, t_gsatdata&);
@@ -85,13 +85,13 @@ namespace gnut
         virtual int _processEpoch(const t_gtime& runEpoch);
 
         /** @brief add data to A, l, P - code. */
-        int _addObsP(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P);
+        int _addObsP(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Eigen::MatrixXd& A, Eigen::VectorXd& l, Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P);
 
         /** @brief add data to A, l, P - carrier phase. */
-        virtual int _addObsL(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P);
+        virtual int _addObsL(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Eigen::MatrixXd& A, Eigen::VectorXd& l, Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P);
 
         /** @brief add pseudo observations as a constrains. */
-        virtual int _addPseudoZTD(unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P);
+        virtual int _addPseudoZTD(unsigned int& iobs, t_gtriple& ell, Eigen::MatrixXd& A, Eigen::VectorXd& l, Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P);
 
         /** @brief weight coef for observations. */
         double _weightObs(t_gsatdata& satdata, t_gobs& go);
@@ -109,7 +109,7 @@ namespace gnut
         void _syncIFB();
 
         /** @brief save observations residuals. */
-        void _save_residuals(ColumnVector& v, std::vector<t_gsatdata>& satdata, RESIDTYPE restype);
+        void _save_residuals(Eigen::VectorXd& v, std::vector<t_gsatdata>& satdata, RESIDTYPE restype);
 
         /** @brief Apply DCB correction. */
         int _applyDCB(t_gsatdata& satdata, double& P, t_gobs* gobs1, t_gobs* gobs2 = 0);
@@ -132,12 +132,12 @@ namespace gnut
         t_whitenoise* _crdStoModel; ///< crd stochastic model
 
         t_gallpar _param;
-        SymmetricMatrix _Qx;     ///< Parameters and covariance matrix
-        DiagonalMatrix _Noise;   ///< Noise matrix
+        Eigen::MatrixXd _Qx;     ///< Parameters and covariance matrix
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> _Noise;   ///< Noise matrix
         t_gtime _epoch;          ///< Epoch time
         t_gflt* _filter;         ///< Estimation objects
         int _numSat(GSYS gsys);  ///< num sat
-        ColumnVector _vBanc;     ///< v
+        Eigen::VectorXd _vBanc;     ///< v
         t_gdop _dop;             ///< dop
         int _cntrep;             ///< cntrep
         int _numcor;             ///< num cor

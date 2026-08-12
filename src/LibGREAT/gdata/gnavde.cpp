@@ -50,7 +50,7 @@ namespace great
         pos[2] = rrd[2];
     }
 
-    void t_gnavde::get_pos(const double& tm, const std::string& planet_name, ColumnVector& pos)
+    void t_gnavde::get_pos(const double& tm, const std::string& planet_name, Eigen::VectorXd& pos)
     {
         // transfer planetname to (int) num
         int planet = str2planet(planet_name);

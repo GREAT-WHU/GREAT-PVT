@@ -18,34 +18,31 @@
 
 namespace gnut
 {
-    void Matrix_remRC(SymmetricMatrix& Q, int row, int col)
+    void Matrix_remRC(Eigen::MatrixXd& Q, int row, int col)
     {
-        SymmetricMatrix Qt(Q.Nrows());
-        Qt = Q;
-        Q.ReSize(Q.Nrows() - 1);
-        int rr = 1;
-        for (int r = 1; r <= Qt.Nrows(); r++)
+        Eigen::MatrixXd reduced(Q.rows() - 1, Q.cols() - 1);
+        int rr = 0;
+        for (int r = 0; r < Q.rows(); ++r)
         {
-            if (r == row)
+            if (r == row - 1)
             {
                 continue;
             }
-            int cc = 1;
-
-            for (int c = 1; c <= Qt.Ncols(); c++)
+            int cc = 0;
+            for (int c = 0; c < Q.cols(); ++c)
             {
-                if (c == col)
+                if (c == col - 1)
                 {
                     continue;
                 }
-                Q(rr, cc) = Qt(r, c);
-                cc++;
+                reduced(rr, cc++) = Q(r, c);
             }
-            rr++;
+            ++rr;
         }
+        Q = std::move(reduced);
     }
 
-    void Matrix_rem(SymmetricMatrix& Q, std::vector<int>& ind)
+    void Matrix_rem(Eigen::MatrixXd& Q, std::vector<int>& ind)
     {
         std::vector<int>::iterator it;
         std::vector<int>::iterator it2;
@@ -59,130 +56,38 @@ namespace gnut
         }
     }
 
-    void Matrix_addRC(SymmetricMatrix& Q, int row, int col)
+    void Matrix_addRC(Eigen::MatrixXd& Q, int row, int col)
     {
-        SymmetricMatrix Qt(Q.Nrows());
-        Qt = Q;
-        Q.ReSize(Q.Nrows() + 1);
-        Q = 0.0;
-
-        bool bc = false;
-        bool br = false;
-        int rr = 1;
-
-        for (int r = 1; r <= Q.Nrows(); r++)
+        const int row_offset = row == 0 ? 0 : 1;
+        const int col_offset = col == 0 ? 0 : 1;
+        Eigen::MatrixXd expanded = Eigen::MatrixXd::Zero(Q.rows() + row_offset, Q.cols() + col_offset);
+        for (int r = 0; r < Q.rows(); ++r)
         {
-            if (r == row)
+            const int target_row = r + (row_offset && r >= row - 1);
+            for (int c = 0; c < Q.cols(); ++c)
             {
-                br = true;
-                continue;
+                const int target_col = c + (col_offset && c >= col - 1);
+                expanded(target_row, target_col) = Q(r, c);
             }
-
-            int cc = 1;
-            for (int c = 1; c <= Q.Ncols(); c++)
-            {
-                if (c == col)
-                {
-                    bc = true;
-                    continue;
-                }
-
-                if (br && bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                if (!br && bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                if (br && !bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                if (!br && !bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-
-                cc++;
-            }
-            rr++;
         }
+        Q = std::move(expanded);
     }
 
-    void Matrix_addRC(Matrix& Q, int row, int col)
+    void Matrix_remR(Eigen::MatrixXd& A, int row)
     {
-        Matrix Qt(Q.Nrows(), Q.Ncols());
-        Qt = Q;
-        if (row == 0)
+        Eigen::MatrixXd reduced(A.rows() - 1, A.cols());
+        if (row > 1)
         {
-            Q.ReSize(Q.Nrows(), Q.Ncols() + 1);
-            Q = 0;
+            reduced.topRows(row - 1) = A.topRows(row - 1);
         }
-        else if (col == 0)
+        if (row < A.rows())
         {
-            Q.ReSize(Q.Nrows() + 1, Q.Ncols());
-            Q = 0;
+            reduced.bottomRows(A.rows() - row) = A.bottomRows(A.rows() - row);
         }
-        else
-        {
-            Q.ReSize(Q.Nrows() + 1, Q.Ncols() + 1);
-            Q = 0;
-        }
-
-        bool bc = false;
-        bool br = false;
-        int rr = 1;
-        for (int r = 1; r <= Q.Nrows(); r++)
-        {
-            if (r == row)
-            {
-                br = true;
-                continue;
-            }
-
-            int cc = 1;
-            for (int c = 1; c <= Q.Ncols(); c++)
-            {
-                if (c == col)
-                {
-                    bc = true;
-                    continue;
-                }
-
-                if (br && bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                if (!br && bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                if (br && !bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                if (!br && !bc)
-                {
-                    Q(r, c) = Qt(rr, cc);
-                }
-                cc++;
-            }
-            rr++;
-        }
+        A = std::move(reduced);
     }
 
-    void Matrix_remR(Matrix& A, int row)
-    {
-        int nrow = A.Nrows(), ncols = A.Ncols();
-        Matrix At(nrow - 1, ncols);
-        At = 0.0;
-        At.submatrix(1, row - 1, 1, ncols) = A.submatrix(1, row - 1, 1, ncols);
-        At.submatrix(row, nrow - 1, 1, ncols) = A.submatrix(row + 1, nrow, 1, ncols);
-        A = At;
-    }
-
-    LibGnut_LIBRARY_EXPORT void Matrix_remR(Matrix& A, std::vector<int>& ind)
+    LibGnut_LIBRARY_EXPORT void Matrix_remR(Eigen::MatrixXd& A, std::vector<int>& ind)
     {
         std::vector<int>::iterator it;
         std::vector<int>::iterator it2;
@@ -196,151 +101,111 @@ namespace gnut
         }
     }
 
-    void Matrix_addRC(DiagonalMatrix& Q, int row)
+    void Matrix_remR(Eigen::VectorXd& A, int row)
     {
-        DiagonalMatrix Qt(Q.Nrows());
-        Qt = Q;
-        Q.ReSize(Q.Nrows() + 1);
-        Q = 0;
-
-        int rr = 1;
-        for (int r = 1; r <= Q.Nrows(); r++)
+        Eigen::VectorXd At(A.rows() - 1);
+        if (row > 1)
         {
-            if (r == row)
+            At.head(row - 1) = A.head(row - 1);
+        }
+        if (row <= At.rows())
+        {
+            At.tail(At.rows() - row + 1) = A.tail(A.rows() - row);
+        }
+        A = At;
+    }
+
+    void Matrix_remR(Eigen::VectorXd& A, std::vector<int>& ind)
+    {
+        for (std::vector<int>::iterator it = ind.begin(); it != ind.end(); ++it)
+        {
+            Matrix_remR(A, *it);
+            for (std::vector<int>::iterator shifted = it; shifted != ind.end(); ++shifted)
             {
-                continue;
-            }
-            else
-            {
-                Q(r, r) = Qt(rr, rr);
-                rr++;
+                --(*shifted);
             }
         }
     }
 
-    void Vector_add(ColumnVector& V, int row)
+    void Matrix_addRC(Eigen::DiagonalMatrix<double, Eigen::Dynamic>& Q, int row)
     {
-        ColumnVector Vt(V.Nrows());
-        Vt = V;
-        V.ReSize(V.Nrows() + 1);
-        V = 0;
-
-        int rr = 1;
-        for (int r = 1; r <= V.Nrows(); r++)
+        Eigen::VectorXd diagonal = Eigen::VectorXd::Zero(Q.rows() + 1);
+        if (row > 1)
         {
-            if (r == row)
-            {
-                continue;
-            }
-            else
-            {
-                V(r) = Vt(rr);
-                rr++;
-            }
+            diagonal.head(row - 1) = Q.diagonal().head(row - 1);
         }
+        if (row <= Q.rows())
+        {
+            diagonal.tail(Q.rows() - row + 1) = Q.diagonal().tail(Q.rows() - row + 1);
+        }
+        Q.diagonal() = diagonal;
     }
 
-    Matrix rotX(double Angle)
+    void Vector_add(Eigen::VectorXd& V, int row)
+    {
+        Eigen::VectorXd expanded = Eigen::VectorXd::Zero(V.rows() + 1);
+        if (row > 1)
+        {
+            expanded.head(row - 1) = V.head(row - 1);
+        }
+        if (row <= V.rows())
+        {
+            expanded.tail(V.rows() - row + 1) = V.tail(V.rows() - row + 1);
+        }
+        V = std::move(expanded);
+    }
+
+    Eigen::MatrixXd rotX(double Angle)
     {
         const double C = cos(Angle);
         const double S = sin(Angle);
-        Matrix UU(3, 3);
-        UU[0][0] = 1.0;
-        UU[0][1] = 0.0;
-        UU[0][2] = 0.0;
-        UU[1][0] = 0.0;
-        UU[1][1] = +C;
-        UU[1][2] = +S;
-        UU[2][0] = 0.0;
-        UU[2][1] = -S;
-        UU[2][2] = +C;
+        Eigen::MatrixXd UU(3, 3);
+        UU << 1.0, 0.0, 0.0,
+              0.0, +C, +S,
+              0.0, -S, +C;
         return UU;
     }
 
-    Matrix rotY(double Angle)
+    Eigen::MatrixXd rotY(double Angle)
     {
         const double C = cos(Angle);
         const double S = sin(Angle);
-        Matrix UU(3, 3);
-        UU[0][0] = +C;
-        UU[0][1] = 0.0;
-        UU[0][2] = -S;
-        UU[1][0] = 0.0;
-        UU[1][1] = 1.0;
-        UU[1][2] = 0.0;
-        UU[2][0] = +S;
-        UU[2][1] = 0.0;
-        UU[2][2] = +C;
+        Eigen::MatrixXd UU(3, 3);
+        UU << +C, 0.0, -S,
+              0.0, 1.0, 0.0,
+              +S, 0.0, +C;
         return UU;
     }
 
-    Matrix rotZ(double Angle)
+    Eigen::MatrixXd rotZ(double Angle)
     {
         const double C = cos(Angle);
         const double S = sin(Angle);
-        Matrix UU(3, 3);
-        UU[0][0] = +C;
-        UU[0][1] = +S;
-        UU[0][2] = 0.0;
-        UU[1][0] = -S;
-        UU[1][1] = +C;
-        UU[1][2] = 0.0;
-        UU[2][0] = 0.0;
-        UU[2][1] = 0.0;
-        UU[2][2] = 1.0;
+        Eigen::MatrixXd UU(3, 3);
+        UU << +C, +S, 0.0,
+              -S, +C, 0.0,
+              0.0, 0.0, 1.0;
         return UU;
     }
 
-    void Matrix_swap(SymmetricMatrix& Q, int a, int b)
+    void Matrix_swap(Eigen::MatrixXd& Q, int a, int b)
     {
-        // Copy symmetric matrix to normal matrix
-        Matrix T(Q.Nrows(), Q.Ncols());
-        for (int r = 1; r <= Q.Nrows(); r++)
-        {
-            for (int c = 1; c <= Q.Ncols(); c++)
-            {
-                T(r, c) = Q(r, c);
-            }
-        }
-
-        // Swap rows
-        for (int i = 1; i <= Q.Ncols(); i++)
-        {
-            double temp = T(a, i);
-            T(a, i) = T(b, i);
-            T(b, i) = temp;
-        }
-
-        // Swap columns
-        for (int i = 1; i <= Q.Nrows(); i++)
-        {
-            double temp = T(i, a);
-            T(i, a) = T(i, b);
-            T(i, b) = temp;
-        }
-
-        // Back to symmetric matrix
-        for (int r = 1; r <= T.Nrows(); r++)
-        {
-            for (int c = 1; c <= T.Ncols(); c++)
-            {
-                Q(r, c) = T(r, c);
-            }
-        }
+        Q.row(a - 1).swap(Q.row(b - 1));
+        Q.col(a - 1).swap(Q.col(b - 1));
     }
 
-    void Matrix_cpRC(SymmetricMatrix Q1, SymmetricMatrix& Q2, int r, int c)
+    void Matrix_cpRC(Eigen::MatrixXd Q1, Eigen::MatrixXd& Q2, int r, int c)
     {
-        if (Q1.Nrows() != Q2.Nrows())
+        if (Q1.rows() != Q2.rows())
         {
             std::cerr << "Matrix_cpRC: not compatible dimension" << std::endl;
         }
 
-        for (int i = 1; i <= Q1.Nrows(); i++)
+        for (int i = 0; i < Q1.rows(); ++i)
         {
-            for (int j = 1; j <= Q1.Ncols(); j++)
+            for (int j = 0; j < Q1.cols(); ++j)
             {
-                if (i == r || j == c)
+                if (i == r - 1 || j == c - 1)
                 {
                     Q2(i, j) = Q1(i, j);
                 }

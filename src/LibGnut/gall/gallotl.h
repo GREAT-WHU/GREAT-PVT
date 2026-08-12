@@ -19,7 +19,7 @@
 #define GALLOTL_H
 #include <string>
 #include <map>
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gdata/gdata.h"
 #include "gutils/gtime.h"
 #include "gmodels/gotl.h"
@@ -46,7 +46,7 @@ namespace gnut
         ~t_gallotl();
 
         /** @brief get data. */
-        int data(Matrix& data, const std::string& site);
+        int data(Eigen::MatrixXd& data, const std::string& site);
 
         /**
          * @brief
@@ -56,7 +56,7 @@ namespace gnut
          * @param lat
          * @return int
          */
-        int data(Matrix& data, double lon, double lat);
+        int data(Eigen::MatrixXd& data, double lon, double lat);
 
         /**
          * @brief

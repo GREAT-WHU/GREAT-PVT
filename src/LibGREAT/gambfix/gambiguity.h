@@ -117,19 +117,19 @@ namespace great
         t_gallpar param() const;
         /**
          * @brief get correction of parameter
-         * @return ColumnVector correction of parameter
+         * @return Eigen::VectorXd correction of parameter
          */
-        ColumnVector dx() const;
+        Eigen::VectorXd dx() const;
         /**
          * @brief get Standard deviation
-         * @return ColumnVector Standard deviation
+         * @return Eigen::VectorXd Standard deviation
          */
-        ColumnVector stdx() const;
+        Eigen::VectorXd stdx() const;
         /**
          * @brief get qx
-         * @return SymmetricMatrix qx
+         * @return Eigen::MatrixXd qx
          */
-        SymmetricMatrix Qx() const;
+        Eigen::MatrixXd Qx() const;
 
     private:
         t_gtime _now;                  ///< now time
@@ -137,9 +137,9 @@ namespace great
         double _sigma0;                ///< sigma0
         double _vtpv;                  ///< vtpv
         t_gallpar _param;              ///< parameter
-        ColumnVector _dx;              ///< correction of parameter
-        ColumnVector _stdx;            ///< Standard deviation
-        SymmetricMatrix _Qx;           ///< qx
+        Eigen::VectorXd _dx;              ///< correction of parameter
+        Eigen::VectorXd _stdx;            ///< Standard deviation
+        Eigen::MatrixXd _Qx;           ///< qx
         std::map<std::string, int> _active_amb;  ///< acctive ambiguity
         bool _amb_fixed;               ///< whether fixed
         double _ratio;                 ///< ratio
@@ -233,7 +233,7 @@ namespace great
         void setSatRef(std::set<GSAT>& satRef);
 
         /** @brief update Fix Param. */
-        void updateFixParam(t_gallpar& param, ColumnVector& dx, ColumnVector* stdx = NULL);
+        void updateFixParam(t_gallpar& param, Eigen::VectorXd& dx, Eigen::VectorXd* stdx = NULL);
 
         /** @brief ge Final Params. */
         t_gallpar& getFinalParams();
@@ -259,7 +259,7 @@ namespace great
         /**
          * @brief set ratio threshold and lambda reduction and search
          */
-        double lambdaSolve(double& ratio, const Matrix& anor, const ColumnVector& fltpar, ColumnVector& ibias, bool parlamb = false);
+        double lambdaSolve(double& ratio, const Eigen::MatrixXd& anor, const Eigen::VectorXd& fltpar, Eigen::VectorXd& ibias, bool parlamb = false);
 
         /** @brief set Active Amb. */
         void setActiveAmb(int max)
@@ -318,7 +318,7 @@ namespace great
         bool _is_first_ewl24 = false;
         bool _is_first_ewl25 = false;
 
-        ColumnVector _mDia;
+        Eigen::VectorXd _mDia;
 
         double _outRatio;             ///< outRatio
         t_giof* _ratiofile = nullptr; ///< ratio file
@@ -428,8 +428,8 @@ namespace great
          * @param[out] value
          * @return     true - compute successfully , false - failure
          */
-        bool _prepareCovariance(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, std::vector<double>& value);
-        bool _prepareCovarianceWL(t_gamb_cmn* amb_cmn, SymmetricMatrix& covariance, std::vector<double>& value, std::string mode);
+        bool _prepareCovariance(t_gamb_cmn* amb_cmn, Eigen::MatrixXd& covariance, std::vector<double>& value);
+        bool _prepareCovarianceWL(t_gamb_cmn* amb_cmn, Eigen::MatrixXd& covariance, std::vector<double>& value, std::string mode);
 
         /**
          * @brief resolve integer ambiguities using LAMBDA-method.
@@ -439,7 +439,7 @@ namespace great
          * @param[out] ibias
          * @return      ratio value
          */
-        double _lambdaSearch(const Matrix& anor, const std::vector<double>& fltpar, std::vector<int>& ibias, double* boot);
+        double _lambdaSearch(const Eigen::MatrixXd& anor, const std::vector<double>& fltpar, std::vector<int>& ibias, double* boot);
 
         /**
         /**

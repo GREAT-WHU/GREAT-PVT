@@ -53,47 +53,46 @@ namespace great
         iauMoon98(DJM0, tt_mjd, moon_gcrs);
         iauC2t06a(DJM0, tt_mjd, DJM0, ut1_mjd, xpole / RAD2SEC, ypole / RAD2SEC, c2t);
 
-        ColumnVector sun_pos(3), moon_pos(3);
+        Eigen::VectorXd sun_pos = Eigen::VectorXd::Zero(3);
+        Eigen::VectorXd moon_pos = Eigen::VectorXd::Zero(3);
         for (int i = 0; i < 3; ++i)
         {
-            sun_pos(i + 1) = 0.0;
-            moon_pos(i + 1) = 0.0;
             for (int j = 0; j < 3; ++j)
             {
-                sun_pos(i + 1) -= c2t[i][j] * earth_helio[0][j] * DAU / 1000.0;
-                moon_pos(i + 1) += c2t[i][j] * moon_gcrs[0][j] * DAU / 1000.0;
+                sun_pos(i) -= c2t[i][j] * earth_helio[0][j] * DAU / 1000.0;
+                moon_pos(i) += c2t[i][j] * moon_gcrs[0][j] * DAU / 1000.0;
             }
         }
 
-        double rSun = sqrt(DotProduct(sun_pos, sun_pos));
-        double rMoon = sqrt(DotProduct(moon_pos, moon_pos));
+        double rSun = sun_pos.norm();
+        double rMoon = moon_pos.norm();
 
         // unit vector for site
-        ColumnVector unit_site_pos = xyz.unitary();
+        Eigen::VectorXd unit_site_pos = xyz.unitary();
         // get BLH
         t_gtriple blh;
         xyz2ell(xyz, blh, false);
-        double lsta = xyz.crd_cvect().NormFrobenius();
+        double lsta = xyz.crd_cvect().norm();
         double cosphi = sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]) / lsta;
 
         // calculate
-        ColumnVector dx(0.0, 3);
+        Eigen::VectorXd dx = Eigen::VectorXd::Zero(3);
         for (int i = 0; i < 2; i++)
         {
-            ColumnVector unit_pos(0.0, 3);
+            Eigen::VectorXd unit_pos = Eigen::VectorXd::Zero(3);
             double mass_ratio = 0.0, R_body, dotl = 0.0, scale = 0.0;
             switch (i)
             {
                 case 0:
                     unit_pos = sun_pos / rSun;
-                    dotl = DotProduct(unit_pos, unit_site_pos);
+                    dotl = unit_pos.dot(unit_site_pos);
                     // GM_body = SUN_GM;
                     mass_ratio = _MASS_RATIO_SUN;
                     R_body = rSun;
                     break;
                 case 1:
                     unit_pos = moon_pos / rMoon;
-                    dotl = DotProduct(unit_pos, unit_site_pos);
+                    dotl = unit_pos.dot(unit_site_pos);
                     // GM_body = MOON_GM;
                     mass_ratio = _MASS_RATIO_MOON;
                     R_body = rMoon;
@@ -120,15 +119,15 @@ namespace great
         double FAC2MON = _MASS_RATIO_MOON * _EARTH_R * pow((_EARTH_R / rMoon), 3) * 1000;
 
         // FIRST, FOR THE DIURNAL BAND
-        ColumnVector XCORSTA_DIURNAL = _st1idiu(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
+        Eigen::VectorXd XCORSTA_DIURNAL = _st1idiu(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
         dx = dx + XCORSTA_DIURNAL;
 
         // SECOND, FOR THE SEMI-DIURNAL BAND
-        ColumnVector XCORSTA_SEMI = _st1isem(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
+        Eigen::VectorXd XCORSTA_SEMI = _st1isem(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
         dx = dx + XCORSTA_SEMI;
 
         // CORRECTIONS FOR THE LATITUDE DEPENDENCE OF LOVE NUMBERS (PART L^(1) )
-        ColumnVector XCORSTA_LATI = _st1l1(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
+        Eigen::VectorXd XCORSTA_LATI = _st1l1(xyz, sun_pos, moon_pos, FAC2SUN, FAC2MON);
         dx = dx + XCORSTA_LATI;
 
         t_gtriple dx_diurnal = tide_solid_frequency_diurnal(epo_tt, xyz);
@@ -141,7 +140,7 @@ namespace great
     t_gtriple t_gtideIERS::tide_solid_frequency_diurnal(const t_gtime& epo, t_gtriple& xyz)
     {
         double rsta, sinphi, cosphi, cosla, sinla, zla;
-        ColumnVector dx(0.0, 3);
+        Eigen::VectorXd dx = Eigen::VectorXd::Zero(3);
 
         // Compute centuries since J2000 and fractional hours in the day
         double t = (epo.dmjd() - 51544.5) / 36525;
@@ -208,7 +207,7 @@ namespace great
     t_gtriple t_gtideIERS::tide_solid_frequency_longperiod(const t_gtime& epo, t_gtriple& xyz)
     {
         double rsta, sinphi, cosphi, cosla, sinla;
-        ColumnVector dx(0.0, 3);
+        Eigen::VectorXd dx = Eigen::VectorXd::Zero(3);
         // Compute centuries since J2000
         double t = (epo.dmjd() - 51544.5) / 36525;
 
@@ -268,7 +267,7 @@ namespace great
         return t_gtriple(dx);
     }
 
-    ColumnVector t_gtideIERS::_st1idiu(t_gtriple& XSTA, ColumnVector& XSUN, ColumnVector& XMON, double& FAC2SUN, double& FAC2MON)
+    Eigen::VectorXd t_gtideIERS::_st1idiu(t_gtriple& XSTA, Eigen::VectorXd& XSUN, Eigen::VectorXd& XMON, double& FAC2SUN, double& FAC2MON)
     {
         double DHI = -0.0025e0;
         double DLI = -0.0007e0;
@@ -298,16 +297,16 @@ namespace great
         double DE = DESUN + DEMON;
 
         // Compute the corrections for the station.
-        ColumnVector XCORSTA(0.0, 3);
-        XCORSTA(1) = DR * COSLA * COSPHI - DE * SINLA - DN * SINPHI * COSLA;
-        XCORSTA(2) = DR * SINLA * COSPHI + DE * COSLA - DN * SINPHI * SINLA;
-        XCORSTA(3) = DR * SINPHI + DN * COSPHI;
+        Eigen::Vector3d XCORSTA;
+        XCORSTA(0) = DR * COSLA * COSPHI - DE * SINLA - DN * SINPHI * COSLA;
+        XCORSTA(1) = DR * SINLA * COSPHI + DE * COSLA - DN * SINPHI * SINLA;
+        XCORSTA(2) = DR * SINPHI + DN * COSPHI;
 
         XCORSTA = XCORSTA / 1000;
         return XCORSTA;
     }
 
-    ColumnVector t_gtideIERS::_st1isem(t_gtriple& XSTA, ColumnVector& XSUN, ColumnVector& XMON, double& FAC2SUN, double& FAC2MON)
+    Eigen::VectorXd t_gtideIERS::_st1isem(t_gtriple& XSTA, Eigen::VectorXd& XSUN, Eigen::VectorXd& XMON, double& FAC2SUN, double& FAC2MON)
     {
         double DHI = -0.0022;
         double DLI = -0.0007;
@@ -341,16 +340,16 @@ namespace great
         double DN = DNSUN + DNMON;
         double DE = DESUN + DEMON;
 
-        ColumnVector XCORSTA(0.0, 3);
-        XCORSTA(1) = DR * COSLA * COSPHI - DE * SINLA - DN * SINPHI * COSLA;
-        XCORSTA(2) = DR * SINLA * COSPHI + DE * COSLA - DN * SINPHI * SINLA;
-        XCORSTA(3) = DR * SINPHI + DN * COSPHI;
+        Eigen::Vector3d XCORSTA;
+        XCORSTA(0) = DR * COSLA * COSPHI - DE * SINLA - DN * SINPHI * COSLA;
+        XCORSTA(1) = DR * SINLA * COSPHI + DE * COSLA - DN * SINPHI * SINLA;
+        XCORSTA(2) = DR * SINPHI + DN * COSPHI;
         XCORSTA = XCORSTA / 1000;
 
         return XCORSTA;
     }
 
-    ColumnVector t_gtideIERS::_st1l1(t_gtriple& XSTA, ColumnVector& XSUN, ColumnVector& XMON, double& FAC2SUN, double& FAC2MON)
+    Eigen::VectorXd t_gtideIERS::_st1l1(t_gtriple& XSTA, Eigen::VectorXd& XSUN, Eigen::VectorXd& XMON, double& FAC2SUN, double& FAC2MON)
     {
         double L1D = 0.0012;
         double L1SD = 0.0024;
@@ -375,10 +374,10 @@ namespace great
         double DE = 3.0 * (DESUN + DEMON);
         double DN = 3.0 * (DNSUN + DNMON);
 
-        ColumnVector XCORSTA(0.0, 3);
-        XCORSTA(1) = -DE * SINLA - DN * SINPHI * COSLA;
-        XCORSTA(2) = DE * COSLA - DN * SINPHI * SINLA;
-        XCORSTA(3) = DN * COSPHI;
+        Eigen::Vector3d XCORSTA;
+        XCORSTA(0) = -DE * SINLA - DN * SINPHI * COSLA;
+        XCORSTA(1) = DE * COSLA - DN * SINPHI * SINLA;
+        XCORSTA(2) = DN * COSPHI;
 
         L1 = L1SD;
         double COSTWOLA = COSLA * COSLA - SINLA * SINLA;
@@ -395,9 +394,9 @@ namespace great
         DE = 3.0 * (DESUN + DEMON);
         DN = 3.0 * (DNSUN + DNMON);
 
-        XCORSTA(1) = XCORSTA(1) - DE * SINLA - DN * SINPHI * COSLA;
-        XCORSTA(2) = XCORSTA(2) + DE * COSLA - DN * SINPHI * SINLA;
-        XCORSTA(3) = XCORSTA(3) + DN * COSPHI;
+        XCORSTA(0) = XCORSTA(0) - DE * SINLA - DN * SINPHI * COSLA;
+        XCORSTA(1) = XCORSTA(1) + DE * COSLA - DN * SINPHI * SINLA;
+        XCORSTA(2) = XCORSTA(2) + DN * COSPHI;
         XCORSTA = XCORSTA / 1000;
 
         return XCORSTA;
@@ -483,12 +482,11 @@ namespace great
         // get oceanload data
         t_gtriple ell;
         xyz2ell(xRec, ell, true);
-        Matrix coef_oceanload;
+        Eigen::MatrixXd coef_oceanload;
         int isexist = _gotl->data(coef_oceanload, ell[1], ell[0]);
         if (isexist < 0)
         {
-            coef_oceanload.resize(6, 11);
-            coef_oceanload = 0.0;
+            coef_oceanload.setZero(6, 11);
             GREAT_DEBUG(std::string("Not found ") + site + " in ocean load file!");
         }
 
@@ -496,9 +494,9 @@ namespace great
         t_gtriple dx;
         for (int i = 0; i < 11; i++)
         {
-            dx[0] = dx[0] - coef_oceanload(3, i + 1) * cos(angle[i] - coef_oceanload(6, i + 1) * D2R);
-            dx[1] = dx[1] - coef_oceanload(2, i + 1) * cos(angle[i] - coef_oceanload(5, i + 1) * D2R);
-            dx[2] = dx[2] + coef_oceanload(1, i + 1) * cos(angle[i] - coef_oceanload(4, i + 1) * D2R);
+            dx[0] = dx[0] - coef_oceanload(2, i) * cos(angle[i] - coef_oceanload(5, i) * D2R);
+            dx[1] = dx[1] - coef_oceanload(1, i) * cos(angle[i] - coef_oceanload(4, i) * D2R);
+            dx[2] = dx[2] + coef_oceanload(0, i) * cos(angle[i] - coef_oceanload(3, i) * D2R);
         }
         t_gtriple blh, xyz;
         xyz2ell(xRec, blh, false);
@@ -517,22 +515,21 @@ namespace great
         xyz2ell(xyz, blh, false);
         double lat = blh[0] * R2D;
         double lon = blh[1] * R2D;
-        Matrix atmo_coef;
-        atmo_coef.ReSize(3, 4);
-        atmo_coef = 0.0;
+        Eigen::MatrixXd atmo_coef;
+        atmo_coef.setZero(3, 4);
 
-        double amp1cdu = atmo_coef(1, 1);
-        double amp1sdu = atmo_coef(1, 2);
-        double amp2cdu = atmo_coef(1, 3);
-        double amp2sdu = atmo_coef(1, 4);
-        double amp1cdn = atmo_coef(2, 1);
-        double amp1sdn = atmo_coef(2, 2);
-        double amp2cdn = atmo_coef(2, 3);
-        double amp2sdn = atmo_coef(2, 4);
-        double amp1cde = atmo_coef(3, 1);
-        double amp1sde = atmo_coef(3, 2);
-        double amp2cde = atmo_coef(3, 3);
-        double amp2sde = atmo_coef(3, 4);
+        double amp1cdu = atmo_coef(0, 0);
+        double amp1sdu = atmo_coef(0, 1);
+        double amp2cdu = atmo_coef(0, 2);
+        double amp2sdu = atmo_coef(0, 3);
+        double amp1cdn = atmo_coef(1, 0);
+        double amp1sdn = atmo_coef(1, 1);
+        double amp2cdn = atmo_coef(1, 2);
+        double amp2sdn = atmo_coef(1, 3);
+        double amp1cde = atmo_coef(2, 0);
+        double amp1sde = atmo_coef(2, 1);
+        double amp2cde = atmo_coef(2, 2);
+        double amp2sde = atmo_coef(2, 3);
         double dt = epoch.sod(false) + epoch.dsec(false) - epoch.leapsec(); // UTC = TAI - LS
         t_gtriple dneu = t_gtriple();
         dneu[0] = amp1cdn * cos(_atm_freq[0] * dt) + amp1sdn * sin(_atm_freq[0] * dt) + amp2cdn * cos(_atm_freq[1] * dt) +

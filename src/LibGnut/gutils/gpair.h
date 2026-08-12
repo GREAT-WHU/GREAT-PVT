@@ -23,7 +23,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 
 namespace gnut
@@ -43,7 +43,7 @@ namespace gnut
         explicit t_gpair(double crd[2]);
 
         /** @brief constructor 3. */
-        explicit t_gpair(const ColumnVector& crd);
+        explicit t_gpair(const Eigen::VectorXd& crd);
 
         /** @brief default destructor. */
         virtual ~t_gpair();
@@ -63,8 +63,8 @@ namespace gnut
         /**@brief set single element */
         void set(int idx, double newValue);
 
-        /**@brief set array by ColumnVector */
-        void set(const ColumnVector&);
+        /**@brief set array by Eigen::VectorXd */
+        void set(const Eigen::VectorXd&);
 
         /**@brief set array by array */
         void set(double crd[2]);
@@ -72,14 +72,14 @@ namespace gnut
         /**@brief get array */
         double* crd_array();
 
-        /**@brief get ColumnVector */
-        ColumnVector crd_cvect();
+        /**@brief get Eigen::VectorXd */
+        Eigen::VectorXd crd_cvect();
 
         /**@brief get pair */
         t_gpair& crd_pair();
 
-        /**@brief get unit ColumnVector */
-        ColumnVector unitary();
+        /**@brief get unit Eigen::VectorXd */
+        Eigen::VectorXd unitary();
 
         /**@brief true: zero elements, false: not zero elements */
         bool zero();

@@ -66,16 +66,16 @@ namespace great
         /** @brief the out-of-phase corrections induced by mantle anelasticity in the diurnal band.*/
         /** Reference: IERS Conventions 2010 v1.0, Eq (7.10) */
         /** Remeber: SIN(PHIj)=Zj/Rj; SIN(LAMBDAj)=Yj/COS(PHIj)/Rj; COS(LAMBDAj)=Xj/COS(PHIj)/Rj */
-        ColumnVector _st1idiu(t_gtriple& xyz, ColumnVector& sun, ColumnVector& moon, double& FAC2SUN, double& FAC2MON);
+        Eigen::VectorXd _st1idiu(t_gtriple& xyz, Eigen::VectorXd& sun, Eigen::VectorXd& moon, double& FAC2SUN, double& FAC2MON);
 
         /** @brief the out-of-phase corrections induced by mantle anelasticity in the semi-diurnal band.*/
         /** Reference: IERS Conventions 2010 v1.0, Eq (7.11) */
         /** Remeber: SIN(PHIj)=Zj/Rj; SIN(LAMBDAj)=Yj/COS(PHIj)/Rj; COS(LAMBDAj)=Xj/COS(PHIj)/Rj */
-        ColumnVector _st1isem(t_gtriple& xyz, ColumnVector& sun, ColumnVector& moon, double& FAC2SUN, double& FAC2MON);
+        Eigen::VectorXd _st1isem(t_gtriple& xyz, Eigen::VectorXd& sun, Eigen::VectorXd& moon, double& FAC2SUN, double& FAC2MON);
 
         /** @brief the corrections induced by the latitude dependence given by L^1 in Mathews et al. 1991.*/
         /** Reference: IERS Conventions 2010 v1.0, Eq (7.7-7.9).*/
-        ColumnVector _st1l1(t_gtriple& xyz, ColumnVector& sun, ColumnVector& moon, double& FAC2SUN, double& FAC2MON);
+        Eigen::VectorXd _st1l1(t_gtriple& xyz, Eigen::VectorXd& sun, Eigen::VectorXd& moon, double& FAC2SUN, double& FAC2MON);
 
         /** @brief atmospheric tide loading.*/
         /** References: [1] IERS Conventions 2010, Sect. 7.1.3           */

@@ -22,7 +22,7 @@
 #include "gexport/ExportLibGnut.h"
 #include <vector>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gdata/gdata.h"
 #include "gdata/gobsgnss.h"
 #include "gutils/gconst.h"

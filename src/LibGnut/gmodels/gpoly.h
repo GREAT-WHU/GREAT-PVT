@@ -22,7 +22,7 @@
 #ifndef GPOLY_H
 #define GPOLY_H
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 
 #include <vector>
 #include <iostream>

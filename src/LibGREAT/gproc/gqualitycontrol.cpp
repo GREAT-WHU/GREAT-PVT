@@ -180,10 +180,9 @@ namespace great
 
     bool t_gbds_codebias_cor::_recAprCoordinate(const std::string& rec, t_gtriple& rec_crd, t_gallnav* gnav, std::vector<t_gsatdata>& obsdata)
     {
-        Matrix BB;
+        Eigen::MatrixXd BB;
 
-        BB.ReSize(obsdata.size(), 4);
-        BB = 0.0;
+        BB.setZero(obsdata.size(), 4);
         int iobs = 0;
 
         std::vector<t_gsatdata>::iterator iter;
@@ -226,11 +225,11 @@ namespace great
                 continue;
             }
 
+            BB(iobs, 0) = iter->satcrd().crd(0);
+            BB(iobs, 1) = iter->satcrd().crd(1);
+            BB(iobs, 2) = iter->satcrd().crd(2);
+            BB(iobs, 3) = P3 + iter->clk();
             iobs++;
-            BB(iobs, 1) = iter->satcrd().crd(0);
-            BB(iobs, 2) = iter->satcrd().crd(1);
-            BB(iobs, 3) = iter->satcrd().crd(2);
-            BB(iobs, 4) = P3 + iter->clk();
 
             iter++;
         }
@@ -240,15 +239,15 @@ namespace great
             return false;
         }
 
-        BB = BB.Rows(1, iobs); // delete zero rows
+        BB = BB.topRows(iobs).eval(); // delete zero rows
 
-        ColumnVector vBanc;
+        Eigen::VectorXd vBanc;
 
         gbancroft(BB, vBanc);
 
-        rec_crd[0] = vBanc(1);
-        rec_crd[1] = vBanc(2);
-        rec_crd[2] = vBanc(3);
+        rec_crd[0] = vBanc(0);
+        rec_crd[1] = vBanc(1);
+        rec_crd[2] = vBanc(2);
 
         return true;
     }

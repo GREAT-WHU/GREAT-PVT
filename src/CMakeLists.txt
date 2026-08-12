@@ -277,8 +277,8 @@ message(STATUS "The program main directory is : ${ROOT}")
 # ============================================================================
 
 # List of library (sub‑project) names to be built
-set(file_fold 
-    spdlog sofa gexport gio gutils gcoders gmodels gall gdata gset pugixml gproc gprod gambfix newmat)
+set(file_fold
+    spdlog sofa gexport gio gutils gcoders gmodels gall gdata gset pugixml gproc gprod gambfix)
 
 # Print the library list (useful for debugging); output appears during configuration
 message(${file_fold})

@@ -77,20 +77,20 @@ namespace great
         */
         int attitude(std::string antype,
                      GSAT prn,
-                     ColumnVector& xsat,
-                     ColumnVector& vsat,
-                     ColumnVector& xsun,
-                     ColumnVector& i,
-                     ColumnVector& j,
-                     ColumnVector& k);
+                     Eigen::VectorXd& xsat,
+                     Eigen::VectorXd& vsat,
+                     Eigen::VectorXd& xsun,
+                     Eigen::VectorXd& i,
+                     Eigen::VectorXd& j,
+                     Eigen::VectorXd& k);
         int attitude(std::string antype,
                      const std::string& prn,
-                     ColumnVector& xsat,
-                     ColumnVector& vsat,
-                     ColumnVector& xsun,
-                     ColumnVector& i,
-                     ColumnVector& j,
-                     ColumnVector& k);
+                     Eigen::VectorXd& xsat,
+                     Eigen::VectorXd& vsat,
+                     Eigen::VectorXd& xsun,
+                     Eigen::VectorXd& i,
+                     Eigen::VectorXd& j,
+                     Eigen::VectorXd& k);
 
         /** @brief get satellite attitude.
         *
@@ -146,12 +146,12 @@ namespace great
         void _ysm(GSAT prn,
                   double bata,
                   double mi,
-                  ColumnVector& xsat,
-                  ColumnVector& vsat,
-                  ColumnVector& xsun,
-                  ColumnVector& i,
-                  ColumnVector& j,
-                  ColumnVector& k);
+                  Eigen::VectorXd& xsat,
+                  Eigen::VectorXd& vsat,
+                  Eigen::VectorXd& xsun,
+                  Eigen::VectorXd& i,
+                  Eigen::VectorXd& j,
+                  Eigen::VectorXd& k);
 
         /** @brief orbit normal mode (i toward the velocity)
          *
@@ -171,7 +171,7 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _onm(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun, ColumnVector& i, ColumnVector& j, ColumnVector& k);
+        void _onm(Eigen::VectorXd& xsat, Eigen::VectorXd& vsat, Eigen::VectorXd& xsun, Eigen::VectorXd& i, Eigen::VectorXd& j, Eigen::VectorXd& k);
 
         /** @brief noon maneuver
          *
@@ -201,7 +201,7 @@ namespace great
          *param[in] xsat                satellite position
          *param[in] vsat                satellite velocity
          *param[in] xsun                sun position
-         *param[in] R                columnVector
+         *param[in] R                Eigen vector
          *param[in] i                columnVector1
          *param[in] j                columnVector2
          *param[in] k                columnVector3
@@ -209,13 +209,13 @@ namespace great
         void _noon_turn(GSAT _prn,
                         double _beta,
                         double _mi,
-                        ColumnVector& xsat,
-                        ColumnVector& vsat,
-                        ColumnVector& xsun,
+                        Eigen::VectorXd& xsat,
+                        Eigen::VectorXd& vsat,
+                        Eigen::VectorXd& xsun,
                         double R,
-                        ColumnVector& i,
-                        ColumnVector& j,
-                        ColumnVector& k);
+                        Eigen::VectorXd& i,
+                        Eigen::VectorXd& j,
+                        Eigen::VectorXd& k);
 
         // attitude for GPS Block IIA
         /** @brief Attitude modelling for GPS Block IIA
@@ -241,12 +241,12 @@ namespace great
          */
         void _attitude_GPSIIA(std::string antype,
                               GSAT prn,
-                              ColumnVector& xsat,
-                              ColumnVector& vsat,
-                              ColumnVector& xsun,
-                              ColumnVector& i,
-                              ColumnVector& j,
-                              ColumnVector& k);
+                              Eigen::VectorXd& xsat,
+                              Eigen::VectorXd& vsat,
+                              Eigen::VectorXd& xsun,
+                              Eigen::VectorXd& i,
+                              Eigen::VectorXd& j,
+                              Eigen::VectorXd& k);
 
         /** @brief     midnight maneuver for GPS Block IIA
          *
@@ -273,13 +273,13 @@ namespace great
         void _midnight_turn_GPSIIA(GSAT prn,
                                    double _beta,
                                    double _mi,
-                                   ColumnVector& xsat,
-                                   ColumnVector& vsat,
-                                   ColumnVector& xsun,
+                                   Eigen::VectorXd& xsat,
+                                   Eigen::VectorXd& vsat,
+                                   Eigen::VectorXd& xsun,
                                    double R,
-                                   ColumnVector& i,
-                                   ColumnVector& j,
-                                   ColumnVector& k);
+                                   Eigen::VectorXd& i,
+                                   Eigen::VectorXd& j,
+                                   Eigen::VectorXd& k);
 
         // attitude for GPS Block IIR
         /** @brief attitude for GPS Block IIR
@@ -306,12 +306,12 @@ namespace great
          */
         void _attitude_GPSIIR(std::string antype,
                               GSAT prn,
-                              ColumnVector& xsat,
-                              ColumnVector& vsat,
-                              ColumnVector& xsun,
-                              ColumnVector& i,
-                              ColumnVector& j,
-                              ColumnVector& k);
+                              Eigen::VectorXd& xsat,
+                              Eigen::VectorXd& vsat,
+                              Eigen::VectorXd& xsun,
+                              Eigen::VectorXd& i,
+                              Eigen::VectorXd& j,
+                              Eigen::VectorXd& k);
 
         // attitude for GPS Block IIR-M
         /** @brief attitude for GPS Block IIR-M
@@ -347,12 +347,12 @@ namespace great
          */
         void _attitude_GPSIIF(std::string antype,
                               GSAT prn,
-                              ColumnVector& xsat,
-                              ColumnVector& vsat,
-                              ColumnVector& xsun,
-                              ColumnVector& i,
-                              ColumnVector& j,
-                              ColumnVector& k);
+                              Eigen::VectorXd& xsat,
+                              Eigen::VectorXd& vsat,
+                              Eigen::VectorXd& xsun,
+                              Eigen::VectorXd& i,
+                              Eigen::VectorXd& j,
+                              Eigen::VectorXd& k);
 
         /** @brief midnight maneuver for GPS Block IIF
          *
@@ -380,13 +380,13 @@ namespace great
         void _midnight_turn_GPSIIF(GSAT prn,
                                    double _beta,
                                    double _mi,
-                                   ColumnVector& xsat,
-                                   ColumnVector& vsat,
-                                   ColumnVector& xsun,
+                                   Eigen::VectorXd& xsat,
+                                   Eigen::VectorXd& vsat,
+                                   Eigen::VectorXd& xsun,
                                    double R,
-                                   ColumnVector& i,
-                                   ColumnVector& j,
-                                   ColumnVector& k);
+                                   Eigen::VectorXd& i,
+                                   Eigen::VectorXd& j,
+                                   Eigen::VectorXd& k);
 
         // atttude for GPS Block III
         /** @brief midnight maneuver for GPS Block III
@@ -412,12 +412,12 @@ namespace great
          */
         void _attitude_GPSIII(std::string antype,
                               GSAT prn,
-                              ColumnVector& xsat,
-                              ColumnVector& vsat,
-                              ColumnVector& xsun,
-                              ColumnVector& i,
-                              ColumnVector& j,
-                              ColumnVector& k);
+                              Eigen::VectorXd& xsat,
+                              Eigen::VectorXd& vsat,
+                              Eigen::VectorXd& xsun,
+                              Eigen::VectorXd& i,
+                              Eigen::VectorXd& j,
+                              Eigen::VectorXd& k);
 
         // attitude for Galileo IOV
         /** @brief attitude for Galileo IOV
@@ -443,12 +443,12 @@ namespace great
          */
         void _attitude_GAL1(std::string antype,
                             GSAT prn,
-                            ColumnVector& xsat,
-                            ColumnVector& vsat,
-                            ColumnVector& xsun,
-                            ColumnVector& i,
-                            ColumnVector& j,
-                            ColumnVector& k);
+                            Eigen::VectorXd& xsat,
+                            Eigen::VectorXd& vsat,
+                            Eigen::VectorXd& xsun,
+                            Eigen::VectorXd& i,
+                            Eigen::VectorXd& j,
+                            Eigen::VectorXd& k);
 
         /** @brief noon maneuver for Galileo IOV
          *
@@ -474,12 +474,12 @@ namespace great
         void _noon_turn_GAL1(GSAT prn,
                              double _beta,
                              double _mi,
-                             ColumnVector& xsat,
-                             ColumnVector& vsat,
-                             ColumnVector& xsun,
-                             ColumnVector& i,
-                             ColumnVector& j,
-                             ColumnVector& k);
+                             Eigen::VectorXd& xsat,
+                             Eigen::VectorXd& vsat,
+                             Eigen::VectorXd& xsun,
+                             Eigen::VectorXd& i,
+                             Eigen::VectorXd& j,
+                             Eigen::VectorXd& k);
 
         // attitude for Galileo FOC
         /** @brief attitude for Galileo FOC
@@ -505,12 +505,12 @@ namespace great
          */
         void _attitude_GAL2(std::string antype,
                             GSAT prn,
-                            ColumnVector& xsat,
-                            ColumnVector& vsat,
-                            ColumnVector& xsun,
-                            ColumnVector& i,
-                            ColumnVector& j,
-                            ColumnVector& k);
+                            Eigen::VectorXd& xsat,
+                            Eigen::VectorXd& vsat,
+                            Eigen::VectorXd& xsun,
+                            Eigen::VectorXd& i,
+                            Eigen::VectorXd& j,
+                            Eigen::VectorXd& k);
 
         /** @brief noon maneuver for Galileo FOC
          *
@@ -536,12 +536,12 @@ namespace great
         void _noon_turn_GAL2(GSAT prn,
                              double _beta,
                              double _mi,
-                             ColumnVector& xsat,
-                             ColumnVector& vsat,
-                             ColumnVector& xsun,
-                             ColumnVector& i,
-                             ColumnVector& j,
-                             ColumnVector& k);
+                             Eigen::VectorXd& xsat,
+                             Eigen::VectorXd& vsat,
+                             Eigen::VectorXd& xsun,
+                             Eigen::VectorXd& i,
+                             Eigen::VectorXd& j,
+                             Eigen::VectorXd& k);
 
         // Continuous yaw steering attitude modes of BDS satellites
         /** @brief Continuous yaw steering attitude modes of BDS satellites in CAST
@@ -568,12 +568,12 @@ namespace great
         void _cys_cast(GSAT prn,
                        double _beta,
                        double _mi,
-                       ColumnVector& xsat,
-                       ColumnVector& vsat,
-                       ColumnVector& xsun,
-                       ColumnVector& i,
-                       ColumnVector& j,
-                       ColumnVector& k);
+                       Eigen::VectorXd& xsat,
+                       Eigen::VectorXd& vsat,
+                       Eigen::VectorXd& xsun,
+                       Eigen::VectorXd& i,
+                       Eigen::VectorXd& j,
+                       Eigen::VectorXd& k);
 
         /** @brief Continuous yaw steering attitude modes of BDS satellites in SECM
          *
@@ -599,12 +599,12 @@ namespace great
         void _cys_secm(GSAT prn,
                        double _beta,
                        double _mi,
-                       ColumnVector& xsat,
-                       ColumnVector& vsat,
-                       ColumnVector& xsun,
-                       ColumnVector& i,
-                       ColumnVector& j,
-                       ColumnVector& k);
+                       Eigen::VectorXd& xsat,
+                       Eigen::VectorXd& vsat,
+                       Eigen::VectorXd& xsun,
+                       Eigen::VectorXd& i,
+                       Eigen::VectorXd& j,
+                       Eigen::VectorXd& k);
 
         // attitude for BeiDou
         /** @brief attitude for BeiDou
@@ -630,12 +630,12 @@ namespace great
          */
         void _attitude_BDS(std::string antype,
                            GSAT prn,
-                           ColumnVector& xsat,
-                           ColumnVector& vsat,
-                           ColumnVector& xsun,
-                           ColumnVector& i,
-                           ColumnVector& j,
-                           ColumnVector& k);
+                           Eigen::VectorXd& xsat,
+                           Eigen::VectorXd& vsat,
+                           Eigen::VectorXd& xsun,
+                           Eigen::VectorXd& i,
+                           Eigen::VectorXd& j,
+                           Eigen::VectorXd& k);
 
         // continuous yaw steering attitude modes of QZS-2 IGSO satellites, added by yqyuan
         /** @brief Continuous yaw steering attitude modes of of QZS-2 IGSO satellites
@@ -662,12 +662,12 @@ namespace great
         void _cys_qzs(GSAT prn,
                       double _beta,
                       double _mi,
-                      ColumnVector& xsat,
-                      ColumnVector& vsat,
-                      ColumnVector& xsun,
-                      ColumnVector& i,
-                      ColumnVector& j,
-                      ColumnVector& k);
+                      Eigen::VectorXd& xsat,
+                      Eigen::VectorXd& vsat,
+                      Eigen::VectorXd& xsun,
+                      Eigen::VectorXd& i,
+                      Eigen::VectorXd& j,
+                      Eigen::VectorXd& k);
 
         // attitude for QZSS
         /** @brief attitude for QZSS
@@ -693,12 +693,12 @@ namespace great
          */
         void _attitude_QZS(std::string antype,
                            GSAT prn,
-                           ColumnVector& xsat,
-                           ColumnVector& vsat,
-                           ColumnVector& xsun,
-                           ColumnVector& i,
-                           ColumnVector& j,
-                           ColumnVector& k);
+                           Eigen::VectorXd& xsat,
+                           Eigen::VectorXd& vsat,
+                           Eigen::VectorXd& xsun,
+                           Eigen::VectorXd& i,
+                           Eigen::VectorXd& j,
+                           Eigen::VectorXd& k);
 
         // attitude for GLO
         /** @brief attitude for GLO
@@ -724,12 +724,12 @@ namespace great
          */
         void _attitude_GLO(std::string antype,
                            GSAT prn,
-                           ColumnVector& xsat,
-                           ColumnVector& vsat,
-                           ColumnVector& xsun,
-                           ColumnVector& i,
-                           ColumnVector& j,
-                           ColumnVector& k);
+                           Eigen::VectorXd& xsat,
+                           Eigen::VectorXd& vsat,
+                           Eigen::VectorXd& xsun,
+                           Eigen::VectorXd& i,
+                           Eigen::VectorXd& j,
+                           Eigen::VectorXd& k);
 
         /** @brief midnight maneuver for GLONASS-M
          *
@@ -767,13 +767,13 @@ namespace great
         void _midnight_turn_GLOM(GSAT prn,
                                  double _beta,
                                  double _mi,
-                                 ColumnVector& xsat,
-                                 ColumnVector& vsat,
-                                 ColumnVector& xsun,
+                                 Eigen::VectorXd& xsat,
+                                 Eigen::VectorXd& vsat,
+                                 Eigen::VectorXd& xsun,
                                  double R,
-                                 ColumnVector& i,
-                                 ColumnVector& j,
-                                 ColumnVector& k);
+                                 Eigen::VectorXd& i,
+                                 Eigen::VectorXd& j,
+                                 Eigen::VectorXd& k);
 
         /** @brief midnight maneuver for GLONASS-M
          *
@@ -791,13 +791,13 @@ namespace great
         void _noon_turn_GLOM(GSAT prn,
                              double _beta,
                              double _mi,
-                             ColumnVector& xsat,
-                             ColumnVector& vsat,
-                             ColumnVector& xsun,
+                             Eigen::VectorXd& xsat,
+                             Eigen::VectorXd& vsat,
+                             Eigen::VectorXd& xsun,
                              double R,
-                             ColumnVector& i,
-                             ColumnVector& j,
-                             ColumnVector& k);
+                             Eigen::VectorXd& i,
+                             Eigen::VectorXd& j,
+                             Eigen::VectorXd& k);
 
         /** @brief Calculate satellite-fixed vectors from yaw angle
          *
@@ -819,13 +819,13 @@ namespace great
          *param[in] j                columnVector2
          *param[in] k                columnVector3
          */
-        void _yaw2ijk(ColumnVector& xsat,
-                      ColumnVector& vsat,
-                      ColumnVector& xsun,
+        void _yaw2ijk(Eigen::VectorXd& xsat,
+                      Eigen::VectorXd& vsat,
+                      Eigen::VectorXd& xsun,
                       double& yaw,
-                      ColumnVector& i,
-                      ColumnVector& j,
-                      ColumnVector& k);
+                      Eigen::VectorXd& i,
+                      Eigen::VectorXd& j,
+                      Eigen::VectorXd& k);
 
         /** @brief Calculate orbit angle
          *
@@ -833,7 +833,7 @@ namespace great
          *param[in] vsat                satellite velocity
          *param[in] xsun                sun position
          */
-        double _orb_angle(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun);
+        double _orb_angle(Eigen::VectorXd& xsat, Eigen::VectorXd& vsat, Eigen::VectorXd& xsun);
 
         /** @brief Calculate beta
          *
@@ -841,7 +841,7 @@ namespace great
          *param[in] vsat                satellite velocity
          *param[in] xsun                sun position
          */
-        double _beta(ColumnVector& xsat, ColumnVector& vsat, ColumnVector& xsun);
+        double _beta(Eigen::VectorXd& xsat, Eigen::VectorXd& vsat, Eigen::VectorXd& xsun);
 
         /** @brief Calculate the value of a with the sign of b
          *

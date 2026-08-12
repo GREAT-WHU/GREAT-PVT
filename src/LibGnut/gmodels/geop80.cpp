@@ -41,7 +41,7 @@ namespace gnut
     {
     }
 
-    Matrix t_geop80::nutMatrix(double mjd)
+    Eigen::MatrixXd t_geop80::nutMatrix(double mjd)
     {
         const double T = (mjd - MJD_J2000) / 36525.0;
 
@@ -59,9 +59,9 @@ namespace gnut
         return rotX(-eps - deps) * rotZ(-dpsi) * rotX(+eps);
     }
 
-    // Precession Matrix (Precession theory 1976)
+    // Precession Eigen::MatrixXd (Precession theory 1976)
     // ------------------------------------------
-    Matrix t_geop80::precMatrix(double mjd)
+    Eigen::MatrixXd t_geop80::precMatrix(double mjd)
     {
         // Time interval betwen epoch J2000 and start epoch (in Julian centuries)
         const double T = (mjd - MJD_J2000) / 36525.0;

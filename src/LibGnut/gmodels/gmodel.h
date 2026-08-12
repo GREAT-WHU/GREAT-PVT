@@ -55,7 +55,7 @@ namespace gnut
         virtual double cmpObsD(t_gtime& epoch, t_gallpar& param, t_gsatdata& gsatdata, t_gobs& gobs) = 0;
 
         /** @brief get WindUp. */
-        virtual double windUp(t_gtime& epoch, const std::string, const ColumnVector&, const ColumnVector&)
+        virtual double windUp(t_gtime& epoch, const std::string, const Eigen::VectorXd&, const Eigen::VectorXd&)
         {
             return 0.0;
         };
@@ -84,7 +84,7 @@ namespace gnut
         virtual void reset_SatPCO(bool cal = true) {};
 
         /** @brief Outliers detection. */
-        virtual int outlierDetect(std::vector<t_gsatdata>& data, SymmetricMatrix& Qx, const SymmetricMatrix&) = 0;
+        virtual int outlierDetect(std::vector<t_gsatdata>& data, Eigen::MatrixXd& Qx, const Eigen::MatrixXd&) = 0;
 
         /** @brief get tropoModel. */
         std::shared_ptr<t_gtropo> tropoModel()

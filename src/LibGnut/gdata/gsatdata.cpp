@@ -146,7 +146,7 @@ namespace gnut
         _reldelay = rel;
     }
 
-    void t_gsatdata::addSCF2CRS(const Matrix& scf2crs, const Matrix& scf2trs)
+    void t_gsatdata::addSCF2CRS(const Eigen::MatrixXd& scf2crs, const Eigen::MatrixXd& scf2trs)
     {
         _scf2crs = scf2crs;
         _scf2trs = scf2trs;
@@ -246,7 +246,7 @@ namespace gnut
         return _drate;
     }
 
-    const Matrix& t_gsatdata::orbfunct() const
+    const Eigen::MatrixXd& t_gsatdata::orbfunct() const
     {
         return _orbfunct;
     }
@@ -265,22 +265,22 @@ namespace gnut
         return _sat2reccrs;
     }
 
-    const Matrix& t_gsatdata::rotmat() const
+    const Eigen::MatrixXd& t_gsatdata::rotmat() const
     {
         return _rotmat;
     }
 
-    const Matrix& t_gsatdata::drdxpole() const
+    const Eigen::MatrixXd& t_gsatdata::drdxpole() const
     {
         return _drdxpole;
     }
 
-    const Matrix& t_gsatdata::drdypole() const
+    const Eigen::MatrixXd& t_gsatdata::drdypole() const
     {
         return _drdypole;
     }
 
-    const Matrix& t_gsatdata::drdut1() const
+    const Eigen::MatrixXd& t_gsatdata::drdut1() const
     {
         return _drdut1;
     }
@@ -680,30 +680,30 @@ namespace gnut
 
         double dmjd = _epoch.dmjd();
         t_gephplan eph;
-        ColumnVector Sun = eph.sunPos(dmjd, false).crd_cvect(); // ICRF
+        Eigen::VectorXd Sun = eph.sunPos(dmjd, false).crd_cvect(); // ICRF
         double gmt = eph.gmst(dmjd);
         double gmt_dt = eph.gmst(dmjd + dt / 86400.0);
 
-        ColumnVector Satcrd = _satcrd.crd_cvect();
-        ColumnVector Satvel = _satvel.crd_cvect();
-        ColumnVector Satcrd_dt = Satcrd + Satvel * dt; // 300s for extrapolation
+        Eigen::VectorXd Satcrd = _satcrd.crd_cvect();
+        Eigen::VectorXd Satvel = _satvel.crd_cvect();
+        Eigen::VectorXd Satcrd_dt = Satcrd + Satvel * dt; // 300s for extrapolation
 
         // prec. and nut. matrix should not change significantly in dt
         t_geop80 eop;
-        Matrix prec = eop.precMatrix(dmjd);
-        Matrix nut = eop.nutMatrix(dmjd);
+        Eigen::MatrixXd prec = eop.precMatrix(dmjd);
+        Eigen::MatrixXd nut = eop.nutMatrix(dmjd);
 
         // ITRF -> ICRF
-        Satcrd = prec.i() * nut.i() * rotZ(-gmt) * Satcrd;
-        Satcrd_dt = prec.i() * nut.i() * rotZ(-gmt_dt) * Satcrd_dt;
+        Satcrd = prec.inverse() * nut.inverse() * rotZ(-gmt) * Satcrd;
+        Satcrd_dt = prec.inverse() * nut.inverse() * rotZ(-gmt_dt) * Satcrd_dt;
 
-        ColumnVector n = crossproduct(Satcrd, Satcrd_dt);
+        Eigen::Vector3d n = Satcrd.head<3>().cross(Satcrd_dt.head<3>());
 
-        n /= n.NormFrobenius();
+        n /= n.norm();
 
-        ColumnVector nSun = Sun / Sun.NormFrobenius();
+        Eigen::VectorXd nSun = Sun / Sun.norm();
 
-        double cosa = DotProduct(nSun, n);
+        double cosa = nSun.dot(n);
 
         beta = G_PI / 2.0 - acos(cosa);
 
@@ -730,34 +730,34 @@ namespace gnut
 
         double dmjd = _epoch.dmjd();
         t_gephplan eph;
-        ColumnVector Sun = eph.sunPos(dmjd, false).crd_cvect(); // ICRF
+        Eigen::VectorXd Sun = eph.sunPos(dmjd, false).crd_cvect(); // ICRF
         double gmt = eph.gmst(dmjd);
         double gmt_dt = eph.gmst(dmjd + dt / 86400.0);
 
-        ColumnVector Satcrd = _satcrd.crd_cvect();
-        ColumnVector Satvel = _satvel.crd_cvect();
-        ColumnVector Satcrd_dt = Satcrd + Satvel * dt; // 30s for extrapolation
+        Eigen::VectorXd Satcrd = _satcrd.crd_cvect();
+        Eigen::VectorXd Satvel = _satvel.crd_cvect();
+        Eigen::VectorXd Satcrd_dt = Satcrd + Satvel * dt; // 30s for extrapolation
 
         // prec. and nut. matrix should not change significantly in dt
         t_geop80 eop;
-        Matrix prec = eop.precMatrix(dmjd);
-        Matrix nut = eop.nutMatrix(dmjd);
+        Eigen::MatrixXd prec = eop.precMatrix(dmjd);
+        Eigen::MatrixXd nut = eop.nutMatrix(dmjd);
 
         // ITRF -> ICRF
-        Satcrd = prec.i() * nut.i() * rotZ(-gmt) * Satcrd;
-        Satcrd_dt = prec.i() * nut.i() * rotZ(-gmt_dt) * Satcrd_dt;
+        Satcrd = prec.inverse() * nut.inverse() * rotZ(-gmt) * Satcrd;
+        Satcrd_dt = prec.inverse() * nut.inverse() * rotZ(-gmt_dt) * Satcrd_dt;
 
-        ColumnVector n = crossproduct(Satcrd, Satcrd_dt);
+        Eigen::Vector3d n = Satcrd.head<3>().cross(Satcrd_dt.head<3>());
 
-        ColumnVector es = Satcrd / Satcrd.NormFrobenius();
+        Eigen::VectorXd es = Satcrd / Satcrd.norm();
 
-        ColumnVector eSun = Sun / Sun.NormFrobenius();
+        Eigen::VectorXd eSun = Sun / Sun.norm();
 
-        ColumnVector p = crossproduct(Sun, n);
-        p /= p.NormFrobenius();
+        Eigen::Vector3d p = Sun.head<3>().cross(n);
+        p /= p.norm();
 
-        double E = acos(DotProduct(es, p));
-        double SunSat = acos(DotProduct(es, eSun));
+        double E = acos(es.dot(p));
+        double SunSat = acos(es.dot(eSun));
 
         if (SunSat > G_PI / 2)
         {

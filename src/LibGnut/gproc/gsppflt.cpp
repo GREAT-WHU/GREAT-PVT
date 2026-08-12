@@ -62,8 +62,7 @@ namespace gnut
         _clkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_clk());
         _crdStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_crd());
 
-        _vBanc.ReSize(4);
-        _vBanc = 0.0;
+        _vBanc.setZero(4);
 
         int ipar = 0;
 
@@ -93,31 +92,30 @@ namespace gnut
         }
 
         // Filling init parameter covariance matrix
-        _Qx.ReSize(_param.parNumber());
-        _Qx = 0.0;
+        _Qx.setZero(_param.parNumber(), _param.parNumber());
         double crdInit = _sig_init_crd;
         double ztdInit = _sig_init_ztd;
         for (unsigned int i = 1; i <= _param.parNumber(); i++)
         {
             if (_param[i - 1].parType == par_type::CRD_X)
             {
-                _Qx(i, i) = crdInit * crdInit;
+                _Qx(i - 1, i - 1) = crdInit * crdInit;
             }
             else if (_param[i - 1].parType == par_type::CRD_Y)
             {
-                _Qx(i, i) = crdInit * crdInit;
+                _Qx(i - 1, i - 1) = crdInit * crdInit;
             }
             else if (_param[i - 1].parType == par_type::CRD_Z)
             {
-                _Qx(i, i) = crdInit * crdInit;
+                _Qx(i - 1, i - 1) = crdInit * crdInit;
             }
             else if (_param[i - 1].parType == par_type::CLK)
             {
-                _Qx(i, i) = _clkStoModel->getQ() * _clkStoModel->getQ();
+                _Qx(i - 1, i - 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
             }
             else if (_param[i - 1].parType == par_type::TRP)
             {
-                _Qx(i, i) = ztdInit * ztdInit;
+                _Qx(i - 1, i - 1) = ztdInit * ztdInit;
             }
         }
 
@@ -191,8 +189,7 @@ namespace gnut
         _clkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_clk());
         _crdStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_crd());
 
-        _vBanc.ReSize(4);
-        _vBanc = 0.0;
+        _vBanc.setZero(4);
 
         int ipar = 0;
         std::string refclk = dynamic_cast<t_gsetproc*>(_set)->ref_clk();
@@ -221,31 +218,30 @@ namespace gnut
         }
 
         // Filling init parameter covariance matrix
-        _Qx.ReSize(_param.parNumber());
-        _Qx = 0.0;
+        _Qx.setZero(_param.parNumber(), _param.parNumber());
         double crdInit = _sig_init_crd;
         double ztdInit = _sig_init_ztd;
         for (unsigned int i = 1; i <= _param.parNumber(); i++)
         {
             if (_param[i - 1].parType == par_type::CRD_X)
             {
-                _Qx(i, i) = crdInit * crdInit;
+                _Qx(i - 1, i - 1) = crdInit * crdInit;
             }
             else if (_param[i - 1].parType == par_type::CRD_Y)
             {
-                _Qx(i, i) = crdInit * crdInit;
+                _Qx(i - 1, i - 1) = crdInit * crdInit;
             }
             else if (_param[i - 1].parType == par_type::CRD_Z)
             {
-                _Qx(i, i) = crdInit * crdInit;
+                _Qx(i - 1, i - 1) = crdInit * crdInit;
             }
             else if (_param[i - 1].parType == par_type::CLK)
             {
-                _Qx(i, i) = _clkStoModel->getQ() * _clkStoModel->getQ();
+                _Qx(i - 1, i - 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
             }
             else if (_param[i - 1].parType == par_type::TRP)
             {
-                _Qx(i, i) = ztdInit * ztdInit;
+                _Qx(i - 1, i - 1) = ztdInit * ztdInit;
             }
         }
 
@@ -433,7 +429,7 @@ namespace gnut
             int iclk = _param.getParam(_site, par_type::CLK, "", FIRST_TIME, LAST_TIME);
             if (iclk >= 0)
             {
-                clk_std = _Qx(_param[iclk].index, _param[iclk].index);
+                clk_std = _Qx(_param[iclk].index - 1, _param[iclk].index - 1);
                 clk = _param[iclk].value();
             }
 
@@ -514,11 +510,11 @@ namespace gnut
             _sig_init_crd = 100.0;
         }
 
-        Matrix A;
-        DiagonalMatrix P;
-        ColumnVector l, dx, dx_el;
-        ColumnVector v_orig, v_norm;
-        SymmetricMatrix Qsav, QsavBP;
+        Eigen::MatrixXd A;
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> P;
+        Eigen::VectorXd l, dx, dx_el;
+        Eigen::VectorXd v_orig, v_norm;
+        Eigen::MatrixXd Qsav, QsavBP;
         std::vector<t_gsatdata>::iterator it;
         std::vector<GOBSTYPE> obstypes;
         t_gallpar XsavBP;
@@ -576,14 +572,11 @@ namespace gnut
             } // code + phase
 
             unsigned int nPar = _param.parNumber();
-            A.ReSize(nObs, nPar);
-            A = 0.0;
-            l.ReSize(nObs);
-            l = 0.0;
-            P.ReSize(nObs);
-            P = 0.0;
-            dx.ReSize(nPar);
-            dx = 0.0;
+            A.setZero(nObs, nPar);
+            l.setZero(nObs);
+            P.resize(nObs);
+            P.diagonal().setZero();
+            dx.setZero(nPar);
             unsigned int iobs = 1;
 
             _frqNum.clear();
@@ -635,9 +628,11 @@ namespace gnut
 
             // delete zero rows/cols
             iobs--;
-            A = A.Rows(1, iobs);
-            P = P.SymSubMatrix(1, iobs);
-            l = l.Rows(1, iobs);
+            A = A.topRows(iobs).eval();
+            Eigen::VectorXd weights = P.diagonal().head(iobs);
+            P.resize(iobs);
+            P.diagonal() = weights;
+            l = l.head(iobs).eval();
 
             Qsav = _Qx;
 
@@ -653,11 +648,11 @@ namespace gnut
                     {
                         if (_newAMB[sat] == 1)
                         {
-                            _Qx(iPar + 1, iPar + 1) += 10;
+                            _Qx(iPar, iPar) += 10;
                         }
-                        if (_newAMB[sat] == 2 && _Qx(iPar + 1, iPar + 1) > 0.01)
+                        if (_newAMB[sat] == 2 && _Qx(iPar, iPar) > 0.01)
                         {
-                            _Qx(iPar + 1, iPar + 1) += 1;
+                            _Qx(iPar, iPar) += 1;
                         }
                         _newAMB[sat]++;
                     }
@@ -668,22 +663,21 @@ namespace gnut
             v_orig = l - A * dx;
 
             // normalized post-fit residuals
-            Matrix Qv = A * _Qx * A.t() + P.i();
-            v_norm.ReSize(v_orig.Nrows());
-            for (int i = 1; i <= v_norm.Nrows(); i++)
+            Eigen::MatrixXd Qv = A * _Qx * A.transpose() + P.inverse().toDenseMatrix();
+            v_norm.setZero(v_orig.rows());
+            for (int i = 0; i < v_norm.rows(); i++)
             {
                 v_norm(i) = sqrt(1 / Qv(i, i)) * v_orig(i);
             }
 
-            int freedom = A.Nrows() - A.Ncols();
+            int freedom = A.rows() - A.cols();
             if (freedom < 1)
             {
                 GREAT_DEBUG("No redundant observations!");
                 freedom = 1;
             }
 
-            ColumnVector vtPv = v_orig.t() * P * v_orig;
-            _sig_unit = vtPv(1) / freedom;
+            _sig_unit = (v_orig.transpose() * P * v_orig)(0, 0) / freedom;
 
             // save post-fit residuals
             _save_residuals(v_norm, _data, RESIDTYPE::RES_NORM);
@@ -695,12 +689,9 @@ namespace gnut
 
         _nSat_excl = _nSat - _data.size(); // number of excluded satellites due to different reasons
 
-        try
-        {
-            _n_ALL_flt++;
-            Cholesky(_Qx);
-        }
-        catch (NPDException)
+        _n_ALL_flt++;
+        Eigen::LLT<Eigen::MatrixXd> covariance_llt(_Qx);
+        if (covariance_llt.info() != Eigen::Success)
         {
             _n_NPD_flt++;
         }
@@ -735,7 +726,7 @@ namespace gnut
         // Edit and save parematres
         for (unsigned int iPar = 0; iPar < _param.parNumber(); iPar++)
         {
-            _param[iPar].value(_param[iPar].value() + dx(_param[iPar].index));
+            _param[iPar].value(_param[iPar].value() + dx(_param[iPar].index - 1));
         }
 
         return 1;
@@ -797,14 +788,14 @@ namespace gnut
         return weight_coef;
     }
 
-    int t_gsppflt::_addPseudoZTD(unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P)
+    int t_gsppflt::_addPseudoZTD(unsigned int& iobs, t_gtriple& ell, Eigen::MatrixXd& A, Eigen::VectorXd& l, Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P)
     {
-        // Design Matrix
+        // Design Eigen::MatrixXd
         if (_epoch > _ztd_begStat && _epoch < _ztd_endStat)
         {
-            Matrix_addRC(A, A.Nrows() + 1, 0);
+            Matrix_addRC(A, A.rows() + 1, 0);
             int i = _param.getParam(_site, par_type::TRP, "");
-            A(A.Nrows(), i + 1) = 1;
+            A(A.rows() - 1, i) = 1;
 
             // tropo (wet part) is constrained to this value
             double TRP_fix = 0;
@@ -814,12 +805,12 @@ namespace gnut
             }
 
             // Reduced measurement
-            Vector_add(l, l.Nrows() + 1);
-            l(l.Nrows()) = _param[i].value() - TRP_fix;
+            Vector_add(l, l.rows() + 1);
+            l(l.rows() - 1) = _param[i].value() - TRP_fix;
 
             // weight matrix
-            Matrix_addRC(P, P.Nrows() + 1);
-            P(P.Nrows(), P.Ncols()) = 99999;
+            Matrix_addRC(P, P.rows() + 1);
+            P.diagonal()(P.rows() - 1) = 99999;
 
             iobs++;
         }
@@ -827,7 +818,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gsppflt::_addObsP(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P)
+    int t_gsppflt::_addObsP(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Eigen::MatrixXd& A, Eigen::VectorXd& l, Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P)
     {
         t_gsys gsys(satdata.gsys());
         GSYS gs = gsys.gsys();
@@ -972,10 +963,10 @@ namespace gnut
         }
 
         // Create weight matrix
-        P(iobs, iobs) = weight_coef * (1 / (sigCode * sigCode));
+        P.diagonal()(iobs - 1) = weight_coef * (1 / (sigCode * sigCode));
         if (_observ == OBSCOMBIN::RAW_ALL)
         {
-            P(iobs + 1, iobs + 1) = weight_coef_b2 * (1 / (sigCode * sigCode));
+            P.diagonal()(iobs) = weight_coef_b2 * (1 / (sigCode * sigCode));
         }
         if (_observ == OBSCOMBIN::RAW_ALL)
         {
@@ -983,15 +974,15 @@ namespace gnut
             {
                 if (i == 2)
                 {
-                    P(iobs + i, iobs + i) = weight_coef_b3 * (1 / (sigCode * sigCode));
+                    P.diagonal()(iobs + i - 1) = weight_coef_b3 * (1 / (sigCode * sigCode));
                 }
                 if (i == 3)
                 {
-                    P(iobs + i, iobs + i) = weight_coef_b4 * (1 / (sigCode * sigCode));
+                    P.diagonal()(iobs + i - 1) = weight_coef_b4 * (1 / (sigCode * sigCode));
                 }
                 if (i == 4)
                 {
-                    P(iobs + i, iobs + i) = weight_coef_b5 * (1 / (sigCode * sigCode));
+                    P.diagonal()(iobs + i - 1) = weight_coef_b5 * (1 / (sigCode * sigCode));
                 }
             }
         }
@@ -1001,7 +992,7 @@ namespace gnut
             {
                 if (i == 1)
                 {
-                    P(iobs + i, iobs + i) = weight_coef_b2 * (1 / (sigCode * sigCode));
+                    P.diagonal()(iobs + i - 1) = weight_coef_b2 * (1 / (sigCode * sigCode));
                 }
             }
         }
@@ -1021,7 +1012,7 @@ namespace gnut
                 return -1;
             }
             _applyDCB(satdata, PIF, &gobs1, &gobs2);
-            l(iobs) = PIF - modObsP;
+            l(iobs - 1) = PIF - modObsP;
         }
         else if (_observ == OBSCOMBIN::RAW_ALL || _observ == OBSCOMBIN::RAW_MIX)
         {
@@ -1059,7 +1050,7 @@ namespace gnut
                 {
                     continue;
                 }
-                l(iobs + i) = Pi - modObsP;
+                l(iobs + i - 1) = Pi - modObsP;
             }
         }
 
@@ -1068,14 +1059,14 @@ namespace gnut
         {
             for (unsigned int ipar = 1; ipar <= _param.parNumber(); ipar++)
             {
-                A(iobs, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs1);
+                A(iobs - 1, ipar - 1) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs1);
                 if (_observ == OBSCOMBIN::RAW_ALL)
                 {
-                    A(iobs + 1, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs2);
+                    A(iobs, ipar - 1) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs2);
                 }
                 if (_observ == OBSCOMBIN::RAW_MIX && addIobs == 1)
                 {
-                    A(iobs + 1, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs2);
+                    A(iobs, ipar - 1) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs2);
                 }
                 if (_observ == OBSCOMBIN::RAW_ALL)
                 {
@@ -1083,15 +1074,15 @@ namespace gnut
                     {
                         if (i == 2)
                         {
-                            A(iobs + i, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs3);
+                            A(iobs + i - 1, ipar - 1) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs3);
                         }
                         if (i == 3)
                         {
-                            A(iobs + i, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs4);
+                            A(iobs + i - 1, ipar - 1) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs4);
                         }
                         if (i == 4)
                         {
-                            A(iobs + i, ipar) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs5);
+                            A(iobs + i - 1, ipar - 1) = _param[ipar - 1].partial(satdata, _epoch, ell, gobs5);
                         }
                     }
                 }
@@ -1113,7 +1104,7 @@ namespace gnut
         return 1;
     }
 
-    int t_gsppflt::_addObsL(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Matrix& A, ColumnVector& l, DiagonalMatrix& P)
+    int t_gsppflt::_addObsL(t_gsatdata& satdata, unsigned int& iobs, t_gtriple& ell, Eigen::MatrixXd& A, Eigen::VectorXd& l, Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P)
     {
         return 1;
     }
@@ -1182,10 +1173,9 @@ namespace gnut
             it++;
         }
 
-        Matrix BB;
+        Eigen::MatrixXd BB;
 
-        BB.ReSize(_data.size(), 4);
-        BB = 0.0;
+        BB.setZero(_data.size(), 4);
         int iobs = 0;
         std::vector<t_gsatdata>::iterator iter = _data.begin();
 
@@ -1247,11 +1237,11 @@ namespace gnut
             }
             else
             {
+                BB(iobs, 0) = iter->satcrd().crd(0);
+                BB(iobs, 1) = iter->satcrd().crd(1);
+                BB(iobs, 2) = iter->satcrd().crd(2);
+                BB(iobs, 3) = P3 + iter->clk();
                 iobs++;
-                BB(iobs, 1) = iter->satcrd().crd(0);
-                BB(iobs, 2) = iter->satcrd().crd(1);
-                BB(iobs, 3) = iter->satcrd().crd(2);
-                BB(iobs, 4) = P3 + iter->clk();
                 iter++;
                 continue;
             }
@@ -1264,27 +1254,27 @@ namespace gnut
             return -1;
         }
 
-        BB = BB.Rows(1, iobs); // delete zero rows
+        BB = BB.topRows(iobs).eval(); // delete zero rows
 
-        if (BB.Nrows() < static_cast<int>(_minsat))
+        if (BB.rows() < static_cast<int>(_minsat))
         {
             GREAT_DEBUG(_epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: BB.Nrows < _minsat)");
             return -1;
         }
 
-        _vBanc = 0.0;
+        _vBanc.setZero();
         gbancroft(BB, _vBanc);
 
-        if (!_initialized && (_vBanc.Rows(1, 3) - _grec->crd_arp(_epoch).crd_cvect()).NormFrobenius() > 1000)
+        if (!_initialized && (_vBanc.head(3) - _grec->crd_arp(_epoch).crd_cvect()).norm() > 1000)
         {
             _valid_crd_xml = false;
         }
 
         if (_valid_crd_xml && !_initialized)
         {
-            _vBanc(1) = _grec->crd_arp(_epoch)[0];
-            _vBanc(2) = _grec->crd_arp(_epoch)[1];
-            _vBanc(3) = _grec->crd_arp(_epoch)[2];
+            _vBanc(0) = _grec->crd_arp(_epoch)[0];
+            _vBanc(1) = _grec->crd_arp(_epoch)[1];
+            _vBanc(2) = _grec->crd_arp(_epoch)[2];
         }
 
         t_gtriple test_xyz(_vBanc);
@@ -1317,13 +1307,13 @@ namespace gnut
             {
                 if (!_initialized)
                 {
-                    xyz_r.set(_vBanc.Rows(1, 3));
+                    xyz_r.set(Eigen::Vector3d(_vBanc.head(3)));
                 }
                 else
                 {
                     if (_pos_kin || _crd_est == CONSTRPAR::KIN)
                     {
-                        xyz_r.set(_vBanc.Rows(1, 3));
+                        xyz_r.set(Eigen::Vector3d(_vBanc.head(3)));
                     }
                     else
                     {
@@ -1354,7 +1344,7 @@ namespace gnut
             // Apply tides
             _apply_tides(_epoch, xRec);
 
-            double tmp = (iter->satcrd().crd_cvect() - xRec.crd_cvect()).norm_Frobenius();
+            double tmp = (iter->satcrd().crd_cvect() - xRec.crd_cvect()).norm();
 
             iter->addrho(tmp);
             double NE2 = neu_s[0] * neu_s[0] + neu_s[1] * neu_s[1];
@@ -1447,8 +1437,8 @@ namespace gnut
             _syncIFB();
         }
 
-        _Noise.ReSize(_Qx.Nrows());
-        _Noise = 0;
+        _Noise.resize(_Qx.rows());
+        _Noise.diagonal().setZero();
 
         // Predict coordinates, clock and troposphere
         // state vector is the same, covariance matrix is predicted with noise
@@ -1460,10 +1450,10 @@ namespace gnut
         i = _param.getParam(_site, par_type::CRD_X, "");
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
-                _param[i].value(_vBanc(1));
-                _Qx(i + 1, i + 1) = crdInit * crdInit;
+                _param[i].value(_vBanc(0));
+                _Qx(i, i) = crdInit * crdInit;
             }
             else
             {
@@ -1471,7 +1461,42 @@ namespace gnut
                 {
                     if (_smooth)
                     {
-                        _Noise(i + 1, i + 1) = 0.0;
+                        _Noise.diagonal()(i) = 0.0;
+                    }
+                }
+                else
+                {
+                    if (_pos_kin)
+                    {
+                        _param[i].value(_vBanc(0));
+                    }
+                    if (_cntrep == 1 && _success)
+                    {
+                        _Qx(i, i) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
+                    if (_smooth)
+                    {
+                        _Noise.diagonal()(i) = _crdStoModel->getQ() * _crdStoModel->getQ();
+                    }
+                }
+            }
+        }
+
+        i = _param.getParam(_site, par_type::CRD_Y, "");
+        if (i >= 0)
+        {
+            if (!_initialized || _Qx(i, i) == 0.0)
+            {
+                _param[i].value(_vBanc(1));
+                _Qx(i, i) = crdInit * crdInit;
+            }
+            else
+            {
+                if (_epoch > _crd_begStat && _epoch < _crd_endStat)
+                {
+                    if (_smooth)
+                    {
+                        _Noise.diagonal()(i) = 0.0;
                     }
                 }
                 else
@@ -1482,23 +1507,23 @@ namespace gnut
                     }
                     if (_cntrep == 1 && _success)
                     {
-                        _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                        _Qx(i, i) += _crdStoModel->getQ() * _crdStoModel->getQ();
                     }
                     if (_smooth)
                     {
-                        _Noise(i + 1, i + 1) = _crdStoModel->getQ() * _crdStoModel->getQ();
+                        _Noise.diagonal()(i) = _crdStoModel->getQ() * _crdStoModel->getQ();
                     }
                 }
             }
         }
 
-        i = _param.getParam(_site, par_type::CRD_Y, "");
+        i = _param.getParam(_site, par_type::CRD_Z, "");
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
                 _param[i].value(_vBanc(2));
-                _Qx(i + 1, i + 1) = crdInit * crdInit;
+                _Qx(i, i) = crdInit * crdInit;
             }
             else
             {
@@ -1506,7 +1531,7 @@ namespace gnut
                 {
                     if (_smooth)
                     {
-                        _Noise(i + 1, i + 1) = 0.0;
+                        _Noise.diagonal()(i) = 0.0;
                     }
                 }
                 else
@@ -1517,46 +1542,11 @@ namespace gnut
                     }
                     if (_cntrep == 1 && _success)
                     {
-                        _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                        _Qx(i, i) += _crdStoModel->getQ() * _crdStoModel->getQ();
                     }
                     if (_smooth)
                     {
-                        _Noise(i + 1, i + 1) = _crdStoModel->getQ() * _crdStoModel->getQ();
-                    }
-                }
-            }
-        }
-
-        i = _param.getParam(_site, par_type::CRD_Z, "");
-        if (i >= 0)
-        {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
-            {
-                _param[i].value(_vBanc(3));
-                _Qx(i + 1, i + 1) = crdInit * crdInit;
-            }
-            else
-            {
-                if (_epoch > _crd_begStat && _epoch < _crd_endStat)
-                {
-                    if (_smooth)
-                    {
-                        _Noise(i + 1, i + 1) = 0.0;
-                    }
-                }
-                else
-                {
-                    if (_pos_kin)
-                    {
-                        _param[i].value(_vBanc(3));
-                    }
-                    if (_cntrep == 1 && _success)
-                    {
-                        _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
-                    }
-                    if (_smooth)
-                    {
-                        _Noise(i + 1, i + 1) = _crdStoModel->getQ() * _crdStoModel->getQ();
+                        _Noise.diagonal()(i) = _crdStoModel->getQ() * _crdStoModel->getQ();
                     }
                 }
             }
@@ -1565,34 +1555,32 @@ namespace gnut
         i = _param.getParam(_site, par_type::CLK, "");
         if (i >= 0)
         {
-            _param[i].value(_vBanc(4));
-            for (unsigned int jj = 1; jj <= _param.parNumber(); jj++)
-            {
-                _Qx(i + 1, jj) = 0.0;
-            }
-            _Qx(i + 1, i + 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
+            _param[i].value(_vBanc(3));
+            _Qx.row(i).setZero();
+            _Qx.col(i).setZero();
+            _Qx(i, i) = _clkStoModel->getQ() * _clkStoModel->getQ();
             if (_smooth)
             {
-                _Noise(i + 1, i + 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
+                _Noise.diagonal()(i) = _clkStoModel->getQ() * _clkStoModel->getQ();
             }
         }
 
         i = _param.getParam(_site, par_type::GLO_ISB, "");
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
-                _Qx(i + 1, i + 1) = _sig_init_glo * _sig_init_glo;
+                _Qx(i, i) = _sig_init_glo * _sig_init_glo;
             }
             else
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+                    _Qx(i, i) += _gloStoModel->getQ();
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = _gloStoModel->getQ();
+                    _Noise.diagonal()(i) = _gloStoModel->getQ();
                 }
             }
         }
@@ -1600,19 +1588,19 @@ namespace gnut
         i = _param.getParam(_site, par_type::GLO_IFCB, "", FIRST_TIME, LAST_TIME);
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
-                _Qx(i + 1, i + 1) = _sig_init_glo * _sig_init_glo;
+                _Qx(i, i) = _sig_init_glo * _sig_init_glo;
             }
             else
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+                    _Qx(i, i) += _gloStoModel->getQ();
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = _gloStoModel->getQ();
+                    _Noise.diagonal()(i) = _gloStoModel->getQ();
                 }
             }
         }
@@ -1620,19 +1608,19 @@ namespace gnut
         i = _param.getParam(_site, par_type::GAL_ISB, "");
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
-                _Qx(i + 1, i + 1) = _sig_init_gal * _sig_init_gal;
+                _Qx(i, i) = _sig_init_gal * _sig_init_gal;
             }
             else
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += _galStoModel->getQ();
+                    _Qx(i, i) += _galStoModel->getQ();
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = _galStoModel->getQ();
+                    _Noise.diagonal()(i) = _galStoModel->getQ();
                 }
             }
         }
@@ -1640,19 +1628,19 @@ namespace gnut
         i = _param.getParam(_site, par_type::BDS_ISB, "");
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
-                _Qx(i + 1, i + 1) = _sig_init_bds * _sig_init_bds;
+                _Qx(i, i) = _sig_init_bds * _sig_init_bds;
             }
             else
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+                    _Qx(i, i) += _bdsStoModel->getQ();
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = _bdsStoModel->getQ();
+                    _Noise.diagonal()(i) = _bdsStoModel->getQ();
                 }
             }
         }
@@ -1660,19 +1648,19 @@ namespace gnut
         i = _param.getParam(_site, par_type::QZS_ISB, "");
         if (i >= 0)
         {
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
-                _Qx(i + 1, i + 1) = _sig_init_qzs * _sig_init_qzs;
+                _Qx(i, i) = _sig_init_qzs * _sig_init_qzs;
             }
             else
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += _qzsStoModel->getQ();
+                    _Qx(i, i) += _qzsStoModel->getQ();
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = _qzsStoModel->getQ();
+                    _Noise.diagonal()(i) = _qzsStoModel->getQ();
                 }
             }
         }
@@ -1695,7 +1683,7 @@ namespace gnut
                 _param[i].apriori(_gModel->tropoModel()->getZHD(Ell, _epoch));
             }
 
-            if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+            if (!_initialized || _Qx(i, i) == 0.0)
             {
                 if (_valid_ztd_xml)
                 {
@@ -1709,7 +1697,7 @@ namespace gnut
                     }
                 }
 
-                _Qx(i + 1, i + 1) = ztdInit * ztdInit;
+                _Qx(i, i) = ztdInit * ztdInit;
             }
             else
             {
@@ -1717,18 +1705,18 @@ namespace gnut
                 {
                     if (_smooth)
                     {
-                        _Noise(i + 1, i + 1) = 0.0;
+                        _Noise.diagonal()(i) = 0.0;
                     }
                 }
                 else
                 {
                     if (_cntrep == 1)
                     {
-                        _Qx(i + 1, i + 1) += _trpStoModel->getQ();
+                        _Qx(i, i) += _trpStoModel->getQ();
                     }
                     if (_smooth)
                     {
-                        _Noise(i + 1, i + 1) = _trpStoModel->getQ();
+                        _Noise.diagonal()(i) = _trpStoModel->getQ();
                     }
                 }
             }
@@ -1760,18 +1748,18 @@ namespace gnut
                     _param[i].apriori(ionomodel);
                 }
 
-                if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
+                if (_cntrep == 1 && !double_eq(_Qx(i, i), _sig_init_vion * _sig_init_vion))
                 {
-                    _Qx(i + 1, i + 1) += _ionStoModel->getQ() * _ionStoModel->getQ();
+                    _Qx(i, i) += _ionStoModel->getQ() * _ionStoModel->getQ();
                 }
             }
 
             i = _param.getParam(_site, par_type::SION, it->sat());
             if (i >= 0)
             {
-                if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
+                if (_cntrep == 1 && !double_eq(_Qx(i, i), _sig_init_vion * _sig_init_vion))
                 {
-                    _Qx(i + 1, i + 1) += _ionStoModel->getQ() * _ionStoModel->getQ();
+                    _Qx(i, i) += _ionStoModel->getQ() * _ionStoModel->getQ();
                 }
             }
         }
@@ -1784,11 +1772,11 @@ namespace gnut
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += 0.001;
+                    _Qx(i, i) += 0.001;
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = 0.001;
+                    _Noise.diagonal()(i) = 0.001;
                 }
             }
             i = _param.getParam(_site, par_type::IFCB_F4, it->sat());
@@ -1796,11 +1784,11 @@ namespace gnut
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += 0.001;
+                    _Qx(i, i) += 0.001;
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = 0.001;
+                    _Noise.diagonal()(i) = 0.001;
                 }
             }
             i = _param.getParam(_site, par_type::IFCB_F5, it->sat());
@@ -1808,17 +1796,17 @@ namespace gnut
             {
                 if (_cntrep == 1)
                 {
-                    _Qx(i + 1, i + 1) += 0.001;
+                    _Qx(i, i) += 0.001;
                 }
                 if (_smooth)
                 {
-                    _Noise(i + 1, i + 1) = 0.001;
+                    _Noise.diagonal()(i) = 0.001;
                 }
             }
         }
     }
 
-    void t_gsppflt::_restore(const SymmetricMatrix& QsavBP, const t_gallpar& XsavBP)
+    void t_gsppflt::_restore(const Eigen::MatrixXd& QsavBP, const t_gallpar& XsavBP)
     {
         _Qx = QsavBP;
         _param = XsavBP;
@@ -1984,7 +1972,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = _sig_init_glo * _sig_init_glo;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sig_init_glo * _sig_init_glo;
         }
 
         // Add GAL ISB parameter
@@ -1994,7 +1982,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = _sig_init_gal * _sig_init_gal;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sig_init_gal * _sig_init_gal;
         }
 
         // Add BDS ISB parameter
@@ -2004,7 +1992,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = _sig_init_bds * _sig_init_bds;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sig_init_bds * _sig_init_bds;
         }
 
         // Add QZS ISB parameter
@@ -2014,7 +2002,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = _sig_init_qzs * _sig_init_qzs;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sig_init_qzs * _sig_init_qzs;
         }
 
         // Remove GLO ISB paremeter
@@ -2083,7 +2071,7 @@ namespace gnut
 
                     _param.addParam(parSION);
                     Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-                    _Qx(_param.parNumber(), _param.parNumber()) = _sig_init_vion * _sig_init_vion;
+                    _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sig_init_vion * _sig_init_vion;
                 }
             }
 
@@ -2272,7 +2260,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000.0 * 3000;
         }
 
         // Add GAL IFB parameter
@@ -2282,7 +2270,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000.0 * 3000;
         }
 
         // Add BDS IFB parameter
@@ -2292,7 +2280,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000 * 3000;
         }
 
         // Add QZS IFB parameter
@@ -2302,7 +2290,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000.0 * 3000;
         }
 
         // Add GAL IFB_2 parameter
@@ -2312,7 +2300,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000.0 * 3000;
         }
 
         // Add GAL IFB_3 parameter
@@ -2322,7 +2310,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000.0 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000.0 * 3000;
         }
 
         // Add BDS IFB_2 parameter
@@ -2332,7 +2320,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000 * 3000;
         }
 
         // Add BDS IFB_3 parameter
@@ -2342,7 +2330,7 @@ namespace gnut
             newPar.value(0.0);
             _param.addParam(newPar);
             Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-            _Qx(_param.parNumber(), _param.parNumber()) = 3000 * 3000;
+            _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = 3000 * 3000;
         }
 
         // Remove GPS IFB paremeter
@@ -2442,7 +2430,7 @@ namespace gnut
         return 1;
     }
 
-    void t_gsppflt::_save_residuals(ColumnVector& v, std::vector<t_gsatdata>& data, RESIDTYPE restype)
+    void t_gsppflt::_save_residuals(Eigen::VectorXd& v, std::vector<t_gsatdata>& data, RESIDTYPE restype)
     {
         int mult = 1;
         if (_phase)
@@ -2464,7 +2452,7 @@ namespace gnut
             // separate frequencies
             for (int i = 1; i <= itFrq->second * mult; i++)
             {
-                res.push_back(v(i + k));
+                res.push_back(v(i + k - 1));
             }
             k += itFrq->second * mult;
 

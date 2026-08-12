@@ -28,8 +28,7 @@ great::t_gpvtflt::t_gpvtflt(std::string mark, std::string mark_base, t_gsetbase*
     _gquality_control(gset, nullptr)
 {
     _vel = t_gtriple(0, 0, 0);
-    _Qx_vel.ReSize(4);
-    _Qx_vel = 0.0;
+    _Qx_vel.setZero(4, 4);
     _dclkStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_dclk());
     _velStoModel = new t_whitenoise(dynamic_cast<t_gsetflt*>(_set)->noise_vel());
     _fix_mode = dynamic_cast<t_gsetamb*>(_set)->fix_mode();
@@ -132,9 +131,9 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
                                unsigned int& iobs,
                                t_gallpar& param,
                                t_gtriple& XYZ,
-                               Matrix& A,
-                               ColumnVector& l,
-                               DiagonalMatrix& P)
+                               Eigen::MatrixXd& A,
+                               Eigen::VectorXd& l,
+                               Eigen::DiagonalMatrix<double, Eigen::Dynamic>& P)
 {
     t_gsys gsys(satdata.gsys());
     GSYS gs = gsys.gsys();
@@ -277,13 +276,13 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
         {
             continue;
         }
-        l(iobs + i) = -Di - modObsD;
+        l(iobs + i - 1) = -Di - modObsD;
     }
 
     // Create weight matrix
     for (int i = 0; i < obsnum; i++)
     {
-        P(iobs + i, iobs + i) = weight_coef * (1 / (sigDoppler * sigDoppler));
+        P.diagonal()(iobs + i - 1) = weight_coef * (1 / (sigDoppler * sigDoppler));
     }
 
     // Create first design matrix
@@ -317,11 +316,11 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
             {
                 A_conf = param[ipar - 1].partial_doppler(satdata, XYZ, groundVel);
             }
-            if (double_eq(A_conf, 0.0) || double_eq(l(iobs + i), 0))
+            if (double_eq(A_conf, 0.0) || double_eq(l(iobs + i - 1), 0))
             {
                 continue;
             }
-            A(iobs + i, ipar) = A_conf;
+            A(iobs + i - 1, ipar - 1) = A_conf;
         }
     }
 
@@ -333,7 +332,7 @@ int great::t_gpvtflt::_addObsD(t_gsatdata& satdata,
 int great::t_gpvtflt::_rtkinit()
 {
     _param.delAllParam();
-    _Qx.Release();
+    _Qx.resize(0, 0);
     int ipar = 0;
 
     // Add coordinates parameters
@@ -358,27 +357,26 @@ int great::t_gpvtflt::_rtkinit()
     }
 
     // Filling init parameter covariance matrix
-    _Qx.ReSize(_param.parNumber());
-    _Qx = 0.0;
+    _Qx.setZero(_param.parNumber(), _param.parNumber());
     double crdInit = _sig_init_crd;
     double ztdInit = _sig_init_ztd;
     for (unsigned int i = 1; i <= _param.parNumber(); i++)
     {
         if (_param[i - 1].parType == par_type::CRD_X)
         {
-            _Qx(i, i) = crdInit * crdInit;
+            _Qx(i - 1, i - 1) = crdInit * crdInit;
         }
         else if (_param[i - 1].parType == par_type::CRD_Y)
         {
-            _Qx(i, i) = crdInit * crdInit;
+            _Qx(i - 1, i - 1) = crdInit * crdInit;
         }
         else if (_param[i - 1].parType == par_type::CRD_Z)
         {
-            _Qx(i, i) = crdInit * crdInit;
+            _Qx(i - 1, i - 1) = crdInit * crdInit;
         }
         else if (_param[i - 1].parType == par_type::TRP)
         {
-            _Qx(i, i) = ztdInit * ztdInit;
+            _Qx(i - 1, i - 1) = ztdInit * ztdInit;
         }
     }
 
@@ -458,7 +456,7 @@ bool great::t_gpvtflt::_valid_residual(bool phase_process,
     return true;
 }
 
-int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
+int great::t_gpvtflt::_combineDD(Eigen::MatrixXd& A, Eigen::MatrixXd& P, Eigen::VectorXd& l)
 {
     try
     {
@@ -478,23 +476,22 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
             }
             if (obstype == gnut::GOBSTYPE::TYPE_C)
             {
-                index_l[sat][f].first = i + 1;
+                index_l[sat][f].first = i;
             }
             else if (obstype == GOBSTYPE::TYPE_L)
             {
-                index_l[sat][f].second = i + 1;
+                index_l[sat][f].second = i;
             }
         }
 
         _obs_index.clear();
-        int iobs = 1;
+        int iobs = 0;
 
         std::set<std::string> sysall = dynamic_cast<t_gsetgen*>(_set)->sys();
 
-        int nrows = A.Nrows();
-        Matrix DD;
-        DD.ReSize(nrows, nrows);
-        DD = 0.0;
+        int nrows = A.rows();
+        Eigen::MatrixXd DD;
+        DD.setZero(nrows, nrows);
         _sat_ref.clear();
         bool isSetRefSat = dynamic_cast<t_gsetamb*>(_set)->isSetRefSat();
 
@@ -665,7 +662,6 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
             } // end f
         } // end sys
         // delete zero rows/cols
-        iobs--;
         if (iobs <= 0)
         {
             GREAT_INFO(_site + " and " + _site_base + " have no common satellite in one system!");
@@ -680,11 +676,13 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
             return -1;
         }
 
-        DD = DD.Rows(1, iobs);
+        DD = DD.topRows(iobs).eval();
 
         A = DD * A;
         l = DD * l;
-        P << (DD * P.i() * DD.t()).i();
+        const Eigen::MatrixXd covariance = P.inverse();
+        const Eigen::MatrixXd dd_covariance = DD * covariance * DD.transpose();
+        P = dd_covariance.inverse();
 
         return 1;
     }
@@ -695,7 +693,7 @@ int great::t_gpvtflt::_combineDD(Matrix& A, SymmetricMatrix& P, ColumnVector& l)
     }
 }
 
-int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const ColumnVector& l, const ColumnVector& dx)
+int great::t_gpvtflt::_postRes(const Eigen::MatrixXd& A, const Eigen::MatrixXd& P, const Eigen::VectorXd& l, const Eigen::VectorXd& dx)
 {
     if (_sat_ref.empty())
     {
@@ -728,24 +726,24 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
         }
         if (obstype == gnut::GOBSTYPE::TYPE_C)
         {
-            index_l[sat][f].first = i + 1;
+            index_l[sat][f].first = i;
         }
         else if (obstype == GOBSTYPE::TYPE_L)
         {
-            index_l[sat][f].second = i + 1;
+            index_l[sat][f].second = i;
         }
     }
 
-    int nobs = P.Nrows();
-    int ncols = A.Ncols();
-    _post_A.ReSize(nobs, A.Ncols());
+    int nobs = P.rows();
+    int ncols = A.cols();
+    _post_A.setZero(nobs, A.cols());
     _post_A = A;
     _post_P = P;
-    _post_l.ReSize(nobs);
+    _post_l.setZero(nobs);
     _post_l = l;
-    DiagonalMatrix delP;
-    delP.ReSize(nobs);
-    delP = 0;
+    Eigen::DiagonalMatrix<double, Eigen::Dynamic> delP;
+    delP.resize(nobs);
+    delP.diagonal().setZero();
 
     t_DD_amb DD = _ambfix->getDD();
     t_DD_amb DD_sav = _ambfix->getDD_sav();
@@ -865,7 +863,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
                     }
                     auto index = index_l[crt_sat][freq].second;
                     _post_l(index) += dif;
-                    std::vector<int>::iterator it = find(ind.begin(), ind.end(), index);
+                    std::vector<int>::iterator it = find(ind.begin(), ind.end(), index + 1);
                     if (it != ind.end())
                     {
                         ind.erase(it);
@@ -874,10 +872,10 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
                     if (f2_use)
                     {
                         auto index2 = index_l[crt_sat][gnut::FREQ_SEQ::FREQ_2].second;
-                        if (index2 > 0)
+                        if (index2 >= 0)
                         {
                             _post_l(index2) += dif2;
-                            std::vector<int>::iterator it2 = find(ind.begin(), ind.end(), index2);
+                            std::vector<int>::iterator it2 = find(ind.begin(), ind.end(), index2 + 1);
                             if (it2 != ind.end())
                             {
                                 ind.erase(it2);
@@ -895,7 +893,7 @@ int great::t_gpvtflt::_postRes(const Matrix& A, const SymmetricMatrix& P, const 
     Matrix_rem(_post_P, ind);
     Matrix_remR(_post_A, ind1);
     Matrix_remR(_post_l, ind2);
-    _post_A.SubMatrix(1, pobs, 4, ncols) = 0.0;
+    _post_A.block(0, 3, pobs, ncols - 3).setZero();
 
     return iobs;
 }
@@ -919,11 +917,11 @@ int great::t_gpvtflt::_prepareData()
     }
     if (_cntrep == 0)
     {
-        t_gtriple xyz = t_gtriple(_vBanc.Rows(1, 3));
+        t_gtriple xyz(Eigen::Vector3d(_vBanc.head(3)));
         _gquality_control.processOneEpoch(_epoch, _site, xyz, _data);
         if (_isBase)
         {
-            xyz = t_gtriple(_vBanc_base.Rows(1, 3));
+            xyz = t_gtriple(Eigen::Vector3d(_vBanc_base.head(3)));
             _gquality_control.processOneEpoch(_epoch, _site_base, xyz, _data_base);
         }
     }
@@ -952,10 +950,9 @@ int great::t_gpvtflt::_prepareData()
 
 int great::t_gpvtflt::_preprocess(const std::string& ssite, std::vector<t_gsatdata>& sdata)
 {
-    Matrix BB;
+    Eigen::MatrixXd BB;
 
-    BB.ReSize(sdata.size(), 4);
-    BB = 0.0;
+    BB.setZero(sdata.size(), 4);
     int iobs = 0;
     std::vector<t_gsatdata>::iterator iter = sdata.begin();
 
@@ -1001,9 +998,9 @@ int great::t_gpvtflt::_preprocess(const std::string& ssite, std::vector<t_gsatda
         return -1;
     }
 
-    BB = BB.Rows(1, iobs); // delete zero rows
+    BB = BB.topRows(iobs).eval(); // delete zero rows
 
-    if (BB.Nrows() < static_cast<int>(_minsat))
+    if (BB.rows() < static_cast<int>(_minsat))
     {
         GREAT_TRACE(_epoch.str_ymdhms(_site + " epoch ") + " skipped (Bancroft not calculated: BB.Nrows < _minsat)");
         return -1;
@@ -1082,8 +1079,8 @@ void great::t_gpvtflt::_predict(const t_gtime& runEpoch)
         _syncIFB();
     }
 
-    _Noise.ReSize(_Qx.Nrows());
-    _Noise = 0;
+    _Noise.resize(_Qx.rows());
+    _Noise.diagonal().setZero();
 
     // Predict ambiguity
     // Add or remove ambiguity parameter and appropriate rows/columns covar. matrix
@@ -1248,9 +1245,9 @@ int great::t_gpvtflt::_processEpochVel()
 {
     double threshold = 0.0;
 
-    Matrix A;
-    DiagonalMatrix P;
-    ColumnVector l, dx;
+    Eigen::MatrixXd A;
+    Eigen::DiagonalMatrix<double, Eigen::Dynamic> P;
+    Eigen::VectorXd l, dx;
     std::vector<t_gsatdata>::iterator it;
     t_gallpar param_vel;
 
@@ -1260,13 +1257,13 @@ int great::t_gpvtflt::_processEpochVel()
     param_vel.addParam(t_gpar(_site, par_type::VEL_Z, ++ipar, ""));
     param_vel.addParam(t_gpar(_site, par_type::CLK_RAT, ++ipar, ""));
 
-    if (!_initialized || _Qx_vel(1, 1) == 0)
+    if (!_initialized || _Qx_vel(0, 0) == 0)
     {
         for (int i = 1; i <= 3; i++)
         {
-            _Qx_vel(i, i) = _sig_init_vel * _sig_init_vel;
+            _Qx_vel(i - 1, i - 1) = _sig_init_vel * _sig_init_vel;
         }
-        _Qx_vel(4, 4) = _dclkStoModel->getQ() * _dclkStoModel->getQ();
+        _Qx_vel(3, 3) = _dclkStoModel->getQ() * _dclkStoModel->getQ();
     }
     else
     {
@@ -1275,22 +1272,22 @@ int great::t_gpvtflt::_processEpochVel()
             if (param_vel[i - 1].parType == par_type::VEL_X)
             {
                 param_vel[i - 1].value(_vel[0]);
-                _Qx_vel(i, i) += _velStoModel->getQ() * _velStoModel->getQ();
+                _Qx_vel(i - 1, i - 1) += _velStoModel->getQ() * _velStoModel->getQ();
             }
             else if (param_vel[i - 1].parType == par_type::VEL_Y)
             {
                 param_vel[i - 1].value(_vel[1]);
-                _Qx_vel(i, i) += _velStoModel->getQ() * _velStoModel->getQ();
+                _Qx_vel(i - 1, i - 1) += _velStoModel->getQ() * _velStoModel->getQ();
             }
             else if (param_vel[i - 1].parType == par_type::VEL_Z)
             {
                 param_vel[i - 1].value(_vel[2]);
-                _Qx_vel(i, i) += _velStoModel->getQ() * _velStoModel->getQ();
+                _Qx_vel(i - 1, i - 1) += _velStoModel->getQ() * _velStoModel->getQ();
             }
             else if (param_vel[i - 1].parType == par_type::CLK_RAT)
             {
                 param_vel[i - 1].value(0);
-                _Qx_vel(i, i) = _dclkStoModel->getQ() * _dclkStoModel->getQ();
+                _Qx_vel(i - 1, i - 1) = _dclkStoModel->getQ() * _dclkStoModel->getQ();
             }
         }
     }
@@ -1305,14 +1302,11 @@ int great::t_gpvtflt::_processEpochVel()
         }
 
         unsigned int nPar = param_vel.parNumber();
-        A.ReSize(nObs, nPar);
-        A = 0.0;
-        l.ReSize(nObs);
-        l = 0.0;
-        P.ReSize(nObs);
-        P = 0.0;
-        dx.ReSize(nPar);
-        dx = 0.0;
+        A.setZero(nObs, nPar);
+        l.setZero(nObs);
+        P.resize(nObs);
+        P.diagonal().setZero();
+        dx.setZero(nPar);
         unsigned int iobs = 1;
 
         t_gtriple groundXYZ;
@@ -1337,13 +1331,15 @@ int great::t_gpvtflt::_processEpochVel()
         }
         // delete zero rows/cols
         iobs--;
-        A = A.Rows(1, iobs);
-        P = P.SymSubMatrix(1, iobs);
-        l = l.Rows(1, iobs);
+        A = A.topRows(iobs).eval();
+        Eigen::VectorXd weights = P.diagonal().head(iobs);
+        P.resize(iobs);
+        P.diagonal() = weights;
+        l = l.head(iobs).eval();
 
         _filter->update(A, P, l, dx, _Qx_vel);
 
-        int freedom = A.Nrows() - A.Ncols();
+        int freedom = A.rows() - A.cols();
         if (freedom < 1)
         {
             GREAT_INFO(std::string("t_gpvtflt ") + "No redundant observations!");
@@ -1354,9 +1350,9 @@ int great::t_gpvtflt::_processEpochVel()
 
         for (unsigned int iPar = 0; iPar < param_vel.parNumber(); iPar++)
         {
-            param_vel[iPar].value(param_vel[iPar].value() + dx(param_vel[iPar].index));
+            param_vel[iPar].value(param_vel[iPar].value() + dx(param_vel[iPar].index - 1));
         }
-        threshold = sqrt(dx(index + 1) * dx(index + 1) + dx(index + 2) * dx(index + 2) + dx(index + 3) * dx(index + 3));
+        threshold = sqrt(dx(index) * dx(index) + dx(index + 1) * dx(index + 1) + dx(index + 2) * dx(index + 2));
     } while (threshold > 1e-2);
 
     if (param_vel.getVelParam(_site, _vel) < 0)
@@ -1383,11 +1379,11 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
         _sig_init_crd = 100.0;
     }
 
-    Matrix A;
-    SymmetricMatrix P;
-    ColumnVector l, dx;
-    ColumnVector v_norm;
-    SymmetricMatrix Qsav, QsavBP;
+    Eigen::MatrixXd A;
+    Eigen::MatrixXd P;
+    Eigen::VectorXd l, dx;
+    Eigen::VectorXd v_norm;
+    Eigen::MatrixXd Qsav, QsavBP;
     t_gallpar XsavBP;
     double vtpv;
     int nobs_total, npar_number;
@@ -1451,16 +1447,15 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
         if (_isBase)
         {
             dynamic_cast<t_gcombDD*>(&(*_base_model))->set_base_data(&_data_base);
-            dynamic_cast<t_gcombDD*>(&(*_base_model))->set_rec_info(_gallobj->obj(_site_base)->crd_arp(_epoch), _vBanc(4), _vBanc_base(4));
+            dynamic_cast<t_gcombDD*>(&(*_base_model))->set_rec_info(_gallobj->obj(_site_base)->crd_arp(_epoch), _vBanc(3), _vBanc_base(3));
         }
         // use combmodel
         t_gfltEquationMatrix equ;
 
         iobs = _cmp_equ(equ);
 
-        equ.chageNewMat(A, P, l, nPar);
-        dx.ReSize(nPar);
-        dx = 0.0;
+        equ.toEigen(A, P, l, nPar);
+        dx.setZero(nPar);
 
         /*cout << _epoch.str_ymdhms() << endl;
         t_out("A:", A);
@@ -1512,11 +1507,11 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
                     {
                         if (_newAMB[sat] == 1)
                         {
-                            _Qx(iPar + 1, iPar + 1) += 10;
+                            _Qx(iPar, iPar) += 10;
                         }
-                        if (_newAMB[sat] == 2 && _Qx(iPar + 1, iPar + 1) > 0.01)
+                        if (_newAMB[sat] == 2 && _Qx(iPar, iPar) > 0.01)
                         {
-                            _Qx(iPar + 1, iPar + 1) += 1;
+                            _Qx(iPar, iPar) += 1;
                         }
                     }
                 }
@@ -1531,19 +1526,16 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
             }
         }
         _posterioriTest(A, P, l, dx, _Qx, v_norm, vtpv);
-        nobs_total = A.Nrows();
-        npar_number = A.ncols();
+        nobs_total = A.rows();
+        npar_number = A.cols();
         _realnobs = l.size();
 
     } while (_outlierDetect(v_norm, Qsav, outlier) != 0);
     _nSat_excl = _nSat - _data.size(); // number of excluded satellites due to different reasons
 
-    try
-    {
-        _n_ALL_flt++;
-        Cholesky(_Qx);
-    }
-    catch (NPDException)
+    _n_ALL_flt++;
+    Eigen::LLT<Eigen::MatrixXd> covariance_llt(_Qx);
+    if (covariance_llt.info() != Eigen::Success)
     {
         _n_NPD_flt++;
     }
@@ -1562,7 +1554,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
         {
             GREAT_INFO(std::string("t_gpvtflt ") + "estimate velocity by doppler failed!");
             _vel = t_gtriple(0, 0, 0);
-            _Qx_vel = 0;
+            _Qx_vel.setZero();
         }
     }
 
@@ -1580,7 +1572,7 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
 
     for (unsigned int iPar = 0; iPar < _param.parNumber(); iPar++)
     {
-        _param[iPar].value(_param[iPar].value() + dx(_param[iPar].index));
+        _param[iPar].value(_param[iPar].value() + dx(_param[iPar].index - 1));
     }
 
     return _amb_state ? 1 : 0;
@@ -1588,8 +1580,8 @@ int great::t_gpvtflt::_processEpoch(const t_gtime& runEpoch)
 
 int great::t_gpvtflt::_amb_resolution()
 {
-    ColumnVector dx_tmp = _filter->dx();
-    SymmetricMatrix Qx_tmp = _filter->Qx();
+    Eigen::VectorXd dx_tmp = _filter->dx();
+    Eigen::MatrixXd Qx_tmp = _filter->Qx();
     _param_fixed = _filter->param();
     _amb_state = false;
 
@@ -1597,9 +1589,9 @@ int great::t_gpvtflt::_amb_resolution()
     for (int i = 0; i < _param_fixed.parNumber(); i++)
     {
         cout << fixed << setw(20) << " Float EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20) <<
-    setprecision(5) << _filter->param()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i + 1) << setw(20) <<
-    setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) << setprecision(5) <<
-    _filter->stdx()(i + 1) << endl;
+    setprecision(5) << _filter->param()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i) << setw(20) <<
+    setprecision(5) << _filter->param()[i].value() + _filter->dx()(i) << setw(20) << setprecision(5) <<
+    _filter->stdx()(i) << endl;
     }*/
 
     if (_fix_mode != FIX_MODE::NO)
@@ -1687,9 +1679,9 @@ int great::t_gpvtflt::_amb_resolution()
         for (int i = 0; i < _param_fixed.parNumber(); i++)
         {
             cout << fixed << setw(20) << " Fix EPO  " << setw(20) << _filter->param()[i].str_type() + "  " << setw(20)
-        << setprecision(5) << _ambfix->getFinalParams()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i +
-        1) << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i + 1) << setw(20) <<
-        setprecision(5) << _filter->stdx()(i + 1) << endl;
+        << setprecision(5) << _ambfix->getFinalParams()[i].value() << setw(15) << setprecision(5) << _filter->dx()(i)
+        << setw(20) << setprecision(5) << _filter->param()[i].value() + _filter->dx()(i) << setw(20) <<
+        setprecision(5) << _filter->stdx()(i) << endl;
         }*/
         _param_fixed = _ambfix->getFinalParams();
         _prtOut(_epoch, _param_fixed, _filter->Qx(), _data, os, line, true);
@@ -1700,7 +1692,7 @@ int great::t_gpvtflt::_amb_resolution()
     {
         for (unsigned int iPar = 0; iPar < _param_fixed.parNumber(); iPar++)
         {
-            _param_fixed[iPar].value(_param_fixed[iPar].value() + dx_tmp(_param_fixed[iPar].index));
+            _param_fixed[iPar].value(_param_fixed[iPar].value() + dx_tmp(_param_fixed[iPar].index - 1));
         }
         _prtOut(_epoch, _param_fixed, Qx_tmp, _data, os, line, true);
         _prt_port(_epoch, _param_fixed, Qx_tmp, _data);
@@ -1813,16 +1805,16 @@ bool t_gpvtflt::_getSatRef()
     }
 }
 
-int great::t_gpvtflt::_outlierDetect(const ColumnVector& v, const SymmetricMatrix& Qsav, GSAT& sat)
+int great::t_gpvtflt::_outlierDetect(const Eigen::VectorXd& v, const Eigen::MatrixXd& Qsav, GSAT& sat)
 {
-    int nobs = v.Nrows();
+    int nobs = v.rows();
     double max = 0.0;
     int idx = 0;
     for (int i = 1; i <= nobs; i++)
     {
-        if (fabs(v(i)) > max && fabs(v(i)) > _max_res_norm)
+        if (fabs(v(i - 1)) > max && fabs(v(i - 1)) > _max_res_norm)
         {
-            max = fabs(v(i));
+            max = fabs(v(i - 1));
             idx = i;
         }
     }
@@ -2377,12 +2369,12 @@ void great::t_gpvtflt::_udsdAmb()
                 _param.addParam(newPar);
                 _newAMB[sat] = 1;
                 Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-                _Qx(_param.parNumber(), _param.parNumber()) = _sigAmbig * _sigAmbig;
+                _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sigAmbig * _sigAmbig;
             }
             else
             {
                 _param[idx].value(sdamb);
-                _Qx(idx + 1, idx + 1) = _sigAmbig * _sigAmbig;
+                _Qx(idx, idx) = _sigAmbig * _sigAmbig;
                 _newAMB[sat] = 1;
             }
 
@@ -2528,13 +2520,13 @@ void great::t_gpvtflt::_udsdAmb()
                     newPar.value(sdamb);
                     _param.addParam(newPar);
                     Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-                    _Qx(_param.parNumber(), _param.parNumber()) = _sigAmbig * _sigAmbig;
+                    _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sigAmbig * _sigAmbig;
                     newAmb = 1;
                 }
                 else
                 {
                     _param[idx].value(sdamb);
-                    _Qx(idx + 1, idx + 1) = _sigAmbig * _sigAmbig;
+                    _Qx(idx, idx) = _sigAmbig * _sigAmbig;
                     newAmb = 1;
                 }
 
@@ -2659,7 +2651,7 @@ void great::t_gpvtflt::_udAmb()
                 _newAMB[it->sat()] = 1;
 
                 Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-                _Qx(_param.parNumber(), _param.parNumber()) = _sigAmbig * _sigAmbig;
+                _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sigAmbig * _sigAmbig;
                 GREAT_INFO("AMB_IF was added! For Sat PRN " + it->sat() + " Epoch: " + _epoch.str_ymdhms());
             }
             else if (it->getlli(gobs1.gobs()) >= 1 || it->getlli(gobs2.gobs()) >= 1)
@@ -2671,7 +2663,7 @@ void great::t_gpvtflt::_udAmb()
                 it->addslip(true);
                 _param[idx].value(LIF - PIF);
                 _param[idx].setTime(_epoch, LAST_TIME); // beg -> end  (because of cycle slip)
-                _Qx(idx + 1, idx + 1) = _sigAmbig * _sigAmbig;
+                _Qx(idx, idx) = _sigAmbig * _sigAmbig;
                 _newAMB[it->sat()] = 1;
             }
 
@@ -2772,7 +2764,7 @@ void great::t_gpvtflt::_udAmb()
                     _param.addParam(newPar);
 
                     Matrix_addRC(_Qx, _param.parNumber(), _param.parNumber());
-                    _Qx(_param.parNumber(), _param.parNumber()) = _sigAmbig * _sigAmbig;
+                    _Qx(_param.parNumber() - 1, _param.parNumber() - 1) = _sigAmbig * _sigAmbig;
                     GREAT_INFO("RAW AMB_L1 was added! For Sat PRN " + it->sat() + " Epoch: " + _epoch.str_ymdhms());
                     newAmb = 1;
                 }
@@ -2781,7 +2773,7 @@ void great::t_gpvtflt::_udAmb()
                     it->addslip(true);
                     _param[idx].value(Li - Pi);
                     _param[idx].setTime(_epoch, LAST_TIME); // beg -> end  (because of cycle slip)
-                    _Qx(idx + 1, idx + 1) = _sigAmbig * _sigAmbig;
+                    _Qx(idx, idx) = _sigAmbig * _sigAmbig;
                     _newAMB[it->sat()] = 1;
                     if (_param[idx].amb_ini == true)
                     {
@@ -2858,7 +2850,7 @@ void great::t_gpvtflt::Add_rho_azel(const std::string& site_name, t_gtriple& xyz
         _apply_tides(_epoch, xRec);
     }
 
-    double tmp = (xyz_s.crd_cvect() - xRec.crd_cvect()).norm_Frobenius();
+    double tmp = (xyz_s.crd_cvect() - xRec.crd_cvect()).norm();
 
     obs_sat.addrho(tmp);
     double NE2 = neu_s[0] * neu_s[0] + neu_s[1] * neu_s[1];
@@ -2889,7 +2881,7 @@ void great::t_gpvtflt::Add_rho_azel(const std::string& site_name, t_gtriple& xyz
 
 void great::t_gpvtflt::_prtOut(t_gtime& epoch,
                                t_gallpar& X,
-                               const SymmetricMatrix& Q,
+                               const Eigen::MatrixXd& Q,
                                std::vector<t_gsatdata>& data,
                                std::ostringstream& os,
                                xml_node& node,
@@ -2922,33 +2914,33 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
     }
     if (icrdx >= 0 && icrdy >= 0 && icrdz >= 0)
     {
-        if (Q(icrdx + 1, icrdx + 1) < 0)
+        if (Q(icrdx, icrdx) < 0)
         {
             Xrms = -1;
         }
         else
         {
-            Xrms = sqrt(Q(icrdx + 1, icrdx + 1));
+            Xrms = sqrt(Q(icrdx, icrdx));
         }
-        if (Q(icrdy + 1, icrdy + 1) < 0)
+        if (Q(icrdy, icrdy) < 0)
         {
             Yrms = -1;
         }
         else
         {
-            Yrms = sqrt(Q(icrdy + 1, icrdy + 1));
+            Yrms = sqrt(Q(icrdy, icrdy));
         }
-        if (Q(icrdz + 1, icrdz + 1) < 0)
+        if (Q(icrdz, icrdz) < 0)
         {
             Zrms = -1;
         }
         else
         {
-            Zrms = sqrt(Q(icrdz + 1, icrdz + 1));
+            Zrms = sqrt(Q(icrdz, icrdz));
         }
-        cov_xy = Q(icrdy + 1, icrdx + 1);
-        cov_xz = Q(icrdz + 1, icrdx + 1);
-        cov_yz = Q(icrdz + 1, icrdy + 1);
+        cov_xy = Q(icrdy, icrdx);
+        cov_xz = Q(icrdz, icrdx);
+        cov_yz = Q(icrdz, icrdy);
     }
 
     t_gtriple crd_rms(Xrms, Yrms, Zrms);
@@ -2957,29 +2949,29 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
     if (_doppler)
     {
         vRec = _vel;
-        if (_Qx_vel(1, 1) < 0)
+        if (_Qx_vel(0, 0) < 0)
         {
             Vxrms = -1;
         }
         else
         {
-            Vxrms = sqrt(_Qx_vel(1, 1));
+            Vxrms = sqrt(_Qx_vel(0, 0));
         }
-        if (_Qx_vel(2, 2) < 0)
+        if (_Qx_vel(1, 1) < 0)
         {
             Vyrms = -1;
         }
         else
         {
-            Vyrms = sqrt(_Qx_vel(2, 2));
+            Vyrms = sqrt(_Qx_vel(1, 1));
         }
-        if (_Qx_vel(3, 3) < 0)
+        if (_Qx_vel(2, 2) < 0)
         {
             Vzrms = -1;
         }
         else
         {
-            Vzrms = sqrt(_Qx_vel(3, 3));
+            Vzrms = sqrt(_Qx_vel(2, 2));
         }
     }
     else
@@ -3140,7 +3132,7 @@ void great::t_gpvtflt::_prtOut(t_gtime& epoch,
     return;
 }
 
-void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMatrix& Q, std::vector<t_gsatdata>& data)
+void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const Eigen::MatrixXd& Q, std::vector<t_gsatdata>& data)
 {
     std::ostringstream os;
     // get CRD params
@@ -3162,29 +3154,29 @@ void great::t_gpvtflt::_prt_port(t_gtime& epoch, t_gallpar& X, const SymmetricMa
     int icrdz = _param.getParam(_site, par_type::CRD_Z, "");
     if (icrdx >= 0 && icrdy >= 0 && icrdz >= 0)
     {
-        if (Q(icrdx + 1, icrdx + 1) < 0)
+        if (Q(icrdx, icrdx) < 0)
         {
             Xrms = -1;
         }
         else
         {
-            Xrms = sqrt(Q(icrdx + 1, icrdx + 1));
+            Xrms = sqrt(Q(icrdx, icrdx));
         }
-        if (Q(icrdy + 1, icrdy + 1) < 0)
+        if (Q(icrdy, icrdy) < 0)
         {
             Yrms = -1;
         }
         else
         {
-            Yrms = sqrt(Q(icrdy + 1, icrdy + 1));
+            Yrms = sqrt(Q(icrdy, icrdy));
         }
-        if (Q(icrdz + 1, icrdz + 1) < 0)
+        if (Q(icrdz, icrdz) < 0)
         {
             Zrms = -1;
         }
         else
         {
-            Zrms = sqrt(Q(icrdz + 1, icrdz + 1));
+            Zrms = sqrt(Q(icrdz, icrdz));
         }
     }
 
@@ -3436,7 +3428,7 @@ void great::t_gpvtflt::_remove_sat(GSAT sat)
     return;
 }
 
-bool great::t_gpvtflt::_check_sat(const std::string& ssite, t_gsatdata* const iter, Matrix& BB, int& iobs)
+bool great::t_gpvtflt::_check_sat(const std::string& ssite, t_gsatdata* const iter, Eigen::MatrixXd& BB, int& iobs)
 {
     GSYS gs = iter->gsys();
 
@@ -3523,20 +3515,20 @@ bool great::t_gpvtflt::_check_sat(const std::string& ssite, t_gsatdata* const it
     }
     else
     {
+        BB(iobs, 0) = iter->satcrd().crd(0);
+        BB(iobs, 1) = iter->satcrd().crd(1);
+        BB(iobs, 2) = iter->satcrd().crd(2);
+        BB(iobs, 3) = P3 + iter->clk();
         iobs++;
-        BB(iobs, 1) = iter->satcrd().crd(0);
-        BB(iobs, 2) = iter->satcrd().crd(1);
-        BB(iobs, 3) = iter->satcrd().crd(2);
-        BB(iobs, 4) = P3 + iter->clk();
     }
     return true;
 }
 
-bool great::t_gpvtflt::_cmp_rec_crd(const std::string& ssite, Matrix& BB)
+bool great::t_gpvtflt::_cmp_rec_crd(const std::string& ssite, Eigen::MatrixXd& BB)
 {
-    _vBanc = 0.0;
+    _vBanc.setZero();
 
-    if (BB.Nrows() >= 4)
+    if (BB.rows() >= 4)
     {
         gbancroft(BB, _vBanc);
     }
@@ -3546,7 +3538,7 @@ bool great::t_gpvtflt::_cmp_rec_crd(const std::string& ssite, Matrix& BB)
         return false;
     }
 
-    if (!_initialized && (_vBanc.Rows(1, 3) - grec->crd_arp(_epoch).crd_cvect()).NormFrobenius() > 1000)
+    if (!_initialized && (_vBanc.head(3) - grec->crd_arp(_epoch).crd_cvect()).norm() > 1000)
     {
         if (ssite == _site)
         {
@@ -3554,24 +3546,24 @@ bool great::t_gpvtflt::_cmp_rec_crd(const std::string& ssite, Matrix& BB)
         }
         else
         {
-            _vBanc(1) = grec->crd_arp(_epoch)[0];
-            _vBanc(2) = grec->crd_arp(_epoch)[1];
-            _vBanc(3) = grec->crd_arp(_epoch)[2];
+            _vBanc(0) = grec->crd_arp(_epoch)[0];
+            _vBanc(1) = grec->crd_arp(_epoch)[1];
+            _vBanc(2) = grec->crd_arp(_epoch)[2];
         }
     }
 
     if (_valid_crd_xml && !_initialized)
     {
-        _vBanc(1) = grec->crd_arp(_epoch)[0];
-        _vBanc(2) = grec->crd_arp(_epoch)[1];
-        _vBanc(3) = grec->crd_arp(_epoch)[2];
+        _vBanc(0) = grec->crd_arp(_epoch)[0];
+        _vBanc(1) = grec->crd_arp(_epoch)[1];
+        _vBanc(2) = grec->crd_arp(_epoch)[2];
     }
 
     else if (ssite == _site_base && dynamic_cast<t_gsetproc*>(_set)->basepos() == BASEPOS::CFILE)
     {
-        _vBanc(1) = grec->crd_arp(_epoch)[0];
-        _vBanc(2) = grec->crd_arp(_epoch)[1];
-        _vBanc(3) = grec->crd_arp(_epoch)[2];
+        _vBanc(0) = grec->crd_arp(_epoch)[0];
+        _vBanc(1) = grec->crd_arp(_epoch)[1];
+        _vBanc(2) = grec->crd_arp(_epoch)[2];
     }
     t_gtriple test_xyz(_vBanc);
     t_gtriple test_ell;
@@ -3608,30 +3600,30 @@ bool great::t_gpvtflt::_cmp_sat_info(const std::string& ssite, t_gsatdata* const
             std::cerr << std::endl;
             std::cerr << xyz_r[0] << " " << xyz_r[1] << " " << xyz_r[2] << std::endl;
         }
-        _vBanc(1) = xyz_r[0];
-        _vBanc(2) = xyz_r[1];
-        _vBanc(3) = xyz_r[2];
+        _vBanc(0) = xyz_r[0];
+        _vBanc(1) = xyz_r[1];
+        _vBanc(2) = xyz_r[2];
     }
     else
     {
         if (_crd_est == CONSTRPAR::FIX && _valid_crd_xml)
         {
             xyz_r = grec->crd_arp(_epoch);
-            _vBanc(1) = xyz_r[0];
-            _vBanc(2) = xyz_r[1];
-            _vBanc(3) = xyz_r[2];
+            _vBanc(0) = xyz_r[0];
+            _vBanc(1) = xyz_r[1];
+            _vBanc(2) = xyz_r[2];
         }
         else if (_crd_est == CONSTRPAR::EST || _crd_est == CONSTRPAR::KIN)
         {
             if (!_initialized)
             {
-                xyz_r.set(_vBanc.Rows(1, 3));
+                xyz_r.set(Eigen::Vector3d(_vBanc.head(3)));
             }
             else
             {
                 if (_pos_kin || _crd_est == CONSTRPAR::KIN)
                 {
-                    xyz_r.set(_vBanc.Rows(1, 3));
+                    xyz_r.set(Eigen::Vector3d(_vBanc.head(3)));
                 }
                 else
                 {
@@ -3696,10 +3688,31 @@ void great::t_gpvtflt::_predictCrd()
     i = _param.getParam(_site, par_type::CRD_X, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
+        {
+            _param[i].value(_vBanc(0));
+            _Qx(i, i) = crdInit * crdInit;
+        }
+        else
+        {
+            if (_pos_kin)
+            {
+                _param[i].value(_vBanc(0));
+            }
+            if (_cntrep == 1 && _success)
+            {
+                _Qx(i, i) += _crdStoModel->getQ() * _crdStoModel->getQ();
+            }
+        }
+    }
+
+    i = _param.getParam(_site, par_type::CRD_Y, "");
+    if (i >= 0)
+    {
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(_vBanc(1));
-            _Qx(i + 1, i + 1) = crdInit * crdInit;
+            _Qx(i, i) = crdInit * crdInit;
         }
         else
         {
@@ -3709,18 +3722,18 @@ void great::t_gpvtflt::_predictCrd()
             }
             if (_cntrep == 1 && _success)
             {
-                _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                _Qx(i, i) += _crdStoModel->getQ() * _crdStoModel->getQ();
             }
         }
     }
 
-    i = _param.getParam(_site, par_type::CRD_Y, "");
+    i = _param.getParam(_site, par_type::CRD_Z, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(_vBanc(2));
-            _Qx(i + 1, i + 1) = crdInit * crdInit;
+            _Qx(i, i) = crdInit * crdInit;
         }
         else
         {
@@ -3730,28 +3743,7 @@ void great::t_gpvtflt::_predictCrd()
             }
             if (_cntrep == 1 && _success)
             {
-                _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
-            }
-        }
-    }
-
-    i = _param.getParam(_site, par_type::CRD_Z, "");
-    if (i >= 0)
-    {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
-        {
-            _param[i].value(_vBanc(3));
-            _Qx(i + 1, i + 1) = crdInit * crdInit;
-        }
-        else
-        {
-            if (_pos_kin)
-            {
-                _param[i].value(_vBanc(3));
-            }
-            if (_cntrep == 1 && _success)
-            {
-                _Qx(i + 1, i + 1) += _crdStoModel->getQ() * _crdStoModel->getQ();
+                _Qx(i, i) += _crdStoModel->getQ() * _crdStoModel->getQ();
             }
         }
     }
@@ -3766,12 +3758,10 @@ void great::t_gpvtflt::_predictClk()
     i = _param.getParam(_site, par_type::CLK, "");
     if (i >= 0)
     {
-        _param[i].value(_vBanc(4));
-        for (unsigned int jj = 1; jj <= _param.parNumber(); jj++)
-        {
-            _Qx(i + 1, jj) = 0.0;
-        }
-        _Qx(i + 1, i + 1) = _clkStoModel->getQ() * _clkStoModel->getQ();
+        _param[i].value(_vBanc(3));
+        _Qx.row(i).setZero();
+        _Qx.col(i).setZero();
+        _Qx(i, i) = _clkStoModel->getQ() * _clkStoModel->getQ();
     }
     return;
 }
@@ -3783,16 +3773,16 @@ void great::t_gpvtflt::_predictBias()
     i = _param.getParam(_site, par_type::GLO_ISB, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = _sig_init_glo * _sig_init_glo;
+            _Qx(i, i) = _sig_init_glo * _sig_init_glo;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+                _Qx(i, i) += _gloStoModel->getQ();
             }
         }
     }
@@ -3800,16 +3790,16 @@ void great::t_gpvtflt::_predictBias()
     i = _param.getParam(_site, par_type::GLO_IFCB, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = _sig_init_glo * _sig_init_glo;
+            _Qx(i, i) = _sig_init_glo * _sig_init_glo;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _gloStoModel->getQ();
+                _Qx(i, i) += _gloStoModel->getQ();
             }
         }
     }
@@ -3817,16 +3807,16 @@ void great::t_gpvtflt::_predictBias()
     i = _param.getParam(_site, par_type::GAL_ISB, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = _sig_init_gal * _sig_init_gal;
+            _Qx(i, i) = _sig_init_gal * _sig_init_gal;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _galStoModel->getQ();
+                _Qx(i, i) += _galStoModel->getQ();
             }
         }
     }
@@ -3834,16 +3824,16 @@ void great::t_gpvtflt::_predictBias()
     i = _param.getParam(_site, par_type::BDS_ISB, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = _sig_init_bds * _sig_init_bds;
+            _Qx(i, i) = _sig_init_bds * _sig_init_bds;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+                _Qx(i, i) += _bdsStoModel->getQ();
             }
         }
     }
@@ -3851,16 +3841,16 @@ void great::t_gpvtflt::_predictBias()
     i = _param.getParam(_site, par_type::QZS_ISB, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = _sig_init_qzs * _sig_init_qzs;
+            _Qx(i, i) = _sig_init_qzs * _sig_init_qzs;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _qzsStoModel->getQ();
+                _Qx(i, i) += _qzsStoModel->getQ();
             }
         }
     }
@@ -3868,127 +3858,127 @@ void great::t_gpvtflt::_predictBias()
     i = _param.getParam(_site, par_type::IFB_GPS, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _gpsStoModel->getQ();
+                _Qx(i, i) += _gpsStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_GAL, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _galStoModel->getQ();
+                _Qx(i, i) += _galStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_GAL_2, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _galStoModel->getQ();
+                _Qx(i, i) += _galStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_GAL_3, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _galStoModel->getQ();
+                _Qx(i, i) += _galStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_BDS, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+                _Qx(i, i) += _bdsStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_BDS_2, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+                _Qx(i, i) += _bdsStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_BDS_3, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
             _param[i].value(0.0);
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _bdsStoModel->getQ();
+                _Qx(i, i) += _bdsStoModel->getQ();
             }
         }
     }
     i = _param.getParam(_site, par_type::IFB_QZS, "");
     if (i >= 0)
     {
-        if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+        if (!_initialized || _Qx(i, i) == 0.0)
         {
-            _Qx(i + 1, i + 1) = 3000 * 3000;
+            _Qx(i, i) = 3000 * 3000;
         }
         else
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _qzsStoModel->getQ();
+                _Qx(i, i) += _qzsStoModel->getQ();
             }
         }
     }
@@ -4028,9 +4018,9 @@ void great::t_gpvtflt::_predictIono(const double& bl, const t_gtime& runEpoch)
                     _param[i].apriori(ionomodel);
                 }
 
-                if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), _sig_init_vion * _sig_init_vion))
+                if (_cntrep == 1 && !double_eq(_Qx(i, i), _sig_init_vion * _sig_init_vion))
                 {
-                    _Qx(i + 1, i + 1) += _ionStoModel->getQ(); // *_ionStoModel->getQ();
+                    _Qx(i, i) += _ionStoModel->getQ(); // *_ionStoModel->getQ();
                 }
             }
 
@@ -4038,23 +4028,23 @@ void great::t_gpvtflt::_predictIono(const double& bl, const t_gtime& runEpoch)
             if (i >= 0)
             {
                 double var = _sig_init_vion * _sig_init_vion;
-                if (_isBase && double_eq(_Qx(i + 1, i + 1), var))
+                if (_isBase && double_eq(_Qx(i, i), var))
                 {
                     var *= SQR(bl / (1e4));
-                    _Qx(i + 1, i + 1) = var;
+                    _Qx(i, i) = var;
                     _param[i].value(1e-6);
                 }
                 _param[i].value(0.0);
-                _Qx(i + 1, i + 1) = var;
-                if (_cntrep == 1 && !double_eq(_Qx(i + 1, i + 1), var))
+                _Qx(i, i) = var;
+                if (_cntrep == 1 && !double_eq(_Qx(i, i), var))
                 {
                     if (_isBase)
                     {
-                        _Qx(i + 1, i + 1) += SQR(bl / (1e4) * cos(it->ele())) * _ionStoModel->getQ();
+                        _Qx(i, i) += SQR(bl / (1e4) * cos(it->ele())) * _ionStoModel->getQ();
                     }
                     else
                     {
-                        _Qx(i + 1, i + 1) += _ionStoModel->getQ();
+                        _Qx(i, i) += _ionStoModel->getQ();
                     }
                 }
             }
@@ -4072,11 +4062,11 @@ void great::t_gpvtflt::_predictTropo()
     {
         if (_cntrep == 1 && _initialized)
         {
-            _Qx(i + 1, i + 1) += _grdStoModel->getQ();
+            _Qx(i, i) += _grdStoModel->getQ();
         }
         if (_smooth)
         {
-            _Noise(i + 1, i + 1) = _grdStoModel->getQ();
+            _Noise.diagonal()(i) = _grdStoModel->getQ();
         }
     }
 
@@ -4085,11 +4075,11 @@ void great::t_gpvtflt::_predictTropo()
     {
         if (_cntrep == 1 && _initialized)
         {
-            _Qx(i + 1, i + 1) += _grdStoModel->getQ();
+            _Qx(i, i) += _grdStoModel->getQ();
         }
         if (_smooth)
         {
-            _Noise(i + 1, i + 1) = _grdStoModel->getQ();
+            _Noise.diagonal()(i) = _grdStoModel->getQ();
         }
     }
 
@@ -4126,7 +4116,7 @@ void great::t_gpvtflt::_predictTropo()
                     _param[i].apriori(_sig_init_ztd);
                 }
 
-                if (!_initialized || _Qx(i + 1, i + 1) == 0.0)
+                if (!_initialized || _Qx(i, i) == 0.0)
                 {
                     if (_valid_ztd_xml)
                     {
@@ -4139,13 +4129,13 @@ void great::t_gpvtflt::_predictTropo()
                             _param[i].value(tmpgmodel->tropoModel()->getZWD(Ell, _epoch));
                         }
                     }
-                    _Qx(i + 1, i + 1) = ztdInit * ztdInit;
+                    _Qx(i, i) = ztdInit * ztdInit;
                 }
                 else
                 {
                     if (_cntrep == 1)
                     {
-                        _Qx(i + 1, i + 1) += _trpStoModel->getQ();
+                        _Qx(i, i) += _trpStoModel->getQ();
                     }
                 }
             }
@@ -4164,11 +4154,11 @@ void great::t_gpvtflt::_predictAmb()
         {
             if (_cntrep == 1)
             {
-                _Qx(i + 1, i + 1) += _ambStoModel->getQ();
+                _Qx(i, i) += _ambStoModel->getQ();
             }
             if (_smooth)
             {
-                _Noise(i + 1, i + 1) = _ambStoModel->getQ();
+                _Noise.diagonal()(i) = _ambStoModel->getQ();
             }
             _param[i].stime = _param[i].end = _epoch;
         }
@@ -4196,36 +4186,36 @@ unsigned int great::t_gpvtflt::_cmp_equ(t_gfltEquationMatrix& equ)
     return equ.num_equ();
 }
 
-void great::t_gpvtflt::_posterioriTest(const Matrix& A,
-                                       const SymmetricMatrix& P,
-                                       const ColumnVector& l,
-                                       const ColumnVector& dx,
-                                       const SymmetricMatrix& Q,
-                                       ColumnVector& v_norm,
+void great::t_gpvtflt::_posterioriTest(const Eigen::MatrixXd& A,
+                                       const Eigen::MatrixXd& P,
+                                       const Eigen::VectorXd& l,
+                                       const Eigen::VectorXd& dx,
+                                       const Eigen::MatrixXd& Q,
+                                       Eigen::VectorXd& v_norm,
                                        double& vtpv)
 {
     ;
-    ColumnVector v_orig, v_test;
+    Eigen::VectorXd v_orig, v_test;
     // post-fit residuals
     v_orig = l - A * dx;
 
     // normalized post-fit residuals
-    Matrix Qv = A * _Qx * A.t() + P.i();
-    v_norm.ReSize(v_orig.Nrows());
-    for (int i = 1; i <= v_norm.Nrows(); i++)
+    Eigen::MatrixXd Qv = A * _Qx * A.transpose() + P.inverse();
+    v_norm.setZero(v_orig.rows());
+    for (int i = 0; i < v_norm.rows(); i++)
     {
         v_norm(i) = sqrt(1 / Qv(i, i)) * v_orig(i);
     }
 
-    int freedom = A.Nrows() - A.Ncols();
+    int freedom = A.rows() - A.cols();
     if (freedom < 1)
     {
         GREAT_INFO("No redundant observations!");
         freedom = 1;
     }
 
-    ColumnVector vtPv = v_orig.t() * P * v_orig;
-    _sig_unit = vtPv(1) / freedom;
-    vtpv = vtPv(1);
+    const double vtPv = v_orig.dot(P * v_orig);
+    _sig_unit = vtPv / freedom;
+    vtpv = vtPv;
     return;
 }

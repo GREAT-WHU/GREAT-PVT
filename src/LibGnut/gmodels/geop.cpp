@@ -23,20 +23,14 @@ namespace gnut
     {
     }
 
-    Matrix t_geop::nutMatrix(double mjd)
+    Eigen::MatrixXd t_geop::nutMatrix(double mjd)
     {
-        Matrix I(3, 3);
-        I << 1 << 0 << 0 << 0 << 1 << 0 << 0 << 0 << 1;
-
-        return I;
+        return Eigen::Matrix3d::Identity();
     }
 
-    Matrix t_geop::precMatrix(double mjd_1)
+    Eigen::MatrixXd t_geop::precMatrix(double mjd_1)
     {
-        Matrix I(3, 3);
-        I << 1 << 0 << 0 << 0 << 1 << 0 << 0 << 0 << 1;
-
-        return I;
+        return Eigen::Matrix3d::Identity();
     }
 
     double t_geop::_normangle(double x)

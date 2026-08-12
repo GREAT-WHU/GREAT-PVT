@@ -92,10 +92,10 @@ namespace gnut
     t_statemode::t_statemode(int order, double dt, double noise) :
         order(order)
     {
-        // set the Matrix M P
-        M = Matrix(order, order);
+        // set the Eigen::MatrixXd M P
+        M = Eigen::MatrixXd(order, order);
 
-        // set Matrix M
+        // set Eigen::MatrixXd M
         for (int Row = order; Row >= 1; Row--)
         {
             M(Row, Row) = 1.0;
@@ -105,8 +105,8 @@ namespace gnut
             }
         }
 
-        // set Matrix P
-        Matrix P_temp(order, order);
+        // set Eigen::MatrixXd P
+        Eigen::MatrixXd P_temp(order, order);
         int count = 0;
         for (int Row = order; Row >= 1; Row--)
         {
@@ -119,7 +119,7 @@ namespace gnut
 
         P_temp = P_temp / (noise * sqrt(dt));
 
-        P << P_temp.t() * P_temp;
+        P = P_temp.transpose() * P_temp;
     }
 
     t_statemode::~t_statemode()

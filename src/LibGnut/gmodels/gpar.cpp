@@ -10,7 +10,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gmodels/gpar.h"
 #include "gmodels/ggmf.h"
 
@@ -633,13 +633,13 @@ namespace gnut
     {
         t_gtriple satcrd = satData.satcrd();
         t_gtriple satvel = satData.satvel();
-        ColumnVector cSat = satcrd.crd_cvect();
-        ColumnVector vSat = satvel.crd_cvect();
-        ColumnVector cRec = groundXYZ.crd_cvect();
-        ColumnVector vRec = groundVEL.crd_cvect();
-        ColumnVector conf_crd = dotproduct(cSat - cRec, vSat - vRec) * (cSat - cRec) / pow(satData.rho(), 3);
+        Eigen::VectorXd cSat = satcrd.crd_cvect();
+        Eigen::VectorXd vSat = satvel.crd_cvect();
+        Eigen::VectorXd cRec = groundXYZ.crd_cvect();
+        Eigen::VectorXd vRec = groundVEL.crd_cvect();
+        Eigen::VectorXd conf_crd = (cSat - cRec).dot(vSat - vRec) * (cSat - cRec) / pow(satData.rho(), 3);
         conf_crd -= (vSat - vRec) / satData.rho();
-        ColumnVector e = (cSat - cRec) / satData.rho();
+        Eigen::VectorXd e = (cSat - cRec) / satData.rho();
         satData._conf_crd.set(conf_crd);
         satData._e.set(e);
         switch (parType)

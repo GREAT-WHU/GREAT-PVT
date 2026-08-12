@@ -33,8 +33,8 @@ namespace gnut
 
         t_gtriple dxyz(0.0, 0.0, 0.0);
 
-        ColumnVector xSun;
-        ColumnVector xMoon;
+        Eigen::VectorXd xSun;
+        Eigen::VectorXd xMoon;
         double rSun;
         double rMoon;
 
@@ -42,15 +42,15 @@ namespace gnut
 
         xSun = _planEph.sunPos(Mjd).crd_cvect();
 
-        rSun = sqrt(DotProduct(xSun, xSun));
+        rSun = xSun.norm();
         xSun /= rSun;
         xMoon = _planEph.moonPos(Mjd).crd_cvect();
-        rMoon = sqrt(DotProduct(xMoon, xMoon));
+        rMoon = xMoon.norm();
         xMoon /= rMoon;
 
-        ColumnVector xyz = crd.crd_cvect();
-        double rRec = sqrt(DotProduct(xyz, xyz));
-        ColumnVector xyzUnit = xyz / rRec;
+        Eigen::VectorXd xyz = crd.crd_cvect();
+        double rRec = xyz.norm();
+        Eigen::VectorXd xyzUnit = xyz / rRec;
 
         // Love's Numbers
         // --------------
@@ -59,8 +59,8 @@ namespace gnut
 
         // Tidal Displacement
         // ------------------
-        double scSun = DotProduct(xyzUnit, xSun);
-        double scMoon = DotProduct(xyzUnit, xMoon);
+        double scSun = xyzUnit.dot(xSun);
+        double scMoon = xyzUnit.dot(xMoon);
 
         double p2Sun = 3.0 * (H2 / 2.0 - L2) * scSun * scSun - H2 / 2.0;
         double p2Moon = 3.0 * (H2 / 2.0 - L2) * scMoon * scMoon - H2 / 2.0;
@@ -76,7 +76,7 @@ namespace gnut
 
         double facMoon = gmm / gmWGS * (rRec * rRec * rRec * rRec) / (rMoon * rMoon * rMoon);
 
-        ColumnVector dX = facSun * (x2Sun * xSun + p2Sun * xyzUnit) + facMoon * (x2Moon * xMoon + p2Moon * xyzUnit);
+        Eigen::VectorXd dX = facSun * (x2Sun * xSun + p2Sun * xyzUnit) + facMoon * (x2Moon * xMoon + p2Moon * xyzUnit);
 
         for (int i = 0; i < 3; i++)
         {
@@ -96,7 +96,7 @@ namespace gnut
     t_gtriple t_gtide96::load_ocean(const t_gtime& epoch, const std::string& site, const t_gtriple& xRec)
     {
 
-        Matrix otl;
+        Eigen::MatrixXd otl;
 
         t_gtriple dxyz(0.0, 0.0, 0.0);
         if (!_gotl || _gotl->data(otl, site) < 0)

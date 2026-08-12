@@ -123,7 +123,7 @@ namespace great
          * @param[in] obj pcv info for site
          * @return Rotmatrix
          */
-        Matrix _RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, std::shared_ptr<t_gobj> obj);
+        Eigen::MatrixXd _RotMatrix_Ant(t_gsatdata& obsdata, const t_gtime& epoch, std::shared_ptr<t_gobj> obj);
 
     protected:
         t_gtime _crt_epo;            ///< epoch

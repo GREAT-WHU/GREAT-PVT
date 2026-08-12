@@ -173,7 +173,7 @@ namespace gnut
         }
 
         // init state vector (crd, vel)
-        ColumnVector yy(6);
+        Eigen::VectorXd yy(6);
 
         if (double_eq(_x, 0.0) || double_eq(_y, 0.0) || double_eq(_z, 0.0))
         {
@@ -181,7 +181,7 @@ namespace gnut
             return -1;
         }
 
-        yy << _x << _y << _z << _x_d << _y_d << _z_d;
+        yy << _x, _y, _z, _x_d, _y_d, _z_d;
         // acceleration
         t_gtriple acc(_x_dd, _y_dd, _z_dd);
 
@@ -192,34 +192,35 @@ namespace gnut
         {
             step = -step;
         }
-        ColumnVector yy_integr(6);
+        Eigen::VectorXd yy_integr(6);
         yy_integr = _RungeKutta(step, nsteps, yy, acc);
 
-        xyz[0] = yy_integr(1);
-        xyz[1] = yy_integr(2);
-        xyz[2] = yy_integr(3);
+        xyz[0] = yy_integr(0);
+        xyz[1] = yy_integr(1);
+        xyz[2] = yy_integr(2);
 
         // PZ_90.11 to ITRF_2008 transformation
-        ColumnVector T(3);
-        T << -0.003 << -0.001 << 0.000;
-        Matrix R(3, 3);
-        R = 0;
+        Eigen::VectorXd T(3);
+        T << -0.003, -0.001, 0.000;
+        Eigen::MatrixXd R(3, 3);
         double mas = (1 / (36e5)) * D2R;
-        R << 1 << 0.002 * mas << 0.042 * mas << -0.002 * mas << 1 << 0.019 * mas << -0.042 * mas << -0.019 * mas << 1;
-        ColumnVector xyzWGS;
-        xyzWGS = T + R * yy_integr.Rows(1, 3);
+        R << 1, 0.002 * mas, 0.042 * mas,
+            -0.002 * mas, 1, 0.019 * mas,
+            -0.042 * mas, -0.019 * mas, 1;
+        Eigen::VectorXd xyzWGS;
+        xyzWGS = T + R * yy_integr.head<3>();
 
         // position at time t
-        xyz[0] = xyzWGS(1);
-        xyz[1] = xyzWGS(2);
-        xyz[2] = xyzWGS(3);
+        xyz[0] = xyzWGS(0);
+        xyz[1] = xyzWGS(1);
+        xyz[2] = xyzWGS(2);
 
         // velocity at positon t
         if (vel)
         {
-            vel[0] = yy_integr(4);
-            vel[1] = yy_integr(5);
-            vel[2] = yy_integr(6);
+            vel[0] = yy_integr(3);
+            vel[1] = yy_integr(4);
+            vel[2] = yy_integr(5);
         }
 
         return 0;
@@ -442,40 +443,40 @@ namespace gnut
         return false;
     }
 
-    ColumnVector t_gnavglo::_deriv(const ColumnVector& xx, const t_gtriple& acc)
+    Eigen::VectorXd t_gnavglo::_deriv(const Eigen::VectorXd& xx, const t_gtriple& acc)
     {
-        t_gtriple crd(xx.rows(1, 3));
-        t_gtriple vel(xx.rows(4, 6));
+        t_gtriple crd(xx.head<3>());
+        t_gtriple vel(xx.segment<3>(3));
 
-        double r = crd.crd_cvect().norm_Frobenius();
+        double r = crd.crd_cvect().norm();
 
         double k1 = -GM_PZ90 / (r * r * r);
         double k2 = (3.0 / 2.0) * C20_PZ90 * (GM_PZ90 * Aell_PZ90 * Aell_PZ90) / pow(r, 5);
 
-        ColumnVector xxdot(6);
+        Eigen::VectorXd xxdot(6);
 
-        xxdot(1) = vel[0];
-        xxdot(2) = vel[1];
-        xxdot(3) = vel[2];
-        xxdot(4) =
+        xxdot(0) = vel[0];
+        xxdot(1) = vel[1];
+        xxdot(2) = vel[2];
+        xxdot(3) =
             k1 * crd[0] + k2 * (1.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[0] + OMEGA * OMEGA * crd[0] + 2 * OMEGA * vel[1] + acc[0];
-        xxdot(5) =
+        xxdot(4) =
             k1 * crd[1] + k2 * (1.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[1] + OMEGA * OMEGA * crd[1] - 2 * OMEGA * vel[0] + acc[1];
-        xxdot(6) = k1 * crd[2] + k2 * (3.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[2] + acc[2];
+        xxdot(5) = k1 * crd[2] + k2 * (3.0 - 5.0 * crd[2] * crd[2] / (r * r)) * crd[2] + acc[2];
 
         return xxdot;
     }
 
-    ColumnVector t_gnavglo::_RungeKutta(double step, int nsteps, const ColumnVector& yy, const t_gtriple& acc)
+    Eigen::VectorXd t_gnavglo::_RungeKutta(double step, int nsteps, const Eigen::VectorXd& yy, const t_gtriple& acc)
     {
-        ColumnVector yyn = yy;
+        Eigen::VectorXd yyn = yy;
 
         for (int i = 1; i <= nsteps; i++)
         {
-            ColumnVector k1 = step * _deriv(yyn, acc);
-            ColumnVector k2 = step * _deriv(yyn + k1 / 2.0, acc);
-            ColumnVector k3 = step * _deriv(yyn + k2 / 2.0, acc);
-            ColumnVector k4 = step * _deriv(yyn + k3, acc);
+            Eigen::VectorXd k1 = step * _deriv(yyn, acc);
+            Eigen::VectorXd k2 = step * _deriv(yyn + k1 / 2.0, acc);
+            Eigen::VectorXd k3 = step * _deriv(yyn + k2 / 2.0, acc);
+            Eigen::VectorXd k4 = step * _deriv(yyn + k3, acc);
 
             yyn += k1 / 6.0 + k2 / 3.0 + k3 / 3.0 + k4 / 6.0;
         }

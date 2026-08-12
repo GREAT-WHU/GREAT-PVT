@@ -21,7 +21,7 @@
 
 #include <vector>
 
-#include "newmat/newmat.h"
+#include <Eigen/Dense>
 #include "gdata/gnav.h"
 #include "gutils/gtime.h"
 #include "gutils/gconst.h"
@@ -186,9 +186,9 @@ namespace gnut
          *
          * @param xx
          * @param acc
-         * @return ColumnVector
+         * @return Eigen::VectorXd
          */
-        ColumnVector _deriv(const ColumnVector& xx, const t_gtriple& acc);
+        Eigen::VectorXd _deriv(const Eigen::VectorXd& xx, const t_gtriple& acc);
 
         /**
          * @brief Runge-Kutta integration
@@ -197,9 +197,9 @@ namespace gnut
          * @param nsteps
          * @param yy
          * @param acc
-         * @return ColumnVector
+         * @return Eigen::VectorXd
          */
-        ColumnVector _RungeKutta(double step, int nsteps, const ColumnVector& yy, const t_gtriple& acc);
+        Eigen::VectorXd _RungeKutta(double step, int nsteps, const Eigen::VectorXd& yy, const t_gtriple& acc);
 
         double _maxEphAge; ///< max age of ephemerises [s]
 
