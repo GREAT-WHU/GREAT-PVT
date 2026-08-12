@@ -339,8 +339,6 @@ namespace great
             }
         }
 
-        t_gflt fltpreAMB(*gflt);
-
         // add constraint
         if (mode == "NL")
         {
@@ -645,6 +643,8 @@ namespace great
     int t_gambiguity::_defineDDAmb(t_gamb_cmn* amb_cmn)
     {
         std::vector<t_gpar> params_ALL = amb_cmn->param().getAllPar();
+        const Eigen::VectorXd dx = amb_cmn->dx();
+        const Eigen::MatrixXd Qx = amb_cmn->Qx();
         std::vector<t_gpar> params;
         int amb_idx1, amb_idx2;
 
@@ -652,7 +652,7 @@ namespace great
         for (auto it_par = params_ALL.begin(); it_par != params_ALL.end(); it_par++)
         {
             it_par->index = distance(params_ALL.begin(), it_par) + 1;
-            it_par->pred = it_par->value() + amb_cmn->dx()(it_par->index - 1);
+            it_par->pred = it_par->value() + dx(it_par->index - 1);
             if (it_par->str_type().find("AMB") == std::string::npos || it_par->str_type().find("AMB13") != std::string::npos ||
                 _sat_rm.find(it_par->prn) != _sat_rm.end() || double_eq(it_par->value(), 0.0))
             {
@@ -760,9 +760,9 @@ namespace great
                 if (_fix_mode != FIX_MODE::NO)
                 {
                     // get dd ambiguity _sigma
-                    sigma = amb_cmn->Qx()(itsat1->index - 1, itsat1->index - 1) -
-                            2 * amb_cmn->Qx()(itsat1->index - 1, itsat2->index - 1) +
-                            amb_cmn->Qx()(itsat2->index - 1, itsat2->index - 1);
+                    sigma = Qx(itsat1->index - 1, itsat1->index - 1) -
+                            2 * Qx(itsat1->index - 1, itsat2->index - 1) +
+                            Qx(itsat2->index - 1, itsat2->index - 1);
                     if (double_eq(sigma, 0.0))
                     {
                         continue;
@@ -835,6 +835,7 @@ namespace great
     {
         GSAT sat11, sat12, sat21, sat22; std::string ambtype1, ambtype2;
         double qq, lambda_1 = 0, lambda_2 = 0, lambda_21 = 0, lambda_22 = 0;
+        const Eigen::MatrixXd Qx = amb_cmn->Qx();
 
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
@@ -912,10 +913,10 @@ namespace great
                         itdd->rwl -= (itdd1->rlc + itdd1->rwl_R1) * _sat_wavelen[sat11]["NL"] / lambda_2 -
                                      itdd1->rwl_R1 * _sat_wavelen[sat12]["NL"] / lambda_22;
                     }
-                    qq = amb_cmn->Qx()(get<1>(itdd->ddSats[0]) - 1, get<1>(itdd1->ddSats[0]) - 1) / (lambda_1 * lambda_1) -
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[0]) - 1, get<1>(itdd1->ddSats[1]) - 1) / (lambda_1 * lambda_2) -
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]) - 1, get<1>(itdd1->ddSats[0]) - 1) / (lambda_1 * lambda_2) +
-                         amb_cmn->Qx()(get<1>(itdd->ddSats[1]) - 1, get<1>(itdd1->ddSats[1]) - 1) / (lambda_2 * lambda_2);
+                    qq = Qx(get<1>(itdd->ddSats[0]) - 1, get<1>(itdd1->ddSats[0]) - 1) / (lambda_1 * lambda_1) -
+                         Qx(get<1>(itdd->ddSats[0]) - 1, get<1>(itdd1->ddSats[1]) - 1) / (lambda_1 * lambda_2) -
+                         Qx(get<1>(itdd->ddSats[1]) - 1, get<1>(itdd1->ddSats[0]) - 1) / (lambda_1 * lambda_2) +
+                         Qx(get<1>(itdd->ddSats[1]) - 1, get<1>(itdd1->ddSats[1]) - 1) / (lambda_2 * lambda_2);
                     if (double_eq(qq, 0.0))
                     {
                         continue;
@@ -1715,6 +1716,7 @@ namespace great
     bool t_gambiguity::_prepareCovariance(t_gamb_cmn* amb_cmn, Eigen::MatrixXd& covariance, std::vector<double>& value)
     {
         int row = 0, col = 0;
+        const Eigen::MatrixXd Qx = amb_cmn->Qx();
         // set covariance-matrix
         covariance.setZero(_DD.size(), _DD.size());
         for (auto itdd1 = _DD.begin(); itdd1 != _DD.end(); itdd1++)
@@ -1730,10 +1732,10 @@ namespace great
 
                 Eigen::MatrixXd Q(2, 2);
                 // Covariance of ambiguity between four satellites
-                Q(0, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[0]) - 1);
-                Q(0, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[1]) - 1);
-                Q(1, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[0]) - 1);
-                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[1]) - 1);
+                Q(0, 0) = Qx(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[0]) - 1);
+                Q(0, 1) = Qx(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[1]) - 1);
+                Q(1, 0) = Qx(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[0]) - 1);
+                Q(1, 1) = Qx(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[1]) - 1);
 
                 // Combinatorial transformation
                 covariance(row, col) = (Q(0, 0) - Q(1, 0) - Q(0, 1) + Q(1, 1)) / itdd1->factor / itdd2->factor; // unit [cycle]
@@ -1758,6 +1760,7 @@ namespace great
         int row = 0, col = 0;
         double lambda_1 = 0.0, lambda_2 = 0.0;
         Eigen::VectorXd op_dd(4);
+        const Eigen::MatrixXd Qx = amb_cmn->Qx();
         // set covariance-matrix
         covariance.setZero(_DD.size(), _DD.size());
 
@@ -1819,22 +1822,22 @@ namespace great
                 Eigen::MatrixXd Q(2, 2);
 
                 // Covariance of ambiguity between four satellites
-                Q(0, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(0) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(3);
-                Q(0, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(0) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(3);
-                Q(1, 0) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(0) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(3);
-                Q(1, 1) = amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(0) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(1) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(2) +
-                          amb_cmn->Qx()(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(3);
+                Q(0, 0) = Qx(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(0) +
+                          Qx(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(1) +
+                          Qx(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(2) +
+                          Qx(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(3);
+                Q(0, 1) = Qx(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(0) +
+                          Qx(get<1>(itdd1->ddSats[0]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(1) +
+                          Qx(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(2) +
+                          Qx(get<1>(itdd1->ddSats[2]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(3);
+                Q(1, 0) = Qx(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(0) +
+                          Qx(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(1) +
+                          Qx(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[0]) - 1) * op_dd(2) +
+                          Qx(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[2]) - 1) * op_dd(3);
+                Q(1, 1) = Qx(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(0) +
+                          Qx(get<1>(itdd1->ddSats[1]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(1) +
+                          Qx(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[1]) - 1) * op_dd(2) +
+                          Qx(get<1>(itdd1->ddSats[3]) - 1, get<1>(itdd2->ddSats[3]) - 1) * op_dd(3);
 
                 // Combinatorial transformation
                 covariance(row, col) = Q(0, 0) - Q(1, 0) - Q(0, 1) + Q(1, 1); // unit [cycle]
@@ -2197,6 +2200,8 @@ namespace great
         //////========================= Virtual observation equation ===========================================
         double dl = 0, flt = 0, integer = 0, Ba = 1, Bb = -1;
         double p0 = 1E9;
+        t_gallpar params = gflt->param();
+        t_gfltEquationMatrix virtual_equ;
         for (auto itdd = _DD.begin(); itdd != _DD.end(); itdd++)
         {
             bool wl_fix = ((_obstype == gnut::OBSCOMBIN::RAW_MIX && itdd->isSngleFreq != true) || _obstype != gnut::OBSCOMBIN::RAW_MIX);
@@ -2207,7 +2212,7 @@ namespace great
             int index_sat1 = get<1>(itdd->ddSats[0]);
             int index_sat2 = get<1>(itdd->ddSats[1]);
 
-            flt = gflt->param()[index_sat1 - 1].value() - gflt->param()[index_sat2 - 1].value();
+            flt = params[index_sat1 - 1].value() - params[index_sat2 - 1].value();
 
             if (_obstype == OBSCOMBIN::IONO_FREE)
             {
@@ -2224,7 +2229,7 @@ namespace great
                     integer = (itdd->inl - itdd->sd_rnl_cor + 3.5 * round(itdd->rwl));
                     Ba = 1 / _sat_wavelen[sat1]["NL"];
                     Bb = -1 / _sat_wavelen[sat2]["NL"];
-                    flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat2 - 1].value() * Bb;
+                    flt = params[index_sat1 - 1].value() * Ba + params[index_sat2 - 1].value() * Bb;
                 }
             }
             else if (_obstype == OBSCOMBIN::RAW_ALL || _obstype == OBSCOMBIN::RAW_MIX)
@@ -2271,7 +2276,7 @@ namespace great
                         Bb = -1 / _sat_wavelen[sat2]["L2"];
                         Lx_cor = itdd->sd_r2_cor;
                     }
-                    flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat2 - 1].value() * Bb;
+                    flt = params[index_sat1 - 1].value() * Ba + params[index_sat2 - 1].value() * Bb;
                     integer = (itdd->inl - Lx_cor);
                 }
             }
@@ -2282,14 +2287,15 @@ namespace great
             B.push_back(std::make_pair(index_sat1, Ba));
             B.push_back(std::make_pair(index_sat2, Bb));
 
+            t_gobscombtype type;
+            virtual_equ.add_equ(B, p0, dl, _site, GSAT::NONE, type, false);
+        }
+        if (virtual_equ.num_equ() > 0)
+        {
             Eigen::MatrixXd B_mat;
             Eigen::MatrixXd P_mat;
             Eigen::VectorXd l_mat;
-            t_gfltEquationMatrix virtual_equ;
-            t_gobscombtype type;
-            virtual_equ.add_equ(B, p0, dl, _site, GSAT::NONE, type, false);
             virtual_equ.toEigen(B_mat, P_mat, l_mat, gflt->npar_number());
-
             gflt->resetQ();
             gflt->add_virtual_obs(B_mat, P_mat, l_mat);
         }
@@ -2325,9 +2331,8 @@ namespace great
         double Bb = 0.0;
         double Bc = 0.0;
         double Bd = 0.0; // the Coefficient of B matrix
-        Eigen::MatrixXd _Qx_tmp;
-        t_gflt flttmp(*gflt);
-        _Qx_tmp = gflt->Qx();
+        t_gallpar params = gflt->param();
+        t_gfltEquationMatrix virtual_equ;
         if (mode == "EWL" || mode == "EWL24" || mode == "EWL25")
         {
             p0 = 1E4;
@@ -2411,8 +2416,8 @@ namespace great
                 Bd = 1 / lambda_22;
             }
 
-            flt = gflt->param()[index_sat1 - 1].value() * Ba + gflt->param()[index_sat3 - 1].value() * Bb +
-                  gflt->param()[index_sat2 - 1].value() * Bc + gflt->param()[index_sat4 - 1].value() * Bd;
+            flt = params[index_sat1 - 1].value() * Ba + params[index_sat3 - 1].value() * Bb +
+                  params[index_sat2 - 1].value() * Bc + params[index_sat4 - 1].value() * Bd;
             dl = integer - flt;
 
             std::vector<std::pair<int, double>> B;
@@ -2421,10 +2426,6 @@ namespace great
             B.push_back(std::make_pair(index_sat2, Bc));
             B.push_back(std::make_pair(index_sat4, Bd));
 
-            Eigen::MatrixXd B_mat;
-            Eigen::MatrixXd P_mat;
-            Eigen::VectorXd l_mat;
-            t_gfltEquationMatrix virtual_equ;
             t_gobscombtype type;
             virtual_equ.add_equ(B,
                                 p0,
@@ -2433,8 +2434,13 @@ namespace great
                                 GSAT::NONE,
                                 type,
                                 false);
+        }
+        if (virtual_equ.num_equ() > 0)
+        {
+            Eigen::MatrixXd B_mat;
+            Eigen::MatrixXd P_mat;
+            Eigen::VectorXd l_mat;
             virtual_equ.toEigen(B_mat, P_mat, l_mat, gflt->npar_number());
-
             gflt->resetQ();
             gflt->add_virtual_obs(B_mat, P_mat, l_mat);
         }

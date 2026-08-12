@@ -155,7 +155,6 @@ Third-party components include:
 
 - [G-Nut Library](http://www.pecny.cz)
 - [pugixml](http://pugixml.org)
-- [Newmat](http://www.robertnz.net/nm_intro.htm)
 - [spdlog](https://github.com/gabime/spdlog)
 - [Eigen](https://eigen.tuxfamily.org)
 - [FAST](https://github.com/ChangChuntao/FAST)
@@ -242,9 +241,6 @@ GREAT-PVT_<ver>
   
 * GREAT-PVT使用pugixml库(http://pugixml.org)
 Copyright (C) 2006-2014 Arseny Kapoulkine.
-
-* GREAT-PVT使用Newmat库(http://www.robertnz.net/nm_intro.htm)
-Copyright (C) 2008: R B Davies.
 
 * GREAT-PVT使用spdlog库(https://github.com/gabime/spdlog)
   Copyright(c) 2015-present, Gabi Melman & spdlog contributors.

@@ -281,11 +281,10 @@ namespace gnut
         SRF.bottomRightCorner(nPar, nPar) = SS;
 
         Eigen::HouseholderQR<Eigen::MatrixXd> qr(SRF);
-        Eigen::MatrixXd UU = qr.matrixQR().template triangularView<Eigen::Upper>();
-
-        SS = UU.bottomRightCorner(nPar, nPar);
-        Eigen::MatrixXd SH_rt = UU.topLeftCorner(nObs, nObs);
-        Eigen::MatrixXd YY = UU.topRightCorner(nObs, nPar);
+        const Eigen::MatrixXd& qr_matrix = qr.matrixQR();
+        SS = qr_matrix.bottomRightCorner(nPar, nPar).template triangularView<Eigen::Upper>();
+        Eigen::MatrixXd SH_rt = qr_matrix.topLeftCorner(nObs, nObs).template triangularView<Eigen::Upper>();
+        Eigen::MatrixXd YY = qr_matrix.topRightCorner(nObs, nPar);
 
         Eigen::MatrixXd KT = SH_rt.template triangularView<Eigen::Upper>().solve(YY);
         dx.noalias() = KT.transpose() * l;
@@ -321,11 +320,10 @@ namespace gnut
         SRF.bottomRightCorner(nPar, nPar) = SS;
 
         Eigen::HouseholderQR<Eigen::MatrixXd> qr(SRF);
-        Eigen::MatrixXd UU = qr.matrixQR().template triangularView<Eigen::Upper>();
-
-        SS = UU.bottomRightCorner(nPar, nPar);
-        Eigen::MatrixXd SH_rt = UU.topLeftCorner(nObs, nObs);
-        Eigen::MatrixXd YY = UU.topRightCorner(nObs, nPar);
+        const Eigen::MatrixXd& qr_matrix = qr.matrixQR();
+        SS = qr_matrix.bottomRightCorner(nPar, nPar).template triangularView<Eigen::Upper>();
+        Eigen::MatrixXd SH_rt = qr_matrix.topLeftCorner(nObs, nObs).template triangularView<Eigen::Upper>();
+        Eigen::MatrixXd YY = qr_matrix.topRightCorner(nObs, nPar);
 
         Eigen::MatrixXd KT = SH_rt.template triangularView<Eigen::Upper>().solve(YY);
         dx.noalias() = KT.transpose() * l;
@@ -360,10 +358,9 @@ namespace gnut
         SRIF.col(nPar).tail(nObs) = l;
 
         Eigen::HouseholderQR<Eigen::MatrixXd> qr(SRIF);
-        Eigen::MatrixXd MU = qr.matrixQR().topRows(nPar + 1).template triangularView<Eigen::Upper>();
-
-        R = MU.topLeftCorner(nPar, nPar);
-        z = MU.col(nPar).head(nPar);
+        const Eigen::MatrixXd& qr_matrix = qr.matrixQR();
+        R = qr_matrix.topLeftCorner(nPar, nPar).template triangularView<Eigen::Upper>();
+        z = qr_matrix.col(nPar).head(nPar);
 
         INF = R * R.transpose();
 
