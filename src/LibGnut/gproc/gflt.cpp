@@ -20,131 +20,6 @@ using namespace std::chrono;
 
 namespace gnut
 {
-    namespace
-    {
-        Eigen::MatrixXd lower_cholesky(const Eigen::MatrixXd& matrix)
-        {
-            Eigen::MatrixXd lower = Eigen::MatrixXd::Zero(matrix.rows(), matrix.cols());
-            for (int row = 0; row < matrix.rows(); ++row)
-            {
-                for (int col = 0; col < row; ++col)
-                {
-                    double sum = 0.0;
-                    for (int k = 0; k < col; ++k)
-                    {
-                        sum += lower(col, k) * lower(row, k);
-                    }
-                    lower(row, col) = (matrix(row, col) - sum) / lower(col, col);
-                }
-
-                double sum = 0.0;
-                for (int k = 0; k < row; ++k)
-                {
-                    sum += lower(row, k) * lower(row, k);
-                }
-                const double diagonal = matrix(row, row) - sum;
-                if (diagonal <= 0.0)
-                {
-                    return Eigen::MatrixXd();
-                }
-                lower(row, row) = std::sqrt(diagonal);
-            }
-            return lower;
-        }
-
-        Eigen::MatrixXd invert_upper(const Eigen::MatrixXd& upper)
-        {
-            const int size = upper.rows();
-            Eigen::MatrixXd inverse = Eigen::MatrixXd::Zero(size, size);
-            for (int col = 0; col < size; ++col)
-            {
-                for (int row = size - 1; row >= 0; --row)
-                {
-                    double sum = 0.0;
-                    for (int k = size - 1; k > row; --k)
-                    {
-                        sum += upper(row, k) * inverse(k, col);
-                    }
-                    inverse(row, col) = ((row == col ? 1.0 : 0.0) - sum) / upper(row, row);
-                }
-            }
-            return inverse;
-        }
-
-        Eigen::MatrixXd multiply(const Eigen::MatrixXd& left, const Eigen::MatrixXd& right)
-        {
-            Eigen::MatrixXd result = Eigen::MatrixXd::Zero(left.rows(), right.cols());
-            for (int row = 0; row < left.rows(); ++row)
-            {
-                for (int k = 0; k < left.cols(); ++k)
-                {
-                    const double value = left(row, k);
-                    for (int col = 0; col < right.cols(); ++col)
-                    {
-                        result(row, col) += value * right(k, col);
-                    }
-                }
-            }
-            return result;
-        }
-
-        Eigen::MatrixXd upper_gram(const Eigen::MatrixXd& upper)
-        {
-            Eigen::MatrixXd result = Eigen::MatrixXd::Zero(upper.cols(), upper.cols());
-            for (int row = 0; row < upper.cols(); ++row)
-            {
-                for (int col = 0; col <= row; ++col)
-                {
-                    double sum = 0.0;
-                    for (int k = 0; k <= col; ++k)
-                    {
-                        sum += upper(k, row) * upper(k, col);
-                    }
-                    result(row, col) = sum;
-                    result(col, row) = sum;
-                }
-            }
-            return result;
-        }
-
-        Eigen::MatrixXd positive_upper_factor(Eigen::MatrixXd matrix)
-        {
-            Eigen::MatrixXd upper = Eigen::MatrixXd::Zero(matrix.cols(), matrix.cols());
-            for (int col = 0; col < matrix.cols(); ++col)
-            {
-                for (int row = 0; row < matrix.rows(); ++row)
-                {
-                    const double value = matrix(row, col);
-                    for (int next_col = col; next_col < matrix.cols(); ++next_col)
-                    {
-                        upper(col, next_col) += value * matrix(row, next_col);
-                    }
-                }
-
-                const double diagonal = std::sqrt(upper(col, col));
-                upper(col, col) = diagonal;
-                if (diagonal == 0.0)
-                {
-                    upper.row(col).segment(col + 1, matrix.cols() - col - 1).setZero();
-                    matrix.col(col).setZero();
-                    continue;
-                }
-
-                upper.row(col).segment(col + 1, matrix.cols() - col - 1) /= diagonal;
-                for (int row = 0; row < matrix.rows(); ++row)
-                {
-                    matrix(row, col) /= diagonal;
-                    const double value = matrix(row, col);
-                    for (int next_col = col + 1; next_col < matrix.cols(); ++next_col)
-                    {
-                        matrix(row, next_col) -= upper(col, next_col) * value;
-                    }
-                }
-            }
-            return upper;
-        }
-    }
-
     t_gflt::t_gflt()
     {
     }
@@ -391,36 +266,31 @@ namespace gnut
         int nObs = A.rows();
         int nPar = A.cols();
 
-        Eigen::MatrixXd SS;
-
-        const Eigen::MatrixXd lower = lower_cholesky(Qx);
-        if (lower.size() == 0)
+        Eigen::LLT<Eigen::MatrixXd> state_llt(Qx);
+        if (state_llt.info() != Eigen::Success)
         {
             return;
         }
-        SS = lower.transpose();
+        Eigen::MatrixXd SS = state_llt.matrixU();
 
-        Eigen::MatrixXd SA = multiply(SS, A.transpose());
+        Eigen::MatrixXd SA = SS * A.transpose();
         Eigen::MatrixXd SRF = Eigen::MatrixXd::Zero(nObs + nPar, nObs + nPar);
-        for (int ii = 0; ii < nObs; ++ii)
-        {
-            SRF(ii, ii) = 1.0 / sqrt(Pl.diagonal()(ii));
-        }
+        SRF.diagonal().head(nObs) = Pl.diagonal().array().sqrt().inverse().matrix();
 
         SRF.bottomLeftCorner(nPar, nObs) = SA;
         SRF.bottomRightCorner(nPar, nPar) = SS;
 
-        Eigen::MatrixXd UU = positive_upper_factor(SRF);
+        Eigen::HouseholderQR<Eigen::MatrixXd> qr(SRF);
+        Eigen::MatrixXd UU = qr.matrixQR().template triangularView<Eigen::Upper>();
 
         SS = UU.bottomRightCorner(nPar, nPar);
         Eigen::MatrixXd SH_rt = UU.topLeftCorner(nObs, nObs);
         Eigen::MatrixXd YY = UU.topRightCorner(nObs, nPar);
 
-        Eigen::MatrixXd SHi = invert_upper(SH_rt);
-
-        Eigen::MatrixXd KT = multiply(SHi, YY);
-        dx = multiply(KT.transpose(), l);
-        Qx = upper_gram(SS);
+        Eigen::MatrixXd KT = SH_rt.template triangularView<Eigen::Upper>().solve(YY);
+        dx.noalias() = KT.transpose() * l;
+        Eigen::MatrixXd covariance = SS.transpose() * SS;
+        Qx = covariance.selfadjointView<Eigen::Lower>();
     }
 
     void t_SRF::update(const Eigen::MatrixXd& A, const Eigen::MatrixXd& Pl, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Qx)
@@ -428,55 +298,57 @@ namespace gnut
         int nObs = A.rows();
         int nPar = A.cols();
 
-        Eigen::MatrixXd SS;
-
-        const Eigen::MatrixXd lower = lower_cholesky(Qx);
-        if (lower.size() == 0)
+        Eigen::LLT<Eigen::MatrixXd> state_llt(Qx);
+        if (state_llt.info() != Eigen::Success)
         {
             return;
         }
-        SS = lower.transpose();
+        Eigen::MatrixXd SS = state_llt.matrixU();
 
-        Eigen::MatrixXd SA = multiply(SS, A.transpose());
+        Eigen::MatrixXd SA = SS * A.transpose();
 
         Eigen::MatrixXd SRF = Eigen::MatrixXd::Zero(nObs + nPar, nObs + nPar);
 
-        Eigen::MatrixXd Pli = Pl.inverse();
-        const Eigen::MatrixXd observation_lower = lower_cholesky(Pli);
-        if (observation_lower.size() == 0)
+        Eigen::LLT<Eigen::MatrixXd> observation_llt(Pl);
+        if (observation_llt.info() != Eigen::Success)
         {
             return;
         }
-        Eigen::MatrixXd SPl = observation_lower.transpose();
+        Eigen::MatrixXd SPl = observation_llt.matrixL().solve(Eigen::MatrixXd::Identity(nObs, nObs));
 
         SRF.topLeftCorner(nObs, nObs) = SPl;
         SRF.bottomLeftCorner(nPar, nObs) = SA;
         SRF.bottomRightCorner(nPar, nPar) = SS;
 
-        Eigen::MatrixXd UU = positive_upper_factor(SRF);
+        Eigen::HouseholderQR<Eigen::MatrixXd> qr(SRF);
+        Eigen::MatrixXd UU = qr.matrixQR().template triangularView<Eigen::Upper>();
 
         SS = UU.bottomRightCorner(nPar, nPar);
         Eigen::MatrixXd SH_rt = UU.topLeftCorner(nObs, nObs);
         Eigen::MatrixXd YY = UU.topRightCorner(nObs, nPar);
 
-        Eigen::MatrixXd SHi = invert_upper(SH_rt);
-
-        Eigen::MatrixXd KT = multiply(SHi, YY);
-        dx = multiply(KT.transpose(), l);
-        Qx = upper_gram(SS);
+        Eigen::MatrixXd KT = SH_rt.template triangularView<Eigen::Upper>().solve(YY);
+        dx.noalias() = KT.transpose() * l;
+        Eigen::MatrixXd covariance = SS.transpose() * SS;
+        Qx = covariance.selfadjointView<Eigen::Lower>();
     }
 
     void t_SRIF::update(const Eigen::MatrixXd& A, const Eigen::DiagonalMatrix<double, Eigen::Dynamic>& Pl, const Eigen::VectorXd& l, Eigen::VectorXd& dx, Eigen::MatrixXd& Qx)
     {
         int nObs = A.rows();
         int nPar = A.cols();
-        Eigen::MatrixXd INF = Qx.inverse();
-        const Eigen::MatrixXd information_lower = lower_cholesky(INF);
-        if (information_lower.size() == 0)
+        Eigen::LLT<Eigen::MatrixXd> covariance_llt(Qx);
+        if (covariance_llt.info() != Eigen::Success)
         {
             return;
         }
-        Eigen::MatrixXd R = information_lower.transpose();
+        Eigen::MatrixXd INF = covariance_llt.solve(Eigen::MatrixXd::Identity(nPar, nPar));
+        Eigen::LLT<Eigen::MatrixXd> information_llt(INF);
+        if (information_llt.info() != Eigen::Success)
+        {
+            return;
+        }
+        Eigen::MatrixXd R = information_llt.matrixU();
 
         Eigen::VectorXd z = Eigen::VectorXd::Zero(nPar);
 
@@ -487,15 +359,21 @@ namespace gnut
         SRIF.col(nPar).head(nPar) = z;
         SRIF.col(nPar).tail(nObs) = l;
 
-        Eigen::MatrixXd MU = positive_upper_factor(SRIF);
+        Eigen::HouseholderQR<Eigen::MatrixXd> qr(SRIF);
+        Eigen::MatrixXd MU = qr.matrixQR().topRows(nPar + 1).template triangularView<Eigen::Upper>();
 
         R = MU.topLeftCorner(nPar, nPar);
         z = MU.col(nPar).head(nPar);
 
         INF = R * R.transpose();
 
-        dx = R.inverse() * z;
-        Qx = INF.inverse();
+        dx = R.template triangularView<Eigen::Upper>().solve(z);
+        Eigen::LLT<Eigen::MatrixXd> final_information_llt(INF);
+        if (final_information_llt.info() != Eigen::Success)
+        {
+            return;
+        }
+        Qx = final_information_llt.solve(Eigen::MatrixXd::Identity(nPar, nPar));
     }
 
 } // namespace gnut
